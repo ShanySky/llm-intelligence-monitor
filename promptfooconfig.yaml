@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: GPT capability regression smoke suite
+
+prompts:
+  - |-
+    You are being evaluated for reasoning consistency and instruction following.
+    Solve the task carefully.
+    Return exactly the format requested by the task and nothing else.
+
+    {{question}}
+
+providers:
+  - id: openai:responses:gpt-6-sol
+    label: gpt-6-sol-high
+    config:
+      reasoning:
+        effort: high
+      max_output_tokens: 4096
+      store: false
+
+  - id: openai:responses:gpt-6-luna
+    label: gpt-6-luna-high
+    config:
+      reasoning:
+        effort: high
+      max_output_tokens: 4096
+      store: false
+
+tests:
+  - file://tests/core.yaml
+
+sharing: false
+
+evaluateOptions:
+  cache: false
+  maxConcurrency: 2
+  timeoutMs: 300000
