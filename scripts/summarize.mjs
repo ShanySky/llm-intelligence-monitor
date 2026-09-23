@@ -23,7 +23,12 @@ const errorText = (row) => {
   if (typeof value === 'string') return value;
   try { return JSON.stringify(value); } catch { return String(value); }
 };
-const isTimeoutRow = (row) => /timeout|timed out|600000ms|deadline exceeded/i.test(errorText(row));
+const failureReason = (row) => Number(row?.failureReason ?? 0);
+const isTimeoutRow = (row) =>
+  failureReason(row) === 2 &&
+  /timeout|timed out|600000ms|deadline exceeded/i.test(errorText(row));
+const isExecutionError = (row) =>
+  !row?.success && failureReason(row) === 2 && !isTimeoutRow(row);
 
 const freshStats = () => ({
   total: 0,
@@ -48,18 +53,23 @@ const freshStats = () => ({
 const addRow = (s, row) => {
   s.total += 1;
 
-  const hasError = Boolean(errorText(row));
-  const timeout = hasError && isTimeoutRow(row);
+  const reason = failureReason(row);
+  const timeout = isTimeoutRow(row);
+  const executionError = isExecutionError(row);
 
   if (row?.success) s.passed += 1;
+  else if (reason === 1) s.wrong += 1;
   else if (timeout) s.timeouts += 1;
-  else if (hasError) s.apiErrors += 1;
+  else if (executionError) s.apiErrors += 1;
+  // Fallback for providers/versions that do not populate failureReason.
+  else if (/^Expected output /i.test(errorText(row))) s.wrong += 1;
+  else if (errorText(row)) s.apiErrors += 1;
   else s.wrong += 1;
 
   s.scoreSum += num(row?.score);
 
   // Do not let timeout/API-error wall time pollute normal response-time baselines.
-  if (!hasError && Number.isFinite(row?.latencyMs)) {
+  if (!timeout && !executionError && Number.isFinite(row?.latencyMs)) {
     s.validLatencySum += row.latencyMs;
     s.validLatencyCount += 1;
   }
