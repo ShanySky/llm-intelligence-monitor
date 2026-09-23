@@ -5,17 +5,17 @@
     "repeat": 1,
     "anchorPool": [
       "R03",
-      "S05",
-      "H12",
-      "U06",
       "M03",
-      "H06",
-      "S06",
-      "U02",
-      "I04",
-      "H07",
       "C03",
-      "U03"
+      "H12",
+      "S05",
+      "U06",
+      "I04",
+      "U02",
+      "H06",
+      "H07",
+      "S06",
+      "S03"
     ],
     "rotatingDifficultyWeights": {
       "standard": 1,
