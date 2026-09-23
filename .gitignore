@@ -2,3 +2,4 @@
 results/
 node_modules/
 .env
+tests/selected.yaml
