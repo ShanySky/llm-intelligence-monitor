@@ -1,0 +1,178 @@
+{
+  "R01": {
+    "ability": "reasoning",
+    "difficulty": "standard"
+  },
+  "R02": {
+    "ability": "reasoning",
+    "difficulty": "standard"
+  },
+  "R03": {
+    "ability": "reasoning",
+    "difficulty": "standard"
+  },
+  "R04": {
+    "ability": "reasoning",
+    "difficulty": "standard"
+  },
+  "M01": {
+    "ability": "math",
+    "difficulty": "standard"
+  },
+  "M02": {
+    "ability": "math",
+    "difficulty": "standard"
+  },
+  "M03": {
+    "ability": "math",
+    "difficulty": "standard"
+  },
+  "M04": {
+    "ability": "math",
+    "difficulty": "standard"
+  },
+  "C01": {
+    "ability": "coding",
+    "difficulty": "standard"
+  },
+  "C02": {
+    "ability": "coding",
+    "difficulty": "standard"
+  },
+  "C03": {
+    "ability": "coding",
+    "difficulty": "standard"
+  },
+  "C04": {
+    "ability": "coding",
+    "difficulty": "standard"
+  },
+  "I01": {
+    "ability": "instruction",
+    "difficulty": "standard"
+  },
+  "I02": {
+    "ability": "instruction",
+    "difficulty": "standard"
+  },
+  "I03": {
+    "ability": "instruction",
+    "difficulty": "standard"
+  },
+  "I04": {
+    "ability": "instruction",
+    "difficulty": "standard"
+  },
+  "S01": {
+    "ability": "math",
+    "difficulty": "hard"
+  },
+  "S02": {
+    "ability": "math",
+    "difficulty": "hard"
+  },
+  "S03": {
+    "ability": "math",
+    "difficulty": "hard"
+  },
+  "S04": {
+    "ability": "math",
+    "difficulty": "hard"
+  },
+  "S05": {
+    "ability": "reasoning",
+    "difficulty": "hard"
+  },
+  "S06": {
+    "ability": "coding",
+    "difficulty": "hard"
+  },
+  "S07": {
+    "ability": "coding",
+    "difficulty": "hard"
+  },
+  "S08": {
+    "ability": "reasoning",
+    "difficulty": "hard"
+  },
+  "H01": {
+    "ability": "math",
+    "difficulty": "extreme"
+  },
+  "H02": {
+    "ability": "math",
+    "difficulty": "extreme"
+  },
+  "H03": {
+    "ability": "math",
+    "difficulty": "extreme"
+  },
+  "H04": {
+    "ability": "math",
+    "difficulty": "extreme"
+  },
+  "H05": {
+    "ability": "reasoning",
+    "difficulty": "extreme"
+  },
+  "H06": {
+    "ability": "reasoning",
+    "difficulty": "extreme"
+  },
+  "H07": {
+    "ability": "instruction",
+    "difficulty": "extreme"
+  },
+  "H08": {
+    "ability": "math",
+    "difficulty": "extreme"
+  },
+  "H09": {
+    "ability": "math",
+    "difficulty": "extreme"
+  },
+  "H10": {
+    "ability": "coding",
+    "difficulty": "extreme"
+  },
+  "H11": {
+    "ability": "coding",
+    "difficulty": "extreme"
+  },
+  "H12": {
+    "ability": "instruction",
+    "difficulty": "extreme"
+  },
+  "U01": {
+    "ability": "math",
+    "difficulty": "ultra"
+  },
+  "U02": {
+    "ability": "math",
+    "difficulty": "ultra"
+  },
+  "U03": {
+    "ability": "math",
+    "difficulty": "ultra"
+  },
+  "U04": {
+    "ability": "reasoning",
+    "difficulty": "ultra"
+  },
+  "U05": {
+    "ability": "reasoning",
+    "difficulty": "ultra"
+  },
+  "U06": {
+    "ability": "coding",
+    "difficulty": "ultra"
+  },
+  "U07": {
+    "ability": "coding",
+    "difficulty": "ultra"
+  },
+  "U08": {
+    "ability": "reasoning",
+    "difficulty": "ultra"
+  }
+}
