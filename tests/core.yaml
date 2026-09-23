@@ -1,171 +1,570 @@
-- description: reasoning-knights-liars
+# Each canonical problem appears twice: one Chinese version and one English version.
+# The data, constraints, and expected answer are intentionally identical within each pair.
+
+# -------------------- Reasoning --------------------
+
+- description: R01-ZH-route-optimization
   vars:
+    pair_id: R01
+    language: zh
     category: reasoning
     question: >-
-      A, B, and C are each either a knight (always tells the truth) or a liar
-      (always lies). A says "B is a liar." B says "C is a liar." C says
-      "A and B are different types." Output exactly three letters separated by
-      commas, in A,B,C order, using K for knight and L for liar.
+      有 A、B、C、D、E、F 六个城市。必须从 A 出发、到 F 结束，并且 B、C、D、E
+      每个城市恰好访问一次。无向边费用如下：
+      AB=5，AC=2，AD=10，AE=9，AF=9；
+      BC=6，BD=5，BE=19，BF=4；
+      CD=15，CE=3，CF=2；
+      DE=4，DF=8；EF=9。
+      求总费用最小的完整路线。严格输出“路线|总费用”，城市之间用短横线连接，不要输出其他内容。
   assert:
     - type: equals
-      value: "K,L,K"
+      value: "A-C-E-D-B-F|18"
 
-- description: reasoning-linear-seating
+- description: R01-EN-route-optimization
   vars:
+    pair_id: R01
+    language: en
     category: reasoning
     question: >-
-      Alice, Bob, Carol, and Dave sit in four seats numbered 1 through 4 from
-      left to right. Alice is not at an end. Bob sits immediately to the left
-      of Carol. Dave sits somewhere to the left of Alice. Output exactly their
-      initials from seat 1 to seat 4, separated by commas.
+      There are six cities A, B, C, D, E, and F. Start at A, end at F, and
+      visit each of B, C, D, and E exactly once. Undirected edge costs are:
+      AB=5, AC=2, AD=10, AE=9, AF=9;
+      BC=6, BD=5, BE=19, BF=4;
+      CD=15, CE=3, CF=2;
+      DE=4, DF=8; EF=9.
+      Find the minimum-cost complete route. Output exactly "route|total-cost",
+      joining city names with hyphens, and nothing else.
   assert:
     - type: equals
-      value: "D,A,B,C"
+      value: "A-C-E-D-B-F|18"
 
-- description: reasoning-syllogism
+- description: R02-ZH-seating
   vars:
+    pair_id: R02
+    language: zh
     category: reasoning
     question: >-
-      Premises: Some A are B. All B are C. No C are D.
-      Which conclusion is necessarily true?
-      A) No A are D
-      B) Some A are C
-      C) All A are C
-      D) Some D are not A
-      Output exactly one letter.
+      A、B、C、D、E、F、G 七个人从左到右坐在 1 到 7 号座位。
+      已知：D 坐在某一端；B 紧挨着坐在 E 左边；A、F、C 连续相邻且顺序为 A-F-C；
+      D 在 G 左边，G 在 A 左边，并且 D 与 G 相邻；C 在 B 左边。
+      输出从 1 到 7 号座位的字母顺序，字母之间只用英文逗号分隔。
   assert:
     - type: equals
-      value: "B"
+      value: "D,G,A,F,C,B,E"
 
-- description: math-crt
+- description: R02-EN-seating
   vars:
-    category: math
+    pair_id: R02
+    language: en
+    category: reasoning
     question: >-
-      Find the smallest positive integer n such that n leaves remainder 2 when
-      divided by 5, remainder 3 when divided by 7, and remainder 4 when divided
-      by 9. Output only the integer.
+      Seven people A, B, C, D, E, F, and G occupy seats 1 through 7 from left
+      to right. D is at one end. B sits immediately to the left of E. A, F,
+      and C are consecutive in the order A-F-C. D is left of G, G is left of
+      A, and D is adjacent to G. C is left of B.
+      Output the seat order from 1 to 7 using letters separated only by commas.
   assert:
     - type: equals
-      value: "157"
+      value: "D,G,A,F,C,B,E"
 
-- description: math-hypergeometric
+- description: R03-ZH-state-machine
   vars:
-    category: math
+    pair_id: R03
+    language: zh
+    category: reasoning
     question: >-
-      A bag contains 5 red balls and 3 blue balls. Three balls are drawn
-      uniformly at random without replacement. What is the probability of
-      drawing exactly two red balls? Output the reduced fraction only.
+      初始 (a,b,c)=(3,5,7)。对 i=1,2,...,12 依次执行 12 轮更新。
+      每一轮右侧都必须使用“本轮开始前”的旧 a、b、c：
+      new_a=(b+c+i) mod 17；
+      new_b=(a+2c) mod 19；
+      new_c=(2a+b+i) mod 23。
+      然后同时令 (a,b,c)=(new_a,new_b,new_c)。
+      12 轮结束后，严格输出 a,b,c，之间只用英文逗号分隔。
   assert:
     - type: equals
-      value: "15/28"
+      value: "0,3,7"
 
-- description: math-binary-strings
+- description: R03-EN-state-machine
   vars:
-    category: math
+    pair_id: R03
+    language: en
+    category: reasoning
     question: >-
-      How many binary strings of length 8 contain exactly three 1s and have no
-      two 1s adjacent? Output only the integer.
+      Start with (a,b,c)=(3,5,7). For i=1,2,...,12 perform 12 updates.
+      In every round, all right-hand sides use the old a, b, and c from the
+      start of that round:
+      new_a=(b+c+i) mod 17;
+      new_b=(a+2c) mod 19;
+      new_c=(2a+b+i) mod 23.
+      Then simultaneously set (a,b,c)=(new_a,new_b,new_c).
+      After round 12, output exactly a,b,c separated only by commas.
   assert:
     - type: equals
-      value: "20"
+      value: "0,3,7"
 
-- description: math-symmetric-expression
+- description: R04-ZH-two-worker-scheduling
   vars:
+    pair_id: R04
+    language: zh
+    category: reasoning
+    question: >-
+      有 6 个不可抢占任务，持续时间分别为 A=4、B=3、C=5、D=2、E=4、F=3。
+      有两名能力完全相同的工人；任意时刻每名工人最多执行一个任务，一个任务也只能由一名工人执行。
+      前置约束为：A 和 B 都完成后 D 才能开始；A 和 C 都完成后 E 才能开始；
+      D 和 E 都完成后 F 才能开始。所有任务从时间 0 或之后开始，持续时间均为整数。
+      在最优安排下，全部任务完成的最短总工期是多少？只输出整数。
+  assert:
+    - type: equals
+      value: "12"
+
+- description: R04-EN-two-worker-scheduling
+  vars:
+    pair_id: R04
+    language: en
+    category: reasoning
+    question: >-
+      There are six non-preemptive tasks with durations A=4, B=3, C=5, D=2,
+      E=4, and F=3. Two identical workers are available. Each worker can run at
+      most one task at a time, and each task uses one worker.
+      D may start only after both A and B finish. E may start only after both A
+      and C finish. F may start only after both D and E finish. Tasks start at
+      time 0 or later and all durations are integers.
+      Under an optimal schedule, what is the minimum makespan? Output only the integer.
+  assert:
+    - type: equals
+      value: "12"
+
+# -------------------- Mathematics --------------------
+
+- description: M01-ZH-multiset-arrangements
+  vars:
+    pair_id: M01
+    language: zh
     category: math
     question: >-
-      Real numbers x and y satisfy x+y=17 and xy=60. Compute x^2+y^2.
+      用多重集合 A,A,B,B,C,C,D,D 的全部 8 个字母组成长度为 8 的字符串。
+      要求任意两个相同字母都不相邻，首字符不能是 D，末字符不能是 A。
+      一共有多少个不同字符串？只输出整数。
+  assert:
+    - type: equals
+      value: "494"
+
+- description: M01-EN-multiset-arrangements
+  vars:
+    pair_id: M01
+    language: en
+    category: math
+    question: >-
+      Form length-8 strings using all letters of the multiset A,A,B,B,C,C,D,D.
+      No two equal letters may be adjacent, the first character may not be D,
+      and the last character may not be A. How many distinct strings satisfy
+      all conditions? Output only the integer.
+  assert:
+    - type: equals
+      value: "494"
+
+- description: M02-ZH-six-digit-count
+  vars:
+    pair_id: M02
+    language: zh
+    category: math
+    question: >-
+      从数字 0,1,2,3,4,5,6,7 中不重复地选 6 个数字组成六位正整数，首位不能为 0。
+      要求该整数同时能被 9 和 4 整除。一共有多少个？只输出整数。
+  assert:
+    - type: equals
+      value: "492"
+
+- description: M02-EN-six-digit-count
+  vars:
+    pair_id: M02
+    language: en
+    category: math
+    question: >-
+      Form six-digit positive integers by choosing 6 distinct digits from
+      0,1,2,3,4,5,6,7, with no repetition and no leading zero. The integer
+      must be divisible by both 9 and 4. How many such integers are there?
       Output only the integer.
   assert:
     - type: equals
-      value: "169"
+      value: "492"
 
-- description: math-percent-composition
+- description: M03-ZH-modular-power
   vars:
+    pair_id: M03
+    language: zh
     category: math
     question: >-
-      A price is increased by 20% and then the resulting price is decreased by
-      20%. If the original price is treated as 100, what is the final price?
-      Output only the number, with no percent sign.
+      计算 7^2222 + 11^1111 的最后四位。若结果不足四位则需要前导零。
+      只输出四位数字。
   assert:
     - type: equals
-      value: "96"
+      value: "4660"
 
-- description: coding-python-aliasing
+- description: M03-EN-modular-power
   vars:
+    pair_id: M03
+    language: en
+    category: math
+    question: >-
+      Compute the last four digits of 7^2222 + 11^1111. If the result has
+      fewer than four digits, include leading zeros. Output exactly four digits.
+  assert:
+    - type: equals
+      value: "4660"
+
+- description: M04-ZH-dyck-path
+  vars:
+    pair_id: M04
+    language: zh
+    category: math
+    question: >-
+      从 (0,0) 走到 (8,8)，每一步只能向右 (1,0) 或向上 (0,1)，并且整条路径始终满足 y<=x。
+      除起点和终点外，路径还要求不能经过 (4,4)。
+      满足条件的路径有多少条？只输出整数。
+  assert:
+    - type: equals
+      value: "1234"
+
+- description: M04-EN-dyck-path
+  vars:
+    pair_id: M04
+    language: en
+    category: math
+    question: >-
+      Walk from (0,0) to (8,8), using only right steps (1,0) and up steps
+      (0,1), while always satisfying y<=x. Apart from the start and end,
+      the path must not pass through (4,4). How many valid paths are there?
+      Output only the integer.
+  assert:
+    - type: equals
+      value: "1234"
+
+# -------------------- Coding --------------------
+
+- description: C01-ZH-python-aliasing
+  vars:
+    pair_id: C01
+    language: zh
     category: coding
     question: >-
-      In Python, what does this print?
-      x = [[0]] * 3
-      x[0].append(1)
-      print(sum(len(v) for v in x))
-      Output only the printed integer.
+      在 Python 3 中执行：
+      a=[[0],[1]]
+      b=a[:]
+      a[0]+=[2]
+      b[1]=b[1]+[3]
+      a.append(b[0])
+      print(sum(map(sum,a)), sum(map(sum,b)), a[0] is a[2])
+      严格输出 print 打印的内容，不要解释。
   assert:
     - type: equals
-      value: "6"
+      value: "5 6 True"
 
-- description: coding-java-overload
+- description: C01-EN-python-aliasing
   vars:
+    pair_id: C01
+    language: en
     category: coding
     question: >-
-      In Java, assume two overloads exist:
-      static void f(long x) { System.out.print("L"); }
-      static void f(Integer x) { System.out.print("I"); }
-      What is printed by f(1)? Output exactly the single printed letter.
+      In Python 3, execute:
+      a=[[0],[1]]
+      b=a[:]
+      a[0]+=[2]
+      b[1]=b[1]+[3]
+      a.append(b[0])
+      print(sum(map(sum,a)), sum(map(sum,b)), a[0] is a[2])
+      Output exactly what print emits, with no explanation.
   assert:
     - type: equals
-      value: "L"
+      value: "5 6 True"
 
-- description: coding-java-evaluation-order
+- description: C02-ZH-java-overload-dispatch
   vars:
+    pair_id: C02
+    language: zh
     category: coding
     question: >-
-      In Java, what is printed by:
-      int x = 7;
-      System.out.print(x++ + ++x);
-      Output only the printed integer.
+      Java 中有：
+      class A {
+        String f(Number x){ return "N"; }
+        String f(Integer x){ return "I"; }
+      }
+      class B extends A {
+        @Override String f(Number x){ return "B"; }
+      }
+      A x=new B();
+      Number n=1;
+      System.out.print(x.f(1)+x.f(n));
+      假设代码可正常编译运行。只输出最终打印的字符串。
   assert:
     - type: equals
-      value: "16"
+      value: "IB"
 
-- description: coding-sql-null-count
+- description: C02-EN-java-overload-dispatch
   vars:
+    pair_id: C02
+    language: en
     category: coding
     question: >-
-      A SQL table has one column x and four rows: NULL, 1, 1, 2.
-      What are the results of COUNT(x), COUNT(*), COUNT(DISTINCT x), in that
-      order? Output exactly three integers separated by commas.
+      In Java:
+      class A {
+        String f(Number x){ return "N"; }
+        String f(Integer x){ return "I"; }
+      }
+      class B extends A {
+        @Override String f(Number x){ return "B"; }
+      }
+      A x=new B();
+      Number n=1;
+      System.out.print(x.f(1)+x.f(n));
+      Assume the code compiles and runs normally. Output only the final printed string.
   assert:
     - type: equals
-      value: "3,4,2"
+      value: "IB"
 
-- description: instruction-transform-numbers
+- description: C03-ZH-js-microtasks
   vars:
+    pair_id: C03
+    language: zh
+    category: coding
+    question: >-
+      在标准现代 JavaScript 环境中执行：
+      console.log("A");
+      Promise.resolve().then(()=>{ console.log("B"); queueMicrotask(()=>console.log("C")); });
+      queueMicrotask(()=>{ console.log("D"); Promise.resolve().then(()=>console.log("E")); });
+      console.log("F");
+      将实际打印顺序严格输出为逗号分隔的大写字母，不要空格。
+  assert:
+    - type: equals
+      value: "A,F,B,D,C,E"
+
+- description: C03-EN-js-microtasks
+  vars:
+    pair_id: C03
+    language: en
+    category: coding
+    question: >-
+      In a standard modern JavaScript environment, execute:
+      console.log("A");
+      Promise.resolve().then(()=>{ console.log("B"); queueMicrotask(()=>console.log("C")); });
+      queueMicrotask(()=>{ console.log("D"); Promise.resolve().then(()=>console.log("E")); });
+      console.log("F");
+      Output the actual print order as comma-separated uppercase letters with no spaces.
+  assert:
+    - type: equals
+      value: "A,F,B,D,C,E"
+
+- description: C04-ZH-postgresql-window
+  vars:
+    pair_id: C04
+    language: zh
+    category: coding
+    question: >-
+      PostgreSQL 表 t(grp,val) 有这些行：
+      ('A',4),('A',4),('A',9),('A',NULL),
+      ('B',3),('B',8),('B',8),
+      ('C',NULL),('C',5)。
+      执行：
+      WITH x AS (
+        SELECT grp,val,
+               dense_rank() OVER (PARTITION BY grp ORDER BY val DESC NULLS LAST) AS r
+        FROM t
+      )
+      SELECT sum(val*r) FROM x WHERE val IS NOT NULL AND r<=2;
+      只输出最终整数结果。
+  assert:
+    - type: equals
+      value: "52"
+
+- description: C04-EN-postgresql-window
+  vars:
+    pair_id: C04
+    language: en
+    category: coding
+    question: >-
+      A PostgreSQL table t(grp,val) contains:
+      ('A',4),('A',4),('A',9),('A',NULL),
+      ('B',3),('B',8),('B',8),
+      ('C',NULL),('C',5).
+      Execute:
+      WITH x AS (
+        SELECT grp,val,
+               dense_rank() OVER (PARTITION BY grp ORDER BY val DESC NULLS LAST) AS r
+        FROM t
+      )
+      SELECT sum(val*r) FROM x WHERE val IS NOT NULL AND r<=2;
+      Output only the final integer result.
+  assert:
+    - type: equals
+      value: "52"
+
+# -------------------- Instruction following --------------------
+
+- description: I01-ZH-minimum-cover
+  vars:
+    pair_id: I01
+    language: zh
     category: instruction
     question: >-
-      From the list 9,2,7,4,1,8: keep only even numbers, square each retained
-      number, sort the squared values in descending order, and output them
-      joined by commas with no spaces.
+      需求全集为 A,B,C,D,E,F,G,H。候选模块覆盖范围：
+      P1={A,B,C}；P2={C,D,E}；P3={E,F}；P4={A,F,G}；
+      P5={B,D,G,H}；P6={C,H}。
+      目标是选择“模块数量最少”的集合覆盖全部需求；此外 P4 与 P5 不能同时选择。
+      如果仍有多个最小解，再按模块编号组成的升序列表做字典序最小选择。
+      严格输出最终模块编号，升序排列，用英文逗号分隔。
   assert:
     - type: equals
-      value: "64,16,4"
+      value: "P1,P3,P5"
 
-- description: instruction-parse-digit-groups
+- description: I01-EN-minimum-cover
   vars:
+    pair_id: I01
+    language: en
     category: instruction
     question: >-
-      In the string a1b22c333d4444, treat each maximal consecutive digit group
-      as one integer and add those integers. Output only the sum.
+      The full requirement set is A,B,C,D,E,F,G,H. Candidate module coverage:
+      P1={A,B,C}; P2={C,D,E}; P3={E,F}; P4={A,F,G};
+      P5={B,D,G,H}; P6={C,H}.
+      Choose a set that covers all requirements using the fewest modules.
+      Additionally, P4 and P5 may not both be selected. If multiple minimum
+      solutions remain, choose the lexicographically smallest ascending list
+      of module IDs. Output only the final module IDs in ascending order,
+      separated by commas.
   assert:
     - type: equals
-      value: "4800"
+      value: "P1,P3,P5"
 
-- description: instruction-count-json
+- description: I02-ZH-record-filter
   vars:
+    pair_id: I02
+    language: zh
     category: instruction
     question: >-
-      Count the colors in this sequence: red red blue green blue red.
-      Output exactly one compact JSON object with keys in alphabetical order
-      and no spaces.
+      有记录：
+      A:(score=82,risk=4,tags=X)
+      B:(90,8,O)
+      C:(88,6,Y)
+      D:(79,2,X+Y)
+      E:(91,7,X)
+      F:(86,5,无)
+      G:(84,3,X)
+      H:(93,9,O+Y)。
+      规则按顺序执行：① 只有 risk<7 的记录有资格，但带 O 标签可豁免此风险限制；
+      ② effective=score，带 X 再 +4，带 Y 再 -3，O 本身不改变分数；
+      ③ 按 effective 降序，再按字母升序排序，取前 4 条；
+      ④ checksum 为这 4 条 effective 之和 mod 17。
+      严格输出“4个编号|checksum”，编号按最终排序用英文逗号连接。
   assert:
     - type: equals
-      value: '{"blue":2,"green":1,"red":3}'
+      value: "B,H,G,A|14"
+
+- description: I02-EN-record-filter
+  vars:
+    pair_id: I02
+    language: en
+    category: instruction
+    question: >-
+      Records are:
+      A:(score=82,risk=4,tags=X)
+      B:(90,8,O)
+      C:(88,6,Y)
+      D:(79,2,X+Y)
+      E:(91,7,X)
+      F:(86,5,none)
+      G:(84,3,X)
+      H:(93,9,O+Y).
+      Apply rules in order: (1) only records with risk<7 qualify, except tag O
+      overrides this risk limit; (2) effective=score, then +4 for X and -3 for Y,
+      while O itself does not alter the score; (3) sort by effective descending,
+      then letter ascending, and take the top 4; (4) checksum is the sum of
+      those 4 effective scores mod 17.
+      Output exactly "four-IDs|checksum", joining IDs in final order by commas.
+  assert:
+    - type: equals
+      value: "B,H,G,A|14"
+
+- description: I03-ZH-number-pipeline
+  vars:
+    pair_id: I03
+    language: zh
+    category: instruction
+    question: >-
+      输入序列：17,4,9,12,3,25,8,14,6,21,10,5,18,7。
+      严格按顺序执行：
+      ① 删除原始值中所有 5 的倍数；
+      ② 对剩余原始值，偶数变为 n/2，奇数变为 3n+1；
+      ③ 只保留严格大于 5 且严格小于 60 的结果；
+      ④ 去重；
+      ⑤ 按“个位数字升序”排序；个位数字相同时按“数值降序”排序。
+      严格输出最终序列，用英文逗号分隔，不要空格。
+  assert:
+    - type: equals
+      value: "10,52,22,6,7,28,9"
+
+- description: I03-EN-number-pipeline
+  vars:
+    pair_id: I03
+    language: en
+    category: instruction
+    question: >-
+      Input sequence: 17,4,9,12,3,25,8,14,6,21,10,5,18,7.
+      Apply these steps strictly in order:
+      (1) remove all original values divisible by 5;
+      (2) for each remaining original value, map even n to n/2 and odd n to 3n+1;
+      (3) keep only results strictly greater than 5 and strictly less than 60;
+      (4) deduplicate;
+      (5) sort by last digit ascending, breaking equal-last-digit ties by
+      numeric value descending.
+      Output the final sequence using commas and no spaces.
+  assert:
+    - type: equals
+      value: "10,52,22,6,7,28,9"
+
+- description: I04-ZH-dependent-selection
+  vars:
+    pair_id: I04
+    language: zh
+    category: instruction
+    question: >-
+      有 8 个候选任务：
+      T1:(value=9,cost=4,dep=无)
+      T2:(8,3,dep=T1)
+      T3:(7,2,dep=无)
+      T4:(11,5,dep=T2+T3)
+      T5:(6,2,dep=T3)
+      T6:(10,4,dep=T1)
+      T7:(5,1,dep=T5)
+      T8:(13,6,dep=T4)。
+      选择任务时，若选择某任务则必须同时选择其全部直接和间接依赖。
+      总 cost 不得超过 12。目标先最大化总 value；若并列，再最小化总 cost；
+      若仍并列，选择按编号升序后的任务 ID 列表字典序最小者。
+      value 和 cost 只对每个被选择任务各计算一次。
+      严格输出“任务ID列表|总value|总cost”，ID 升序且用英文逗号连接。
+  assert:
+    - type: equals
+      value: "T1,T2,T3,T4|35|14"
+
+- description: I04-EN-dependent-selection
+  vars:
+    pair_id: I04
+    language: en
+    category: instruction
+    question: >-
+      There are 8 candidate tasks:
+      T1:(value=9,cost=4,dep=none)
+      T2:(8,3,dep=T1)
+      T3:(7,2,dep=none)
+      T4:(11,5,dep=T2+T3)
+      T5:(6,2,dep=T3)
+      T6:(10,4,dep=T1)
+      T7:(5,1,dep=T5)
+      T8:(13,6,dep=T4).
+      Selecting a task requires selecting all of its direct and indirect dependencies.
+      Total cost may not exceed 12. First maximize total value; on a tie minimize
+      total cost; on a further tie choose the lexicographically smallest ascending
+      task-ID list. Count each selected task's value and cost exactly once.
+      Output exactly "task-ID-list|total-value|total-cost", with IDs ascending
+      and comma-separated.
+  assert:
+    - type: equals
+      value: "T1,T2,T3,T4|35|14"
