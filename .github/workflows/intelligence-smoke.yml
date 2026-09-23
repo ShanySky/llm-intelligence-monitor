@@ -109,6 +109,7 @@ jobs:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+      PROMPTFOO_RETRY_5XX: "true"
 
     steps:
       - name: Check out repository
@@ -151,7 +152,7 @@ jobs:
             --no-cache \
             --no-share \
             --repeat "$EVAL_REPEAT" \
-            --max-concurrency 3 \
+            --max-concurrency 2 \
             -o "results/${{ matrix.key }}.json" \
             -o "results/${{ matrix.key }}.html"
           status=$?
