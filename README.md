@@ -18,6 +18,9 @@ Create these repository secrets before the first run:
 
 - `OPENAI_API_KEY` — API key for the gateway you actually use.
 - `OPENAI_BASE_URL` — OpenAI-compatible API base URL, including the API prefix (normally ending in `/v1`).
+- `MAIL_USERNAME` — Gmail sender address.
+- `MAIL_PASSWORD` — Gmail App Password (not the normal account password).
+- `MAIL_TO` — Recipient address for the daily report.
 
 The workflow sends requests through this configured gateway, so it measures the path you actually use rather than bypassing it.
 
@@ -36,3 +39,17 @@ Each run uploads:
 ## Interpretation
 
 A single lower score is not enough to call a model degraded. Long-term monitoring should compare repeated runs against a fixed baseline and look for sustained drops across multiple categories. The initial smoke suite is only the foundation for that baseline.
+
+
+## Daily monitoring
+
+The workflow runs every day at **09:30 America/New_York**. Scheduled runs use **3 fresh repetitions** per test/model.
+
+After each run it:
+
+1. runs Promptfoo with cache disabled;
+2. aggregates pass rates and per-model token usage;
+3. uploads the full JSON/HTML/Markdown result bundle as a GitHub Actions artifact for 90 days;
+4. sends the compact summary by Gmail SMTP.
+
+The summary reports input, output, reasoning (when the gateway exposes it), cached, and total tokens separately for each model.
