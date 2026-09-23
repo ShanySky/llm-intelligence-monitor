@@ -138,7 +138,9 @@ const rotatingIds = [];
 for (const [difficulty, quota] of Object.entries(quotas)) {
   for (let slot = 0; slot < quota; slot += 1) {
     const candidates = [...pairs.keys()].filter((id) =>
-      !selectedSet.has(id) && metadata[id]?.difficulty === difficulty
+      !selectedSet.has(id) &&
+      metadata[id]?.difficulty === difficulty &&
+      metadata[id]?.dailyEligible !== false
     );
 
     if (!candidates.length) {
