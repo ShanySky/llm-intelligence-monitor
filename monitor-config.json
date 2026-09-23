@@ -37,5 +37,9 @@
     "totalTokenDropPct": 10,
     "latencyDropPct": 15,
     "timeoutIncreasePctPoints": 10
+  },
+  "scoring": {
+    "timeoutPenaltyQuestions": 0.25,
+    "requireCompleteDataForComposite": true
   }
 }
