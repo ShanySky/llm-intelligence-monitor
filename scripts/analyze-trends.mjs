@@ -17,6 +17,7 @@ const scoreDropThreshold = detection.anchorScoreDropPctPoints ?? 10;
 const reasoningDropThreshold = detection.reasoningTokenDropPct ?? 15;
 const totalDropThreshold = detection.totalTokenDropPct ?? 10;
 const latencyDropThreshold = detection.latencyDropPct ?? 15;
+const timeoutIncreaseThreshold = detection.timeoutIncreasePctPoints ?? 10;
 
 const files = fs.existsSync(historyDir)
   ? fs.readdirSync(historyDir).filter((x) => x.endsWith('.json')).sort()
@@ -61,7 +62,8 @@ for (const p of current.providers ?? []) {
   const window = [...hist, p].slice(-rollingDays);
 
   const anchorBaseline = {
-    passRate: avg(hist.map((x) => x.anchor?.passRate)),
+    passRate: avg(hist.map((x) => x.anchor?.answeredPassRate ?? x.anchor?.passRate)),
+    timeoutRate: avg(hist.map((x) => x.anchor?.timeoutRate)),
     reasoning: avg(hist.map((x) => x.anchor?.averageTokens?.reasoning)),
     total: avg(hist.map((x) => x.anchor?.averageTokens?.total)),
     latency: avg(hist.map((x) => x.anchor?.averageLatencyMs)),
@@ -71,13 +73,17 @@ for (const p of current.providers ?? []) {
     anchorScorePctPoints:
       anchorBaseline.passRate == null
         ? null
-        : (p.anchor.passRate - anchorBaseline.passRate) * 100,
+        : ((p.anchor.answeredPassRate ?? p.anchor.passRate) - anchorBaseline.passRate) * 100,
     reasoningTokenPct:
       pctChange(p.anchor.averageTokens.reasoning, anchorBaseline.reasoning),
     totalTokenPct:
       pctChange(p.anchor.averageTokens.total, anchorBaseline.total),
     latencyPct:
       pctChange(p.anchor.averageLatencyMs, anchorBaseline.latency),
+    timeoutPctPoints:
+      anchorBaseline.timeoutRate == null
+        ? null
+        : ((p.anchor.timeoutRate ?? 0) - anchorBaseline.timeoutRate) * 100,
   };
 
   const enoughHistory = hist.length >= minHistoryRuns;
@@ -89,6 +95,8 @@ for (const p of current.providers ?? []) {
     deltas.totalTokenPct <= -totalDropThreshold;
   const latencyDrop = deltas.latencyPct != null &&
     deltas.latencyPct <= -latencyDropThreshold;
+  const timeoutSpike = deltas.timeoutPctPoints != null &&
+    deltas.timeoutPctPoints >= timeoutIncreaseThreshold;
 
   const investmentSignals = [reasoningDrop, totalDrop, latencyDrop].filter(Boolean).length;
 
@@ -96,6 +104,7 @@ for (const p of current.providers ?? []) {
   if (enoughHistory) {
     if (scoreDrop && investmentSignals >= 2) signal = '高度疑似降质/路由异常';
     else if (scoreDrop && investmentSignals >= 1) signal = '疑似降质，建议复测';
+    else if (timeoutSpike) signal = '超时率显著上升，检查模型/链路';
     else if (!scoreDrop && investmentSignals === 3) signal = '推理投入显著下降，继续观察';
     else signal = '未见明显异常';
   }
@@ -106,20 +115,22 @@ for (const p of current.providers ?? []) {
     rolling: {
       zhPassRate: avg(window.map((x) => x.languages?.zh?.passRate)),
       enPassRate: avg(window.map((x) => x.languages?.en?.passRate)),
-      anchorPassRate: avg(window.map((x) => x.anchor?.passRate)),
+      anchorPassRate: avg(window.map((x) => x.anchor?.answeredPassRate ?? x.anchor?.passRate)),
+      anchorTimeoutRate: avg(window.map((x) => x.anchor?.timeoutRate)),
       anchorReasoningTokens: avg(window.map((x) => x.anchor?.averageTokens?.reasoning)),
       anchorTotalTokens: avg(window.map((x) => x.anchor?.averageTokens?.total)),
       anchorLatencyMs: avg(window.map((x) => x.anchor?.averageLatencyMs)),
     },
     baseline: anchorBaseline,
     current: {
-      anchorPassRate: p.anchor.passRate,
+      anchorPassRate: p.anchor.answeredPassRate ?? p.anchor.passRate,
+      anchorTimeoutRate: p.anchor.timeoutRate ?? 0,
       anchorReasoningTokens: p.anchor.averageTokens.reasoning,
       anchorTotalTokens: p.anchor.averageTokens.total,
       anchorLatencyMs: p.anchor.averageLatencyMs,
     },
     deltas,
-    flags: { scoreDrop, reasoningDrop, totalDrop, latencyDrop },
+    flags: { scoreDrop, reasoningDrop, totalDrop, latencyDrop, timeoutSpike },
     signal,
   });
 }
@@ -137,19 +148,19 @@ const lines = [
   '',
   `历史正式日测：${prior.length} 次；至少积累 ${minHistoryRuns} 次历史日测后才启用自动异常判断。`,
   '',
-  '| 模型 | 近7日中文 | 近7日英文 | 锚点正确率变化 | 推理 Token 变化 | 总 Token 变化 | 响应时间变化 | 判断 |',
-  '|---|---:|---:|---:|---:|---:|---:|---|',
+  '| 模型 | 近7日中文 | 近7日英文 | 锚点正确率变化 | 超时率变化 | 推理 Token 变化 | 总 Token 变化 | 响应时间变化 | 判断 |',
+  '|---|---:|---:|---:|---:|---:|---:|---:|---|',
 ];
 
 for (const m of output.models) {
   lines.push(
-    `| ${m.provider} | ${pct(m.rolling.zhPassRate)} | ${pct(m.rolling.enPassRate)} | ${deltaPp(m.deltas.anchorScorePctPoints)} | ${deltaPct(m.deltas.reasoningTokenPct)} | ${deltaPct(m.deltas.totalTokenPct)} | ${deltaPct(m.deltas.latencyPct)} | ${m.signal} |`
+    `| ${m.provider} | ${pct(m.rolling.zhPassRate)} | ${pct(m.rolling.enPassRate)} | ${deltaPp(m.deltas.anchorScorePctPoints)} | ${deltaPp(m.deltas.timeoutPctPoints)} | ${deltaPct(m.deltas.reasoningTokenPct)} | ${deltaPct(m.deltas.totalTokenPct)} | ${deltaPct(m.deltas.latencyPct)} | ${m.signal} |`
   );
 }
 
 lines.push(
   '',
-  '判定原则：能力下降是主证据；固定锚点上推理令牌减少、总令牌减少、响应时间缩短属于强化证据。单独“变快/Token 变少”不会判定为降质。',
+  '判定原则：能力下降看有效回答正确率；推理令牌减少、总令牌减少、响应时间缩短属于强化证据。超时率单独监控，不再等同于普通答错。',
 );
 
 fs.writeFileSync(outMd, lines.join('\n') + '\n');
