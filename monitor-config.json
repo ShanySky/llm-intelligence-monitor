@@ -1,0 +1,32 @@
+{
+  "daily": {
+    "anchorCount": 6,
+    "rotatingCount": 6,
+    "repeat": 1,
+    "anchorPool": [
+      "R03",
+      "M03",
+      "C03",
+      "I04",
+      "S05",
+      "H12",
+      "U06",
+      "U02",
+      "H06",
+      "H07",
+      "S06",
+      "S03"
+    ],
+    "rotatingDifficultyWeights": {
+      "standard": 1,
+      "hard": 1,
+      "extreme": 2,
+      "ultra": 2
+    }
+  },
+  "deepTest": {
+    "enabled": false,
+    "questionCount": 24,
+    "repeat": 3
+  }
+}
