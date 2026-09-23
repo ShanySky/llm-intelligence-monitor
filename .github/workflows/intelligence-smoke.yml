@@ -47,6 +47,7 @@ jobs:
           node --check scripts/summarize.mjs
           node --check scripts/build-model-config.mjs
           node --check scripts/combine-results.mjs
+          node --check scripts/analyze-trends.mjs
           python -m py_compile scripts/send_email.py
           node -e "JSON.parse(require('fs').readFileSync('monitor-config.json','utf8')); JSON.parse(require('fs').readFileSync('tests/question-metadata.json','utf8'));"
 
@@ -176,6 +177,8 @@ jobs:
   aggregate:
     needs: [prepare, eval]
     if: always() && needs.prepare.result == 'success'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -220,7 +223,26 @@ jobs:
           cp selection/selected.yaml results/selected-tests.yaml
           node scripts/combine-results.mjs results/models results/combined-results.json
           node scripts/summarize.mjs results/combined-results.json results/summary.json results/summary.md
+          node scripts/analyze-trends.mjs history results/summary.json results/trend.json results/trend.md
+          cat results/trend.md >> results/summary.md
           cat results/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Save formal daily history
+        if: github.event_name == 'schedule'
+        shell: bash
+        run: |
+          run_date="$(node -e "const s=require('./results/selection.json'); process.stdout.write(s.runDate)")"
+          mkdir -p history
+          cp results/summary.json "history/$run_date.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "history/$run_date.json"
+          if git diff --cached --quiet; then
+            echo "History already up to date."
+          else
+            git commit -m "Record LLM monitor daily history $run_date"
+            git push
+          fi
 
       - name: Upload combined report
         if: always()
