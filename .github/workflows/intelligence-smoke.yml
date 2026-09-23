@@ -1,15 +1,23 @@
-name: LLM intelligence smoke test
+name: LLM intelligence daily monitor
 
 on:
   workflow_dispatch:
     inputs:
+      anchor_count:
+        description: Optional fixed-anchor count override; blank uses monitor-config.json
+        required: false
+        default: ""
+      rotating_count:
+        description: Optional rotating-question count override; blank uses monitor-config.json
+        required: false
+        default: ""
       repeat:
-        description: Fresh repetitions per test/model (use 1 for smoke run, 3 for baseline runs)
-        required: true
-        default: "1"
+        description: Optional repeat override; blank uses monitor-config.json
+        required: false
+        default: ""
   schedule:
-    - cron: "30 9 * * *"
-      timezone: "America/New_York"
+    - cron: "30 8 * * *"
+      timezone: "Asia/Shanghai"
   push:
     branches:
       - main
@@ -21,7 +29,7 @@ jobs:
   eval:
     if: github.event_name != 'push' || contains(github.event.head_commit.message, '[run-smoke]')
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 45
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
@@ -34,17 +42,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24"
-
-      - name: Choose repeat count
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "EVAL_REPEAT=3" >> "$GITHUB_ENV"
-          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "EVAL_REPEAT=${{ inputs.repeat }}" >> "$GITHUB_ENV"
-          else
-            echo "EVAL_REPEAT=1" >> "$GITHUB_ENV"
-          fi
 
       - name: Validate required secrets
         shell: bash
@@ -59,11 +56,36 @@ jobs:
           test -n "$MAIL_PASSWORD" || { echo "Missing repository secret: MAIL_PASSWORD"; exit 1; }
           test -n "$MAIL_TO" || { echo "Missing repository secret: MAIL_TO"; exit 1; }
 
+      - name: Select balanced daily questions
+        shell: bash
+        env:
+          ANCHOR_COUNT_OVERRIDE: ${{ inputs.anchor_count }}
+          ROTATING_COUNT_OVERRIDE: ${{ inputs.rotating_count }}
+          REPEAT_OVERRIDE: ${{ inputs.repeat }}
+        run: |
+          mkdir -p results
+          export RUN_DATE="$(TZ=Asia/Shanghai date +%F)"
+          node scripts/select-tests.mjs
+          cp tests/selected.yaml results/selected-tests.yaml
+          repeat="$(node -e "const s=require('./results/selection.json'); process.stdout.write(String(s.repeat))")"
+          echo "EVAL_REPEAT=$repeat" >> "$GITHUB_ENV"
+
+          echo "## 本轮抽题" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          node - <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          const s = require('./results/selection.json');
+          console.log(`- 日期（中国时间）：${s.runDate}`);
+          console.log(`- 固定锚点：${s.anchorCount} 道`);
+          console.log(`- 轮换题：${s.rotatingCount} 道`);
+          console.log(`- 原始题：${s.canonicalQuestionsSelected} 道；中英文测试：${s.bilingualTestsSelected} 个`);
+          console.log(`- 固定锚点 ID：${s.anchors.join(', ')}`);
+          console.log(`- 轮换题 ID：${s.rotating.join(', ')}`);
+          NODE
+
       - name: Run Promptfoo
         id: promptfoo
         shell: bash
         run: |
-          mkdir -p results
           set +e
           npx -y promptfoo@0.123.1 eval \
             -c promptfooconfig.yaml \
