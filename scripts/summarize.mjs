@@ -124,6 +124,7 @@ const categoryName = {
   coding: '代码',
   instruction: '指令遵循',
   stress: '压力题',
+  extreme: '极限题',
   uncategorized: '未分类',
 };
 
