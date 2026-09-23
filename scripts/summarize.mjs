@@ -125,6 +125,7 @@ const categoryName = {
   instruction: '指令遵循',
   stress: '压力题',
   extreme: '极限题',
+  ultra: '超高难题',
   uncategorized: '未分类',
 };
 
