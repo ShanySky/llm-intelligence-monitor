@@ -43,6 +43,14 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Validate monitor scripts
+        shell: bash
+        run: |
+          node --check scripts/select-tests.mjs
+          node --check scripts/summarize.mjs
+          python -m py_compile scripts/send_email.py
+          node -e "JSON.parse(require('fs').readFileSync('monitor-config.json','utf8')); JSON.parse(require('fs').readFileSync('tests/question-metadata.json','utf8'));"
+
       - name: Validate required secrets
         shell: bash
         env:
