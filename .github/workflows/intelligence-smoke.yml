@@ -27,7 +27,6 @@ permissions:
 
 jobs:
   prepare:
-    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[run-smoke]')
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -85,7 +84,7 @@ jobs:
 
   eval:
     needs: prepare
-    if: needs.prepare.result == 'success'
+    if: needs.prepare.result == 'success' && (github.event_name != 'push' || contains(github.event.head_commit.message, '[run-smoke]'))
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -177,7 +176,7 @@ jobs:
 
   aggregate:
     needs: [prepare, eval]
-    if: always() && needs.prepare.result == 'success'
+    if: always() && needs.prepare.result == 'success' && needs.eval.result != 'skipped'
     permissions:
       contents: write
     runs-on: ubuntu-latest
