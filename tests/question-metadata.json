@@ -179,6 +179,7 @@
   },
   "U08": {
     "ability": "reasoning",
-    "difficulty": "ultra"
+    "difficulty": "ultra",
+    "dailyEligible": false
   }
 }
