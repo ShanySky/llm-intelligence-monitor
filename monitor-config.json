@@ -35,6 +35,7 @@
     "anchorScoreDropPctPoints": 10,
     "reasoningTokenDropPct": 15,
     "totalTokenDropPct": 10,
-    "latencyDropPct": 15
+    "latencyDropPct": 15,
+    "timeoutIncreasePctPoints": 10
   }
 }
