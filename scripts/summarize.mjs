@@ -5,6 +5,8 @@ const outJson = process.argv[3] ?? 'results/summary.json';
 const outMd = process.argv[4] ?? 'results/summary.md';
 
 const data = JSON.parse(fs.readFileSync(input, 'utf8'));
+const selectionPath = 'results/selection.json';
+const selection = fs.existsSync(selectionPath) ? JSON.parse(fs.readFileSync(selectionPath, 'utf8')) : null;
 const rows = data?.results?.results ?? data?.results?.outputs ?? data?.results ?? [];
 
 const num = (v) => Number.isFinite(v) ? v : 0;
@@ -109,6 +111,7 @@ const summary = {
   generatedAt: new Date().toISOString(),
   evalTimestamp: data?.timestamp ?? data?.results?.timestamp ?? null,
   evalId: data?.evalId ?? data?.results?.evalId ?? null,
+  selection,
   providers,
 };
 
@@ -129,9 +132,32 @@ const categoryName = {
   uncategorized: '未分类',
 };
 
+const difficultyName = { standard: '标准', hard: '困难', extreme: '极限', ultra: '超高难' };
+const abilityName = { reasoning: '推理', math: '数学', coding: '代码', instruction: '指令遵循' };
+
 const lines = [
   '# 大模型智能水平测试报告',
   '',
+];
+
+if (selection) {
+  const diff = Object.entries(selection.distribution?.difficulty ?? {}).map(([k,v]) => `${difficultyName[k] ?? k} ${v}`).join('；');
+  const ability = Object.entries(selection.distribution?.ability ?? {}).map(([k,v]) => `${abilityName[k] ?? k} ${v}`).join('；');
+  lines.push(
+    '## 本轮抽题',
+    '',
+    `- 中国日期：${selection.runDate}`,
+    `- 题库规模：${selection.bankCanonicalQuestions} 道原始题`,
+    `- 本轮：${selection.anchorCount} 道固定锚点 + ${selection.rotatingCount} 道轮换题 = ${selection.canonicalQuestionsSelected} 道原始题 / ${selection.bilingualTestsSelected} 个中英文测试`,
+    `- 固定锚点：${selection.anchors.join(', ')}`,
+    `- 轮换题：${selection.rotating.join(', ')}`,
+    `- 难度分布：${diff}`,
+    `- 能力分布：${ability}`,
+    '',
+  );
+}
+
+lines.push(
   '## 总览',
   '',
   '| 模型 | 总成绩 | 中文成绩 | 英文成绩 | 中文-英文差值 | 输入令牌（Token） | 输出令牌（Token） | 推理令牌（Token）* | 总令牌（Token） | 平均延迟 |',
