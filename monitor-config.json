@@ -28,5 +28,13 @@
     "enabled": false,
     "questionCount": 24,
     "repeat": 3
+  },
+  "detection": {
+    "rollingDays": 7,
+    "minHistoryRuns": 3,
+    "anchorScoreDropPctPoints": 10,
+    "reasoningTokenDropPct": 15,
+    "totalTokenDropPct": 10,
+    "latencyDropPct": 15
   }
 }
