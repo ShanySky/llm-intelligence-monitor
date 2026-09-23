@@ -9,6 +9,10 @@ const selectionPath = 'results/selection.json';
 const selection = fs.existsSync(selectionPath)
   ? JSON.parse(fs.readFileSync(selectionPath, 'utf8'))
   : null;
+const monitorConfig = JSON.parse(fs.readFileSync('monitor-config.json', 'utf8'));
+const timeoutPenaltyQuestions = Number(monitorConfig?.scoring?.timeoutPenaltyQuestions ?? 0.25);
+const requireCompleteDataForComposite =
+  monitorConfig?.scoring?.requireCompleteDataForComposite !== false;
 
 const rows = data?.results?.results ?? data?.results?.outputs ?? data?.results ?? [];
 if (!Array.isArray(rows)) throw new Error('Unable to locate Promptfoo result rows.');
@@ -106,6 +110,16 @@ const finish = (s) => {
   const answered = s.passed + s.wrong;
   const tokenDivisor = answered || 1;
 
+  const passRate = s.total ? s.passed / s.total : 0;
+  const timeoutPenaltyScore =
+    s.total ? (timeoutPenaltyQuestions * s.timeouts / s.total) * 100 : 0;
+  const baseScore = passRate * 100;
+  const dataComplete = s.apiErrors === 0;
+  const compositeScore =
+    requireCompleteDataForComposite && !dataComplete
+      ? null
+      : Math.max(0, baseScore - timeoutPenaltyScore);
+
   return {
     total: s.total,
     passed: s.passed,
@@ -114,7 +128,11 @@ const finish = (s) => {
     apiErrors: s.apiErrors,
     answered,
     unfinished: s.timeouts + s.apiErrors,
-    passRate: s.total ? s.passed / s.total : 0,
+    dataComplete,
+    passRate,
+    baseScore,
+    timeoutPenaltyScore,
+    compositeScore,
     answeredPassRate: answered ? s.passed / answered : 0,
     timeoutRate: s.total ? s.timeouts / s.total : 0,
     apiErrorRate: s.total ? s.apiErrors / s.total : 0,
@@ -192,11 +210,11 @@ const providers = [...buckets.values()].map((b) => {
   for (const [pairId, p] of Object.entries(b.pairs)) {
     const zh = finish(p.zh);
     const en = finish(p.en);
-    if (!zh.answered || !en.answered) continue;
+    if (!zh.total || !en.total || zh.apiErrors || en.apiErrors) continue;
 
     pairComparison.comparablePairs += 1;
-    const zr = zh.answeredPassRate;
-    const er = en.answeredPassRate;
+    const zr = zh.passRate;
+    const er = en.passRate;
 
     if (zr > er) {
       pairComparison.zhBetter += 1;
@@ -216,8 +234,8 @@ const providers = [...buckets.values()].map((b) => {
     rotating: finish(b.rotating),
     languages: { zh: finish(b.languages.zh), en: finish(b.languages.en) },
     languageGapPctPoints:
-      (b.languages.zh.total ? finish(b.languages.zh).answeredPassRate : 0) * 100 -
-      (b.languages.en.total ? finish(b.languages.en).answeredPassRate : 0) * 100,
+      (b.languages.zh.total ? finish(b.languages.zh).passRate : 0) * 100 -
+      (b.languages.en.total ? finish(b.languages.en).passRate : 0) * 100,
     pairComparison,
     categories: Object.fromEntries(
       Object.entries(b.categories).map(([name, c]) => [
@@ -288,33 +306,35 @@ if (selection) {
 lines.push(
   '## 总览',
   '',
-  '| 模型 | 有效回答正确率 | 正确/答错 | 超时 | API错误 | 中文 | 英文 | 总令牌（Token） | 有效回答平均时间 |',
-  '|---|---:|---:|---:|---:|---:|---:|---:|---:|',
+  '| 模型 | 综合分 | 基础正确率 | 正确/答错/超时/API错误 | 中文基础正确率 | 英文基础正确率 | 总令牌（Token） | 正常回答平均时间 |',
+  '|---|---:|---:|---:|---:|---:|---:|---:|',
 );
 
 for (const p of providers) {
   const o = p.overall;
+  const composite = o.compositeScore == null ? '数据不完整' : o.compositeScore.toFixed(1);
   lines.push(
-    `| ${p.provider} | ${o.passed}/${o.answered}（${pct(o.answeredPassRate)}） | ${o.passed}/${o.wrong} | ${o.timeouts} | ${o.apiErrors} | ${p.languages.zh.passed}/${p.languages.zh.answered}（${pct(p.languages.zh.answeredPassRate)}） | ${p.languages.en.passed}/${p.languages.en.answered}（${pct(p.languages.en.answeredPassRate)}） | ${fmt(o.tokenUsage.total)} | ${latency(o.averageLatencyMs)} |`,
+    `| ${p.provider} | ${composite} | ${o.passed}/${o.total}（${pct(o.passRate)}） | ${o.passed}/${o.wrong}/${o.timeouts}/${o.apiErrors} | ${p.languages.zh.passed}/${p.languages.zh.total}（${pct(p.languages.zh.passRate)}） | ${p.languages.en.passed}/${p.languages.en.total}（${pct(p.languages.en.passRate)}） | ${fmt(o.tokenUsage.total)} | ${latency(o.averageLatencyMs)} |`,
   );
 }
 
 lines.push(
   '',
-  '> 注：超时/API错误不再计入“普通答错”；有效回答正确率只在实际返回答案的测试中计算。超时仍单独保留为重要异常指标。',
+  `> 评分：基础正确率始终按全部题目计分；超时题本身计 0 分，并额外按每次 ${timeoutPenaltyQuestions} 道题等价值扣分。API 错误重试后若仍存在，则综合分标记为“数据不完整”，不参与横向比较。`,
   '',
   '## 固定锚点：推理投入监控',
   '',
   '固定锚点只比较每天重复出现的同一批题。响应时间和平均 Token 均排除超时/API错误，避免异常请求污染正常基线。',
   '',
-  '| 模型 | 有效回答正确率 | 答错 | 超时 | API错误 | 平均响应时间 | 平均输出 Token | 平均 Reasoning Token* | 平均总 Token |',
-  '|---|---:|---:|---:|---:|---:|---:|---:|---:|',
+  '| 模型 | 锚点综合分 | 基础正确率 | 答错 | 超时 | API错误 | 平均响应时间 | 平均输出 Token | 平均 Reasoning Token* | 平均总 Token |',
+  '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
 );
 
 for (const p of providers) {
   const a = p.anchor;
+  const composite = a.compositeScore == null ? '数据不完整' : a.compositeScore.toFixed(1);
   lines.push(
-    `| ${p.provider} | ${a.passed}/${a.answered}（${pct(a.answeredPassRate)}） | ${a.wrong} | ${a.timeouts} | ${a.apiErrors} | ${latency(a.averageLatencyMs)} | ${fmt(a.averageTokens.completion, 1)} | ${fmt(a.averageTokens.reasoning, 1)} | ${fmt(a.averageTokens.total, 1)} |`,
+    `| ${p.provider} | ${composite} | ${a.passed}/${a.total}（${pct(a.passRate)}） | ${a.wrong} | ${a.timeouts} | ${a.apiErrors} | ${latency(a.averageLatencyMs)} | ${fmt(a.averageTokens.completion, 1)} | ${fmt(a.averageTokens.reasoning, 1)} | ${fmt(a.averageTokens.total, 1)} |`,
   );
 }
 
@@ -336,20 +356,20 @@ for (const p of providers) {
 for (const p of providers) {
   lines.push('', `## ${p.provider}`, '');
   lines.push(
-    `- 有效回答正确率：${p.overall.passed}/${p.overall.answered}（${pct(p.overall.answeredPassRate)}）`,
+    `- 综合分：${p.overall.compositeScore == null ? '数据不完整' : p.overall.compositeScore.toFixed(1)}；基础正确率：${p.overall.passed}/${p.overall.total}（${pct(p.overall.passRate)}）`,
     `- 普通答错：${p.overall.wrong}；超时：${p.overall.timeouts}；API错误：${p.overall.apiErrors}`,
-    `- 中文：${p.languages.zh.passed}/${p.languages.zh.answered}（${pct(p.languages.zh.answeredPassRate)}）`,
-    `- 英文：${p.languages.en.passed}/${p.languages.en.answered}（${pct(p.languages.en.answeredPassRate)}）`,
-    `- 固定锚点有效回答：${p.anchor.passed}/${p.anchor.answered}（${pct(p.anchor.answeredPassRate)}）`,
+    `- 中文基础正确率：${p.languages.zh.passed}/${p.languages.zh.total}（${pct(p.languages.zh.passRate)}）`,
+    `- 英文基础正确率：${p.languages.en.passed}/${p.languages.en.total}（${pct(p.languages.en.passRate)}）`,
+    `- 固定锚点综合分：${p.anchor.compositeScore == null ? '数据不完整' : p.anchor.compositeScore.toFixed(1)}；基础正确率：${p.anchor.passed}/${p.anchor.total}（${pct(p.anchor.passRate)}）`,
     `- 同题中英文比较：中文更好 ${p.pairComparison.zhBetter} 题；英文更好 ${p.pairComparison.enBetter} 题；相同 ${p.pairComparison.equal} 题。`,
     '',
-    '| 能力类别 | 有效正确率 | 答错 | 超时 | API错误 |',
+    '| 能力类别 | 基础正确率 | 答错 | 超时 | API错误 |',
     '|---|---:|---:|---:|---:|',
   );
 
   for (const [name, c] of Object.entries(p.categories)) {
     lines.push(
-      `| ${categoryName[name] ?? name} | ${c.all.passed}/${c.all.answered}（${pct(c.all.answeredPassRate)}） | ${c.all.wrong} | ${c.all.timeouts} | ${c.all.apiErrors} |`,
+      `| ${categoryName[name] ?? name} | ${c.all.passed}/${c.all.total}（${pct(c.all.passRate)}） | ${c.all.wrong} | ${c.all.timeouts} | ${c.all.apiErrors} |`,
     );
   }
 }
