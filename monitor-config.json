@@ -1,7 +1,7 @@
 {
   "daily": {
-    "anchorCount": 6,
-    "rotatingCount": 6,
+    "anchorCount": 8,
+    "rotatingCount": 8,
     "repeat": 1,
     "anchorPool": [
       "R03",
