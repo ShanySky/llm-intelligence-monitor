@@ -123,6 +123,7 @@ const categoryName = {
   math: '数学',
   coding: '代码',
   instruction: '指令遵循',
+  stress: '压力题',
   uncategorized: '未分类',
 };
 
