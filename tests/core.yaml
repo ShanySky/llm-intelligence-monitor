@@ -854,3 +854,489 @@
   assert:
     - type: equals
       value: "18"
+
+
+# -------------------- Extreme calibration --------------------
+
+- description: H01-ZH-multiset-adjacency-count
+  vars:
+    pair_id: H01
+    language: zh
+    category: extreme
+    question: >-
+      用多重集合 A,A,A,A,B,B,B,C,C,D,D 的全部 11 个字母组成字符串。
+      要求：任意两个相同字母都不相邻；首字符不能是 D；末字符不能是 A；
+      相邻子串 "AB" 恰好出现 2 次；相邻子串 "BA" 恰好出现 1 次。
+      一共有多少个不同字符串？只输出整数。
+  assert:
+    - type: equals
+      value: "810"
+
+- description: H01-EN-multiset-adjacency-count
+  vars:
+    pair_id: H01
+    language: en
+    category: extreme
+    question: >-
+      Form strings using every letter of the multiset
+      A,A,A,A,B,B,B,C,C,D,D. No two equal letters may be adjacent; the first
+      character may not be D; the last character may not be A; adjacent
+      substring "AB" must occur exactly twice; adjacent substring "BA" must
+      occur exactly once. How many distinct strings satisfy all conditions?
+      Output only the integer.
+  assert:
+    - type: equals
+      value: "810"
+
+- description: H02-ZH-constrained-sequence-dp
+  vars:
+    pair_id: H02
+    language: zh
+    category: extreme
+    question: >-
+      长度为 18 的序列，每一项只能取 0、1、2、3。
+      要求：18 项之和恰好为 27；任意相邻两项不能相等；数字 3 恰好出现 4 次；
+      连续子串 0,1,2 在整个序列中一次也不能出现。
+      满足条件的序列共有多少个？只输出整数。
+  assert:
+    - type: equals
+      value: "12542772"
+
+- description: H02-EN-constrained-sequence-dp
+  vars:
+    pair_id: H02
+    language: en
+    category: extreme
+    question: >-
+      Consider length-18 sequences whose entries are only 0, 1, 2, or 3.
+      The sum of all entries is exactly 27; adjacent entries may not be equal;
+      digit 3 appears exactly four times; and consecutive substring 0,1,2 may
+      not occur anywhere. How many such sequences are there?
+      Output only the integer.
+  assert:
+    - type: equals
+      value: "12542772"
+
+- description: H03-ZH-large-index-recurrence
+  vars:
+    pair_id: H03
+    language: zh
+    category: extreme
+    question: >-
+      定义数列 a0=1，a1=2，a2=3，a3=4。对所有 n>=4：
+      an=(2*a(n-1)+3*a(n-2)+5*a(n-3)+7*a(n-4)) mod 1000003。
+      求 a(10^12)。只输出整数。
+  assert:
+    - type: equals
+      value: "449640"
+
+- description: H03-EN-large-index-recurrence
+  vars:
+    pair_id: H03
+    language: en
+    category: extreme
+    question: >-
+      Define a0=1, a1=2, a2=3, and a3=4. For every n>=4:
+      an=(2*a(n-1)+3*a(n-2)+5*a(n-3)+7*a(n-4)) mod 1000003.
+      Find a(10^12). Output only the integer.
+  assert:
+    - type: equals
+      value: "449640"
+
+- description: H04-ZH-binary-string-count
+  vars:
+    pair_id: H04
+    language: zh
+    category: extreme
+    question: >-
+      统计长度为 30 的二进制字符串数量，要求：
+      恰好有 14 个 1；不能包含子串 111；不能包含子串 0000；
+      子串 101 在整个字符串中恰好出现 3 次，重叠出现也分别计数。
+      只输出满足条件的字符串数量。
+  assert:
+    - type: equals
+      value: "987384"
+
+- description: H04-EN-binary-string-count
+  vars:
+    pair_id: H04
+    language: en
+    category: extreme
+    question: >-
+      Count binary strings of length 30 satisfying all conditions:
+      exactly 14 ones; no substring 111; no substring 0000; and substring 101
+      occurs exactly three times in total, counting overlapping occurrences
+      separately. Output only the number of valid strings.
+  assert:
+    - type: equals
+      value: "987384"
+
+- description: H05-ZH-simple-path-count
+  vars:
+    pair_id: H05
+    language: zh
+    category: extreme
+    question: >-
+      有向图出边如下：
+      A->{B,C,D,E}
+      B->{C,D,E,F,G}
+      C->{D,E,F,G,H}
+      D->{E,F,G,H,I}
+      E->{D,F,G,H,I}
+      F->{D,E,G,H,I}
+      G->{E,F,H,I,J}
+      H->{F,G,I,J}
+      I->{F,G,H,J}
+      J->{}
+      统计从 A 到 J、恰好包含 7 条边的简单路径数量。
+      路径中 D、E、F 三个顶点必须恰好出现两个；H 与 I 不能同时出现。
+      简单路径不能重复访问顶点。只输出整数。
+  assert:
+    - type: equals
+      value: "46"
+
+- description: H05-EN-simple-path-count
+  vars:
+    pair_id: H05
+    language: en
+    category: extreme
+    question: >-
+      A directed graph has outgoing edges:
+      A->{B,C,D,E}
+      B->{C,D,E,F,G}
+      C->{D,E,F,G,H}
+      D->{E,F,G,H,I}
+      E->{D,F,G,H,I}
+      F->{D,E,G,H,I}
+      G->{E,F,H,I,J}
+      H->{F,G,I,J}
+      I->{F,G,H,J}
+      J->{}
+      Count simple paths from A to J containing exactly 7 edges.
+      Exactly two of vertices D, E, and F must appear, and H and I may not
+      both appear. Vertices may not repeat. Output only the integer.
+  assert:
+    - type: equals
+      value: "46"
+
+- description: H06-ZH-constrained-hamiltonian-path
+  vars:
+    pair_id: H06
+    language: zh
+    category: extreme
+    question: >-
+      有 A、B、C、D、E、F、G、H 八个城市。必须从 A 出发、到 H 结束，
+      B、C、D、E、F、G 每个城市恰好访问一次。无向边费用如下：
+      AB=7, AC=12, AD=4, AE=15, AF=9, AG=11, AH=20;
+      BC=5, BD=13, BE=8, BF=14, BG=6, BH=17;
+      CD=10, CE=3, CF=9, CG=12, CH=7;
+      DE=6, DF=5, DG=14, DH=11;
+      EF=4, EG=10, EH=8;
+      FG=7, FH=6; GH=5。
+      额外约束：B 必须在 E 之前访问；C 必须在 F 之前访问；D 与 G 不能相邻。
+      求最小费用路线。若存在多个最优路线，取字母序最小者。
+      严格输出“路线|总费用”，城市之间用短横线连接。
+  assert:
+    - type: equals
+      value: "A-B-C-E-D-F-G-H|38"
+
+- description: H06-EN-constrained-hamiltonian-path
+  vars:
+    pair_id: H06
+    language: en
+    category: extreme
+    question: >-
+      There are cities A through H. Start at A, end at H, and visit each of
+      B,C,D,E,F,G exactly once. Undirected edge costs:
+      AB=7, AC=12, AD=4, AE=15, AF=9, AG=11, AH=20;
+      BC=5, BD=13, BE=8, BF=14, BG=6, BH=17;
+      CD=10, CE=3, CF=9, CG=12, CH=7;
+      DE=6, DF=5, DG=14, DH=11;
+      EF=4, EG=10, EH=8;
+      FG=7, FH=6; GH=5.
+      Additional constraints: B must be visited before E; C before F;
+      D and G may not be adjacent. Find the minimum-cost route.
+      If multiple optimum routes exist, choose the lexicographically smallest.
+      Output exactly "route|total-cost", joining cities with hyphens.
+  assert:
+    - type: equals
+      value: "A-B-C-E-D-F-G-H|38"
+
+- description: H07-ZH-dependent-knapsack
+  vars:
+    pair_id: H07
+    language: zh
+    category: extreme
+    question: >-
+      有 12 个候选任务，格式为 (value,cost,依赖)：
+      T1=(11,4,无)
+      T2=(9,3,T1)
+      T3=(8,3,无)
+      T4=(15,6,T2+T3)
+      T5=(7,2,T3)
+      T6=(13,5,T1)
+      T7=(6,2,T5)
+      T8=(18,7,T4)
+      T9=(10,4,T2)
+      T10=(12,4,T5)
+      T11=(8,3,T6)
+      T12=(14,5,T7+T9)。
+      选择任务必须同时选择其全部直接和间接依赖；总 cost<=18；
+      T6 与 T10 不能同时选；T8 与 T11 不能同时选；T9 与 T11 不能同时选。
+      目标依次为：最大化总 value；若并列最小化总 cost；若仍并列，
+      选择任务编号升序列表中字典序最小者。
+      严格输出“任务ID列表|总value|总cost”，ID 按编号升序、英文逗号分隔。
+  assert:
+    - type: equals
+      value: "T1,T2,T3,T5,T7,T10|53|18"
+
+- description: H07-EN-dependent-knapsack
+  vars:
+    pair_id: H07
+    language: en
+    category: extreme
+    question: >-
+      There are 12 candidate tasks in (value,cost,dependencies) form:
+      T1=(11,4,none)
+      T2=(9,3,T1)
+      T3=(8,3,none)
+      T4=(15,6,T2+T3)
+      T5=(7,2,T3)
+      T6=(13,5,T1)
+      T7=(6,2,T5)
+      T8=(18,7,T4)
+      T9=(10,4,T2)
+      T10=(12,4,T5)
+      T11=(8,3,T6)
+      T12=(14,5,T7+T9).
+      Selecting a task requires all direct and indirect dependencies.
+      Total cost<=18. T6 and T10 are incompatible; T8 and T11 are
+      incompatible; T9 and T11 are incompatible.
+      Optimize in this order: maximize total value; then minimize total cost;
+      then choose the lexicographically smallest ascending task-ID list.
+      Output exactly "task-ID-list|total-value|total-cost", IDs numeric-ascending
+      and comma-separated.
+  assert:
+    - type: equals
+      value: "T1,T2,T3,T5,T7,T10|53|18"
+
+- description: H08-ZH-determinant-8x8
+  vars:
+    pair_id: H08
+    language: zh
+    category: extreme
+    question: >-
+      计算下面 8×8 整数矩阵的行列式：
+      [3,-2,5,1,0,4,-1,2]
+      [1,4,-1,2,3,0,5,-2]
+      [2,0,3,-3,1,5,2,4]
+      [-1,2,4,0,2,1,-3,5]
+      [5,1,0,2,-2,3,4,1]
+      [0,3,2,1,4,-1,2,-2]
+      [4,-1,3,5,0,2,1,3]
+      [2,5,-2,4,1,0,3,-1]
+      只输出整数结果。
+  assert:
+    - type: equals
+      value: "22382"
+
+- description: H08-EN-determinant-8x8
+  vars:
+    pair_id: H08
+    language: en
+    category: extreme
+    question: >-
+      Compute the determinant of this 8x8 integer matrix:
+      [3,-2,5,1,0,4,-1,2]
+      [1,4,-1,2,3,0,5,-2]
+      [2,0,3,-3,1,5,2,4]
+      [-1,2,4,0,2,1,-3,5]
+      [5,1,0,2,-2,3,4,1]
+      [0,3,2,1,4,-1,2,-2]
+      [4,-1,3,5,0,2,1,3]
+      [2,5,-2,4,1,0,3,-1]
+      Output only the integer result.
+  assert:
+    - type: equals
+      value: "22382"
+
+- description: H09-ZH-conditional-probability
+  vars:
+    pair_id: H09
+    language: zh
+    category: extreme
+    question: >-
+      从整数 1 到 12 中等概率、不放回地选出 5 个不同整数，忽略抽取顺序。
+      已知选出的 5 个整数之和为偶数。在此条件下，恰好有 2 个整数能被 3 整除的概率是多少？
+      输出最简分数。
+  assert:
+    - type: equals
+      value: "14/33"
+
+- description: H09-EN-conditional-probability
+  vars:
+    pair_id: H09
+    language: en
+    category: extreme
+    question: >-
+      Choose 5 distinct integers uniformly without replacement from 1 through
+      12, ignoring draw order. Given that the sum of the five selected integers
+      is even, what is the conditional probability that exactly two selected
+      integers are divisible by 3? Output the reduced fraction.
+  assert:
+    - type: equals
+      value: "14/33"
+
+- description: H10-ZH-python-mutation-iteration
+  vars:
+    pair_id: H10
+    language: zh
+    category: extreme
+    question: >-
+      Python 3 中执行：
+      a=[1,2,3,4,5]
+      for i,x in enumerate(a):
+          if i+1<len(a):
+              a[i+1]+=x
+          if x%2==0:
+              a.append(x//2)
+          if len(a)>=8:
+              break
+      print(a)
+      严格输出 print 打印的 Python 列表，不要解释。
+  assert:
+    - type: equals
+      value: "[1, 3, 6, 10, 15, 18, 23, 9]"
+
+- description: H10-EN-python-mutation-iteration
+  vars:
+    pair_id: H10
+    language: en
+    category: extreme
+    question: >-
+      In Python 3, execute:
+      a=[1,2,3,4,5]
+      for i,x in enumerate(a):
+          if i+1<len(a):
+              a[i+1]+=x
+          if x%2==0:
+              a.append(x//2)
+          if len(a)>=8:
+              break
+      print(a)
+      Output exactly the Python list printed by print, with no explanation.
+  assert:
+    - type: equals
+      value: "[1, 3, 6, 10, 15, 18, 23, 9]"
+
+- description: H11-ZH-postgresql-recursive-state
+  vars:
+    pair_id: H11
+    language: zh
+    category: extreme
+    question: >-
+      PostgreSQL 执行：
+      WITH RECURSIVE r(n,a,b,c) AS (
+        VALUES (1,2,4,7)
+        UNION ALL
+        SELECT n+1,
+               (a+2*b+n)%17,
+               (2*a+c+3*n)%19,
+               (a+b+2*c+n)%23
+        FROM r WHERE n<12
+      )
+      SELECT sum((a*3+b*5+c*7)*((n%3)+1))
+      FROM r
+      WHERE (a+b+c)%2=0;
+      每次递归右侧都使用上一行旧的 n、a、b、c。
+      只输出最终整数。
+  assert:
+    - type: equals
+      value: "1332"
+
+- description: H11-EN-postgresql-recursive-state
+  vars:
+    pair_id: H11
+    language: en
+    category: extreme
+    question: >-
+      PostgreSQL executes:
+      WITH RECURSIVE r(n,a,b,c) AS (
+        VALUES (1,2,4,7)
+        UNION ALL
+        SELECT n+1,
+               (a+2*b+n)%17,
+               (2*a+c+3*n)%19,
+               (a+b+2*c+n)%23
+        FROM r WHERE n<12
+      )
+      SELECT sum((a*3+b*5+c*7)*((n%3)+1))
+      FROM r
+      WHERE (a+b+c)%2=0;
+      Each recursive right-hand side uses the old n, a, b, and c from the
+      preceding row. Output only the final integer.
+  assert:
+    - type: equals
+      value: "1332"
+
+- description: H12-ZH-multi-constraint-selection
+  vars:
+    pair_id: H12
+    language: zh
+    category: extreme
+    question: >-
+      有记录：
+      A=(score84,risk4,cost4,tags=X)
+      B=(91,8,5,O)
+      C=(88,6,3,Y)
+      D=(79,2,2,X+Z)
+      E=(94,7,6,X)
+      F=(86,5,4,Z)
+      G=(83,3,2,X+Y)
+      H=(96,9,5,O+Y)
+      I=(89,6,3,X+Z)
+      J=(92,4,5,Y+Z)
+      K=(87,7,2,O+X)
+      L=(90,5,4,Q+Z)。
+      先筛选：risk<=6 才有资格，但带 O 可豁免风险限制；带 Q 的记录只有 score>=90 才有资格。
+      effective=score，带 X 加5，带 Y 减4，带 Z 加3，多个标签效果叠加。
+      最终必须恰好选5条，总 cost<=18，至少1条带O，至少2条带X；
+      A与H不能同时选，B与J不能同时选。
+      目标依次为：最大化 effective 总和；若并列最小化 risk 总和；
+      若仍并列取编号字典序最小的集合。
+      严格输出“编号列表|effective总和|cost总和|risk总和”，编号升序且用英文逗号连接。
+  assert:
+    - type: equals
+      value: "F,H,I,K,L|463|18|32"
+
+- description: H12-EN-multi-constraint-selection
+  vars:
+    pair_id: H12
+    language: en
+    category: extreme
+    question: >-
+      Records:
+      A=(score84,risk4,cost4,tags=X)
+      B=(91,8,5,O)
+      C=(88,6,3,Y)
+      D=(79,2,2,X+Z)
+      E=(94,7,6,X)
+      F=(86,5,4,Z)
+      G=(83,3,2,X+Y)
+      H=(96,9,5,O+Y)
+      I=(89,6,3,X+Z)
+      J=(92,4,5,Y+Z)
+      K=(87,7,2,O+X)
+      L=(90,5,4,Q+Z).
+      Eligibility: risk<=6, except tag O overrides the risk limit; records with
+      tag Q qualify only when score>=90.
+      effective=score, plus 5 for X, minus 4 for Y, plus 3 for Z; tag effects stack.
+      Select exactly 5 records with total cost<=18, at least one O-tagged record,
+      and at least two X-tagged records. A and H are incompatible; B and J are incompatible.
+      Optimize in order: maximize total effective; then minimize total risk;
+      then choose the lexicographically smallest ID set.
+      Output exactly "ID-list|effective-sum|cost-sum|risk-sum", IDs ascending
+      and comma-separated.
+  assert:
+    - type: equals
+      value: "F,H,I,K,L|463|18|32"
