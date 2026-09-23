@@ -1340,3 +1340,328 @@
   assert:
     - type: equals
       value: "F,H,I,K,L|463|18|32"
+
+
+# -------------------- Ultra-hard calibration --------------------
+
+- description: U01-ZH-circular-arrangements
+  vars:
+    pair_id: U01
+    language: zh
+    category: ultra
+    question: >-
+      A、B、C、D、E、F、G、H、I、J 十个人坐在编号 1 到 10 的圆桌座位上，
+      座位按顺时针编号。固定 A 坐 1 号座位以消除旋转等价。
+      要求：B 与 C 不相邻；D 恰好位于 E 顺时针方向第 3 个座位；
+      F 与 G 之间恰好隔 1 个人；H 不与 A 相邻。
+      满足条件的不同座位安排共有多少种？只输出整数。
+  assert:
+    - type: equals
+      value: "5568"
+
+- description: U01-EN-circular-arrangements
+  vars:
+    pair_id: U01
+    language: en
+    category: ultra
+    question: >-
+      Ten people A through J occupy numbered seats 1 through 10 around a
+      circular table in clockwise order. Fix A in seat 1 to remove rotational
+      equivalence. B and C may not be adjacent. D must be exactly three seats
+      clockwise from E. F and G must have exactly one person between them.
+      H may not be adjacent to A. How many distinct seat assignments satisfy
+      all conditions? Output only the integer.
+  assert:
+    - type: equals
+      value: "5568"
+
+- description: U02-ZH-surjective-sequences
+  vars:
+    pair_id: U02
+    language: zh
+    category: ultra
+    question: >-
+      长度为 10 的字符串，每个位置只能取 A、B、C、D。
+      要求四个字母都至少出现一次；任意相邻字符不能相同；
+      B 恰好出现 3 次；A 的出现次数必须为偶数。
+      满足条件的字符串共有多少个？只输出整数。
+  assert:
+    - type: equals
+      value: "12704"
+
+- description: U02-EN-surjective-sequences
+  vars:
+    pair_id: U02
+    language: en
+    category: ultra
+    question: >-
+      Consider length-10 strings over alphabet A,B,C,D.
+      Every letter must appear at least once; adjacent characters may not be
+      equal; B appears exactly three times; and A appears an even number of
+      times. How many strings satisfy all conditions? Output only the integer.
+  assert:
+    - type: equals
+      value: "12704"
+
+- description: U03-ZH-order-five-recurrence
+  vars:
+    pair_id: U03
+    language: zh
+    category: ultra
+    question: >-
+      定义 a0=1，a1=2，a2=3，a3=4，a4=5。对所有 n>=5：
+      an=(2*a(n-1)-a(n-2)+3*a(n-3)+5*a(n-4)+7*a(n-5)) mod 10000019。
+      求 a(10^18)。只输出整数。
+  assert:
+    - type: equals
+      value: "2279928"
+
+- description: U03-EN-order-five-recurrence
+  vars:
+    pair_id: U03
+    language: en
+    category: ultra
+    question: >-
+      Define a0=1, a1=2, a2=3, a3=4, a4=5. For every n>=5:
+      an=(2*a(n-1)-a(n-2)+3*a(n-3)+5*a(n-4)+7*a(n-5)) mod 10000019.
+      Find a(10^18). Output only the integer.
+  assert:
+    - type: equals
+      value: "2279928"
+
+- description: U04-ZH-large-simple-path-count
+  vars:
+    pair_id: U04
+    language: zh
+    category: ultra
+    question: >-
+      有向图出边如下：
+      A->{B,C,D,E}
+      B->{C,D,E,F,G}
+      C->{D,E,F,G,H}
+      D->{E,F,G,H,I}
+      E->{D,F,G,H,I,J}
+      F->{D,E,G,H,I,J}
+      G->{E,F,H,I,J,K}
+      H->{F,G,I,J,K}
+      I->{F,G,H,J,K}
+      J->{G,H,I,K,L}
+      K->{H,I,J,L}
+      L->{}
+      统计从 A 到 L、恰好包含 8 条边的简单路径数量。
+      路径中 D、E、F 三个顶点恰好出现两个；H、I 恰好出现一个；
+      J 必须出现；C 与 K 不能同时出现。顶点不能重复访问。
+      只输出整数。
+  assert:
+    - type: equals
+      value: "249"
+
+- description: U04-EN-large-simple-path-count
+  vars:
+    pair_id: U04
+    language: en
+    category: ultra
+    question: >-
+      A directed graph has outgoing edges:
+      A->{B,C,D,E}
+      B->{C,D,E,F,G}
+      C->{D,E,F,G,H}
+      D->{E,F,G,H,I}
+      E->{D,F,G,H,I,J}
+      F->{D,E,G,H,I,J}
+      G->{E,F,H,I,J,K}
+      H->{F,G,I,J,K}
+      I->{F,G,H,J,K}
+      J->{G,H,I,K,L}
+      K->{H,I,J,L}
+      L->{}
+      Count simple paths from A to L containing exactly 8 edges.
+      Exactly two of D,E,F appear; exactly one of H,I appears; J must appear;
+      and C and K may not both appear. Vertices may not repeat.
+      Output only the integer.
+  assert:
+    - type: equals
+      value: "249"
+
+- description: U05-ZH-resource-constrained-scheduling
+  vars:
+    pair_id: U05
+    language: zh
+    category: ultra
+    question: >-
+      有 9 个不可抢占任务，持续时间：
+      A=5，B=4，C=6，D=3，E=7，F=2，G=5，H=4，I=3。
+      有 3 名完全相同的工人，每个任务占用一名工人。
+      前置关系：D 等待 A 和 B；E 等待 A 和 C；F 等待 B 和 C；
+      G 等待 D 和 E；H 等待 E 和 F；I 等待 G 和 H。
+      此外 E、G、I 都需要同一块独占 GPU，因此这三个任务任意两个不能重叠执行。
+      所有任务可在时间 0 或之后的任意整数时刻开始。
+      求全部任务完成的最短总工期。只输出整数。
+  assert:
+    - type: equals
+      value: "21"
+
+- description: U05-EN-resource-constrained-scheduling
+  vars:
+    pair_id: U05
+    language: en
+    category: ultra
+    question: >-
+      There are 9 non-preemptive tasks with durations:
+      A=5, B=4, C=6, D=3, E=7, F=2, G=5, H=4, I=3.
+      Three identical workers are available; each task occupies one worker.
+      Precedence constraints: D waits for A and B; E waits for A and C;
+      F waits for B and C; G waits for D and E; H waits for E and F;
+      I waits for G and H.
+      In addition, E, G, and I all require the same exclusive GPU, so no two
+      of those three tasks may overlap. Tasks may start at time 0 or any later
+      integer time. Find the minimum makespan. Output only the integer.
+  assert:
+    - type: equals
+      value: "21"
+
+- description: U06-ZH-python-generator-closure
+  vars:
+    pair_id: U06
+    language: zh
+    category: ultra
+    question: >-
+      Python 3 中执行：
+      def outer():
+          x=[1,2]
+          def gen():
+              for i in range(3):
+                  x.append(x[-1]+i)
+                  yield (lambda j=i: x[j]+x[-1])
+          return gen(),x
+      g,x=outer()
+      fs=list(g)
+      x[0]=10
+      print([f() for f in fs],x)
+      严格输出 print 打印的内容，不要解释。
+  assert:
+    - type: equals
+      value: "[15, 7, 7] [10, 2, 2, 3, 5]"
+
+- description: U06-EN-python-generator-closure
+  vars:
+    pair_id: U06
+    language: en
+    category: ultra
+    question: >-
+      In Python 3, execute:
+      def outer():
+          x=[1,2]
+          def gen():
+              for i in range(3):
+                  x.append(x[-1]+i)
+                  yield (lambda j=i: x[j]+x[-1])
+          return gen(),x
+      g,x=outer()
+      fs=list(g)
+      x[0]=10
+      print([f() for f in fs],x)
+      Output exactly what print emits, with no explanation.
+  assert:
+    - type: equals
+      value: "[15, 7, 7] [10, 2, 2, 3, 5]"
+
+- description: U07-ZH-postgresql-window-composition
+  vars:
+    pair_id: U07
+    language: zh
+    category: ultra
+    question: >-
+      PostgreSQL 表 t(grp,id,val) 包含：
+      ('A',1,7),('A',2,12),('A',3,12),('A',4,5),('A',5,9),
+      ('B',1,10),('B',2,3),('B',3,10),('B',4,8),('B',5,6),
+      ('C',1,4),('C',2,11),('C',3,2),('C',4,11),('C',5,7)。
+      执行：
+      WITH x AS (
+        SELECT grp,id,val,
+               dense_rank() OVER (PARTITION BY grp ORDER BY val DESC) AS r,
+               lag(val,1,0) OVER (PARTITION BY grp ORDER BY id) AS prev
+        FROM t
+      )
+      SELECT sum((val+prev)*r)
+      FROM x
+      WHERE r<=3 AND (id+r)%2=0;
+      只输出最终整数。
+  assert:
+    - type: equals
+      value: "158"
+
+- description: U07-EN-postgresql-window-composition
+  vars:
+    pair_id: U07
+    language: en
+    category: ultra
+    question: >-
+      PostgreSQL table t(grp,id,val) contains:
+      ('A',1,7),('A',2,12),('A',3,12),('A',4,5),('A',5,9),
+      ('B',1,10),('B',2,3),('B',3,10),('B',4,8),('B',5,6),
+      ('C',1,4),('C',2,11),('C',3,2),('C',4,11),('C',5,7).
+      Execute:
+      WITH x AS (
+        SELECT grp,id,val,
+               dense_rank() OVER (PARTITION BY grp ORDER BY val DESC) AS r,
+               lag(val,1,0) OVER (PARTITION BY grp ORDER BY id) AS prev
+        FROM t
+      )
+      SELECT sum((val+prev)*r)
+      FROM x
+      WHERE r<=3 AND (id+r)%2=0;
+      Output only the final integer.
+  assert:
+    - type: equals
+      value: "158"
+
+- description: U08-ZH-constrained-assignment
+  vars:
+    pair_id: U08
+    language: zh
+    category: ultra
+    question: >-
+      A 到 H 八名员工需要一一分配到 1 到 8 八个任务，每人一个任务、每个任务恰好一人。
+      各员工执行任务 1..8 的成本分别为：
+      A=[9,4,7,8,6,10,5,11]
+      B=[6,8,5,9,7,4,10,6]
+      C=[7,6,9,4,8,5,11,7]
+      D=[5,9,6,7,4,8,6,10]
+      E=[8,5,10,6,9,7,4,8]
+      F=[10,7,4,5,6,9,8,5]
+      G=[4,10,8,6,5,7,9,11]
+      H=[6,5,7,10,8,6,5,4]。
+      约束：A 不能分配任务1或2；C 与 D 的任务编号必须相差1；
+      E 的任务编号必须小于 F；G 不能分配任务8。
+      求最小总成本。严格输出“A任务,B任务,C任务,D任务,E任务,F任务,G任务,H任务|总成本”，
+      任务只写数字。
+  assert:
+    - type: equals
+      value: "7,6,4,5,2,3,1,8|34"
+
+- description: U08-EN-constrained-assignment
+  vars:
+    pair_id: U08
+    language: en
+    category: ultra
+    question: >-
+      Employees A through H must be assigned one-to-one to tasks 1 through 8.
+      Their costs for tasks 1..8 are:
+      A=[9,4,7,8,6,10,5,11]
+      B=[6,8,5,9,7,4,10,6]
+      C=[7,6,9,4,8,5,11,7]
+      D=[5,9,6,7,4,8,6,10]
+      E=[8,5,10,6,9,7,4,8]
+      F=[10,7,4,5,6,9,8,5]
+      G=[4,10,8,6,5,7,9,11]
+      H=[6,5,7,10,8,6,5,4].
+      Constraints: A may not take task 1 or 2; C and D must receive task
+      numbers differing by exactly 1; E's task number must be less than F's;
+      G may not take task 8.
+      Find the minimum total cost. Output exactly
+      "A-task,B-task,C-task,D-task,E-task,F-task,G-task,H-task|total-cost",
+      writing tasks as numbers only.
+  assert:
+    - type: equals
+      value: "7,6,4,5,2,3,1,8|34"
