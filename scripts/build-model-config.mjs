@@ -24,7 +24,7 @@ providers:
       store: false
 
 tests:
-  - file://tests/selected.yaml
+  - file://../tests/selected.yaml
 
 sharing: false
 
