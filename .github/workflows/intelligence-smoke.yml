@@ -48,9 +48,16 @@ jobs:
 
       - name: Validate required secrets
         shell: bash
+        env:
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
         run: |
           test -n "$OPENAI_API_KEY" || { echo "Missing repository secret: OPENAI_API_KEY"; exit 1; }
           test -n "$OPENAI_BASE_URL" || { echo "Missing repository secret: OPENAI_BASE_URL"; exit 1; }
+          test -n "$MAIL_USERNAME" || { echo "Missing repository secret: MAIL_USERNAME"; exit 1; }
+          test -n "$MAIL_PASSWORD" || { echo "Missing repository secret: MAIL_PASSWORD"; exit 1; }
+          test -n "$MAIL_TO" || { echo "Missing repository secret: MAIL_TO"; exit 1; }
 
       - name: Run Promptfoo
         id: promptfoo
@@ -94,3 +101,13 @@ jobs:
           path: results/
           if-no-files-found: warn
           retention-days: 90
+
+      - name: Email test report
+        if: always()
+        env:
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          PROMPTFOO_OUTCOME: ${{ steps.promptfoo.outcome }}
+          PROMPTFOO_EXIT_CODE: ${{ steps.promptfoo.outputs.exit_code }}
+        run: python scripts/send_email.py
