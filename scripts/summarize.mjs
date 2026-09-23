@@ -11,21 +11,29 @@ const selection = fs.existsSync(selectionPath)
   : null;
 
 const rows = data?.results?.results ?? data?.results?.outputs ?? data?.results ?? [];
-if (!Array.isArray(rows)) {
-  throw new Error('Unable to locate Promptfoo result rows.');
-}
+if (!Array.isArray(rows)) throw new Error('Unable to locate Promptfoo result rows.');
 
 const anchorSet = new Set(selection?.anchors ?? []);
 const rotatingSet = new Set(selection?.rotating ?? []);
 
 const num = (v) => Number.isFinite(v) ? v : 0;
+const errorText = (row) => {
+  const value = row?.error ?? row?.response?.error;
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  try { return JSON.stringify(value); } catch { return String(value); }
+};
+const isTimeoutRow = (row) => /timeout|timed out|600000ms|deadline exceeded/i.test(errorText(row));
+
 const freshStats = () => ({
   total: 0,
   passed: 0,
-  errors: 0,
+  wrong: 0,
+  timeouts: 0,
+  apiErrors: 0,
   scoreSum: 0,
-  latencySum: 0,
-  latencyCount: 0,
+  validLatencySum: 0,
+  validLatencyCount: 0,
   costUsd: 0,
   tokenUsage: {
     prompt: 0,
@@ -39,13 +47,21 @@ const freshStats = () => ({
 
 const addRow = (s, row) => {
   s.total += 1;
-  s.passed += row?.success ? 1 : 0;
-  s.errors += row?.error ? 1 : 0;
+
+  const hasError = Boolean(errorText(row));
+  const timeout = hasError && isTimeoutRow(row);
+
+  if (row?.success) s.passed += 1;
+  else if (timeout) s.timeouts += 1;
+  else if (hasError) s.apiErrors += 1;
+  else s.wrong += 1;
+
   s.scoreSum += num(row?.score);
 
-  if (Number.isFinite(row?.latencyMs)) {
-    s.latencySum += row.latencyMs;
-    s.latencyCount += 1;
+  // Do not let timeout/API-error wall time pollute normal response-time baselines.
+  if (!hasError && Number.isFinite(row?.latencyMs)) {
+    s.validLatencySum += row.latencyMs;
+    s.validLatencyCount += 1;
   }
 
   s.costUsd += num(row?.cost ?? row?.response?.cost);
@@ -60,23 +76,31 @@ const addRow = (s, row) => {
 };
 
 const finish = (s) => {
-  const divisor = s.total || 1;
+  const answered = s.passed + s.wrong;
+  const tokenDivisor = answered || 1;
+
   return {
     total: s.total,
     passed: s.passed,
-    failed: s.total - s.passed,
-    errors: s.errors,
+    wrong: s.wrong,
+    timeouts: s.timeouts,
+    apiErrors: s.apiErrors,
+    answered,
+    unfinished: s.timeouts + s.apiErrors,
     passRate: s.total ? s.passed / s.total : 0,
+    answeredPassRate: answered ? s.passed / answered : 0,
+    timeoutRate: s.total ? s.timeouts / s.total : 0,
+    apiErrorRate: s.total ? s.apiErrors / s.total : 0,
     averageScore: s.total ? s.scoreSum / s.total : 0,
-    averageLatencyMs: s.latencyCount ? s.latencySum / s.latencyCount : null,
+    averageLatencyMs: s.validLatencyCount ? s.validLatencySum / s.validLatencyCount : null,
     estimatedCostUsd: s.costUsd,
     tokenUsage: s.tokenUsage,
     averageTokens: {
-      prompt: s.tokenUsage.prompt / divisor,
-      completion: s.tokenUsage.completion / divisor,
-      reasoning: s.tokenUsage.reasoning / divisor,
-      cached: s.tokenUsage.cached / divisor,
-      total: s.tokenUsage.total / divisor,
+      prompt: s.tokenUsage.prompt / tokenDivisor,
+      completion: s.tokenUsage.completion / tokenDivisor,
+      reasoning: s.tokenUsage.reasoning / tokenDivisor,
+      cached: s.tokenUsage.cached / tokenDivisor,
+      total: s.tokenUsage.total / tokenDivisor,
     },
   };
 };
@@ -111,10 +135,8 @@ for (const row of rows) {
 
   const b = bucketFor(provider);
   addRow(b.overall, row);
-
   if (anchorSet.has(pairId)) addRow(b.anchor, row);
   if (rotatingSet.has(pairId)) addRow(b.rotating, row);
-
   if (b.languages[language]) addRow(b.languages[language], row);
 
   if (!b.categories[category]) {
@@ -125,16 +147,10 @@ for (const row of rows) {
     };
   }
   addRow(b.categories[category].all, row);
-  if (b.categories[category][language]) {
-    addRow(b.categories[category][language], row);
-  }
+  if (b.categories[category][language]) addRow(b.categories[category][language], row);
 
-  if (!b.pairs[pairId]) {
-    b.pairs[pairId] = { zh: freshStats(), en: freshStats() };
-  }
-  if (b.pairs[pairId][language]) {
-    addRow(b.pairs[pairId][language], row);
-  }
+  if (!b.pairs[pairId]) b.pairs[pairId] = { zh: freshStats(), en: freshStats() };
+  if (b.pairs[pairId][language]) addRow(b.pairs[pairId][language], row);
 }
 
 const providers = [...buckets.values()].map((b) => {
@@ -147,11 +163,13 @@ const providers = [...buckets.values()].map((b) => {
   };
 
   for (const [pairId, p] of Object.entries(b.pairs)) {
-    if (!p.zh.total || !p.en.total) continue;
+    const zh = finish(p.zh);
+    const en = finish(p.en);
+    if (!zh.answered || !en.answered) continue;
 
     pairComparison.comparablePairs += 1;
-    const zr = p.zh.passed / p.zh.total;
-    const er = p.en.passed / p.en.total;
+    const zr = zh.answeredPassRate;
+    const er = en.answeredPassRate;
 
     if (zr > er) {
       pairComparison.zhBetter += 1;
@@ -169,22 +187,15 @@ const providers = [...buckets.values()].map((b) => {
     overall: finish(b.overall),
     anchor: finish(b.anchor),
     rotating: finish(b.rotating),
-    languages: {
-      zh: finish(b.languages.zh),
-      en: finish(b.languages.en),
-    },
+    languages: { zh: finish(b.languages.zh), en: finish(b.languages.en) },
     languageGapPctPoints:
-      (b.languages.zh.total ? b.languages.zh.passed / b.languages.zh.total : 0) * 100 -
-      (b.languages.en.total ? b.languages.en.passed / b.languages.en.total : 0) * 100,
+      (b.languages.zh.total ? finish(b.languages.zh).answeredPassRate : 0) * 100 -
+      (b.languages.en.total ? finish(b.languages.en).answeredPassRate : 0) * 100,
     pairComparison,
     categories: Object.fromEntries(
       Object.entries(b.categories).map(([name, c]) => [
         name,
-        {
-          all: finish(c.all),
-          zh: finish(c.zh),
-          en: finish(c.en),
-        },
+        { all: finish(c.all), zh: finish(c.zh), en: finish(c.en) },
       ]),
     ),
   };
@@ -220,19 +231,8 @@ const categoryName = {
   uncategorized: '未分类',
 };
 
-const difficultyName = {
-  standard: '标准',
-  hard: '困难',
-  extreme: '极限',
-  ultra: '超高难',
-};
-
-const abilityName = {
-  reasoning: '推理',
-  math: '数学',
-  coding: '代码',
-  instruction: '指令遵循',
-};
+const difficultyName = { standard: '标准', hard: '困难', extreme: '极限', ultra: '超高难' };
+const abilityName = { reasoning: '推理', math: '数学', coding: '代码', instruction: '指令遵循' };
 
 const lines = ['# 大模型智能水平测试报告', ''];
 
@@ -261,37 +261,39 @@ if (selection) {
 lines.push(
   '## 总览',
   '',
-  '| 模型 | 总成绩 | 中文成绩 | 英文成绩 | 中文-英文差值 | 总令牌（Token） | 平均响应时间 |',
-  '|---|---:|---:|---:|---:|---:|---:|',
+  '| 模型 | 有效回答正确率 | 正确/答错 | 超时 | API错误 | 中文 | 英文 | 总令牌（Token） | 有效回答平均时间 |',
+  '|---|---:|---:|---:|---:|---:|---:|---:|---:|',
 );
 
 for (const p of providers) {
   const o = p.overall;
   lines.push(
-    `| ${p.provider} | ${o.passed}/${o.total}（${pct(o.passRate)}） | ${p.languages.zh.passed}/${p.languages.zh.total}（${pct(p.languages.zh.passRate)}） | ${p.languages.en.passed}/${p.languages.en.total}（${pct(p.languages.en.passRate)}） | ${p.languageGapPctPoints >= 0 ? '+' : ''}${p.languageGapPctPoints.toFixed(1)} 个百分点 | ${fmt(o.tokenUsage.total)} | ${latency(o.averageLatencyMs)} |`,
+    `| ${p.provider} | ${o.passed}/${o.answered}（${pct(o.answeredPassRate)}） | ${o.passed}/${o.wrong} | ${o.timeouts} | ${o.apiErrors} | ${p.languages.zh.passed}/${p.languages.zh.answered}（${pct(p.languages.zh.answeredPassRate)}） | ${p.languages.en.passed}/${p.languages.en.answered}（${pct(p.languages.en.answeredPassRate)}） | ${fmt(o.tokenUsage.total)} | ${latency(o.averageLatencyMs)} |`,
   );
 }
 
 lines.push(
   '',
+  '> 注：超时/API错误不再计入“普通答错”；有效回答正确率只在实际返回答案的测试中计算。超时仍单独保留为重要异常指标。',
+  '',
   '## 固定锚点：推理投入监控',
   '',
-  '这组指标只使用每天重复出现的固定锚点题，更适合判断同样任务下模型是否突然“想得更少、答得更快”。',
+  '固定锚点只比较每天重复出现的同一批题。响应时间和平均 Token 均排除超时/API错误，避免异常请求污染正常基线。',
   '',
-  '| 模型 | 锚点正确率 | 平均响应时间 | 平均输出令牌（Token） | 平均推理令牌（Reasoning Token）* | 平均总令牌（Token） |',
-  '|---|---:|---:|---:|---:|---:|',
+  '| 模型 | 有效回答正确率 | 答错 | 超时 | API错误 | 平均响应时间 | 平均输出 Token | 平均 Reasoning Token* | 平均总 Token |',
+  '|---|---:|---:|---:|---:|---:|---:|---:|---:|',
 );
 
 for (const p of providers) {
   const a = p.anchor;
   lines.push(
-    `| ${p.provider} | ${a.passed}/${a.total}（${pct(a.passRate)}） | ${latency(a.averageLatencyMs)} | ${fmt(a.averageTokens.completion, 1)} | ${fmt(a.averageTokens.reasoning, 1)} | ${fmt(a.averageTokens.total, 1)} |`,
+    `| ${p.provider} | ${a.passed}/${a.answered}（${pct(a.answeredPassRate)}） | ${a.wrong} | ${a.timeouts} | ${a.apiErrors} | ${latency(a.averageLatencyMs)} | ${fmt(a.averageTokens.completion, 1)} | ${fmt(a.averageTokens.reasoning, 1)} | ${fmt(a.averageTokens.total, 1)} |`,
   );
 }
 
 lines.push(
   '',
-  '\* 推理令牌只有在上游接口或中转明确返回时才会单独统计；它通常已包含在输出/总令牌中，不应重复相加。',
+  '\* Reasoning Token 只有上游接口明确返回时才单独统计，且通常已包含在输出/总 Token 中。',
   '',
   '### 中英文分歧题',
   '',
@@ -307,19 +309,20 @@ for (const p of providers) {
 for (const p of providers) {
   lines.push('', `## ${p.provider}`, '');
   lines.push(
-    `- 总成绩：${p.overall.passed}/${p.overall.total}（${pct(p.overall.passRate)}）`,
-    `- 中文：${p.languages.zh.passed}/${p.languages.zh.total}（${pct(p.languages.zh.passRate)}），总令牌 ${fmt(p.languages.zh.tokenUsage.total)}`,
-    `- 英文：${p.languages.en.passed}/${p.languages.en.total}（${pct(p.languages.en.passRate)}），总令牌 ${fmt(p.languages.en.tokenUsage.total)}`,
-    `- 固定锚点：${p.anchor.passed}/${p.anchor.total}（${pct(p.anchor.passRate)}）`,
+    `- 有效回答正确率：${p.overall.passed}/${p.overall.answered}（${pct(p.overall.answeredPassRate)}）`,
+    `- 普通答错：${p.overall.wrong}；超时：${p.overall.timeouts}；API错误：${p.overall.apiErrors}`,
+    `- 中文：${p.languages.zh.passed}/${p.languages.zh.answered}（${pct(p.languages.zh.answeredPassRate)}）`,
+    `- 英文：${p.languages.en.passed}/${p.languages.en.answered}（${pct(p.languages.en.answeredPassRate)}）`,
+    `- 固定锚点有效回答：${p.anchor.passed}/${p.anchor.answered}（${pct(p.anchor.answeredPassRate)}）`,
     `- 同题中英文比较：中文更好 ${p.pairComparison.zhBetter} 题；英文更好 ${p.pairComparison.enBetter} 题；相同 ${p.pairComparison.equal} 题。`,
     '',
-    '| 能力类别 | 汇总 | 中文 | 英文 |',
-    '|---|---:|---:|---:|',
+    '| 能力类别 | 有效正确率 | 答错 | 超时 | API错误 |',
+    '|---|---:|---:|---:|---:|',
   );
 
   for (const [name, c] of Object.entries(p.categories)) {
     lines.push(
-      `| ${categoryName[name] ?? name} | ${c.all.passed}/${c.all.total}（${pct(c.all.passRate)}） | ${c.zh.passed}/${c.zh.total}（${pct(c.zh.passRate)}） | ${c.en.passed}/${c.en.total}（${pct(c.en.passRate)}） |`,
+      `| ${categoryName[name] ?? name} | ${c.all.passed}/${c.all.answered}（${pct(c.all.answeredPassRate)}） | ${c.all.wrong} | ${c.all.timeouts} | ${c.all.apiErrors} |`,
     );
   }
 }
