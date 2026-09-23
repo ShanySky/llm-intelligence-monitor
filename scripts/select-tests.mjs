@@ -119,8 +119,16 @@ if (anchorCount > anchorPool.length) {
 }
 
 const anchorIds = anchorPool.slice(0, anchorCount);
+
+if (new Set(anchorIds).size !== anchorIds.length) {
+  throw new Error('anchorPool contains duplicate IDs within the active anchor range');
+}
+
 for (const id of anchorIds) {
   if (!pairs.has(id)) throw new Error(`Anchor ${id} is not in the question bank`);
+  if (metadata[id]?.dailyEligible === false) {
+    throw new Error(`Anchor ${id} is marked dailyEligible=false and cannot be used in daily monitoring`);
+  }
 }
 
 const selectedSet = new Set(anchorIds);
