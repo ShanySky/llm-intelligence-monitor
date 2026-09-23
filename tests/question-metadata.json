@@ -65,7 +65,8 @@
   },
   "S01": {
     "ability": "math",
-    "difficulty": "hard"
+    "difficulty": "hard",
+    "dailyEligible": false
   },
   "S02": {
     "ability": "math",
@@ -101,7 +102,8 @@
   },
   "H02": {
     "ability": "math",
-    "difficulty": "extreme"
+    "difficulty": "extreme",
+    "dailyEligible": false
   },
   "H03": {
     "ability": "math",
@@ -126,7 +128,8 @@
   },
   "H08": {
     "ability": "math",
-    "difficulty": "extreme"
+    "difficulty": "extreme",
+    "dailyEligible": false
   },
   "H09": {
     "ability": "math",
@@ -159,7 +162,8 @@
   },
   "U04": {
     "ability": "reasoning",
-    "difficulty": "ultra"
+    "difficulty": "ultra",
+    "dailyEligible": false
   },
   "U05": {
     "ability": "reasoning",
