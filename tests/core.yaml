@@ -1,0 +1,171 @@
+- description: reasoning-knights-liars
+  vars:
+    category: reasoning
+    question: >-
+      A, B, and C are each either a knight (always tells the truth) or a liar
+      (always lies). A says "B is a liar." B says "C is a liar." C says
+      "A and B are different types." Output exactly three letters separated by
+      commas, in A,B,C order, using K for knight and L for liar.
+  assert:
+    - type: equals
+      value: "K,L,K"
+
+- description: reasoning-linear-seating
+  vars:
+    category: reasoning
+    question: >-
+      Alice, Bob, Carol, and Dave sit in four seats numbered 1 through 4 from
+      left to right. Alice is not at an end. Bob sits immediately to the left
+      of Carol. Dave sits somewhere to the left of Alice. Output exactly their
+      initials from seat 1 to seat 4, separated by commas.
+  assert:
+    - type: equals
+      value: "D,A,B,C"
+
+- description: reasoning-syllogism
+  vars:
+    category: reasoning
+    question: >-
+      Premises: Some A are B. All B are C. No C are D.
+      Which conclusion is necessarily true?
+      A) No A are D
+      B) Some A are C
+      C) All A are C
+      D) Some D are not A
+      Output exactly one letter.
+  assert:
+    - type: equals
+      value: "B"
+
+- description: math-crt
+  vars:
+    category: math
+    question: >-
+      Find the smallest positive integer n such that n leaves remainder 2 when
+      divided by 5, remainder 3 when divided by 7, and remainder 4 when divided
+      by 9. Output only the integer.
+  assert:
+    - type: equals
+      value: "157"
+
+- description: math-hypergeometric
+  vars:
+    category: math
+    question: >-
+      A bag contains 5 red balls and 3 blue balls. Three balls are drawn
+      uniformly at random without replacement. What is the probability of
+      drawing exactly two red balls? Output the reduced fraction only.
+  assert:
+    - type: equals
+      value: "15/28"
+
+- description: math-binary-strings
+  vars:
+    category: math
+    question: >-
+      How many binary strings of length 8 contain exactly three 1s and have no
+      two 1s adjacent? Output only the integer.
+  assert:
+    - type: equals
+      value: "20"
+
+- description: math-symmetric-expression
+  vars:
+    category: math
+    question: >-
+      Real numbers x and y satisfy x+y=17 and xy=60. Compute x^2+y^2.
+      Output only the integer.
+  assert:
+    - type: equals
+      value: "169"
+
+- description: math-percent-composition
+  vars:
+    category: math
+    question: >-
+      A price is increased by 20% and then the resulting price is decreased by
+      20%. If the original price is treated as 100, what is the final price?
+      Output only the number, with no percent sign.
+  assert:
+    - type: equals
+      value: "96"
+
+- description: coding-python-aliasing
+  vars:
+    category: coding
+    question: >-
+      In Python, what does this print?
+      x = [[0]] * 3
+      x[0].append(1)
+      print(sum(len(v) for v in x))
+      Output only the printed integer.
+  assert:
+    - type: equals
+      value: "6"
+
+- description: coding-java-overload
+  vars:
+    category: coding
+    question: >-
+      In Java, assume two overloads exist:
+      static void f(long x) { System.out.print("L"); }
+      static void f(Integer x) { System.out.print("I"); }
+      What is printed by f(1)? Output exactly the single printed letter.
+  assert:
+    - type: equals
+      value: "L"
+
+- description: coding-java-evaluation-order
+  vars:
+    category: coding
+    question: >-
+      In Java, what is printed by:
+      int x = 7;
+      System.out.print(x++ + ++x);
+      Output only the printed integer.
+  assert:
+    - type: equals
+      value: "16"
+
+- description: coding-sql-null-count
+  vars:
+    category: coding
+    question: >-
+      A SQL table has one column x and four rows: NULL, 1, 1, 2.
+      What are the results of COUNT(x), COUNT(*), COUNT(DISTINCT x), in that
+      order? Output exactly three integers separated by commas.
+  assert:
+    - type: equals
+      value: "3,4,2"
+
+- description: instruction-transform-numbers
+  vars:
+    category: instruction
+    question: >-
+      From the list 9,2,7,4,1,8: keep only even numbers, square each retained
+      number, sort the squared values in descending order, and output them
+      joined by commas with no spaces.
+  assert:
+    - type: equals
+      value: "64,16,4"
+
+- description: instruction-parse-digit-groups
+  vars:
+    category: instruction
+    question: >-
+      In the string a1b22c333d4444, treat each maximal consecutive digit group
+      as one integer and add those integers. Output only the sum.
+  assert:
+    - type: equals
+      value: "4800"
+
+- description: instruction-count-json
+  vars:
+    category: instruction
+    question: >-
+      Count the colors in this sequence: red red blue green blue red.
+      Output exactly one compact JSON object with keys in alphabetical order
+      and no spaces.
+  assert:
+    - type: equals
+      value: '{"blue":2,"green":1,"red":3}'
