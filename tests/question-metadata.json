@@ -105,7 +105,8 @@
   },
   "H03": {
     "ability": "math",
-    "difficulty": "extreme"
+    "difficulty": "extreme",
+    "dailyEligible": false
   },
   "H04": {
     "ability": "math",
@@ -153,7 +154,8 @@
   },
   "U03": {
     "ability": "math",
-    "difficulty": "ultra"
+    "difficulty": "ultra",
+    "dailyEligible": false
   },
   "U04": {
     "ability": "reasoning",
