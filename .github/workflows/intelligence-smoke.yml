@@ -151,7 +151,7 @@ jobs:
             --no-cache \
             --no-share \
             --repeat "$EVAL_REPEAT" \
-            --max-concurrency 2 \
+            --max-concurrency 3 \
             -o "results/${{ matrix.key }}.json" \
             -o "results/${{ matrix.key }}.html"
           status=$?
