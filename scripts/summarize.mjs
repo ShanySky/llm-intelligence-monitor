@@ -48,6 +48,14 @@ const freshStats = () => ({
     total: 0,
     numRequests: 0,
   },
+  validTokenUsage: {
+    prompt: 0,
+    completion: 0,
+    reasoning: 0,
+    cached: 0,
+    total: 0,
+    numRequests: 0,
+  },
 });
 
 const addRow = (s, row) => {
@@ -83,6 +91,15 @@ const addRow = (s, row) => {
   s.tokenUsage.total += num(u.total);
   s.tokenUsage.numRequests += num(u.numRequests) || 1;
   s.tokenUsage.reasoning += num(u?.completionDetails?.reasoning);
+
+  if (!timeout && !executionError) {
+    s.validTokenUsage.prompt += num(u.prompt);
+    s.validTokenUsage.completion += num(u.completion);
+    s.validTokenUsage.cached += num(u.cached);
+    s.validTokenUsage.total += num(u.total);
+    s.validTokenUsage.numRequests += num(u.numRequests) || 1;
+    s.validTokenUsage.reasoning += num(u?.completionDetails?.reasoning);
+  }
 };
 
 const finish = (s) => {
@@ -106,11 +123,11 @@ const finish = (s) => {
     estimatedCostUsd: s.costUsd,
     tokenUsage: s.tokenUsage,
     averageTokens: {
-      prompt: s.tokenUsage.prompt / tokenDivisor,
-      completion: s.tokenUsage.completion / tokenDivisor,
-      reasoning: s.tokenUsage.reasoning / tokenDivisor,
-      cached: s.tokenUsage.cached / tokenDivisor,
-      total: s.tokenUsage.total / tokenDivisor,
+      prompt: s.validTokenUsage.prompt / tokenDivisor,
+      completion: s.validTokenUsage.completion / tokenDivisor,
+      reasoning: s.validTokenUsage.reasoning / tokenDivisor,
+      cached: s.validTokenUsage.cached / tokenDivisor,
+      total: s.validTokenUsage.total / tokenDivisor,
     },
   };
 };
