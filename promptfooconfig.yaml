@@ -1,13 +1,10 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
 description: GPT bilingual capability regression suite
 
+# Keep the wrapper language-neutral so Chinese and English paired questions are
+# compared without an extra English instruction prefix.
 prompts:
-  - |-
-    You are being evaluated for reasoning consistency and instruction following.
-    Solve the task carefully.
-    Return exactly the format requested by the task and nothing else.
-
-    {{question}}
+  - "{{question}}"
 
 providers:
   - id: openai:responses:gpt-6-sol
