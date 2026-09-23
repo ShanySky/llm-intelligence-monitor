@@ -62,7 +62,7 @@ for (const p of current.providers ?? []) {
   const window = [...hist, p].slice(-rollingDays);
 
   const anchorBaseline = {
-    passRate: avg(hist.map((x) => x.anchor?.answeredPassRate ?? x.anchor?.passRate)),
+    passRate: avg(hist.map((x) => x.anchor?.passRate)),
     timeoutRate: avg(hist.map((x) => x.anchor?.timeoutRate)),
     reasoning: avg(hist.map((x) => x.anchor?.averageTokens?.reasoning)),
     total: avg(hist.map((x) => x.anchor?.averageTokens?.total)),
@@ -73,7 +73,7 @@ for (const p of current.providers ?? []) {
     anchorScorePctPoints:
       anchorBaseline.passRate == null
         ? null
-        : ((p.anchor.answeredPassRate ?? p.anchor.passRate) - anchorBaseline.passRate) * 100,
+        : (p.anchor.passRate - anchorBaseline.passRate) * 100,
     reasoningTokenPct:
       pctChange(p.anchor.averageTokens.reasoning, anchorBaseline.reasoning),
     totalTokenPct:
@@ -100,8 +100,10 @@ for (const p of current.providers ?? []) {
 
   const investmentSignals = [reasoningDrop, totalDrop, latencyDrop].filter(Boolean).length;
 
-  let signal = '基线积累中';
-  if (enoughHistory) {
+  const dataIncomplete = (p.overall?.apiErrors ?? 0) > 0;
+
+  let signal = dataIncomplete ? '数据不完整，等待复测' : '基线积累中';
+  if (!dataIncomplete && enoughHistory) {
     if (scoreDrop && investmentSignals >= 2) signal = '高度疑似降质/路由异常';
     else if (scoreDrop && investmentSignals >= 1) signal = '疑似降质，建议复测';
     else if (timeoutSpike) signal = '超时率显著上升，检查模型/链路';
@@ -113,9 +115,9 @@ for (const p of current.providers ?? []) {
     provider: p.provider,
     historyRuns: hist.length,
     rolling: {
-      zhPassRate: avg(window.map((x) => x.languages?.zh?.answeredPassRate ?? x.languages?.zh?.passRate)),
-      enPassRate: avg(window.map((x) => x.languages?.en?.answeredPassRate ?? x.languages?.en?.passRate)),
-      anchorPassRate: avg(window.map((x) => x.anchor?.answeredPassRate ?? x.anchor?.passRate)),
+      zhPassRate: avg(window.map((x) => x.languages?.zh?.passRate)),
+      enPassRate: avg(window.map((x) => x.languages?.en?.passRate)),
+      anchorPassRate: avg(window.map((x) => x.anchor?.passRate)),
       anchorTimeoutRate: avg(window.map((x) => x.anchor?.timeoutRate)),
       anchorReasoningTokens: avg(window.map((x) => x.anchor?.averageTokens?.reasoning)),
       anchorTotalTokens: avg(window.map((x) => x.anchor?.averageTokens?.total)),
@@ -123,14 +125,14 @@ for (const p of current.providers ?? []) {
     },
     baseline: anchorBaseline,
     current: {
-      anchorPassRate: p.anchor.answeredPassRate ?? p.anchor.passRate,
+      anchorPassRate: p.anchor.passRate,
       anchorTimeoutRate: p.anchor.timeoutRate ?? 0,
       anchorReasoningTokens: p.anchor.averageTokens.reasoning,
       anchorTotalTokens: p.anchor.averageTokens.total,
       anchorLatencyMs: p.anchor.averageLatencyMs,
     },
     deltas,
-    flags: { scoreDrop, reasoningDrop, totalDrop, latencyDrop, timeoutSpike },
+    flags: { dataIncomplete, scoreDrop, reasoningDrop, totalDrop, latencyDrop, timeoutSpike },
     signal,
   });
 }
@@ -160,7 +162,7 @@ for (const m of output.models) {
 
 lines.push(
   '',
-  '判定原则：能力下降看有效回答正确率；推理令牌减少、总令牌减少、响应时间缩短属于强化证据。超时率单独监控，不再等同于普通答错。',
+  '判定原则：能力下降按固定题目分母的基础正确率判断；超时按未答对计入基础分，并单独监控超时率；API错误重试后若仍存在，则该模型本轮标记为数据不完整，不参与降质判断。推理令牌减少、总令牌减少、响应时间缩短属于强化证据。',
 );
 
 fs.writeFileSync(outMd, lines.join('\n') + '\n');
