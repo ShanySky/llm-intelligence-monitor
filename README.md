@@ -1,65 +1,100 @@
 # LLM Intelligence Monitor
 
-A small, repeatable regression harness for tracking whether API-served LLM capability changes over time.
+用于长期监控 GPT 等大模型是否出现能力下降的轻量回归测试项目。
 
-## Current scope
+## 日常监控策略
 
-The first version intentionally stays small:
+完整题库保留大量中英文镜像题，但每日不会全量运行。
 
-- Promptfoo is pinned to a fixed version so evaluator changes do not masquerade as model changes.
-- GPT-6 Sol High and GPT-6 Luna High are compared through the same OpenAI-compatible gateway.
-- The initial suite uses objective, deterministic assertions only.
-- Runs are manual at first. Scheduling is enabled only after the gateway/model configuration has been validated.
-- Promptfoo response caching is disabled for every monitoring run.
+默认日常配置：
 
-## Required GitHub Actions secrets
+- 固定锚点题：6 道
+- 分层轮换题：6 道
+- 每道原始题同时测试中文和英文版本
+- 每模型每题默认只运行 1 次
+- 因此默认每个模型每天执行：12 道原始题 × 2 种语言 = 24 次调用
 
-Create these repository secrets before the first run:
+固定锚点用于保证不同日期之间有稳定可比基准；轮换题用于扩大题库覆盖面，降低模型对固定题集适配造成的失真。
 
-- `OPENAI_API_KEY` — API key for the gateway you actually use.
-- `OPENAI_BASE_URL` — OpenAI-compatible API base URL, including the API prefix (normally ending in `/v1`).
-- `MAIL_USERNAME` — Gmail sender address.
-- `MAIL_PASSWORD` — Gmail App Password (not the normal account password).
-- `MAIL_TO` — Recipient address for the daily report.
+轮换抽题不是纯随机，而是同时考虑：
 
-The workflow sends requests through this configured gateway, so it measures the path you actually use rather than bypassing it.
+- 难度：标准 / 困难 / 极限 / 超高难
+- 能力：推理 / 数学 / 代码 / 指令遵循
 
-## First run
+同一天使用中国日期作为确定性种子，因此当天重复运行会抽到同一批轮换题，方便复测和问题定位；第二天才会轮换。
 
-Open **Actions → LLM intelligence smoke test → Run workflow**.
+## 参数调整
 
-Keep `repeat` at `1` for the first connectivity/configuration check. After the configuration is proven stable, increase it to `3` for baseline/regression runs.
+日常参数集中在根目录：
 
-Each run uploads:
+`monitor-config.json`
 
-- full Promptfoo JSON results;
-- an HTML report;
-- a compact JSON/Markdown summary.
+默认：
 
-## Interpretation
+```json
+{
+  "daily": {
+    "anchorCount": 6,
+    "rotatingCount": 6,
+    "repeat": 1
+  }
+}
+```
 
-A single lower score is not enough to call a model degraded. Long-term monitoring should compare repeated runs against a fixed baseline and look for sustained drops across multiple categories. The initial smoke suite is only the foundation for that baseline.
+以后需要改成 7+7、8+8，只需要修改：
 
+- `anchorCount`
+- `rotatingCount`
 
-## Daily monitoring
+不需要修改抽题代码或 GitHub Actions。
 
-The workflow runs every day at **08:30 Asia/Shanghai (China time)**. Scheduled runs use **3 fresh repetitions** per test/model.
+手动运行 GitHub Actions 时，也可以临时覆盖这三个参数，而不修改仓库配置。
 
-After each run it:
+## 中英文镜像
 
-1. runs Promptfoo with cache disabled;
-2. aggregates pass rates and per-model token usage;
-3. uploads the full JSON/HTML/Markdown result bundle as a GitHub Actions artifact for 90 days;
-4. sends the compact summary by Gmail SMTP.
+每个原始题必须同时存在：
 
-The summary reports input, output, reasoning (when the gateway exposes it), cached, and total tokens separately for each model.
+- 中文版本
+- 英文版本
 
+两者使用完全相同的数据、约束和标准答案。
 
-## Bilingual paired evaluation
+报告分别统计：
 
-Every canonical challenge is tested twice with identical data, constraints, and expected answer:
+- 总成绩
+- 中文成绩
+- 英文成绩
+- 同题中英文表现差异
+- 每个模型输入 / 输出 / 推理 / 总令牌（Token）
 
-- one Chinese version;
-- one English version.
+## 定时运行
 
-Reports show the overall score, Chinese score, English score, and same-question language differences for each model. This makes it possible to detect language-specific regressions separately from general capability changes.
+GitHub Actions 每天 **中国时间 08:30（Asia/Shanghai）** 自动运行。
+
+每轮完成后：
+
+1. 生成抽题清单；
+2. 使用 Promptfoo 执行测试；
+3. 汇总模型得分和令牌（Token）；
+4. 上传完整 JSON / HTML / Markdown 报告；
+5. 通过 Gmail 自动发送中文日报。
+
+## 每周深度测试
+
+配置中预留了 `deepTest`，但当前：
+
+```json
+"enabled": false
+```
+
+目前没有任何每周深度测试定时任务，也不会自动执行。后续只有确认有价值时再开启。
+
+## 必需的 GitHub Actions Secrets
+
+- `OPENAI_API_KEY`
+- `OPENAI_BASE_URL`
+- `MAIL_USERNAME`
+- `MAIL_PASSWORD`
+- `MAIL_TO`
+
+模型请求仍通过实际使用的 OpenAI-compatible 中转链路运行，以尽量贴近真实使用环境。
