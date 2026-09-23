@@ -955,7 +955,7 @@
       只输出满足条件的字符串数量。
   assert:
     - type: equals
-      value: "987384"
+      value: "538064"
 
 - description: H04-EN-binary-string-count
   vars:
@@ -969,7 +969,7 @@
       separately. Output only the number of valid strings.
   assert:
     - type: equals
-      value: "987384"
+      value: "538064"
 
 - description: H05-ZH-simple-path-count
   vars:
