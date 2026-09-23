@@ -542,7 +542,7 @@
       严格输出“任务ID列表|总value|总cost”，ID 升序且用英文逗号连接。
   assert:
     - type: equals
-      value: "T1,T2,T3,T4|35|14"
+      value: "T1,T2,T3,T5,T7|35|12"
 
 - description: I04-EN-dependent-selection
   vars:
@@ -567,4 +567,4 @@
       and comma-separated.
   assert:
     - type: equals
-      value: "T1,T2,T3,T4|35|14"
+      value: "T1,T2,T3,T5,T7|35|12"
