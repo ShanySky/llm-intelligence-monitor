@@ -22,6 +22,7 @@ providers:
         effort: xhigh
       max_output_tokens: 8192
       store: false
+      maxRetries: 1
 
 tests:
   - file://../tests/selected.yaml
