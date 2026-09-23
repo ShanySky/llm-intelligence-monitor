@@ -30,5 +30,5 @@ sharing: false
 
 evaluateOptions:
   cache: false
-  maxConcurrency: 2
+  maxConcurrency: 4
   timeoutMs: 300000
