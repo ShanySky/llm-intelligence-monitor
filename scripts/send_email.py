@@ -42,7 +42,7 @@ if summary_json_path.exists():
             overall = p.get("overall", {})
             pass_rate = float(overall.get("passRate", 0)) * 100
             total_tokens = int((overall.get("tokenUsage") or {}).get("total", 0) or 0)
-            brief.append(f"{name} {pass_rate:.1f}% / {total_tokens:,} Token")
+            brief.append(f"{name} {pass_rate:.1f}% / 总令牌（Token）{total_tokens:,}")
         if brief:
             subject_parts.append("；".join(brief))
     except Exception:
@@ -64,7 +64,7 @@ plain = f"""大模型智能水平监控日报
 触发方式：{trigger_text}
 Promptfoo 执行状态：{outcome_text}
 Promptfoo 退出码：{promptfoo_exit_code}
-GitHub Actions 运行地址：{run_url}
+GitHub 自动化运行（GitHub Actions）地址：{run_url}
 
 {summary_text}
 """
