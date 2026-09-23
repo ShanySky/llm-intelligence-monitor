@@ -113,8 +113,8 @@ for (const p of current.providers ?? []) {
     provider: p.provider,
     historyRuns: hist.length,
     rolling: {
-      zhPassRate: avg(window.map((x) => x.languages?.zh?.passRate)),
-      enPassRate: avg(window.map((x) => x.languages?.en?.passRate)),
+      zhPassRate: avg(window.map((x) => x.languages?.zh?.answeredPassRate ?? x.languages?.zh?.passRate)),
+      enPassRate: avg(window.map((x) => x.languages?.en?.answeredPassRate ?? x.languages?.en?.passRate)),
       anchorPassRate: avg(window.map((x) => x.anchor?.answeredPassRate ?? x.anchor?.passRate)),
       anchorTimeoutRate: avg(window.map((x) => x.anchor?.timeoutRate)),
       anchorReasoningTokens: avg(window.map((x) => x.anchor?.averageTokens?.reasoning)),
