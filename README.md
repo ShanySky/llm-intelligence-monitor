@@ -43,7 +43,7 @@ A single lower score is not enough to call a model degraded. Long-term monitorin
 
 ## Daily monitoring
 
-The workflow runs every day at **09:30 America/New_York**. Scheduled runs use **3 fresh repetitions** per test/model.
+The workflow runs every day at **08:30 Asia/Shanghai (China time)**. Scheduled runs use **3 fresh repetitions** per test/model.
 
 After each run it:
 
@@ -53,3 +53,13 @@ After each run it:
 4. sends the compact summary by Gmail SMTP.
 
 The summary reports input, output, reasoning (when the gateway exposes it), cached, and total tokens separately for each model.
+
+
+## Bilingual paired evaluation
+
+Every canonical challenge is tested twice with identical data, constraints, and expected answer:
+
+- one Chinese version;
+- one English version.
+
+Reports show the overall score, Chinese score, English score, and same-question language differences for each model. This makes it possible to detect language-specific regressions separately from general capability changes.
