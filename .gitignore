@@ -1,0 +1,4 @@
+.promptfoo/
+results/
+node_modules/
+.env
