@@ -26,13 +26,10 @@ permissions:
   contents: read
 
 jobs:
-  eval:
+  prepare:
     if: github.event_name != 'push' || contains(github.event.head_commit.message, '[run-smoke]')
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+    timeout-minutes: 10
 
     steps:
       - name: Check out repository
@@ -48,21 +45,10 @@ jobs:
         run: |
           node --check scripts/select-tests.mjs
           node --check scripts/summarize.mjs
+          node --check scripts/build-model-config.mjs
+          node --check scripts/combine-results.mjs
           python -m py_compile scripts/send_email.py
           node -e "JSON.parse(require('fs').readFileSync('monitor-config.json','utf8')); JSON.parse(require('fs').readFileSync('tests/question-metadata.json','utf8'));"
-
-      - name: Validate required secrets
-        shell: bash
-        env:
-          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-          MAIL_TO: ${{ secrets.MAIL_TO }}
-        run: |
-          test -n "$OPENAI_API_KEY" || { echo "Missing repository secret: OPENAI_API_KEY"; exit 1; }
-          test -n "$OPENAI_BASE_URL" || { echo "Missing repository secret: OPENAI_BASE_URL"; exit 1; }
-          test -n "$MAIL_USERNAME" || { echo "Missing repository secret: MAIL_USERNAME"; exit 1; }
-          test -n "$MAIL_PASSWORD" || { echo "Missing repository secret: MAIL_PASSWORD"; exit 1; }
-          test -n "$MAIL_TO" || { echo "Missing repository secret: MAIL_TO"; exit 1; }
 
       - name: Select balanced daily questions
         shell: bash
@@ -71,12 +57,11 @@ jobs:
           ROTATING_COUNT_OVERRIDE: ${{ inputs.rotating_count }}
           REPEAT_OVERRIDE: ${{ inputs.repeat }}
         run: |
-          mkdir -p results
+          mkdir -p results selection
           export RUN_DATE="$(TZ=Asia/Shanghai date +%F)"
           node scripts/select-tests.mjs
-          cp tests/selected.yaml results/selected-tests.yaml
-          repeat="$(node -e "const s=require('./results/selection.json'); process.stdout.write(String(s.repeat))")"
-          echo "EVAL_REPEAT=$repeat" >> "$GITHUB_ENV"
+          cp tests/selected.yaml selection/selected.yaml
+          cp results/selection.json selection/selection.json
 
           echo "## 本轮抽题" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
@@ -90,19 +75,84 @@ jobs:
           console.log(`- 轮换题 ID：${s.rotating.join(', ')}`);
           NODE
 
-      - name: Run Promptfoo
+      - name: Upload daily selection
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-selection-${{ github.run_id }}-${{ github.run_attempt }}
+          path: selection/
+          retention-days: 7
+
+  eval:
+    needs: prepare
+    if: needs.prepare.result == 'success'
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - key: gpt-6-astra
+            model: gpt-6-astra
+            label: GPT-6 Astra X High
+          - key: gpt-6-sol
+            model: gpt-6-sol
+            label: GPT-6 Sol X High
+          - key: gpt-6-luna
+            model: gpt-6-luna
+            label: GPT-6 Luna X High
+          - key: gpt-5-6-sol
+            model: gpt-5.6-sol
+            label: GPT-5.6 Sol X High
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Validate API secrets
+        shell: bash
+        run: |
+          test -n "$OPENAI_API_KEY" || { echo "Missing repository secret: OPENAI_API_KEY"; exit 1; }
+          test -n "$OPENAI_BASE_URL" || { echo "Missing repository secret: OPENAI_BASE_URL"; exit 1; }
+
+      - name: Download daily selection
+        uses: actions/download-artifact@v4
+        with:
+          name: daily-selection-${{ github.run_id }}-${{ github.run_attempt }}
+          path: selection
+
+      - name: Prepare model test
+        shell: bash
+        run: |
+          mkdir -p tests results
+          cp selection/selected.yaml tests/selected.yaml
+          cp selection/selection.json results/selection.json
+          repeat="$(node -e "const s=require('./selection/selection.json'); process.stdout.write(String(s.repeat))")"
+          echo "EVAL_REPEAT=$repeat" >> "$GITHUB_ENV"
+          node scripts/build-model-config.mjs "${{ matrix.model }}" "${{ matrix.label }}" results/promptfoo-model.yaml
+
+      - name: Run ${{ matrix.label }}
         id: promptfoo
         shell: bash
         run: |
           set +e
           npx -y promptfoo@0.123.1 eval \
-            -c promptfooconfig.yaml \
+            -c results/promptfoo-model.yaml \
             --no-cache \
             --no-share \
             --repeat "$EVAL_REPEAT" \
-            --max-concurrency 4 \
-            -o results/results.json \
-            -o results/results.html
+            --max-concurrency 2 \
+            -o "results/${{ matrix.key }}.json" \
+            -o "results/${{ matrix.key }}.html"
           status=$?
           set -e
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
@@ -112,32 +162,81 @@ jobs:
             exit "$status"
           fi
 
-      - name: Build compact summary
-        if: always()
-        shell: bash
-        run: |
-          if [ -f results/results.json ]; then
-            node scripts/summarize.mjs results/results.json results/summary.json results/summary.md
-            cat results/summary.md >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "Promptfoo did not produce results/results.json." >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-      - name: Upload evaluation artifacts
+      - name: Upload model result
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: llm-intelligence-results-${{ github.run_id }}-${{ github.run_attempt }}
+          name: llm-model-${{ matrix.key }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            results/${{ matrix.key }}.json
+            results/${{ matrix.key }}.html
+          if-no-files-found: warn
+          retention-days: 90
+
+  aggregate:
+    needs: [prepare, eval]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Validate email secrets
+        shell: bash
+        env:
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+        run: |
+          test -n "$MAIL_USERNAME" || { echo "Missing repository secret: MAIL_USERNAME"; exit 1; }
+          test -n "$MAIL_PASSWORD" || { echo "Missing repository secret: MAIL_PASSWORD"; exit 1; }
+          test -n "$MAIL_TO" || { echo "Missing repository secret: MAIL_TO"; exit 1; }
+
+      - name: Download daily selection
+        uses: actions/download-artifact@v4
+        with:
+          name: daily-selection-${{ github.run_id }}-${{ github.run_attempt }}
+          path: selection
+
+      - name: Download all model results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: llm-model-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: results/models
+          merge-multiple: true
+
+      - name: Build combined Chinese report
+        shell: bash
+        run: |
+          mkdir -p results
+          cp selection/selection.json results/selection.json
+          cp selection/selected.yaml results/selected-tests.yaml
+          node scripts/combine-results.mjs results/models results/combined-results.json
+          node scripts/summarize.mjs results/combined-results.json results/summary.json results/summary.md
+          cat results/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload combined report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: llm-intelligence-combined-${{ github.run_id }}-${{ github.run_attempt }}
           path: results/
           if-no-files-found: warn
           retention-days: 90
 
-      - name: Email test report
+      - name: Email combined report
         if: always()
         env:
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           MAIL_TO: ${{ secrets.MAIL_TO }}
-          PROMPTFOO_OUTCOME: ${{ steps.promptfoo.outcome }}
-          PROMPTFOO_EXIT_CODE: ${{ steps.promptfoo.outputs.exit_code }}
+          PROMPTFOO_OUTCOME: ${{ needs.eval.result }}
+          PROMPTFOO_EXIT_CODE: "四模型并行任务汇总"
         run: python scripts/send_email.py
