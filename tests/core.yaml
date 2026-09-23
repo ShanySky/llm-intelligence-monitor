@@ -568,3 +568,289 @@
   assert:
     - type: equals
       value: "T1,T2,T3,T5,T7|35|12"
+
+
+# -------------------- Sol-level stress calibration --------------------
+
+- description: S01-ZH-multiset-exact-AB
+  vars:
+    pair_id: S01
+    language: zh
+    category: stress
+    question: >-
+      用多重集合 A,A,A,B,B,B,C,C,D,D 的全部 10 个字母组成长度为 10 的字符串。
+      要求：任意两个相同字母都不相邻；首字符不能是 C；末字符不能是 D；
+      相邻子串 "AB" 在整个字符串中恰好出现 1 次。
+      一共有多少个不同字符串？只输出整数。
+  assert:
+    - type: equals
+      value: "1534"
+
+- description: S01-EN-multiset-exact-AB
+  vars:
+    pair_id: S01
+    language: en
+    category: stress
+    question: >-
+      Form length-10 strings using every letter of the multiset
+      A,A,A,B,B,B,C,C,D,D. No equal letters may be adjacent; the first
+      character may not be C; the last character may not be D; and the
+      adjacent substring "AB" must occur exactly once in the entire string.
+      How many distinct strings satisfy all conditions? Output only the integer.
+  assert:
+    - type: equals
+      value: "1534"
+
+- description: S02-ZH-constrained-sequences
+  vars:
+    pair_id: S02
+    language: zh
+    category: stress
+    question: >-
+      长度为 12 的序列，每一项只能取 1、2、3。
+      要求所有 12 项之和恰好为 23，并且任意相邻两项不能相等。
+      满足条件的序列共有多少个？只输出整数。
+  assert:
+    - type: equals
+      value: "1198"
+
+- description: S02-EN-constrained-sequences
+  vars:
+    pair_id: S02
+    language: en
+    category: stress
+    question: >-
+      Consider length-12 sequences whose entries are only 1, 2, or 3.
+      The sum of all 12 entries must be exactly 23, and no two adjacent
+      entries may be equal. How many such sequences are there?
+      Output only the integer.
+  assert:
+    - type: equals
+      value: "1198"
+
+- description: S03-ZH-determinant
+  vars:
+    pair_id: S03
+    language: zh
+    category: stress
+    question: >-
+      计算下面 6×6 整数矩阵的行列式：
+      [3,-2,5,1,0,4]
+      [1,4,-1,2,3,0]
+      [2,0,3,-3,1,5]
+      [-1,2,4,0,2,1]
+      [5,1,0,2,-2,3]
+      [0,3,2,1,4,-1]
+      只输出行列式的整数值。
+  assert:
+    - type: equals
+      value: "2797"
+
+- description: S03-EN-determinant
+  vars:
+    pair_id: S03
+    language: en
+    category: stress
+    question: >-
+      Compute the determinant of this 6x6 integer matrix:
+      [3,-2,5,1,0,4]
+      [1,4,-1,2,3,0]
+      [2,0,3,-3,1,5]
+      [-1,2,4,0,2,1]
+      [5,1,0,2,-2,3]
+      [0,3,2,1,4,-1]
+      Output only the integer determinant.
+  assert:
+    - type: equals
+      value: "2797"
+
+- description: S04-ZH-modular-recurrence
+  vars:
+    pair_id: S04
+    language: zh
+    category: stress
+    question: >-
+      定义 x0=2，x1=5。对 n>=2：
+      xn=(3*x(n-1)+2*x(n-2)+n^2) mod 10007。
+      求 x40。只输出整数。
+  assert:
+    - type: equals
+      value: "3473"
+
+- description: S04-EN-modular-recurrence
+  vars:
+    pair_id: S04
+    language: en
+    category: stress
+    question: >-
+      Define x0=2 and x1=5. For n>=2:
+      xn=(3*x(n-1)+2*x(n-2)+n^2) mod 10007.
+      Find x40. Output only the integer.
+  assert:
+    - type: equals
+      value: "3473"
+
+- description: S05-ZH-directed-simple-paths
+  vars:
+    pair_id: S05
+    language: zh
+    category: stress
+    question: >-
+      有向图的出边如下：
+      A->{B,C,D}
+      B->{C,D,E,F}
+      C->{D,E,F}
+      D->{E,F,G}
+      E->{D,F,G,H}
+      F->{D,E,G,H}
+      G->{E,H}
+      H->{}
+      统计从 A 到 H、恰好包含 5 条边的简单路径数量；路径中 D 和 E 两个顶点必须恰好出现一个。
+      简单路径不能重复访问顶点。只输出整数。
+  assert:
+    - type: equals
+      value: "15"
+
+- description: S05-EN-directed-simple-paths
+  vars:
+    pair_id: S05
+    language: en
+    category: stress
+    question: >-
+      A directed graph has outgoing edges:
+      A->{B,C,D}
+      B->{C,D,E,F}
+      C->{D,E,F}
+      D->{E,F,G}
+      E->{D,F,G,H}
+      F->{D,E,G,H}
+      G->{E,H}
+      H->{}
+      Count simple paths from A to H containing exactly 5 edges, where exactly
+      one of vertices D and E appears on the path. Vertices may not repeat.
+      Output only the integer.
+  assert:
+    - type: equals
+      value: "15"
+
+- description: S06-ZH-python-stateful-cache
+  vars:
+    pair_id: S06
+    language: zh
+    category: stress
+    question: >-
+      Python 3 中执行：
+      def deco(fn):
+          cache={}
+          def g(x, acc=[]):
+              if x not in cache:
+                  acc.append(x)
+                  cache[x]=fn(x)+sum(acc)
+              return cache[x]
+          return g
+      @deco
+      def f(x):
+          return x*x
+      print(f(2),f(3),f(2),f(4))
+      严格输出 print 打印的内容，不要解释。
+  assert:
+    - type: equals
+      value: "6 14 6 25"
+
+- description: S06-EN-python-stateful-cache
+  vars:
+    pair_id: S06
+    language: en
+    category: stress
+    question: >-
+      In Python 3, execute:
+      def deco(fn):
+          cache={}
+          def g(x, acc=[]):
+              if x not in cache:
+                  acc.append(x)
+                  cache[x]=fn(x)+sum(acc)
+              return cache[x]
+          return g
+      @deco
+      def f(x):
+          return x*x
+      print(f(2),f(3),f(2),f(4))
+      Output exactly what print emits, with no explanation.
+  assert:
+    - type: equals
+      value: "6 14 6 25"
+
+- description: S07-ZH-postgresql-recursive
+  vars:
+    pair_id: S07
+    language: zh
+    category: stress
+    question: >-
+      PostgreSQL 执行：
+      WITH RECURSIVE r(n,a,b) AS (
+        VALUES (1,2,3)
+        UNION ALL
+        SELECT n+1, (a+b+n)%11, (a+2*b+n)%13
+        FROM r WHERE n<8
+      )
+      SELECT sum(a*10+b) FROM r;
+      每一行递归计算都使用上一行旧的 n、a、b。
+      只输出最终整数结果。
+  assert:
+    - type: equals
+      value: "537"
+
+- description: S07-EN-postgresql-recursive
+  vars:
+    pair_id: S07
+    language: en
+    category: stress
+    question: >-
+      PostgreSQL executes:
+      WITH RECURSIVE r(n,a,b) AS (
+        VALUES (1,2,3)
+        UNION ALL
+        SELECT n+1, (a+b+n)%11, (a+2*b+n)%13
+        FROM r WHERE n<8
+      )
+      SELECT sum(a*10+b) FROM r;
+      Each recursive row uses the old n, a, and b from the preceding row.
+      Output only the final integer result.
+  assert:
+    - type: equals
+      value: "537"
+
+- description: S08-ZH-three-worker-scheduling
+  vars:
+    pair_id: S08
+    language: zh
+    category: stress
+    question: >-
+      有 8 个不可抢占任务，持续时间：
+      A=5，B=4，C=6，D=3，E=5，F=2，G=4，H=3。
+      有 3 名相同工人，每个任务占用一名工人。
+      前置关系：D 等待 A 和 B；E 等待 A 和 C；F 等待 B 和 C；
+      G 等待 D 和 E；H 等待 F 和 G。
+      任务可以从时间 0 开始，允许在任意整数时刻启动。
+      求全部任务完成的最短总工期，只输出整数。
+  assert:
+    - type: equals
+      value: "18"
+
+- description: S08-EN-three-worker-scheduling
+  vars:
+    pair_id: S08
+    language: en
+    category: stress
+    question: >-
+      There are 8 non-preemptive tasks with durations:
+      A=5, B=4, C=6, D=3, E=5, F=2, G=4, H=3.
+      Three identical workers are available, and each task occupies one worker.
+      Precedence constraints: D waits for A and B; E waits for A and C;
+      F waits for B and C; G waits for D and E; H waits for F and G.
+      Tasks may start at time 0 and at any integer time thereafter.
+      Find the minimum makespan. Output only the integer.
+  assert:
+    - type: equals
+      value: "18"
