@@ -4,15 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       repeat:
-        description: Fresh repetitions per test/model (use 1 for first smoke run, 3 for baseline runs)
+        description: Fresh repetitions per test/model (use 1 for smoke run, 3 for baseline runs)
         required: true
         default: "1"
+  schedule:
+    - cron: "30 9 * * *"
+      timezone: "America/New_York"
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
 
 jobs:
   eval:
+    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[run-smoke]')
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -23,10 +30,21 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 22
+      - name: Set up Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
+
+      - name: Choose repeat count
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "EVAL_REPEAT=3" >> "$GITHUB_ENV"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "EVAL_REPEAT=${{ inputs.repeat }}" >> "$GITHUB_ENV"
+          else
+            echo "EVAL_REPEAT=1" >> "$GITHUB_ENV"
+          fi
 
       - name: Validate required secrets
         shell: bash
@@ -44,7 +62,7 @@ jobs:
             -c promptfooconfig.yaml \
             --no-cache \
             --no-share \
-            --repeat "${{ inputs.repeat }}" \
+            --repeat "$EVAL_REPEAT" \
             --max-concurrency 2 \
             -o results/results.json \
             -o results/results.html
@@ -52,8 +70,7 @@ jobs:
           set -e
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
 
-          # Promptfoo uses 100 for assertion failures. Those are data for this
-          # monitor, not an infrastructure failure.
+          # Assertion failures are monitoring data, not infrastructure failures.
           if [ "$status" -ne 0 ] && [ "$status" -ne 100 ]; then
             exit "$status"
           fi
