@@ -147,3 +147,18 @@ H03、U03 等高成本长链计算题保留在完整题库中，但不再作为�
 - 固定锚点上的响应时间与 Reasoning Token。
 
 如果重试后仍存在 API 错误，该模型本轮综合分标记为“数据不完整”，不参与模型间横向比较，也不作为降质判定样本。
+
+
+## Selective manual model runs
+
+Manual runs can execute all configured models or only selected models.
+
+In **Actions → LLM intelligence daily monitor → Run workflow**, set `models` to:
+
+- `all` — run every configured model;
+- `gpt-6-luna` — run only GPT-6 Luna X High;
+- `gpt-6-sol,gpt-6-luna` — run multiple selected models.
+
+Manual runs do not write formal history and do not participate in degradation or routing-anomaly judgments.
+
+Email delivery uses an HTML body for normal reading, includes a plain-text fallback, and attaches the complete Markdown report.
