@@ -35,58 +35,10 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Decide whether this model is selected
-        id: model_select
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          REQUESTED_MODELS: ${{ inputs.models }}
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-          MODEL_KEY: ${{ matrix.key }}
-        run: |
-          enabled=false
-
-          if [ "$EVENT_NAME" = "schedule" ]; then
-            enabled=true
-          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            requested="${REQUESTED_MODELS:-all}"
-            if [ "$requested" = "all" ]; then
-              enabled=true
-            else
-              IFS=',' read -ra items <<< "$requested"
-              for item in "${items[@]}"; do
-                item="$(echo "$item" | xargs)"
-                if [ "$item" = "$MODEL_KEY" ]; then
-                  enabled=true
-                  break
-                fi
-              done
-            fi
-          elif [ "$EVENT_NAME" = "push" ]; then
-            if [[ "$COMMIT_MESSAGE" == *"[run-smoke]"* ]] || [[ "$COMMIT_MESSAGE" == *"[run-model:all]"* ]]; then
-              enabled=true
-            elif [[ "$COMMIT_MESSAGE" == *"[run-model:"* ]]; then
-              requested="$(printf '%s' "$COMMIT_MESSAGE" | sed -n 's/.*\[run-model:\([^]]*\)\].*/\1/p')"
-              IFS=',' read -ra items <<< "$requested"
-              for item in "${items[@]}"; do
-                item="$(echo "$item" | xargs)"
-                if [ "$item" = "$MODEL_KEY" ]; then
-                  enabled=true
-                  break
-                fi
-              done
-            fi
-          fi
-
-          echo "enabled=$enabled" >> "$GITHUB_OUTPUT"
-          echo "模型 $MODEL_KEY 是否执行：$enabled"
-
       - name: Check out repository
-        if: steps.model_select.outputs.enabled == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Node.js 24
-        if: steps.model_select.outputs.enabled == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "24"
@@ -163,10 +115,58 @@ jobs:
       PROMPTFOO_RETRY_5XX: "true"
 
     steps:
+      - name: Decide whether this model is selected
+        id: model_select
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_MODELS: ${{ inputs.models }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          MODEL_KEY: ${{ matrix.key }}
+        run: |
+          enabled=false
+
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            enabled=true
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            requested="${REQUESTED_MODELS:-all}"
+            if [ "$requested" = "all" ]; then
+              enabled=true
+            else
+              IFS=',' read -ra items <<< "$requested"
+              for item in "${items[@]}"; do
+                item="$(echo "$item" | xargs)"
+                if [ "$item" = "$MODEL_KEY" ]; then
+                  enabled=true
+                  break
+                fi
+              done
+            fi
+          elif [ "$EVENT_NAME" = "push" ]; then
+            if [[ "$COMMIT_MESSAGE" == *"[run-smoke]"* ]] || [[ "$COMMIT_MESSAGE" == *"[run-model:all]"* ]]; then
+              enabled=true
+            elif [[ "$COMMIT_MESSAGE" == *"[run-model:"* ]]; then
+              requested="$(printf '%s' "$COMMIT_MESSAGE" | sed -n 's/.*\[run-model:\([^]]*\)\].*/\1/p')"
+              IFS=',' read -ra items <<< "$requested"
+              for item in "${items[@]}"; do
+                item="$(echo "$item" | xargs)"
+                if [ "$item" = "$MODEL_KEY" ]; then
+                  enabled=true
+                  break
+                fi
+              done
+            fi
+          fi
+
+          echo "enabled=$enabled" >> "$GITHUB_OUTPUT"
+          echo "模型 $MODEL_KEY 是否执行：$enabled"
+
       - name: Check out repository
+        if: steps.model_select.outputs.enabled == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Node.js 24
+        if: steps.model_select.outputs.enabled == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "24"
