@@ -246,6 +246,28 @@ const providers = [...buckets.values()].map((b) => {
   };
 });
 
+providers.sort((a, b) => {
+  const aScore = a.overall?.compositeScore;
+  const bScore = b.overall?.compositeScore;
+  const aValid = Number.isFinite(aScore);
+  const bValid = Number.isFinite(bScore);
+
+  // Models with incomplete data always go last.
+  if (aValid !== bValid) return aValid ? -1 : 1;
+
+  if (aValid && bValid && bScore !== aScore) return bScore - aScore;
+
+  const aZh = Number(a.languages?.zh?.passRate ?? -1);
+  const bZh = Number(b.languages?.zh?.passRate ?? -1);
+  if (bZh !== aZh) return bZh - aZh;
+
+  const aEn = Number(a.languages?.en?.passRate ?? -1);
+  const bEn = Number(b.languages?.en?.passRate ?? -1);
+  if (bEn !== aEn) return bEn - aEn;
+
+  return String(a.provider).localeCompare(String(b.provider), 'zh-CN');
+});
+
 const summary = {
   generatedAt: new Date().toISOString(),
   evalTimestamp: data?.timestamp ?? data?.results?.timestamp ?? null,
