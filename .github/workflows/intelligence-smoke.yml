@@ -242,6 +242,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Check out formal history branch
+        if: github.event_name == 'schedule'
+        uses: actions/checkout@v4
+        with:
+          ref: history
+          path: history-store
+          fetch-depth: 1
+
       - name: Set up Node.js 24
         uses: actions/setup-node@v4
         with:
@@ -281,7 +289,7 @@ jobs:
           node scripts/summarize.mjs results/combined-results.json results/summary.json results/summary.md
 
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            node scripts/analyze-trends.mjs history results/summary.json results/trend.json results/trend.md
+            node scripts/analyze-trends.mjs history-store/history results/summary.json results/trend.json results/trend.md
             cat results/trend.md >> results/summary.md
           else
             cat > results/trend.json <<'JSON'
@@ -297,21 +305,28 @@ jobs:
 
           cat results/summary.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Save formal daily history
+      - name: Save formal daily history to history branch
         if: github.event_name == 'schedule'
         shell: bash
         run: |
           run_date="$(node -e "const s=require('./results/selection.json'); process.stdout.write(s.runDate)")"
-          mkdir -p history
-          cp results/summary.json "history/$run_date.json"
+          cd history-store
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Refresh the dedicated history branch before writing, so normal main
+          # development can never conflict with daily history persistence.
+          git pull --rebase origin history
+
+          mkdir -p history
+          cp ../results/summary.json "history/$run_date.json"
           git add "history/$run_date.json"
+
           if git diff --cached --quiet; then
             echo "History already up to date."
           else
             git commit -m "Record LLM monitor daily history $run_date"
-            git push
+            git push origin HEAD:history
           fi
 
       - name: Upload combined report
