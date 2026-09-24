@@ -15,6 +15,10 @@ on:
         description: Optional repeat override; blank uses monitor-config.json
         required: false
         default: ""
+      models:
+        description: "Models to run: all, or comma-separated keys (gpt-6-astra,gpt-6-sol,gpt-6-luna,gpt-5-6-sol)"
+        required: false
+        default: "all"
   schedule:
     - cron: "30 8 * * *"
       timezone: "Asia/Shanghai"
@@ -31,10 +35,58 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - name: Decide whether this model is selected
+        id: model_select
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_MODELS: ${{ inputs.models }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          MODEL_KEY: ${{ matrix.key }}
+        run: |
+          enabled=false
+
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            enabled=true
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            requested="${REQUESTED_MODELS:-all}"
+            if [ "$requested" = "all" ]; then
+              enabled=true
+            else
+              IFS=',' read -ra items <<< "$requested"
+              for item in "${items[@]}"; do
+                item="$(echo "$item" | xargs)"
+                if [ "$item" = "$MODEL_KEY" ]; then
+                  enabled=true
+                  break
+                fi
+              done
+            fi
+          elif [ "$EVENT_NAME" = "push" ]; then
+            if [[ "$COMMIT_MESSAGE" == *"[run-smoke]"* ]] || [[ "$COMMIT_MESSAGE" == *"[run-model:all]"* ]]; then
+              enabled=true
+            elif [[ "$COMMIT_MESSAGE" == *"[run-model:"* ]]; then
+              requested="$(printf '%s' "$COMMIT_MESSAGE" | sed -n 's/.*\[run-model:\([^]]*\)\].*/\1/p')"
+              IFS=',' read -ra items <<< "$requested"
+              for item in "${items[@]}"; do
+                item="$(echo "$item" | xargs)"
+                if [ "$item" = "$MODEL_KEY" ]; then
+                  enabled=true
+                  break
+                fi
+              done
+            fi
+          fi
+
+          echo "enabled=$enabled" >> "$GITHUB_OUTPUT"
+          echo "模型 $MODEL_KEY 是否执行：$enabled"
+
       - name: Check out repository
+        if: steps.model_select.outputs.enabled == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Node.js 24
+        if: steps.model_select.outputs.enabled == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "24"
@@ -84,7 +136,7 @@ jobs:
 
   eval:
     needs: prepare
-    if: needs.prepare.result == 'success' && (github.event_name != 'push' || contains(github.event.head_commit.message, '[run-smoke]'))
+    if: needs.prepare.result == 'success' && (github.event_name != 'push' || contains(github.event.head_commit.message, '[run-smoke]') || contains(github.event.head_commit.message, '[run-model:'))
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -120,18 +172,21 @@ jobs:
           node-version: "24"
 
       - name: Validate API secrets
+        if: steps.model_select.outputs.enabled == 'true'
         shell: bash
         run: |
           test -n "$OPENAI_API_KEY" || { echo "Missing repository secret: OPENAI_API_KEY"; exit 1; }
           test -n "$OPENAI_BASE_URL" || { echo "Missing repository secret: OPENAI_BASE_URL"; exit 1; }
 
       - name: Download daily selection
+        if: steps.model_select.outputs.enabled == 'true'
         uses: actions/download-artifact@v4
         with:
           name: daily-selection-${{ github.run_id }}-${{ github.run_attempt }}
           path: selection
 
       - name: Prepare model test
+        if: steps.model_select.outputs.enabled == 'true'
         shell: bash
         run: |
           mkdir -p tests results
@@ -142,6 +197,7 @@ jobs:
           node scripts/build-model-config.mjs "${{ matrix.model }}" "${{ matrix.label }}" results/promptfoo-model.yaml
 
       - name: Run ${{ matrix.label }}
+        if: steps.model_select.outputs.enabled == 'true'
         id: promptfoo
         shell: bash
         run: |
@@ -164,7 +220,7 @@ jobs:
           fi
 
       - name: Upload model result
-        if: always()
+        if: always() && steps.model_select.outputs.enabled == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: llm-model-${{ matrix.key }}-${{ github.run_id }}-${{ github.run_attempt }}
@@ -223,8 +279,22 @@ jobs:
           cp selection/selected.yaml results/selected-tests.yaml
           node scripts/combine-results.mjs results/models results/combined-results.json
           node scripts/summarize.mjs results/combined-results.json results/summary.json results/summary.md
-          node scripts/analyze-trends.mjs history results/summary.json results/trend.json results/trend.md
-          cat results/trend.md >> results/summary.md
+
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            node scripts/analyze-trends.mjs history results/summary.json results/trend.json results/trend.md
+            cat results/trend.md >> results/summary.md
+          else
+            cat > results/trend.json <<'JSON'
+          {"manualTest":true,"models":[]}
+          JSON
+            cat >> results/summary.md <<'MD'
+
+          ## 手动测试说明
+
+          本次为手动测试，不写入正式历史基线，也不参与模型降质或路由异常判断。
+          MD
+          fi
+
           cat results/summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Save formal daily history
@@ -260,5 +330,6 @@ jobs:
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           MAIL_TO: ${{ secrets.MAIL_TO }}
           PROMPTFOO_OUTCOME: ${{ needs.eval.result }}
-          PROMPTFOO_EXIT_CODE: "四模型并行任务汇总"
+          PROMPTFOO_EXIT_CODE: "模型任务汇总"
+          TEST_MODE: ${{ github.event_name == 'schedule' && '正式日测' || '手动测试' }}
         run: python scripts/send_email.py
