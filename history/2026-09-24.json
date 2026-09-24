@@ -1,0 +1,52 @@
+{
+  "generatedAt": "2026-09-24T01:17:49.467Z",
+  "selection": {
+    "runDate": "2026-09-24"
+  },
+  "providers": [
+    {
+      "provider": "GPT-5.6 Sol X High",
+      "overall": {"apiErrors": 0},
+      "anchor": {
+        "passRate": 0.75,
+        "timeoutRate": 0,
+        "averageLatencyMs": 21256.875,
+        "averageTokens": {"prompt": 438.8125, "completion": 912.5, "reasoning": 874.125, "cached": 0, "total": 1351.3125}
+      },
+      "languages": {"zh": {"passRate": 0.9375}, "en": {"passRate": 0.8125}}
+    },
+    {
+      "provider": "GPT-6 Astra X High",
+      "overall": {"apiErrors": 0},
+      "anchor": {
+        "passRate": 0.875,
+        "timeoutRate": 0,
+        "averageLatencyMs": 20206.1875,
+        "averageTokens": {"prompt": 438.8125, "completion": 513.5, "reasoning": 498.75, "cached": 0, "total": 952.3125}
+      },
+      "languages": {"zh": {"passRate": 0.9375}, "en": {"passRate": 0.9375}}
+    },
+    {
+      "provider": "GPT-6 Luna X High",
+      "overall": {"apiErrors": 0},
+      "anchor": {
+        "passRate": 0.5,
+        "timeoutRate": 0,
+        "averageLatencyMs": 16257.3125,
+        "averageTokens": {"prompt": 438.8125, "completion": 619.1875, "reasoning": 588.1875, "cached": 0, "total": 1058}
+      },
+      "languages": {"zh": {"passRate": 0.5625}, "en": {"passRate": 0.4375}}
+    },
+    {
+      "provider": "GPT-6 Sol X High",
+      "overall": {"apiErrors": 0},
+      "anchor": {
+        "passRate": 0.8125,
+        "timeoutRate": 0,
+        "averageLatencyMs": 20026.6875,
+        "averageTokens": {"prompt": 560.25, "completion": 527, "reasoning": 494.125, "cached": 0, "total": 1087.25}
+      },
+      "languages": {"zh": {"passRate": 0.9375}, "en": {"passRate": 0.75}}
+    }
+  ]
+}
