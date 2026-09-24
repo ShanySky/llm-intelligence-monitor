@@ -162,3 +162,21 @@ In **Actions → LLM intelligence daily monitor → Run workflow**, set `models`
 Manual runs do not write formal history and do not participate in degradation or routing-anomaly judgments.
 
 Email delivery uses an HTML body for normal reading, includes a plain-text fallback, and attaches the complete Markdown report.
+
+
+## History branch
+
+Formal daily monitoring history is stored on the dedicated `history` branch under `history/YYYY-MM-DD.json`.
+
+The `main` branch contains only source code and configuration; scheduled monitoring never writes result history back to `main`.
+
+If the complete history directory ever needs to be restored into `main`, do it explicitly instead of merging the whole history branch:
+
+```bash
+git switch main
+git restore --source=history -- history/
+git add history/
+git commit -m "Restore monitor history from history branch"
+```
+
+This restores every retained history file, including files that are intentionally absent from `main`.
