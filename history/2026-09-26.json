@@ -1,0 +1,3525 @@
+{
+  "generatedAt": "2026-09-26T01:13:23.663Z",
+  "evalTimestamp": null,
+  "evalId": null,
+  "selection": {
+    "mode": "daily",
+    "runDate": "2026-09-26",
+    "repeat": 1,
+    "bankCanonicalQuestions": 44,
+    "anchorCount": 8,
+    "rotatingCount": 8,
+    "canonicalQuestionsSelected": 16,
+    "bilingualTestsSelected": 32,
+    "anchors": [
+      "R03",
+      "M03",
+      "S05",
+      "H09",
+      "H07",
+      "U05",
+      "H12",
+      "U06"
+    ],
+    "rotating": [
+      "C02",
+      "S07",
+      "H04",
+      "H05",
+      "H10",
+      "U02",
+      "U07",
+      "U01"
+    ],
+    "selected": [
+      {
+        "pairId": "R03",
+        "ability": "reasoning",
+        "difficulty": "standard"
+      },
+      {
+        "pairId": "M03",
+        "ability": "math",
+        "difficulty": "standard"
+      },
+      {
+        "pairId": "S05",
+        "ability": "reasoning",
+        "difficulty": "hard"
+      },
+      {
+        "pairId": "H09",
+        "ability": "math",
+        "difficulty": "extreme"
+      },
+      {
+        "pairId": "H07",
+        "ability": "instruction",
+        "difficulty": "extreme"
+      },
+      {
+        "pairId": "U05",
+        "ability": "reasoning",
+        "difficulty": "ultra"
+      },
+      {
+        "pairId": "H12",
+        "ability": "instruction",
+        "difficulty": "extreme"
+      },
+      {
+        "pairId": "U06",
+        "ability": "coding",
+        "difficulty": "ultra"
+      },
+      {
+        "pairId": "C02",
+        "ability": "coding",
+        "difficulty": "standard"
+      },
+      {
+        "pairId": "S07",
+        "ability": "coding",
+        "difficulty": "hard"
+      },
+      {
+        "pairId": "H04",
+        "ability": "math",
+        "difficulty": "extreme"
+      },
+      {
+        "pairId": "H05",
+        "ability": "reasoning",
+        "difficulty": "extreme"
+      },
+      {
+        "pairId": "H10",
+        "ability": "coding",
+        "difficulty": "extreme"
+      },
+      {
+        "pairId": "U02",
+        "ability": "math",
+        "difficulty": "ultra"
+      },
+      {
+        "pairId": "U07",
+        "ability": "coding",
+        "difficulty": "ultra"
+      },
+      {
+        "pairId": "U01",
+        "ability": "math",
+        "difficulty": "ultra"
+      }
+    ],
+    "distribution": {
+      "ability": {
+        "reasoning": 4,
+        "math": 5,
+        "instruction": 2,
+        "coding": 5
+      },
+      "difficulty": {
+        "standard": 3,
+        "hard": 2,
+        "extreme": 6,
+        "ultra": 5
+      },
+      "rotatingDifficultyQuota": {
+        "standard": 1,
+        "hard": 1,
+        "extreme": 3,
+        "ultra": 3
+      }
+    },
+    "deepTestEnabled": false
+  },
+  "providers": [
+    {
+      "provider": "GPT-6 Astra X High",
+      "overall": {
+        "total": 32,
+        "passed": 30,
+        "wrong": 2,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 32,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 0.9375,
+        "baseScore": 93.75,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 93.75,
+        "answeredPassRate": 0.9375,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 0.9375,
+        "averageLatencyMs": 24547.71875,
+        "estimatedCostUsd": 1.20232,
+        "tokenUsage": {
+          "prompt": 13522,
+          "completion": 21342,
+          "reasoning": 20942,
+          "cached": 0,
+          "total": 34864,
+          "numRequests": 32
+        },
+        "averageTokens": {
+          "prompt": 422.5625,
+          "completion": 666.9375,
+          "reasoning": 654.4375,
+          "cached": 0,
+          "total": 1089.5
+        }
+      },
+      "anchor": {
+        "total": 16,
+        "passed": 14,
+        "wrong": 2,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 16,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 0.875,
+        "baseScore": 87.5,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 87.5,
+        "answeredPassRate": 0.875,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 0.875,
+        "averageLatencyMs": 20493.3125,
+        "estimatedCostUsd": 0.49421,
+        "tokenUsage": {
+          "prompt": 7021,
+          "completion": 8480,
+          "reasoning": 8244,
+          "cached": 0,
+          "total": 15501,
+          "numRequests": 16
+        },
+        "averageTokens": {
+          "prompt": 438.8125,
+          "completion": 530,
+          "reasoning": 515.25,
+          "cached": 0,
+          "total": 968.8125
+        }
+      },
+      "rotating": {
+        "total": 16,
+        "passed": 16,
+        "wrong": 0,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 16,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 1,
+        "baseScore": 100,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 100,
+        "answeredPassRate": 1,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 1,
+        "averageLatencyMs": 28602.125,
+        "estimatedCostUsd": 0.70811,
+        "tokenUsage": {
+          "prompt": 6501,
+          "completion": 12862,
+          "reasoning": 12698,
+          "cached": 0,
+          "total": 19363,
+          "numRequests": 16
+        },
+        "averageTokens": {
+          "prompt": 406.3125,
+          "completion": 803.875,
+          "reasoning": 793.625,
+          "cached": 0,
+          "total": 1210.1875
+        }
+      },
+      "languages": {
+        "zh": {
+          "total": 16,
+          "passed": 15,
+          "wrong": 1,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "answered": 16,
+          "unfinished": 0,
+          "dataComplete": true,
+          "passRate": 0.9375,
+          "baseScore": 93.75,
+          "timeoutPenaltyScore": 0,
+          "compositeScore": 93.75,
+          "answeredPassRate": 0.9375,
+          "timeoutRate": 0,
+          "apiErrorRate": 0,
+          "averageScore": 0.9375,
+          "averageLatencyMs": 26077.6875,
+          "estimatedCostUsd": 0.6502,
+          "tokenUsage": {
+            "prompt": 6880,
+            "completion": 11628,
+            "reasoning": 11427,
+            "cached": 0,
+            "total": 18508,
+            "numRequests": 16
+          },
+          "averageTokens": {
+            "prompt": 430,
+            "completion": 726.75,
+            "reasoning": 714.1875,
+            "cached": 0,
+            "total": 1156.75
+          }
+        },
+        "en": {
+          "total": 16,
+          "passed": 15,
+          "wrong": 1,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "answered": 16,
+          "unfinished": 0,
+          "dataComplete": true,
+          "passRate": 0.9375,
+          "baseScore": 93.75,
+          "timeoutPenaltyScore": 0,
+          "compositeScore": 93.75,
+          "answeredPassRate": 0.9375,
+          "timeoutRate": 0,
+          "apiErrorRate": 0,
+          "averageScore": 0.9375,
+          "averageLatencyMs": 23017.75,
+          "estimatedCostUsd": 0.55212,
+          "tokenUsage": {
+            "prompt": 6642,
+            "completion": 9714,
+            "reasoning": 9515,
+            "cached": 0,
+            "total": 16356,
+            "numRequests": 16
+          },
+          "averageTokens": {
+            "prompt": 415.125,
+            "completion": 607.125,
+            "reasoning": 594.6875,
+            "cached": 0,
+            "total": 1022.25
+          }
+        }
+      },
+      "languageGapPctPoints": 0,
+      "pairComparison": {
+        "zhBetter": 0,
+        "enBetter": 0,
+        "equal": 16,
+        "comparablePairs": 16,
+        "disagreementPairs": []
+      },
+      "categories": {
+        "reasoning": {
+          "all": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 22793,
+            "estimatedCostUsd": 0.06492,
+            "tokenUsage": {
+              "prompt": 852,
+              "completion": 1128,
+              "reasoning": 1106,
+              "cached": 0,
+              "total": 1980,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 426,
+              "completion": 564,
+              "reasoning": 553,
+              "cached": 0,
+              "total": 990
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 25240,
+            "estimatedCostUsd": 0.03582,
+            "tokenUsage": {
+              "prompt": 432,
+              "completion": 630,
+              "reasoning": 619,
+              "cached": 0,
+              "total": 1062,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 432,
+              "completion": 630,
+              "reasoning": 619,
+              "cached": 0,
+              "total": 1062
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 20346,
+            "estimatedCostUsd": 0.0291,
+            "tokenUsage": {
+              "prompt": 420,
+              "completion": 498,
+              "reasoning": 487,
+              "cached": 0,
+              "total": 918,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 420,
+              "completion": 498,
+              "reasoning": 487,
+              "cached": 0,
+              "total": 918
+            }
+          }
+        },
+        "math": {
+          "all": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 21821,
+            "estimatedCostUsd": 0.06725,
+            "tokenUsage": {
+              "prompt": 675,
+              "completion": 1210,
+              "reasoning": 1194,
+              "cached": 0,
+              "total": 1885,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 337.5,
+              "completion": 605,
+              "reasoning": 597,
+              "cached": 0,
+              "total": 942.5
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 25417,
+            "estimatedCostUsd": 0.039169999999999996,
+            "tokenUsage": {
+              "prompt": 337,
+              "completion": 716,
+              "reasoning": 708,
+              "cached": 0,
+              "total": 1053,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 337,
+              "completion": 716,
+              "reasoning": 708,
+              "cached": 0,
+              "total": 1053
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 18225,
+            "estimatedCostUsd": 0.02808,
+            "tokenUsage": {
+              "prompt": 338,
+              "completion": 494,
+              "reasoning": 486,
+              "cached": 0,
+              "total": 832,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 338,
+              "completion": 494,
+              "reasoning": 486,
+              "cached": 0,
+              "total": 832
+            }
+          }
+        },
+        "stress": {
+          "all": {
+            "total": 4,
+            "passed": 4,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 4,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 18472.75,
+            "estimatedCostUsd": 0.10306,
+            "tokenUsage": {
+              "prompt": 1596,
+              "completion": 1742,
+              "reasoning": 1714,
+              "cached": 0,
+              "total": 3338,
+              "numRequests": 4
+            },
+            "averageTokens": {
+              "prompt": 399,
+              "completion": 435.5,
+              "reasoning": 428.5,
+              "cached": 0,
+              "total": 834.5
+            }
+          },
+          "zh": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 18962.5,
+            "estimatedCostUsd": 0.05546,
+            "tokenUsage": {
+              "prompt": 806,
+              "completion": 948,
+              "reasoning": 934,
+              "cached": 0,
+              "total": 1754,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 403,
+              "completion": 474,
+              "reasoning": 467,
+              "cached": 0,
+              "total": 877
+            }
+          },
+          "en": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 17983,
+            "estimatedCostUsd": 0.0476,
+            "tokenUsage": {
+              "prompt": 790,
+              "completion": 794,
+              "reasoning": 780,
+              "cached": 0,
+              "total": 1584,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 395,
+              "completion": 397,
+              "reasoning": 390,
+              "cached": 0,
+              "total": 792
+            }
+          }
+        },
+        "extreme": {
+          "all": {
+            "total": 12,
+            "passed": 10,
+            "wrong": 2,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 12,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.8333333333333334,
+            "baseScore": 83.33333333333334,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 83.33333333333334,
+            "answeredPassRate": 0.8333333333333334,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.8333333333333334,
+            "averageLatencyMs": 25040.166666666668,
+            "estimatedCostUsd": 0.46542000000000006,
+            "tokenUsage": {
+              "prompt": 5337,
+              "completion": 8241,
+              "reasoning": 8041,
+              "cached": 0,
+              "total": 13578,
+              "numRequests": 12
+            },
+            "averageTokens": {
+              "prompt": 444.75,
+              "completion": 686.75,
+              "reasoning": 670.0833333333334,
+              "cached": 0,
+              "total": 1131.5
+            }
+          },
+          "zh": {
+            "total": 6,
+            "passed": 5,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 6,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.8333333333333334,
+            "baseScore": 83.33333333333334,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 83.33333333333334,
+            "answeredPassRate": 0.8333333333333334,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.8333333333333334,
+            "averageLatencyMs": 24838.833333333332,
+            "estimatedCostUsd": 0.23626,
+            "tokenUsage": {
+              "prompt": 2731,
+              "completion": 4179,
+              "reasoning": 4078,
+              "cached": 0,
+              "total": 6910,
+              "numRequests": 6
+            },
+            "averageTokens": {
+              "prompt": 455.1666666666667,
+              "completion": 696.5,
+              "reasoning": 679.6666666666666,
+              "cached": 0,
+              "total": 1151.6666666666667
+            }
+          },
+          "en": {
+            "total": 6,
+            "passed": 5,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 6,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.8333333333333334,
+            "baseScore": 83.33333333333334,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 83.33333333333334,
+            "answeredPassRate": 0.8333333333333334,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.8333333333333334,
+            "averageLatencyMs": 25241.5,
+            "estimatedCostUsd": 0.22916000000000003,
+            "tokenUsage": {
+              "prompt": 2606,
+              "completion": 4062,
+              "reasoning": 3963,
+              "cached": 0,
+              "total": 6668,
+              "numRequests": 6
+            },
+            "averageTokens": {
+              "prompt": 434.3333333333333,
+              "completion": 677,
+              "reasoning": 660.5,
+              "cached": 0,
+              "total": 1111.3333333333333
+            }
+          }
+        },
+        "ultra": {
+          "all": {
+            "total": 10,
+            "passed": 10,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 10,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 31000.9,
+            "estimatedCostUsd": 0.48909,
+            "tokenUsage": {
+              "prompt": 4284,
+              "completion": 8925,
+              "reasoning": 8805,
+              "cached": 0,
+              "total": 13209,
+              "numRequests": 10
+            },
+            "averageTokens": {
+              "prompt": 428.4,
+              "completion": 892.5,
+              "reasoning": 880.5,
+              "cached": 0,
+              "total": 1320.9
+            }
+          },
+          "zh": {
+            "total": 5,
+            "passed": 5,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 5,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 34873.6,
+            "estimatedCostUsd": 0.27714,
+            "tokenUsage": {
+              "prompt": 2184,
+              "completion": 5106,
+              "reasoning": 5046,
+              "cached": 0,
+              "total": 7290,
+              "numRequests": 5
+            },
+            "averageTokens": {
+              "prompt": 436.8,
+              "completion": 1021.2,
+              "reasoning": 1009.2,
+              "cached": 0,
+              "total": 1458
+            }
+          },
+          "en": {
+            "total": 5,
+            "passed": 5,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 5,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 27128.2,
+            "estimatedCostUsd": 0.21195,
+            "tokenUsage": {
+              "prompt": 2100,
+              "completion": 3819,
+              "reasoning": 3759,
+              "cached": 0,
+              "total": 5919,
+              "numRequests": 5
+            },
+            "averageTokens": {
+              "prompt": 420,
+              "completion": 763.8,
+              "reasoning": 751.8,
+              "cached": 0,
+              "total": 1183.8
+            }
+          }
+        },
+        "coding": {
+          "all": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 5958.5,
+            "estimatedCostUsd": 0.012580000000000001,
+            "tokenUsage": {
+              "prompt": 778,
+              "completion": 96,
+              "reasoning": 82,
+              "cached": 0,
+              "total": 874,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 389,
+              "completion": 48,
+              "reasoning": 41,
+              "cached": 0,
+              "total": 437
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 5260,
+            "estimatedCostUsd": 0.00635,
+            "tokenUsage": {
+              "prompt": 390,
+              "completion": 49,
+              "reasoning": 42,
+              "cached": 0,
+              "total": 439,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 390,
+              "completion": 49,
+              "reasoning": 42,
+              "cached": 0,
+              "total": 439
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 6657,
+            "estimatedCostUsd": 0.00623,
+            "tokenUsage": {
+              "prompt": 388,
+              "completion": 47,
+              "reasoning": 40,
+              "cached": 0,
+              "total": 435,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 388,
+              "completion": 47,
+              "reasoning": 40,
+              "cached": 0,
+              "total": 435
+            }
+          }
+        }
+      }
+    },
+    {
+      "provider": "GPT-5.6 Sol X High",
+      "overall": {
+        "total": 32,
+        "passed": 28,
+        "wrong": 4,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 32,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 0.875,
+        "baseScore": 87.5,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 87.5,
+        "answeredPassRate": 0.875,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 0.875,
+        "averageLatencyMs": 26944.375,
+        "estimatedCostUsd": 0.8692880000000002,
+        "tokenUsage": {
+          "prompt": 13522,
+          "completion": 40760,
+          "reasoning": 39971,
+          "cached": 0,
+          "total": 54282,
+          "numRequests": 32
+        },
+        "averageTokens": {
+          "prompt": 422.5625,
+          "completion": 1273.75,
+          "reasoning": 1249.09375,
+          "cached": 0,
+          "total": 1696.3125
+        }
+      },
+      "anchor": {
+        "total": 16,
+        "passed": 13,
+        "wrong": 3,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 16,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 0.8125,
+        "baseScore": 81.25,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 81.25,
+        "answeredPassRate": 0.8125,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 0.8125,
+        "averageLatencyMs": 19508,
+        "estimatedCostUsd": 0.3062640000000001,
+        "tokenUsage": {
+          "prompt": 7021,
+          "completion": 13909,
+          "reasoning": 13280,
+          "cached": 0,
+          "total": 20930,
+          "numRequests": 16
+        },
+        "averageTokens": {
+          "prompt": 438.8125,
+          "completion": 869.3125,
+          "reasoning": 830,
+          "cached": 0,
+          "total": 1308.125
+        }
+      },
+      "rotating": {
+        "total": 16,
+        "passed": 15,
+        "wrong": 1,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 16,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 0.9375,
+        "baseScore": 93.75,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 93.75,
+        "answeredPassRate": 0.9375,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 0.9375,
+        "averageLatencyMs": 34380.75,
+        "estimatedCostUsd": 0.5630240000000001,
+        "tokenUsage": {
+          "prompt": 6501,
+          "completion": 26851,
+          "reasoning": 26691,
+          "cached": 0,
+          "total": 33352,
+          "numRequests": 16
+        },
+        "averageTokens": {
+          "prompt": 406.3125,
+          "completion": 1678.1875,
+          "reasoning": 1668.1875,
+          "cached": 0,
+          "total": 2084.5
+        }
+      },
+      "languages": {
+        "zh": {
+          "total": 16,
+          "passed": 14,
+          "wrong": 2,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "answered": 16,
+          "unfinished": 0,
+          "dataComplete": true,
+          "passRate": 0.875,
+          "baseScore": 87.5,
+          "timeoutPenaltyScore": 0,
+          "compositeScore": 87.5,
+          "answeredPassRate": 0.875,
+          "timeoutRate": 0,
+          "apiErrorRate": 0,
+          "averageScore": 0.875,
+          "averageLatencyMs": 27892.1875,
+          "estimatedCostUsd": 0.44504,
+          "tokenUsage": {
+            "prompt": 6880,
+            "completion": 20876,
+            "reasoning": 20287,
+            "cached": 0,
+            "total": 27756,
+            "numRequests": 16
+          },
+          "averageTokens": {
+            "prompt": 430,
+            "completion": 1304.75,
+            "reasoning": 1267.9375,
+            "cached": 0,
+            "total": 1734.75
+          }
+        },
+        "en": {
+          "total": 16,
+          "passed": 14,
+          "wrong": 2,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "answered": 16,
+          "unfinished": 0,
+          "dataComplete": true,
+          "passRate": 0.875,
+          "baseScore": 87.5,
+          "timeoutPenaltyScore": 0,
+          "compositeScore": 87.5,
+          "answeredPassRate": 0.875,
+          "timeoutRate": 0,
+          "apiErrorRate": 0,
+          "averageScore": 0.875,
+          "averageLatencyMs": 25996.5625,
+          "estimatedCostUsd": 0.42424799999999996,
+          "tokenUsage": {
+            "prompt": 6642,
+            "completion": 19884,
+            "reasoning": 19684,
+            "cached": 0,
+            "total": 26526,
+            "numRequests": 16
+          },
+          "averageTokens": {
+            "prompt": 415.125,
+            "completion": 1242.75,
+            "reasoning": 1230.25,
+            "cached": 0,
+            "total": 1657.875
+          }
+        }
+      },
+      "languageGapPctPoints": 0,
+      "pairComparison": {
+        "zhBetter": 1,
+        "enBetter": 1,
+        "equal": 14,
+        "comparablePairs": 16,
+        "disagreementPairs": [
+          {
+            "pairId": "H07",
+            "better": "zh",
+            "zhPassRate": 1,
+            "enPassRate": 0
+          },
+          {
+            "pairId": "U02",
+            "better": "en",
+            "zhPassRate": 0,
+            "enPassRate": 1
+          }
+        ]
+      },
+      "categories": {
+        "reasoning": {
+          "all": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 16439,
+            "estimatedCostUsd": 0.028128,
+            "tokenUsage": {
+              "prompt": 852,
+              "completion": 1236,
+              "reasoning": 1214,
+              "cached": 0,
+              "total": 2088,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 426,
+              "completion": 618,
+              "reasoning": 607,
+              "cached": 0,
+              "total": 1044
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 16356,
+            "estimatedCostUsd": 0.014048000000000001,
+            "tokenUsage": {
+              "prompt": 432,
+              "completion": 616,
+              "reasoning": 605,
+              "cached": 0,
+              "total": 1048,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 432,
+              "completion": 616,
+              "reasoning": 605,
+              "cached": 0,
+              "total": 1048
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 16522,
+            "estimatedCostUsd": 0.01408,
+            "tokenUsage": {
+              "prompt": 420,
+              "completion": 620,
+              "reasoning": 609,
+              "cached": 0,
+              "total": 1040,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 420,
+              "completion": 620,
+              "reasoning": 609,
+              "cached": 0,
+              "total": 1040
+            }
+          }
+        },
+        "math": {
+          "all": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 17923,
+            "estimatedCostUsd": 0.03498,
+            "tokenUsage": {
+              "prompt": 675,
+              "completion": 1614,
+              "reasoning": 1598,
+              "cached": 0,
+              "total": 2289,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 337.5,
+              "completion": 807,
+              "reasoning": 799,
+              "cached": 0,
+              "total": 1144.5
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 19603,
+            "estimatedCostUsd": 0.019468,
+            "tokenUsage": {
+              "prompt": 337,
+              "completion": 906,
+              "reasoning": 898,
+              "cached": 0,
+              "total": 1243,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 337,
+              "completion": 906,
+              "reasoning": 898,
+              "cached": 0,
+              "total": 1243
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 16243,
+            "estimatedCostUsd": 0.015512000000000001,
+            "tokenUsage": {
+              "prompt": 338,
+              "completion": 708,
+              "reasoning": 700,
+              "cached": 0,
+              "total": 1046,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 338,
+              "completion": 708,
+              "reasoning": 700,
+              "cached": 0,
+              "total": 1046
+            }
+          }
+        },
+        "stress": {
+          "all": {
+            "total": 4,
+            "passed": 4,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 4,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 18947.75,
+            "estimatedCostUsd": 0.07486400000000001,
+            "tokenUsage": {
+              "prompt": 1596,
+              "completion": 3424,
+              "reasoning": 3396,
+              "cached": 0,
+              "total": 5020,
+              "numRequests": 4
+            },
+            "averageTokens": {
+              "prompt": 399,
+              "completion": 856,
+              "reasoning": 849,
+              "cached": 0,
+              "total": 1255
+            }
+          },
+          "zh": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 18981,
+            "estimatedCostUsd": 0.037823999999999997,
+            "tokenUsage": {
+              "prompt": 806,
+              "completion": 1730,
+              "reasoning": 1716,
+              "cached": 0,
+              "total": 2536,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 403,
+              "completion": 865,
+              "reasoning": 858,
+              "cached": 0,
+              "total": 1268
+            }
+          },
+          "en": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 18914.5,
+            "estimatedCostUsd": 0.037040000000000003,
+            "tokenUsage": {
+              "prompt": 790,
+              "completion": 1694,
+              "reasoning": 1680,
+              "cached": 0,
+              "total": 2484,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 395,
+              "completion": 847,
+              "reasoning": 840,
+              "cached": 0,
+              "total": 1242
+            }
+          }
+        },
+        "extreme": {
+          "all": {
+            "total": 12,
+            "passed": 9,
+            "wrong": 3,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 12,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.75,
+            "baseScore": 75,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 75,
+            "answeredPassRate": 0.75,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.75,
+            "averageLatencyMs": 25518.5,
+            "estimatedCostUsd": 0.30550800000000006,
+            "tokenUsage": {
+              "prompt": 5337,
+              "completion": 14208,
+              "reasoning": 13615,
+              "cached": 0,
+              "total": 19545,
+              "numRequests": 12
+            },
+            "averageTokens": {
+              "prompt": 444.75,
+              "completion": 1184,
+              "reasoning": 1134.5833333333333,
+              "cached": 0,
+              "total": 1628.75
+            }
+          },
+          "zh": {
+            "total": 6,
+            "passed": 5,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 6,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.8333333333333334,
+            "baseScore": 83.33333333333334,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 83.33333333333334,
+            "answeredPassRate": 0.8333333333333334,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.8333333333333334,
+            "averageLatencyMs": 27464.666666666668,
+            "estimatedCostUsd": 0.16164400000000004,
+            "tokenUsage": {
+              "prompt": 2731,
+              "completion": 7536,
+              "reasoning": 7045,
+              "cached": 0,
+              "total": 10267,
+              "numRequests": 6
+            },
+            "averageTokens": {
+              "prompt": 455.1666666666667,
+              "completion": 1256,
+              "reasoning": 1174.1666666666667,
+              "cached": 0,
+              "total": 1711.1666666666667
+            }
+          },
+          "en": {
+            "total": 6,
+            "passed": 4,
+            "wrong": 2,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 6,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.6666666666666666,
+            "baseScore": 66.66666666666666,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 66.66666666666666,
+            "answeredPassRate": 0.6666666666666666,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.6666666666666666,
+            "averageLatencyMs": 23572.333333333332,
+            "estimatedCostUsd": 0.14386400000000002,
+            "tokenUsage": {
+              "prompt": 2606,
+              "completion": 6672,
+              "reasoning": 6570,
+              "cached": 0,
+              "total": 9278,
+              "numRequests": 6
+            },
+            "averageTokens": {
+              "prompt": 434.3333333333333,
+              "completion": 1112,
+              "reasoning": 1095,
+              "cached": 0,
+              "total": 1546.3333333333333
+            }
+          }
+        },
+        "ultra": {
+          "all": {
+            "total": 10,
+            "passed": 9,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 10,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.9,
+            "baseScore": 90,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 90,
+            "answeredPassRate": 0.9,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.9,
+            "averageLatencyMs": 40482.2,
+            "estimatedCostUsd": 0.422496,
+            "tokenUsage": {
+              "prompt": 4284,
+              "completion": 20268,
+              "reasoning": 20148,
+              "cached": 0,
+              "total": 24552,
+              "numRequests": 10
+            },
+            "averageTokens": {
+              "prompt": 428.4,
+              "completion": 2026.8,
+              "reasoning": 2014.8,
+              "cached": 0,
+              "total": 2455.2
+            }
+          },
+          "zh": {
+            "total": 5,
+            "passed": 4,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 5,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.8,
+            "baseScore": 80,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 80,
+            "answeredPassRate": 0.8,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.8,
+            "averageLatencyMs": 40808.4,
+            "estimatedCostUsd": 0.21039600000000003,
+            "tokenUsage": {
+              "prompt": 2184,
+              "completion": 10083,
+              "reasoning": 10023,
+              "cached": 0,
+              "total": 12267,
+              "numRequests": 5
+            },
+            "averageTokens": {
+              "prompt": 436.8,
+              "completion": 2016.6,
+              "reasoning": 2004.6,
+              "cached": 0,
+              "total": 2453.4
+            }
+          },
+          "en": {
+            "total": 5,
+            "passed": 5,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 5,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 40156,
+            "estimatedCostUsd": 0.2121,
+            "tokenUsage": {
+              "prompt": 2100,
+              "completion": 10185,
+              "reasoning": 10125,
+              "cached": 0,
+              "total": 12285,
+              "numRequests": 5
+            },
+            "averageTokens": {
+              "prompt": 420,
+              "completion": 2037,
+              "reasoning": 2025,
+              "cached": 0,
+              "total": 2457
+            }
+          }
+        },
+        "coding": {
+          "all": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 3330.5,
+            "estimatedCostUsd": 0.003312,
+            "tokenUsage": {
+              "prompt": 778,
+              "completion": 10,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 788,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 389,
+              "completion": 5,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 394
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 3524,
+            "estimatedCostUsd": 0.00166,
+            "tokenUsage": {
+              "prompt": 390,
+              "completion": 5,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 395,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 390,
+              "completion": 5,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 395
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 3137,
+            "estimatedCostUsd": 0.001652,
+            "tokenUsage": {
+              "prompt": 388,
+              "completion": 5,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 393,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 388,
+              "completion": 5,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 393
+            }
+          }
+        }
+      }
+    },
+    {
+      "provider": "GPT-6 Sol X High",
+      "overall": {
+        "total": 32,
+        "passed": 25,
+        "wrong": 7,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 32,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 0.78125,
+        "baseScore": 78.125,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 78.125,
+        "answeredPassRate": 0.78125,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 0.78125,
+        "averageLatencyMs": 18696.6875,
+        "estimatedCostUsd": 0,
+        "tokenUsage": {
+          "prompt": 15474,
+          "completion": 21692,
+          "reasoning": 21083,
+          "cached": 0,
+          "total": 37166,
+          "numRequests": 32
+        },
+        "averageTokens": {
+          "prompt": 483.5625,
+          "completion": 677.875,
+          "reasoning": 658.84375,
+          "cached": 0,
+          "total": 1161.4375
+        }
+      },
+      "anchor": {
+        "total": 16,
+        "passed": 11,
+        "wrong": 5,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 16,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 0.6875,
+        "baseScore": 68.75,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 68.75,
+        "answeredPassRate": 0.6875,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 0.6875,
+        "averageLatencyMs": 15224.6875,
+        "estimatedCostUsd": 0,
+        "tokenUsage": {
+          "prompt": 8973,
+          "completion": 8240,
+          "reasoning": 7795,
+          "cached": 0,
+          "total": 17213,
+          "numRequests": 16
+        },
+        "averageTokens": {
+          "prompt": 560.8125,
+          "completion": 515,
+          "reasoning": 487.1875,
+          "cached": 0,
+          "total": 1075.8125
+        }
+      },
+      "rotating": {
+        "total": 16,
+        "passed": 14,
+        "wrong": 2,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 16,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 0.875,
+        "baseScore": 87.5,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 87.5,
+        "answeredPassRate": 0.875,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 0.875,
+        "averageLatencyMs": 22168.6875,
+        "estimatedCostUsd": 0,
+        "tokenUsage": {
+          "prompt": 6501,
+          "completion": 13452,
+          "reasoning": 13288,
+          "cached": 0,
+          "total": 19953,
+          "numRequests": 16
+        },
+        "averageTokens": {
+          "prompt": 406.3125,
+          "completion": 840.75,
+          "reasoning": 830.5,
+          "cached": 0,
+          "total": 1247.0625
+        }
+      },
+      "languages": {
+        "zh": {
+          "total": 16,
+          "passed": 14,
+          "wrong": 2,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "answered": 16,
+          "unfinished": 0,
+          "dataComplete": true,
+          "passRate": 0.875,
+          "baseScore": 87.5,
+          "timeoutPenaltyScore": 0,
+          "compositeScore": 87.5,
+          "answeredPassRate": 0.875,
+          "timeoutRate": 0,
+          "apiErrorRate": 0,
+          "averageScore": 0.875,
+          "averageLatencyMs": 18363.4375,
+          "estimatedCostUsd": 0,
+          "tokenUsage": {
+            "prompt": 6880,
+            "completion": 10277,
+            "reasoning": 9888,
+            "cached": 0,
+            "total": 17157,
+            "numRequests": 16
+          },
+          "averageTokens": {
+            "prompt": 430,
+            "completion": 642.3125,
+            "reasoning": 618,
+            "cached": 0,
+            "total": 1072.3125
+          }
+        },
+        "en": {
+          "total": 16,
+          "passed": 11,
+          "wrong": 5,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "answered": 16,
+          "unfinished": 0,
+          "dataComplete": true,
+          "passRate": 0.6875,
+          "baseScore": 68.75,
+          "timeoutPenaltyScore": 0,
+          "compositeScore": 68.75,
+          "answeredPassRate": 0.6875,
+          "timeoutRate": 0,
+          "apiErrorRate": 0,
+          "averageScore": 0.6875,
+          "averageLatencyMs": 19029.9375,
+          "estimatedCostUsd": 0,
+          "tokenUsage": {
+            "prompt": 8594,
+            "completion": 11415,
+            "reasoning": 11195,
+            "cached": 0,
+            "total": 20009,
+            "numRequests": 16
+          },
+          "averageTokens": {
+            "prompt": 537.125,
+            "completion": 713.4375,
+            "reasoning": 699.6875,
+            "cached": 0,
+            "total": 1250.5625
+          }
+        }
+      },
+      "languageGapPctPoints": 18.75,
+      "pairComparison": {
+        "zhBetter": 3,
+        "enBetter": 0,
+        "equal": 13,
+        "comparablePairs": 16,
+        "disagreementPairs": [
+          {
+            "pairId": "H07",
+            "better": "zh",
+            "zhPassRate": 1,
+            "enPassRate": 0
+          },
+          {
+            "pairId": "H05",
+            "better": "zh",
+            "zhPassRate": 1,
+            "enPassRate": 0
+          },
+          {
+            "pairId": "U02",
+            "better": "zh",
+            "zhPassRate": 1,
+            "enPassRate": 0
+          }
+        ]
+      },
+      "categories": {
+        "reasoning": {
+          "all": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 20915.5,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 2804,
+              "completion": 811,
+              "reasoning": 769,
+              "cached": 0,
+              "total": 3615,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 1402,
+              "completion": 405.5,
+              "reasoning": 384.5,
+              "cached": 0,
+              "total": 1807.5
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 11569,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 432,
+              "completion": 380,
+              "reasoning": 369,
+              "cached": 0,
+              "total": 812,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 432,
+              "completion": 380,
+              "reasoning": 369,
+              "cached": 0,
+              "total": 812
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 30262,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 2372,
+              "completion": 431,
+              "reasoning": 400,
+              "cached": 0,
+              "total": 2803,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 2372,
+              "completion": 431,
+              "reasoning": 400,
+              "cached": 0,
+              "total": 2803
+            }
+          }
+        },
+        "math": {
+          "all": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 18855.5,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 675,
+              "completion": 1710,
+              "reasoning": 1694,
+              "cached": 0,
+              "total": 2385,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 337.5,
+              "completion": 855,
+              "reasoning": 847,
+              "cached": 0,
+              "total": 1192.5
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 18917,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 337,
+              "completion": 855,
+              "reasoning": 847,
+              "cached": 0,
+              "total": 1192,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 337,
+              "completion": 855,
+              "reasoning": 847,
+              "cached": 0,
+              "total": 1192
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 18794,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 338,
+              "completion": 855,
+              "reasoning": 847,
+              "cached": 0,
+              "total": 1193,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 338,
+              "completion": 855,
+              "reasoning": 847,
+              "cached": 0,
+              "total": 1193
+            }
+          }
+        },
+        "stress": {
+          "all": {
+            "total": 4,
+            "passed": 2,
+            "wrong": 2,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 4,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.5,
+            "baseScore": 50,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 50,
+            "answeredPassRate": 0.5,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.5,
+            "averageLatencyMs": 11532.75,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 1596,
+              "completion": 1732,
+              "reasoning": 1704,
+              "cached": 0,
+              "total": 3328,
+              "numRequests": 4
+            },
+            "averageTokens": {
+              "prompt": 399,
+              "completion": 433,
+              "reasoning": 426,
+              "cached": 0,
+              "total": 832
+            }
+          },
+          "zh": {
+            "total": 2,
+            "passed": 1,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.5,
+            "baseScore": 50,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 50,
+            "answeredPassRate": 0.5,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.5,
+            "averageLatencyMs": 11908.5,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 806,
+              "completion": 877,
+              "reasoning": 863,
+              "cached": 0,
+              "total": 1683,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 403,
+              "completion": 438.5,
+              "reasoning": 431.5,
+              "cached": 0,
+              "total": 841.5
+            }
+          },
+          "en": {
+            "total": 2,
+            "passed": 1,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.5,
+            "baseScore": 50,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 50,
+            "answeredPassRate": 0.5,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.5,
+            "averageLatencyMs": 11157,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 790,
+              "completion": 855,
+              "reasoning": 841,
+              "cached": 0,
+              "total": 1645,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 395,
+              "completion": 427.5,
+              "reasoning": 420.5,
+              "cached": 0,
+              "total": 822.5
+            }
+          }
+        },
+        "extreme": {
+          "all": {
+            "total": 12,
+            "passed": 8,
+            "wrong": 4,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 12,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.6666666666666666,
+            "baseScore": 66.66666666666666,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 66.66666666666666,
+            "answeredPassRate": 0.6666666666666666,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.6666666666666666,
+            "averageLatencyMs": 21284.166666666668,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 5337,
+              "completion": 8781,
+              "reasoning": 8392,
+              "cached": 0,
+              "total": 14118,
+              "numRequests": 12
+            },
+            "averageTokens": {
+              "prompt": 444.75,
+              "completion": 731.75,
+              "reasoning": 699.3333333333334,
+              "cached": 0,
+              "total": 1176.5
+            }
+          },
+          "zh": {
+            "total": 6,
+            "passed": 5,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 6,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.8333333333333334,
+            "baseScore": 83.33333333333334,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 83.33333333333334,
+            "answeredPassRate": 0.8333333333333334,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.8333333333333334,
+            "averageLatencyMs": 23216.166666666668,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 2731,
+              "completion": 4204,
+              "reasoning": 3915,
+              "cached": 0,
+              "total": 6935,
+              "numRequests": 6
+            },
+            "averageTokens": {
+              "prompt": 455.1666666666667,
+              "completion": 700.6666666666666,
+              "reasoning": 652.5,
+              "cached": 0,
+              "total": 1155.8333333333333
+            }
+          },
+          "en": {
+            "total": 6,
+            "passed": 3,
+            "wrong": 3,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 6,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.5,
+            "baseScore": 50,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 50,
+            "answeredPassRate": 0.5,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.5,
+            "averageLatencyMs": 19352.166666666668,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 2606,
+              "completion": 4577,
+              "reasoning": 4477,
+              "cached": 0,
+              "total": 7183,
+              "numRequests": 6
+            },
+            "averageTokens": {
+              "prompt": 434.3333333333333,
+              "completion": 762.8333333333334,
+              "reasoning": 746.1666666666666,
+              "cached": 0,
+              "total": 1197.1666666666667
+            }
+          }
+        },
+        "ultra": {
+          "all": {
+            "total": 10,
+            "passed": 9,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 10,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.9,
+            "baseScore": 90,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 90,
+            "answeredPassRate": 0.9,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.9,
+            "averageLatencyMs": 20824.6,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 4284,
+              "completion": 8581,
+              "reasoning": 8461,
+              "cached": 0,
+              "total": 12865,
+              "numRequests": 10
+            },
+            "averageTokens": {
+              "prompt": 428.4,
+              "completion": 858.1,
+              "reasoning": 846.1,
+              "cached": 0,
+              "total": 1286.5
+            }
+          },
+          "zh": {
+            "total": 5,
+            "passed": 5,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 5,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 19080.2,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 2184,
+              "completion": 3919,
+              "reasoning": 3859,
+              "cached": 0,
+              "total": 6103,
+              "numRequests": 5
+            },
+            "averageTokens": {
+              "prompt": 436.8,
+              "completion": 783.8,
+              "reasoning": 771.8,
+              "cached": 0,
+              "total": 1220.6
+            }
+          },
+          "en": {
+            "total": 5,
+            "passed": 4,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 5,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.8,
+            "baseScore": 80,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 80,
+            "answeredPassRate": 0.8,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.8,
+            "averageLatencyMs": 22569,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 2100,
+              "completion": 4662,
+              "reasoning": 4602,
+              "cached": 0,
+              "total": 6762,
+              "numRequests": 5
+            },
+            "averageTokens": {
+              "prompt": 420,
+              "completion": 932.4,
+              "reasoning": 920.4,
+              "cached": 0,
+              "total": 1352.4
+            }
+          }
+        },
+        "coding": {
+          "all": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 4482.5,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 778,
+              "completion": 77,
+              "reasoning": 63,
+              "cached": 0,
+              "total": 855,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 389,
+              "completion": 38.5,
+              "reasoning": 31.5,
+              "cached": 0,
+              "total": 427.5
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 4814,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 390,
+              "completion": 42,
+              "reasoning": 35,
+              "cached": 0,
+              "total": 432,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 390,
+              "completion": 42,
+              "reasoning": 35,
+              "cached": 0,
+              "total": 432
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 4151,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 388,
+              "completion": 35,
+              "reasoning": 28,
+              "cached": 0,
+              "total": 423,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 388,
+              "completion": 35,
+              "reasoning": 28,
+              "cached": 0,
+              "total": 423
+            }
+          }
+        }
+      }
+    },
+    {
+      "provider": "GPT-6 Luna X High",
+      "overall": {
+        "total": 32,
+        "passed": 12,
+        "wrong": 20,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 32,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 0.375,
+        "baseScore": 37.5,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 37.5,
+        "answeredPassRate": 0.375,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 0.375,
+        "averageLatencyMs": 20169.75,
+        "estimatedCostUsd": 0,
+        "tokenUsage": {
+          "prompt": 13522,
+          "completion": 20303,
+          "reasoning": 19402,
+          "cached": 0,
+          "total": 33825,
+          "numRequests": 32
+        },
+        "averageTokens": {
+          "prompt": 422.5625,
+          "completion": 634.46875,
+          "reasoning": 606.3125,
+          "cached": 0,
+          "total": 1057.03125
+        }
+      },
+      "anchor": {
+        "total": 16,
+        "passed": 7,
+        "wrong": 9,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 16,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 0.4375,
+        "baseScore": 43.75,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 43.75,
+        "answeredPassRate": 0.4375,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 0.4375,
+        "averageLatencyMs": 22367.125,
+        "estimatedCostUsd": 0,
+        "tokenUsage": {
+          "prompt": 7021,
+          "completion": 10899,
+          "reasoning": 10338,
+          "cached": 0,
+          "total": 17920,
+          "numRequests": 16
+        },
+        "averageTokens": {
+          "prompt": 438.8125,
+          "completion": 681.1875,
+          "reasoning": 646.125,
+          "cached": 0,
+          "total": 1120
+        }
+      },
+      "rotating": {
+        "total": 16,
+        "passed": 5,
+        "wrong": 11,
+        "timeouts": 0,
+        "apiErrors": 0,
+        "answered": 16,
+        "unfinished": 0,
+        "dataComplete": true,
+        "passRate": 0.3125,
+        "baseScore": 31.25,
+        "timeoutPenaltyScore": 0,
+        "compositeScore": 31.25,
+        "answeredPassRate": 0.3125,
+        "timeoutRate": 0,
+        "apiErrorRate": 0,
+        "averageScore": 0.3125,
+        "averageLatencyMs": 17972.375,
+        "estimatedCostUsd": 0,
+        "tokenUsage": {
+          "prompt": 6501,
+          "completion": 9404,
+          "reasoning": 9064,
+          "cached": 0,
+          "total": 15905,
+          "numRequests": 16
+        },
+        "averageTokens": {
+          "prompt": 406.3125,
+          "completion": 587.75,
+          "reasoning": 566.5,
+          "cached": 0,
+          "total": 994.0625
+        }
+      },
+      "languages": {
+        "zh": {
+          "total": 16,
+          "passed": 5,
+          "wrong": 11,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "answered": 16,
+          "unfinished": 0,
+          "dataComplete": true,
+          "passRate": 0.3125,
+          "baseScore": 31.25,
+          "timeoutPenaltyScore": 0,
+          "compositeScore": 31.25,
+          "answeredPassRate": 0.3125,
+          "timeoutRate": 0,
+          "apiErrorRate": 0,
+          "averageScore": 0.3125,
+          "averageLatencyMs": 18655.375,
+          "estimatedCostUsd": 0,
+          "tokenUsage": {
+            "prompt": 6880,
+            "completion": 10001,
+            "reasoning": 9495,
+            "cached": 0,
+            "total": 16881,
+            "numRequests": 16
+          },
+          "averageTokens": {
+            "prompt": 430,
+            "completion": 625.0625,
+            "reasoning": 593.4375,
+            "cached": 0,
+            "total": 1055.0625
+          }
+        },
+        "en": {
+          "total": 16,
+          "passed": 7,
+          "wrong": 9,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "answered": 16,
+          "unfinished": 0,
+          "dataComplete": true,
+          "passRate": 0.4375,
+          "baseScore": 43.75,
+          "timeoutPenaltyScore": 0,
+          "compositeScore": 43.75,
+          "answeredPassRate": 0.4375,
+          "timeoutRate": 0,
+          "apiErrorRate": 0,
+          "averageScore": 0.4375,
+          "averageLatencyMs": 21684.125,
+          "estimatedCostUsd": 0,
+          "tokenUsage": {
+            "prompt": 6642,
+            "completion": 10302,
+            "reasoning": 9907,
+            "cached": 0,
+            "total": 16944,
+            "numRequests": 16
+          },
+          "averageTokens": {
+            "prompt": 415.125,
+            "completion": 643.875,
+            "reasoning": 619.1875,
+            "cached": 0,
+            "total": 1059
+          }
+        }
+      },
+      "languageGapPctPoints": -12.5,
+      "pairComparison": {
+        "zhBetter": 1,
+        "enBetter": 3,
+        "equal": 12,
+        "comparablePairs": 16,
+        "disagreementPairs": [
+          {
+            "pairId": "S05",
+            "better": "en",
+            "zhPassRate": 0,
+            "enPassRate": 1
+          },
+          {
+            "pairId": "S07",
+            "better": "zh",
+            "zhPassRate": 1,
+            "enPassRate": 0
+          },
+          {
+            "pairId": "H10",
+            "better": "en",
+            "zhPassRate": 0,
+            "enPassRate": 1
+          },
+          {
+            "pairId": "U07",
+            "better": "en",
+            "zhPassRate": 0,
+            "enPassRate": 1
+          }
+        ]
+      },
+      "categories": {
+        "reasoning": {
+          "all": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 14392,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 852,
+              "completion": 1077,
+              "reasoning": 1055,
+              "cached": 0,
+              "total": 1929,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 426,
+              "completion": 538.5,
+              "reasoning": 527.5,
+              "cached": 0,
+              "total": 964.5
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 14274,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 432,
+              "completion": 538,
+              "reasoning": 527,
+              "cached": 0,
+              "total": 970,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 432,
+              "completion": 538,
+              "reasoning": 527,
+              "cached": 0,
+              "total": 970
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 14510,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 420,
+              "completion": 539,
+              "reasoning": 528,
+              "cached": 0,
+              "total": 959,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 420,
+              "completion": 539,
+              "reasoning": 528,
+              "cached": 0,
+              "total": 959
+            }
+          }
+        },
+        "math": {
+          "all": {
+            "total": 2,
+            "passed": 0,
+            "wrong": 2,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0,
+            "baseScore": 0,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 0,
+            "answeredPassRate": 0,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0,
+            "averageLatencyMs": 14536,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 675,
+              "completion": 1208,
+              "reasoning": 1192,
+              "cached": 0,
+              "total": 1883,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 337.5,
+              "completion": 604,
+              "reasoning": 596,
+              "cached": 0,
+              "total": 941.5
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 0,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0,
+            "baseScore": 0,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 0,
+            "answeredPassRate": 0,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0,
+            "averageLatencyMs": 14896,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 337,
+              "completion": 645,
+              "reasoning": 637,
+              "cached": 0,
+              "total": 982,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 337,
+              "completion": 645,
+              "reasoning": 637,
+              "cached": 0,
+              "total": 982
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 0,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0,
+            "baseScore": 0,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 0,
+            "answeredPassRate": 0,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0,
+            "averageLatencyMs": 14176,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 338,
+              "completion": 563,
+              "reasoning": 555,
+              "cached": 0,
+              "total": 901,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 338,
+              "completion": 563,
+              "reasoning": 555,
+              "cached": 0,
+              "total": 901
+            }
+          }
+        },
+        "stress": {
+          "all": {
+            "total": 4,
+            "passed": 2,
+            "wrong": 2,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 4,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.5,
+            "baseScore": 50,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 50,
+            "answeredPassRate": 0.5,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.5,
+            "averageLatencyMs": 21334.5,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 1596,
+              "completion": 3158,
+              "reasoning": 3130,
+              "cached": 0,
+              "total": 4754,
+              "numRequests": 4
+            },
+            "averageTokens": {
+              "prompt": 399,
+              "completion": 789.5,
+              "reasoning": 782.5,
+              "cached": 0,
+              "total": 1188.5
+            }
+          },
+          "zh": {
+            "total": 2,
+            "passed": 1,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.5,
+            "baseScore": 50,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 50,
+            "answeredPassRate": 0.5,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.5,
+            "averageLatencyMs": 22749,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 806,
+              "completion": 1651,
+              "reasoning": 1637,
+              "cached": 0,
+              "total": 2457,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 403,
+              "completion": 825.5,
+              "reasoning": 818.5,
+              "cached": 0,
+              "total": 1228.5
+            }
+          },
+          "en": {
+            "total": 2,
+            "passed": 1,
+            "wrong": 1,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.5,
+            "baseScore": 50,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 50,
+            "answeredPassRate": 0.5,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.5,
+            "averageLatencyMs": 19920,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 790,
+              "completion": 1507,
+              "reasoning": 1493,
+              "cached": 0,
+              "total": 2297,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 395,
+              "completion": 753.5,
+              "reasoning": 746.5,
+              "cached": 0,
+              "total": 1148.5
+            }
+          }
+        },
+        "extreme": {
+          "all": {
+            "total": 12,
+            "passed": 1,
+            "wrong": 11,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 12,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.08333333333333333,
+            "baseScore": 8.333333333333332,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 8.333333333333332,
+            "answeredPassRate": 0.08333333333333333,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.08333333333333333,
+            "averageLatencyMs": 24283.166666666668,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 5337,
+              "completion": 8785,
+              "reasoning": 8080,
+              "cached": 0,
+              "total": 14122,
+              "numRequests": 12
+            },
+            "averageTokens": {
+              "prompt": 444.75,
+              "completion": 732.0833333333334,
+              "reasoning": 673.3333333333334,
+              "cached": 0,
+              "total": 1176.8333333333333
+            }
+          },
+          "zh": {
+            "total": 6,
+            "passed": 0,
+            "wrong": 6,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 6,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0,
+            "baseScore": 0,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 0,
+            "answeredPassRate": 0,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0,
+            "averageLatencyMs": 21711,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 2731,
+              "completion": 4169,
+              "reasoning": 3761,
+              "cached": 0,
+              "total": 6900,
+              "numRequests": 6
+            },
+            "averageTokens": {
+              "prompt": 455.1666666666667,
+              "completion": 694.8333333333334,
+              "reasoning": 626.8333333333334,
+              "cached": 0,
+              "total": 1150
+            }
+          },
+          "en": {
+            "total": 6,
+            "passed": 1,
+            "wrong": 5,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 6,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.16666666666666666,
+            "baseScore": 16.666666666666664,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 16.666666666666664,
+            "answeredPassRate": 0.16666666666666666,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.16666666666666666,
+            "averageLatencyMs": 26855.333333333332,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 2606,
+              "completion": 4616,
+              "reasoning": 4319,
+              "cached": 0,
+              "total": 7222,
+              "numRequests": 6
+            },
+            "averageTokens": {
+              "prompt": 434.3333333333333,
+              "completion": 769.3333333333334,
+              "reasoning": 719.8333333333334,
+              "cached": 0,
+              "total": 1203.6666666666667
+            }
+          }
+        },
+        "ultra": {
+          "all": {
+            "total": 10,
+            "passed": 5,
+            "wrong": 5,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 10,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.5,
+            "baseScore": 50,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 50,
+            "answeredPassRate": 0.5,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.5,
+            "averageLatencyMs": 20358.1,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 4284,
+              "completion": 6065,
+              "reasoning": 5945,
+              "cached": 0,
+              "total": 10349,
+              "numRequests": 10
+            },
+            "averageTokens": {
+              "prompt": 428.4,
+              "completion": 606.5,
+              "reasoning": 594.5,
+              "cached": 0,
+              "total": 1034.9
+            }
+          },
+          "zh": {
+            "total": 5,
+            "passed": 2,
+            "wrong": 3,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 5,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.4,
+            "baseScore": 40,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 40,
+            "answeredPassRate": 0.4,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.4,
+            "averageLatencyMs": 18020.4,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 2184,
+              "completion": 2993,
+              "reasoning": 2933,
+              "cached": 0,
+              "total": 5177,
+              "numRequests": 5
+            },
+            "averageTokens": {
+              "prompt": 436.8,
+              "completion": 598.6,
+              "reasoning": 586.6,
+              "cached": 0,
+              "total": 1035.4
+            }
+          },
+          "en": {
+            "total": 5,
+            "passed": 3,
+            "wrong": 2,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 5,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 0.6,
+            "baseScore": 60,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 60,
+            "answeredPassRate": 0.6,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 0.6,
+            "averageLatencyMs": 22695.8,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 2100,
+              "completion": 3072,
+              "reasoning": 3012,
+              "cached": 0,
+              "total": 5172,
+              "numRequests": 5
+            },
+            "averageTokens": {
+              "prompt": 420,
+              "completion": 614.4,
+              "reasoning": 602.4,
+              "cached": 0,
+              "total": 1034.4
+            }
+          }
+        },
+        "coding": {
+          "all": {
+            "total": 2,
+            "passed": 2,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 2,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 3629.5,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 778,
+              "completion": 10,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 788,
+              "numRequests": 2
+            },
+            "averageTokens": {
+              "prompt": 389,
+              "completion": 5,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 394
+            }
+          },
+          "zh": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 3450,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 390,
+              "completion": 5,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 395,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 390,
+              "completion": 5,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 395
+            }
+          },
+          "en": {
+            "total": 1,
+            "passed": 1,
+            "wrong": 0,
+            "timeouts": 0,
+            "apiErrors": 0,
+            "answered": 1,
+            "unfinished": 0,
+            "dataComplete": true,
+            "passRate": 1,
+            "baseScore": 100,
+            "timeoutPenaltyScore": 0,
+            "compositeScore": 100,
+            "answeredPassRate": 1,
+            "timeoutRate": 0,
+            "apiErrorRate": 0,
+            "averageScore": 1,
+            "averageLatencyMs": 3809,
+            "estimatedCostUsd": 0,
+            "tokenUsage": {
+              "prompt": 388,
+              "completion": 5,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 393,
+              "numRequests": 1
+            },
+            "averageTokens": {
+              "prompt": 388,
+              "completion": 5,
+              "reasoning": 0,
+              "cached": 0,
+              "total": 393
+            }
+          }
+        }
+      }
+    }
+  ]
+}
