@@ -104,6 +104,8 @@ jobs:
               "duration_seconds": runner.get("duration_seconds", 480),
               "shell_commands": runner.get("shell_commands", 0),
               "usage": runner.get("usage", {}),
+              "api_retries": runner.get("api_retries", 0),
+              "infrastructure_error": runner.get("infrastructure_error"),
               "agent_exit_code": int("${{ steps.agent.outputs.exit_code || '999' }}"),
           }
           Path("result/result.json").write_text(json.dumps(result, indent=2) + "\n")
