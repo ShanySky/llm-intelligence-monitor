@@ -17,6 +17,8 @@ jobs:
     env:
       BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+      AGENT_MAX_TURNS: "12"
+      AGENT_SHELL_BUDGET: "12"
 
     steps:
       - uses: actions/checkout@v4
