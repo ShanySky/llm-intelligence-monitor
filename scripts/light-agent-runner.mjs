@@ -53,29 +53,47 @@ let totalUsage = { input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, cache
 let commands = [];
 let finalText = '';
 let responses = 0;
+let apiRetries = 0;
+let infrastructureError = null;
 const startedAt = Date.now();
 
 async function callModel() {
-  const response = await fetch(baseUrl + '/responses', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      authorization: 'Bearer ' + apiKey,
-    },
-    body: JSON.stringify({
-      model,
-      reasoning: { effort },
-      instructions,
-      input,
-      tools,
-      tool_choice: 'auto',
-      max_output_tokens: 4096,
-      store: false,
-    }),
-  });
-  const text = await response.text();
-  if (!response.ok) throw new Error('Responses API ' + response.status + ': ' + text.slice(0, 1000));
-  return JSON.parse(text);
+  let lastError = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const response = await fetch(baseUrl + '/responses', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: 'Bearer ' + apiKey,
+        },
+        body: JSON.stringify({
+          model,
+          reasoning: { effort },
+          instructions,
+          input,
+          tools,
+          tool_choice: 'auto',
+          max_output_tokens: 4096,
+          store: false,
+        }),
+      });
+      const text = await response.text();
+      if (response.ok) return JSON.parse(text);
+
+      lastError = new Error('Responses API ' + response.status + ': ' + text.slice(0, 1000));
+      if (!(response.status === 429 || response.status >= 500) || attempt === 2) {
+        throw lastError;
+      }
+    } catch (error) {
+      lastError = error;
+      if (attempt === 2) throw error;
+    }
+
+    apiRetries += 1;
+    await new Promise((resolve) => setTimeout(resolve, 1500 * (2 ** attempt)));
+  }
+  throw lastError ?? new Error('Unknown Responses API failure');
 }
 
 function addUsage(u = {}) {
@@ -106,34 +124,39 @@ function runShell(command) {
   return output.slice(0, 24000);
 }
 
-for (let turn = 0; turn < 16; turn += 1) {
-  const response = await callModel();
-  responses += 1;
-  addUsage(response.usage);
-
-  const outputs = Array.isArray(response.output) ? response.output : [];
-  const calls = outputs.filter((item) => item?.type === 'function_call' && item?.name === 'shell');
-  const messages = outputs.filter((item) => item?.type === 'message');
-
-  input.push(...outputs);
-
-  if (calls.length) {
-    for (const call of calls) {
-      let args;
-      try { args = JSON.parse(call.arguments ?? '{}'); }
-      catch { args = {}; }
-      const result = runShell(String(args.command ?? ''));
-      input.push({ type: 'function_call_output', call_id: call.call_id, output: result });
+try {
+  for (let turn = 0; turn < 16; turn += 1) {
+    const response = await callModel();
+    responses += 1;
+    addUsage(response.usage);
+  
+    const outputs = Array.isArray(response.output) ? response.output : [];
+    const calls = outputs.filter((item) => item?.type === 'function_call' && item?.name === 'shell');
+    const messages = outputs.filter((item) => item?.type === 'message');
+  
+    input.push(...outputs);
+  
+    if (calls.length) {
+      for (const call of calls) {
+        let args;
+        try { args = JSON.parse(call.arguments ?? '{}'); }
+        catch { args = {}; }
+        const result = runShell(String(args.command ?? ''));
+        input.push({ type: 'function_call_output', call_id: call.call_id, output: result });
+      }
+      continue;
     }
-    continue;
-  }
-
-  for (const message of messages) {
-    for (const part of message.content ?? []) {
-      if (part?.type === 'output_text' && typeof part.text === 'string') finalText += part.text;
+  
+    for (const message of messages) {
+      for (const part of message.content ?? []) {
+        if (part?.type === 'output_text' && typeof part.text === 'string') finalText += part.text;
+      }
     }
+    if (messages.length) break;
   }
-  if (messages.length) break;
+  
+} catch (error) {
+  infrastructureError = String(error?.message ?? error);
 }
 
 const result = {
@@ -142,9 +165,12 @@ const result = {
   effort,
   duration_seconds: Math.round((Date.now() - startedAt) / 1000),
   responses,
+  api_retries: apiRetries,
+  infrastructure_error: infrastructureError,
   shell_commands: commands.length,
   usage: totalUsage,
   final_text: finalText,
 };
 fs.writeFileSync(path.resolve(outFile), JSON.stringify(result, null, 2) + '\n');
 console.log(JSON.stringify(result, null, 2));
+if (infrastructureError) process.exitCode = 2;
