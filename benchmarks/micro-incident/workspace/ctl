@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cmd="${1:-help}"
+arg="${2:-}"
+if [[ "$cmd" != "help" ]]; then printf '%s %s\n' "$cmd" "$arg" >> .actions; fi
+source .state
+case "$cmd" in
+  help)
+    cat <<'EOF'
+status                 - external error summary
+pods                   - running pod revisions
+logs POD               - recent pod logs
+schema                 - relevant live DB schema
+revisions              - desired/running release metadata
+remove-stale           - remove confirmed stale revision from service
+restart-all            - restart all API pods
+scale N                - change API replica target
+verify                 - repeat external checkout verification
+EOF
+    ;;
+  status) if [[ "$stale" == "1" ]]; then echo 'checkout: 25% HTTP 500 over last 200 requests'; else echo 'checkout: 0% HTTP 500 over last 200 requests'; fi ;;
+  pods)
+    if [[ "$stale" == "1" ]]; then
+      printf '%s\n' 'api-7fd-a revision=v2 ready=true' 'api-7fd-b revision=v2 ready=true' 'api-7fd-c revision=v2 ready=true' 'api-5cc-old revision=v1 ready=true'
+    else
+      printf '%s\n' 'api-7fd-a revision=v2 ready=true' 'api-7fd-b revision=v2 ready=true' 'api-7fd-c revision=v2 ready=true' 'api-7fd-d revision=v2 ready=true'
+    fi
+    ;;
+  logs)
+    case "$arg" in
+      api-5cc-old) echo "ERROR checkout failed: Unknown column 'coupon_rule_id' in field list" ;;
+      api-7fd-a|api-7fd-b|api-7fd-c|api-7fd-d) echo 'INFO checkout request completed 200' ;;
+      *) echo "unknown pod: $arg" >&2; exit 2 ;;
+    esac
+    ;;
+  schema) echo 'orders: id, customer_id, coupon_rule_code, total_amount, created_at' ;;
+  revisions) echo 'desired_revision=v2 migration=20260929_coupon_rule_code'; if [[ "$stale" == "1" ]]; then echo 'stale_revision=v1 migration=20260910_coupon_rule_id'; fi ;;
+  remove-stale) if [[ "$stale" == "1" ]]; then printf 'stale=0\n' > .state; echo 'stale v1 revision removed; replacement v2 ready'; else echo 'no stale revision present'; fi ;;
+  restart-all) echo 'restart requested (no root-cause change)' ;;
+  scale) echo "replica target set to ${arg:-?} (no root-cause change)" ;;
+  verify)
+    source .state
+    if [[ "$stale" == "0" ]]; then echo 'VERIFY PASS: 200/200 checkout requests returned 2xx'; else echo 'VERIFY FAIL: 47/200 checkout requests returned 500'; exit 1; fi
+    ;;
+  *) echo "unknown command: $cmd" >&2; exit 2 ;;
+esac

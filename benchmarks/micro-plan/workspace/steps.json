@@ -1,0 +1,16 @@
+[
+  {"id":"S1","text":"Add status_code and status_reason as nullable columns using an online-safe DDL path."},
+  {"id":"S2","text":"Add both columns NOT NULL with defaults in one migration and allow the table rewrite to finish before deploy."},
+  {"id":"S3","text":"Deploy compatibility code that keeps old status and new fields semantically consistent on writes."},
+  {"id":"S4","text":"During compatibility, read new fields when present but fall back to status for rows not yet backfilled."},
+  {"id":"S5","text":"Backfill historical rows in small resumable batches with progress checkpoints."},
+  {"id":"S6","text":"Backfill all 80M rows in one UPDATE during the deployment window."},
+  {"id":"S7","text":"Verify parity between old and new representations on production data after backfill."},
+  {"id":"S8","text":"Run a rollback drill proving v2-written data remains correct when read by v1."},
+  {"id":"S9","text":"After the rollback window closes, stop compatibility reads/writes in a later release."},
+  {"id":"S10","text":"After compatibility is removed, enforce final nullability/consistency constraints for the new representation."},
+  {"id":"S11","text":"Drop status in the same release that first deploys v2."},
+  {"id":"S12","text":"Remove status only in a later cleanup release after rollback compatibility is no longer required."},
+  {"id":"S13","text":"Have application startup ALTER the production table if the new columns are missing."},
+  {"id":"S14","text":"Create a replacement orders_v2 table and atomically rename tables during the rolling deployment."}
+]
