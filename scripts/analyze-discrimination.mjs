@@ -98,8 +98,8 @@ for (const row of rows) {
   if (!pairs.has(pairId)) {
     pairs.set(pairId, {
       pairId,
-      ability: metadata[pairId]?.ability ?? 'unknown',
-      difficulty: metadata[pairId]?.difficulty ?? 'unknown',
+      ability: metadata[pairId]?.ability ?? vars.ability ?? vars.category ?? 'unknown',
+      difficulty: metadata[pairId]?.difficulty ?? vars.difficulty ?? 'research',
       efforts: Object.fromEntries(availableEfforts.map((e) => [e, fresh()])),
     });
   }
