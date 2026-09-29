@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        effort: [medium]
+        effort: [xhigh]
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
