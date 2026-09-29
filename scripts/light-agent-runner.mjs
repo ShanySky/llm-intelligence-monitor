@@ -88,6 +88,9 @@ function addUsage(u = {}) {
 function runShell(command) {
   commands.push(command);
   if (commands.length > 24) return 'ERROR: shell action budget exceeded (24)';
+  if (/\.\.|\/home\/|\/tmp\/|\/proc\/|\/etc\/|\bcurl\b|\bwget\b|\bprintenv\b|\benv\b|git\s+remote/i.test(command)) {
+    return 'ERROR: command rejected by benchmark workspace isolation policy';
+  }
   const result = spawnSync('/bin/bash', ['-lc', command], {
     cwd: taskDir,
     env: safeEnv,
