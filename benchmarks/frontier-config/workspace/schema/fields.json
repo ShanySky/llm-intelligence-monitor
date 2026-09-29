@@ -1,0 +1,12 @@
+[
+  {
+    "name": "logLevel",
+    "type": "string",
+    "default": "INFO"
+  },
+  {
+    "name": "port",
+    "type": "integer",
+    "default": 8080
+  }
+]
