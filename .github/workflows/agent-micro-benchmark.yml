@@ -20,12 +20,12 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        effort: [medium, xhigh]
+        effort: [medium]
 
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
 
     steps:
@@ -50,7 +50,7 @@ jobs:
       - name: Prepare isolated task workspace
         shell: bash
         run: |
-          test -n "$OPENAI_API_KEY" || { echo "Missing OPENAI_API_KEY"; exit 1; }
+          test -n "$BENCHMARK_API_KEY" || { echo "Missing benchmark API key"; exit 1; }
           test -n "$OPENAI_BASE_URL" || { echo "Missing OPENAI_BASE_URL"; exit 1; }
 
           TASK_DIR="/tmp/micro-export-${{ matrix.effort }}"
@@ -79,7 +79,13 @@ jobs:
             --skip-git-repo-check \
             --model gpt-6-sol \
             -c 'model_reasoning_effort="${{ matrix.effort }}"' \
-            -c "openai_base_url=\"$OPENAI_BASE_URL\"" \
+            -c 'model_provider="benchmark_proxy"' \
+            -c 'model_providers.benchmark_proxy.name="Benchmark Proxy"' \
+            -c "model_providers.benchmark_proxy.base_url=\"$OPENAI_BASE_URL\"" \
+            -c 'model_providers.benchmark_proxy.env_key="BENCHMARK_API_KEY"' \
+            -c 'model_providers.benchmark_proxy.wire_api="responses"' \
+            -c 'model_providers.benchmark_proxy.requires_openai_auth=false' \
+            -c 'model_providers.benchmark_proxy.supports_websockets=false' \
             --disable apps \
             --disable plugins \
             --json \
