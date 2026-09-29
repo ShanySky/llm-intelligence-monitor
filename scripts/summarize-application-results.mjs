@@ -5,22 +5,39 @@ const dir = process.argv[2] ?? 'results/application';
 const manifestPath = process.argv[3] ?? 'benchmarks/application-suite.json';
 const outJson = process.argv[4] ?? 'results/application-summary.json';
 const outMd = process.argv[5] ?? 'results/application-summary.md';
+const priorPath = process.argv[6] ?? '';
 
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 const weights = Object.fromEntries(manifest.families.map((x) => [x.id, Number(x.weight)]));
 
-const rows = [];
+const currentRows = [];
 function walk(p) {
   for (const ent of fs.readdirSync(p, { withFileTypes: true })) {
     const full = path.join(p, ent.name);
     if (ent.isDirectory()) walk(full);
     else if (ent.name === 'result.json') {
-      try { rows.push(JSON.parse(fs.readFileSync(full, 'utf8'))); } catch {}
+      try { currentRows.push(JSON.parse(fs.readFileSync(full, 'utf8'))); } catch {}
     }
   }
 }
 if (fs.existsSync(dir)) walk(dir);
-if (!rows.length) throw new Error('No application benchmark result.json files found');
+let priorRows = [];
+if (priorPath && fs.existsSync(priorPath)) {
+  try { priorRows = JSON.parse(fs.readFileSync(priorPath, 'utf8'))?.rows ?? []; } catch {}
+}
+
+if (!currentRows.length && !priorRows.length) throw new Error('No application benchmark result rows found');
+
+const merged = new Map();
+for (const r of priorRows) merged.set(`${r.task}|${r.effort}`, r);
+for (const r of currentRows) {
+  const key = `${r.task}|${r.effort}`;
+  const prior = merged.get(key);
+  const currentComplete = typeof r.data_complete === 'boolean' ? r.data_complete : !r.infrastructure_error;
+  const priorComplete = prior && (typeof prior.data_complete === 'boolean' ? prior.data_complete : !prior.infrastructure_error);
+  if (currentComplete || !priorComplete) merged.set(key, r);
+}
+const rows = [...merged.values()];
 
 const efforts = [...new Set(rows.map((r) => r.effort))].sort();
 const totalWeight = manifest.families.reduce((s, x) => s + Number(x.weight), 0);
