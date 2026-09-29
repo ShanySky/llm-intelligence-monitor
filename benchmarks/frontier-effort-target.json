@@ -1,0 +1,7 @@
+{
+  "task": "frontier-config",
+  "model": "gpt-6-sol",
+  "efforts": ["medium", "xhigh"],
+  "max_turns": 12,
+  "shell_budget": 12
+}
