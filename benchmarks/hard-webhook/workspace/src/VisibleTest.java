@@ -1,0 +1,1 @@
+public final class VisibleTest { public static void main(String[] a){ EventLog e=new EventLog(); FulfillmentRepo r=new FulfillmentRepo(); InventoryClient i=new InventoryClient(); WebhookService s=new WebhookService(e,r,i,FailureInjector.none()); s.paid("evt-1","order-1"); if(i.reservationCount()!=1)throw new AssertionError(); System.out.println("VISIBLE_TEST_PASS"); } }

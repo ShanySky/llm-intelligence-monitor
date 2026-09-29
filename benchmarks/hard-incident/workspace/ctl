@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cmd="${1:-help}"; arg="${2:-}"; [[ "$cmd" == help ]] || echo "$cmd $arg" >> .actions; source .state
+case "$cmd" in
+help) echo 'status | pods | logs POD | pod-config POD | configmap | replace POD | restart-all | scale N | verify';;
+status) [[ "$bad" == 1 ]] && echo 'coupon checkout: 34% 500; non-coupon checkout: 0% 500' || echo 'all checkout: 0% 500';;
+pods) echo 'api-a image=v3 ready=true'; echo 'api-b image=v3 ready=true'; echo 'api-c image=v3 ready=true';;
+logs) [[ "$arg" == api-c && "$bad" == 1 ]] && echo "ERROR Unknown column 'coupon_rule_id'" || echo 'INFO checkout 200';;
+pod-config) [[ "$arg" == api-c && "$bad" == 1 ]] && echo 'SCHEMA_MODE=legacy' || echo 'SCHEMA_MODE=current';;
+configmap) echo 'SCHEMA_MODE=current generation=42';;
+replace) [[ "$arg" == api-c ]] || { echo 'only api-c is divergent' >&2; exit 2; }; echo 'bad=0' > .state; echo 'api-c replaced from current config generation';;
+restart-all) echo 'restart requested without identifying drift';;
+scale) echo "scaled to ${arg:-?}";;
+verify) source .state; [[ "$bad" == 0 ]] && echo 'VERIFY PASS 300/300' || { echo 'VERIFY FAIL 101/300'; exit 1; };;
+*) exit 2;; esac

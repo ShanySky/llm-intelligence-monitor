@@ -1,0 +1,16 @@
+[
+{"id":"P1","text":"Add nullable customer_key with an online-safe schema change."},
+{"id":"P2","text":"Backfill stable UUIDs in resumable batches and persist them."},
+{"id":"P3","text":"Update new application code to write customer_key for new/changed customers while preserving customer_id compatibility."},
+{"id":"P4","text":"Update consumers to accept both customer_id and customer_key before any producer stops legacy emission."},
+{"id":"P5","text":"Temporarily emit both identifiers in REST/JWT/Kafka contracts where compatibility is required."},
+{"id":"P6","text":"Verify UUID uniqueness, row coverage, cross-contract parity, and rollback behavior."},
+{"id":"P7","text":"After the rollback window closes and consumers are confirmed migrated, stop emitting legacy customer_id from new contracts."},
+{"id":"P8","text":"Enforce final customer_key constraints and remove legacy compatibility only in later cleanup."},
+{"id":"P9","text":"Generate a random customer_key on every read when the column is null."},
+{"id":"P10","text":"Switch the producer to UUID-only first and ask downstream consumers to catch up."},
+{"id":"P11","text":"Backfill all 60M rows in one UPDATE during deployment."},
+{"id":"P12","text":"Drop customer_id in the first v2 release."},
+{"id":"P13","text":"Let each service independently map numeric IDs to UUIDs in memory."},
+{"id":"P14","text":"Run schema migration from application startup on every instance."}
+]

@@ -1,0 +1,1 @@
+import java.util.*; public final class InventoryClient { private final Map<String,String> reservations=new HashMap<>(); public String reserve(String orderId,String key){reservations.putIfAbsent(key,orderId);return key;} public int reservationCount(){return reservations.size();} public boolean has(String key){return reservations.containsKey(key);} }
