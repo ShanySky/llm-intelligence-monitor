@@ -3,9 +3,13 @@ import fs from 'node:fs';
 const model = process.argv[2];
 const label = process.argv[3];
 const out = process.argv[4] ?? 'results/promptfoo-model.yaml';
+const effort = process.argv[5] ?? 'xhigh';
 
 if (!model || !label) {
-  throw new Error('Usage: node scripts/build-model-config.mjs <model> <label> [output]');
+  throw new Error('Usage: node scripts/build-model-config.mjs <model> <label> [output] [effort]');
+}
+if (!['low', 'medium', 'high', 'xhigh'].includes(effort)) {
+  throw new Error(`Unsupported reasoning effort: ${effort}`);
 }
 
 const yaml = `# AUTO-GENERATED for one model job.
@@ -19,7 +23,7 @@ providers:
     label: ${label}
     config:
       reasoning:
-        effort: xhigh
+        effort: ${effort}
       max_output_tokens: 8192
       store: false
       maxRetries: 1
@@ -37,4 +41,4 @@ evaluateOptions:
 
 fs.mkdirSync('results', { recursive: true });
 fs.writeFileSync(out, yaml);
-console.log(`Generated ${out} for ${label} (${model}, X High)`);
+console.log(`Generated ${out} for ${label} (${model}, ${effort})`);
