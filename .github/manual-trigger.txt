@@ -27,3 +27,4 @@ Final multi-model application validation.
 Targeted hard-review stability validation.
 Frontier scheduler Luna High screen.
 Generic frontier screen: frontier-filter / Luna High.
+Generic frontier screen: frontier-config / Luna High / bounded budget.
