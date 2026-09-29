@@ -1,0 +1,107 @@
+{
+  "generatedAt": "2026-09-29T09:15:22.594Z",
+  "mode": "gpt-6-sol-effort-calibration",
+  "exploratory": true,
+  "availableEfforts": [
+    "medium",
+    "xhigh"
+  ],
+  "overall": {
+    "medium": {
+      "total": 6,
+      "passed": 4,
+      "wrong": 2,
+      "timeouts": 0,
+      "apiErrors": 0,
+      "passRate": 0.6666666666666666,
+      "averageReasoningTokens": 1527.8333333333333,
+      "averageTotalTokens": 1937.3333333333333,
+      "averageLatencyMs": 34930.166666666664
+    },
+    "xhigh": {
+      "total": 6,
+      "passed": 5,
+      "wrong": 1,
+      "timeouts": 0,
+      "apiErrors": 0,
+      "passRate": 0.8333333333333334,
+      "averageReasoningTokens": 1191.1666666666667,
+      "averageTotalTokens": 1600.6666666666667,
+      "averageLatencyMs": 29017.5
+    }
+  },
+  "questions": [
+    {
+      "pairId": "H05",
+      "ability": "reasoning",
+      "difficulty": "extreme",
+      "efforts": {
+        "medium": {
+          "total": 3,
+          "passed": 1,
+          "wrong": 2,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "passRate": 0.3333333333333333,
+          "averageReasoningTokens": 920,
+          "averageTotalTokens": 1354,
+          "averageLatencyMs": 27519
+        },
+        "xhigh": {
+          "total": 3,
+          "passed": 2,
+          "wrong": 1,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "passRate": 0.6666666666666666,
+          "averageReasoningTokens": 1002,
+          "averageTotalTokens": 1436,
+          "averageLatencyMs": 28993.666666666668
+        }
+      },
+      "mediumPassRate": 0.3333333333333333,
+      "highPassRate": null,
+      "xhighPassRate": 0.6666666666666666,
+      "effortGain": 0.3333333333333333,
+      "span": 0.3333333333333333,
+      "classification": "effort-candidate",
+      "recommendation": "repeat-then-test-high"
+    },
+    {
+      "pairId": "S01",
+      "ability": "math",
+      "difficulty": "hard",
+      "efforts": {
+        "medium": {
+          "total": 3,
+          "passed": 3,
+          "wrong": 0,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "passRate": 1,
+          "averageReasoningTokens": 2135.6666666666665,
+          "averageTotalTokens": 2520.6666666666665,
+          "averageLatencyMs": 42341.333333333336
+        },
+        "xhigh": {
+          "total": 3,
+          "passed": 3,
+          "wrong": 0,
+          "timeouts": 0,
+          "apiErrors": 0,
+          "passRate": 1,
+          "averageReasoningTokens": 1380.3333333333333,
+          "averageTotalTokens": 1765.3333333333333,
+          "averageLatencyMs": 29041.333333333332
+        }
+      },
+      "mediumPassRate": 1,
+      "highPassRate": null,
+      "xhighPassRate": 1,
+      "effortGain": 0,
+      "span": 0,
+      "classification": "ceiling",
+      "recommendation": "drop-from-effort-calibration"
+    }
+  ]
+}
