@@ -1,0 +1,109 @@
+name: Hard application candidate screening
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  screen:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-hard-screen]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        task: [hard-plan, hard-webhook, hard-review, hard-incident]
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-java@v4
+        if: matrix.task == 'hard-webhook'
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare task
+        shell: bash
+        run: |
+          TASK_DIR="/tmp/screen-${{ matrix.task }}"
+          rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
+          cp -R "benchmarks/${{ matrix.task }}/workspace/." "$TASK_DIR/"
+          [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
+          if [ -f "$TASK_DIR/run_visible_tests.sh" ]; then chmod +x "$TASK_DIR/run_visible_tests.sh"; (cd "$TASK_DIR" && ./run_visible_tests.sh); fi
+          echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
+
+      - name: Run Luna High screen
+        id: agent
+        shell: bash
+        run: |
+          set +e
+          timeout 420s node scripts/light-agent-runner.mjs "$TASK_DIR" "gpt-6-luna" "high" "$TASK_DIR/light-agent-result.json"
+          status=$?
+          set -e
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+
+      - name: Score
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p result
+          python scripts/score-application-task.py "${{ matrix.task }}" "$TASK_DIR" "$TASK_DIR/score.json"
+          python - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          root=Path(os.environ["TASK_DIR"])
+          score=json.loads((root/"score.json").read_text())
+          rp=root/"light-agent-result.json"
+          runner=json.loads(rp.read_text()) if rp.exists() else {}
+          exit_code=int("${{ steps.agent.outputs.exit_code || '999' }}")
+          infra=runner.get("infrastructure_error")
+          outcome="infrastructure_error" if infra else ("completed" if exit_code==0 else ("model_timeout" if exit_code==124 else "runner_error"))
+          result={"task":"${{ matrix.task }}","model":"gpt-6-luna","effort":"high","score":score["score"],"checks":score["checks"],"duration_seconds":runner.get("duration_seconds",420),"usage":runner.get("usage",{}),"api_retries":runner.get("api_retries",0),"infrastructure_error":infra,"agent_exit_code":exit_code,"outcome":outcome,"data_complete":outcome in ("completed","model_timeout")}
+          Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
+          if rp.exists(): shutil.copy2(rp,"result/light-agent-result.json")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hard-screen-${{ matrix.task }}-${{ github.run_id }}
+          path: result/
+          retention-days: 30
+
+  aggregate:
+    needs: screen
+    if: always() && needs.screen.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: hard-screen-*-${{ github.run_id }}
+          path: results/hard
+      - name: Summarize
+        run: |
+          node scripts/summarize-application-results.mjs results/hard benchmarks/hard-candidates.json results/hard-summary.json results/hard-summary.md
+          cat results/hard-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hard-screen-summary-${{ github.run_id }}
+          path: |
+            results/hard-summary.json
+            results/hard-summary.md
+          retention-days: 30
