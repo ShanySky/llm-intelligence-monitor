@@ -16,3 +16,4 @@ Targeted application rerun after transient-5xx retry fix.
 Luna-first hard application candidate screen.
 Hard-plan Luna rerun after scorer compatibility fix.
 Sol calibration on Luna-screened hard webhook/review.
+Frontier Sol calibration: frontier-webhook Medium vs X High.
