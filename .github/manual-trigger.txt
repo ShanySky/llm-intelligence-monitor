@@ -4,3 +4,4 @@ Low-cost Sol calibration trigger: 2026-09-29 subset Medium vs X High.
 Candidate repeat trigger: H05,S01 repeat3 Medium vs X High.
 H05 High-only probe: repeat3.
 Research-derived family sweep: X01-X06, Medium vs X High.
+Application-focused sweep: APP01-APP06, Medium vs X High.
