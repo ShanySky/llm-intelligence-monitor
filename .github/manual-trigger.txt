@@ -20,3 +20,4 @@ Frontier Sol calibration: frontier-webhook Medium vs X High.
 Frontier Sol calibration: rolling migration Medium vs X High.
 Staged Sol calibration: rolling migration Stage1+Stage2.
 Frontier Sol calibration: cross-file review Medium vs X High.
+Frontier review repeated validation: Medium/High/X High x2.
