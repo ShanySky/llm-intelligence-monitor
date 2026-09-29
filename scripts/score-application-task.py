@@ -401,6 +401,72 @@ elif task == "frontier-review":
 
     add("requests_changes",10,"verdict: request_changes" in review)
 
+
+elif task == "frontier-plan":
+    plan=text("PLAN.md").lower()
+
+    add("online_additive_schema",10,
+        ("nullable" in plan or "additive" in plan) and
+        ("online" in plan or "non-block" in plan or "lock" in plan or "ddl" in plan))
+
+    stable_key = (
+        ("stable" in plan or "persist" in plan or "stored" in plan) and
+        ("uuid" in plan or "customer_key" in plan) and
+        ("once" in plan or "never change" in plan or "immutable" in plan or "read" in plan)
+    )
+    add("stable_persisted_identity",10,stable_key)
+
+    mixed_db = (
+        ("v1" in plan and "v2" in plan) and
+        ("dual" in plan or "compat" in plan or "fallback" in plan or "customer_id" in plan) and
+        ("write" in plan or "read" in plan)
+    )
+    add("mixed_version_db_compatibility",15,mixed_db)
+
+    backfill = (
+        "backfill" in plan and
+        ("batch" in plan or "resum" in plan or "checkpoint" in plan or "retry" in plan) and
+        ("parity" in plan or "verify" in plan or "coverage" in plan or "unique" in plan)
+    )
+    add("resumable_verified_backfill",10,backfill)
+
+    rest_jwt = (
+        ("rest" in plan or "api" in plan) and
+        ("jwt" in plan or "token" in plan) and
+        ("both" in plan or "dual" in plan or "compat" in plan or "customer_id" in plan)
+    )
+    add("rest_and_jwt_compatibility",10,rest_jwt)
+
+    kafka = (
+        "kafka" in plan and
+        ("customer_id" in plan and "customer_key" in plan) and
+        ("additive" in plan or "both" in plan or "dual" in plan) and
+        ("consumer" in plan or "partner" in plan)
+    )
+    add("kafka_consumer_first_compatibility",15,kafka)
+
+    cache = (
+        ("redis" in plan or "cache" in plan) and
+        ("customer_id" in plan or "legacy" in plan or "v1" in plan) and
+        ("invalidation" in plan or "key" in plan) and
+        ("both" in plan or "dual" in plan or "compat" in plan or "keep" in plan or "bridge" in plan)
+    )
+    add("cache_and_invalidation_compatibility",15,cache)
+
+    rollback = (
+        "rollback" in plan and
+        ("release" in plan or "window" in plan or "v1" in plan) and
+        ("test" in plan or "verify" in plan or "gate" in plan or "drill" in plan)
+    )
+    add("rollback_gate",10,rollback)
+
+    cleanup = (
+        ("cleanup" in plan or "remove" in plan or "drop" in plan or "not null" in plan or "constraint" in plan) and
+        ("later" in plan or "after" in plan) and
+        ("rollback" in plan or "consumer" in plan or "window" in plan)
+    )
+    add("delayed_cleanup",5,cleanup)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
