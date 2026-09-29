@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "target_seconds": 300,
+  "hard_timeout_seconds": 600,
+  "purpose": "Final application-oriented validation across models and GPT-6 Sol effort levels.",
+  "families": [
+    {"id":"hard-plan","family":"solution_design","weight":20},
+    {"id":"hard-webhook","family":"coding_idempotency","weight":25},
+    {"id":"hard-review","family":"code_review","weight":20},
+    {"id":"hard-incident","family":"agent_tool_use","weight":15},
+    {"id":"micro-export","family":"coding_long_horizon_recovery","weight":20}
+  ]
+}
