@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "quality": {
+    "ceiling_score": 95,
+    "floor_score": 20,
+    "min_model_spread_points": 10,
+    "min_effort_spread_points": 10,
+    "max_repeat_stddev_points": 12
+  },
+  "runtime": {
+    "target_seconds": 300,
+    "hard_limit_seconds": 600
+  },
+  "selection": {
+    "keep_coverage_if_application_critical": true,
+    "require_objective_or_semantic_domain_scoring": true,
+    "do_not_require_effort_monotonicity": true
+  }
+}
