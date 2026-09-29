@@ -23,11 +23,13 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-sol-calibration')
     strategy:
       fail-fast: false
-      max-parallel: 1
+      max-parallel: 2
       matrix:
         include:
-          - effort: high
-            label: GPT-6 Sol High
+          - effort: medium
+            label: GPT-6 Sol Medium
+          - effort: xhigh
+            label: GPT-6 Sol X High
 
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -63,7 +65,8 @@ jobs:
       - name: Select low-cost calibration subset
         shell: bash
         run: |
-          node scripts/select-calibration-tests.mjs             calibration-config.json             tests/core.yaml             tests/sol-calibration-selected.yaml
+          bank_path="$(node -e "const c=require('./calibration-config.json'); process.stdout.write(c.solExploration?.bankPath ?? 'tests/core.yaml')")"
+          node scripts/select-calibration-tests.mjs             calibration-config.json             "$bank_path"             tests/sol-calibration-selected.yaml
 
       - name: Build GPT-6 Sol ${{ matrix.label }} config
         shell: bash
