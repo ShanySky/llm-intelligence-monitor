@@ -1,0 +1,1735 @@
+{
+  "generated_at": "2026-09-29T19:11:59.330Z",
+  "manifest": {
+    "version": 1,
+    "target_seconds": 300,
+    "hard_timeout_seconds": 600,
+    "purpose": "Final application-oriented validation across models and GPT-6 Sol effort levels.",
+    "families": [
+      {
+        "id": "hard-plan",
+        "family": "solution_design",
+        "weight": 20
+      },
+      {
+        "id": "hard-webhook",
+        "family": "coding_idempotency",
+        "weight": 25
+      },
+      {
+        "id": "hard-review",
+        "family": "code_review",
+        "weight": 20
+      },
+      {
+        "id": "hard-incident",
+        "family": "agent_tool_use",
+        "weight": 15
+      },
+      {
+        "id": "micro-export",
+        "family": "coding_long_horizon_recovery",
+        "weight": 20
+      }
+    ]
+  },
+  "configs": [
+    {
+      "key": "gpt-5.6-sol|xhigh",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh"
+    },
+    {
+      "key": "gpt-6-astra|xhigh",
+      "model": "gpt-6-astra",
+      "effort": "xhigh"
+    },
+    {
+      "key": "gpt-6-luna|xhigh",
+      "model": "gpt-6-luna",
+      "effort": "xhigh"
+    },
+    {
+      "key": "gpt-6-sol|medium",
+      "model": "gpt-6-sol",
+      "effort": "medium"
+    },
+    {
+      "key": "gpt-6-sol|high",
+      "model": "gpt-6-sol",
+      "effort": "high"
+    },
+    {
+      "key": "gpt-6-sol|xhigh",
+      "model": "gpt-6-sol",
+      "effort": "xhigh"
+    }
+  ],
+  "rows": [
+    {
+      "task": "hard-incident",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "score": 90,
+      "checks": {
+        "targeted_replacement": {
+          "points": 30,
+          "passed": true
+        },
+        "within_budget": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_failure_log": {
+          "points": 10,
+          "passed": false
+        },
+        "checked_pod_config": {
+          "points": 15,
+          "passed": true
+        },
+        "checked_current_configmap": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_config_drift": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 80,
+      "shell_commands": 8,
+      "usage": {
+        "input_tokens": 12236,
+        "output_tokens": 1452,
+        "reasoning_tokens": 897,
+        "cached_input_tokens": 5248
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-incident",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "targeted_replacement": {
+          "points": 30,
+          "passed": true
+        },
+        "within_budget": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_failure_log": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_pod_config": {
+          "points": 15,
+          "passed": true
+        },
+        "checked_current_configmap": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_config_drift": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 64,
+      "shell_commands": 5,
+      "usage": {
+        "input_tokens": 8928,
+        "output_tokens": 1166,
+        "reasoning_tokens": 233,
+        "cached_input_tokens": 2560
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-incident",
+      "model": "gpt-6-luna",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "targeted_replacement": {
+          "points": 30,
+          "passed": true
+        },
+        "within_budget": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_failure_log": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_pod_config": {
+          "points": 15,
+          "passed": true
+        },
+        "checked_current_configmap": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_config_drift": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 46,
+      "shell_commands": 5,
+      "usage": {
+        "input_tokens": 7921,
+        "output_tokens": 757,
+        "reasoning_tokens": 282,
+        "cached_input_tokens": 1536
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-incident",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "score": 90,
+      "checks": {
+        "targeted_replacement": {
+          "points": 30,
+          "passed": true
+        },
+        "within_budget": {
+          "points": 10,
+          "passed": false
+        },
+        "checked_failure_log": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_pod_config": {
+          "points": 15,
+          "passed": true
+        },
+        "checked_current_configmap": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_config_drift": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 35,
+      "shell_commands": 4,
+      "usage": {
+        "input_tokens": 6149,
+        "output_tokens": 540,
+        "reasoning_tokens": 189,
+        "cached_input_tokens": 1024
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-incident",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "score": 100,
+      "checks": {
+        "targeted_replacement": {
+          "points": 30,
+          "passed": true
+        },
+        "within_budget": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_failure_log": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_pod_config": {
+          "points": 15,
+          "passed": true
+        },
+        "checked_current_configmap": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_config_drift": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 49,
+      "shell_commands": 6,
+      "usage": {
+        "input_tokens": 9164,
+        "output_tokens": 563,
+        "reasoning_tokens": 167,
+        "cached_input_tokens": 3840
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-incident",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "targeted_replacement": {
+          "points": 30,
+          "passed": true
+        },
+        "within_budget": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_failure_log": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_pod_config": {
+          "points": 15,
+          "passed": true
+        },
+        "checked_current_configmap": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_config_drift": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 44,
+      "shell_commands": 5,
+      "usage": {
+        "input_tokens": 8042,
+        "output_tokens": 668,
+        "reasoning_tokens": 290,
+        "cached_input_tokens": 1536
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-plan",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "score": 88,
+      "checks": {
+        "valid_plan_json": {
+          "points": 10,
+          "passed": true
+        },
+        "required_P1": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P2": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P3": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P4": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P5": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P6": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P7": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P8": {
+          "points": 6,
+          "passed": true
+        },
+        "no_unsafe_steps": {
+          "points": 12,
+          "passed": true
+        },
+        "safe_rollout_order": {
+          "points": 12,
+          "passed": false
+        },
+        "compatibility_invariant": {
+          "points": 8,
+          "passed": true
+        },
+        "validation_depth": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 142,
+      "shell_commands": 8,
+      "usage": {
+        "input_tokens": 20913,
+        "output_tokens": 5994,
+        "reasoning_tokens": 4585,
+        "cached_input_tokens": 7168
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-plan",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "valid_plan_json": {
+          "points": 10,
+          "passed": true
+        },
+        "required_P1": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P2": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P3": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P4": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P5": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P6": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P7": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P8": {
+          "points": 6,
+          "passed": true
+        },
+        "no_unsafe_steps": {
+          "points": 12,
+          "passed": true
+        },
+        "safe_rollout_order": {
+          "points": 12,
+          "passed": true
+        },
+        "compatibility_invariant": {
+          "points": 8,
+          "passed": true
+        },
+        "validation_depth": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 149,
+      "shell_commands": 4,
+      "usage": {
+        "input_tokens": 14932,
+        "output_tokens": 3892,
+        "reasoning_tokens": 2002,
+        "cached_input_tokens": 1280
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-plan",
+      "model": "gpt-6-luna",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "valid_plan_json": {
+          "points": 10,
+          "passed": true
+        },
+        "required_P1": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P2": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P3": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P4": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P5": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P6": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P7": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P8": {
+          "points": 6,
+          "passed": true
+        },
+        "no_unsafe_steps": {
+          "points": 12,
+          "passed": true
+        },
+        "safe_rollout_order": {
+          "points": 12,
+          "passed": true
+        },
+        "compatibility_invariant": {
+          "points": 8,
+          "passed": true
+        },
+        "validation_depth": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 100,
+      "shell_commands": 6,
+      "usage": {
+        "input_tokens": 12287,
+        "output_tokens": 2798,
+        "reasoning_tokens": 1689,
+        "cached_input_tokens": 3584
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-plan",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "score": 100,
+      "checks": {
+        "valid_plan_json": {
+          "points": 10,
+          "passed": true
+        },
+        "required_P1": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P2": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P3": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P4": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P5": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P6": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P7": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P8": {
+          "points": 6,
+          "passed": true
+        },
+        "no_unsafe_steps": {
+          "points": 12,
+          "passed": true
+        },
+        "safe_rollout_order": {
+          "points": 12,
+          "passed": true
+        },
+        "compatibility_invariant": {
+          "points": 8,
+          "passed": true
+        },
+        "validation_depth": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 42,
+      "shell_commands": 3,
+      "usage": {
+        "input_tokens": 5824,
+        "output_tokens": 1323,
+        "reasoning_tokens": 685,
+        "cached_input_tokens": 1152
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-plan",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "score": 100,
+      "checks": {
+        "valid_plan_json": {
+          "points": 10,
+          "passed": true
+        },
+        "required_P1": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P2": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P3": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P4": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P5": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P6": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P7": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P8": {
+          "points": 6,
+          "passed": true
+        },
+        "no_unsafe_steps": {
+          "points": 12,
+          "passed": true
+        },
+        "safe_rollout_order": {
+          "points": 12,
+          "passed": true
+        },
+        "compatibility_invariant": {
+          "points": 8,
+          "passed": true
+        },
+        "validation_depth": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 42,
+      "shell_commands": 3,
+      "usage": {
+        "input_tokens": 5916,
+        "output_tokens": 1118,
+        "reasoning_tokens": 384,
+        "cached_input_tokens": 1536
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-plan",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "valid_plan_json": {
+          "points": 10,
+          "passed": true
+        },
+        "required_P1": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P2": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P3": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P4": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P5": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P6": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P7": {
+          "points": 6,
+          "passed": true
+        },
+        "required_P8": {
+          "points": 6,
+          "passed": true
+        },
+        "no_unsafe_steps": {
+          "points": 12,
+          "passed": true
+        },
+        "safe_rollout_order": {
+          "points": 12,
+          "passed": true
+        },
+        "compatibility_invariant": {
+          "points": 8,
+          "passed": true
+        },
+        "validation_depth": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 58,
+      "shell_commands": 3,
+      "usage": {
+        "input_tokens": 6391,
+        "output_tokens": 1983,
+        "reasoning_tokens": 1229,
+        "cached_input_tokens": 2560
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-review",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "self_invocation_async": {
+          "points": 15,
+          "passed": true
+        },
+        "cache_before_commit": {
+          "points": 15,
+          "passed": true
+        },
+        "async_visibility_race": {
+          "points": 15,
+          "passed": true
+        },
+        "order_scoped_inventory_idempotency": {
+          "points": 20,
+          "passed": true
+        },
+        "random_audit_id_breaks_retry": {
+          "points": 15,
+          "passed": true
+        },
+        "after_commit_or_outbox_direction": {
+          "points": 15,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 178,
+      "shell_commands": 11,
+      "usage": {
+        "input_tokens": 52590,
+        "output_tokens": 6489,
+        "reasoning_tokens": 4418,
+        "cached_input_tokens": 35840
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-review",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "score": 15,
+      "checks": {
+        "self_invocation_async": {
+          "points": 15,
+          "passed": true
+        },
+        "cache_before_commit": {
+          "points": 15,
+          "passed": false
+        },
+        "async_visibility_race": {
+          "points": 15,
+          "passed": false
+        },
+        "order_scoped_inventory_idempotency": {
+          "points": 20,
+          "passed": false
+        },
+        "random_audit_id_breaks_retry": {
+          "points": 15,
+          "passed": false
+        },
+        "after_commit_or_outbox_direction": {
+          "points": 15,
+          "passed": false
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": false
+        }
+      },
+      "duration_seconds": 271,
+      "shell_commands": 16,
+      "usage": {
+        "input_tokens": 78106,
+        "output_tokens": 5833,
+        "reasoning_tokens": 2165,
+        "cached_input_tokens": 60800
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-review",
+      "model": "gpt-6-luna",
+      "effort": "xhigh",
+      "score": 85,
+      "checks": {
+        "self_invocation_async": {
+          "points": 15,
+          "passed": true
+        },
+        "cache_before_commit": {
+          "points": 15,
+          "passed": true
+        },
+        "async_visibility_race": {
+          "points": 15,
+          "passed": false
+        },
+        "order_scoped_inventory_idempotency": {
+          "points": 20,
+          "passed": true
+        },
+        "random_audit_id_breaks_retry": {
+          "points": 15,
+          "passed": true
+        },
+        "after_commit_or_outbox_direction": {
+          "points": 15,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 158,
+      "shell_commands": 16,
+      "usage": {
+        "input_tokens": 51706,
+        "output_tokens": 3501,
+        "reasoning_tokens": 1794,
+        "cached_input_tokens": 37888
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-review",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "score": 100,
+      "checks": {
+        "self_invocation_async": {
+          "points": 15,
+          "passed": true
+        },
+        "cache_before_commit": {
+          "points": 15,
+          "passed": true
+        },
+        "async_visibility_race": {
+          "points": 15,
+          "passed": true
+        },
+        "order_scoped_inventory_idempotency": {
+          "points": 20,
+          "passed": true
+        },
+        "random_audit_id_breaks_retry": {
+          "points": 15,
+          "passed": true
+        },
+        "after_commit_or_outbox_direction": {
+          "points": 15,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 76,
+      "shell_commands": 6,
+      "usage": {
+        "input_tokens": 13359,
+        "output_tokens": 1708,
+        "reasoning_tokens": 713,
+        "cached_input_tokens": 8448
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-review",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "score": 85,
+      "checks": {
+        "self_invocation_async": {
+          "points": 15,
+          "passed": true
+        },
+        "cache_before_commit": {
+          "points": 15,
+          "passed": true
+        },
+        "async_visibility_race": {
+          "points": 15,
+          "passed": false
+        },
+        "order_scoped_inventory_idempotency": {
+          "points": 20,
+          "passed": true
+        },
+        "random_audit_id_breaks_retry": {
+          "points": 15,
+          "passed": true
+        },
+        "after_commit_or_outbox_direction": {
+          "points": 15,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 82,
+      "shell_commands": 9,
+      "usage": {
+        "input_tokens": 17691,
+        "output_tokens": 1430,
+        "reasoning_tokens": 255,
+        "cached_input_tokens": 10496
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-review",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "self_invocation_async": {
+          "points": 15,
+          "passed": true
+        },
+        "cache_before_commit": {
+          "points": 15,
+          "passed": true
+        },
+        "async_visibility_race": {
+          "points": 15,
+          "passed": true
+        },
+        "order_scoped_inventory_idempotency": {
+          "points": 20,
+          "passed": true
+        },
+        "random_audit_id_breaks_retry": {
+          "points": 15,
+          "passed": true
+        },
+        "after_commit_or_outbox_direction": {
+          "points": 15,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 127,
+      "shell_commands": 14,
+      "usage": {
+        "input_tokens": 40462,
+        "output_tokens": 2610,
+        "reasoning_tokens": 1004,
+        "cached_input_tokens": 23552
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-webhook",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "same_event_duplicate": {
+          "points": 20,
+          "passed": true
+        },
+        "different_event_same_order": {
+          "points": 30,
+          "passed": true
+        },
+        "post_reserve_crash_retry": {
+          "points": 30,
+          "passed": true
+        }
+      },
+      "duration_seconds": 131,
+      "shell_commands": 8,
+      "usage": {
+        "input_tokens": 24908,
+        "output_tokens": 4887,
+        "reasoning_tokens": 2543,
+        "cached_input_tokens": 16128
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-webhook",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "same_event_duplicate": {
+          "points": 20,
+          "passed": true
+        },
+        "different_event_same_order": {
+          "points": 30,
+          "passed": true
+        },
+        "post_reserve_crash_retry": {
+          "points": 30,
+          "passed": true
+        }
+      },
+      "duration_seconds": 180,
+      "shell_commands": 8,
+      "usage": {
+        "input_tokens": 32953,
+        "output_tokens": 4269,
+        "reasoning_tokens": 1578,
+        "cached_input_tokens": 19200
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-webhook",
+      "model": "gpt-6-luna",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "same_event_duplicate": {
+          "points": 20,
+          "passed": true
+        },
+        "different_event_same_order": {
+          "points": 30,
+          "passed": true
+        },
+        "post_reserve_crash_retry": {
+          "points": 30,
+          "passed": true
+        }
+      },
+      "duration_seconds": 92,
+      "shell_commands": 6,
+      "usage": {
+        "input_tokens": 18386,
+        "output_tokens": 2721,
+        "reasoning_tokens": 1814,
+        "cached_input_tokens": 8704
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-webhook",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "same_event_duplicate": {
+          "points": 20,
+          "passed": true
+        },
+        "different_event_same_order": {
+          "points": 30,
+          "passed": true
+        },
+        "post_reserve_crash_retry": {
+          "points": 30,
+          "passed": true
+        }
+      },
+      "duration_seconds": 74,
+      "shell_commands": 5,
+      "usage": {
+        "input_tokens": 14081,
+        "output_tokens": 2554,
+        "reasoning_tokens": 1121,
+        "cached_input_tokens": 7936
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-webhook",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "same_event_duplicate": {
+          "points": 20,
+          "passed": true
+        },
+        "different_event_same_order": {
+          "points": 30,
+          "passed": true
+        },
+        "post_reserve_crash_retry": {
+          "points": 30,
+          "passed": true
+        }
+      },
+      "duration_seconds": 71,
+      "shell_commands": 5,
+      "usage": {
+        "input_tokens": 13395,
+        "output_tokens": 2322,
+        "reasoning_tokens": 938,
+        "cached_input_tokens": 7552
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-webhook",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "same_event_duplicate": {
+          "points": 20,
+          "passed": true
+        },
+        "different_event_same_order": {
+          "points": 30,
+          "passed": true
+        },
+        "post_reserve_crash_retry": {
+          "points": 30,
+          "passed": true
+        }
+      },
+      "duration_seconds": 115,
+      "shell_commands": 6,
+      "usage": {
+        "input_tokens": 22047,
+        "output_tokens": 4415,
+        "reasoning_tokens": 2567,
+        "cached_input_tokens": 13824
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "micro-export",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "midflight_cancellation": {
+          "points": 30,
+          "passed": true
+        },
+        "post_publish_retry": {
+          "points": 30,
+          "passed": true
+        },
+        "retry_without_regeneration": {
+          "points": 20,
+          "passed": true
+        }
+      },
+      "duration_seconds": 271,
+      "shell_commands": 10,
+      "usage": {
+        "input_tokens": 75131,
+        "output_tokens": 11091,
+        "reasoning_tokens": 6599,
+        "cached_input_tokens": 55552
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "micro-export",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "midflight_cancellation": {
+          "points": 30,
+          "passed": true
+        },
+        "post_publish_retry": {
+          "points": 30,
+          "passed": true
+        },
+        "retry_without_regeneration": {
+          "points": 20,
+          "passed": true
+        }
+      },
+      "duration_seconds": 439,
+      "shell_commands": 6,
+      "usage": {
+        "input_tokens": 53174,
+        "output_tokens": 12999,
+        "reasoning_tokens": 8474,
+        "cached_input_tokens": 34816
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "micro-export",
+      "model": "gpt-6-luna",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "midflight_cancellation": {
+          "points": 30,
+          "passed": true
+        },
+        "post_publish_retry": {
+          "points": 30,
+          "passed": true
+        },
+        "retry_without_regeneration": {
+          "points": 20,
+          "passed": true
+        }
+      },
+      "duration_seconds": 140,
+      "shell_commands": 7,
+      "usage": {
+        "input_tokens": 33586,
+        "output_tokens": 5684,
+        "reasoning_tokens": 3630,
+        "cached_input_tokens": 20480
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "micro-export",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "midflight_cancellation": {
+          "points": 30,
+          "passed": true
+        },
+        "post_publish_retry": {
+          "points": 30,
+          "passed": true
+        },
+        "retry_without_regeneration": {
+          "points": 20,
+          "passed": true
+        }
+      },
+      "duration_seconds": 100,
+      "shell_commands": 5,
+      "usage": {
+        "input_tokens": 23664,
+        "output_tokens": 3497,
+        "reasoning_tokens": 1722,
+        "cached_input_tokens": 13056
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "micro-export",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "midflight_cancellation": {
+          "points": 30,
+          "passed": true
+        },
+        "post_publish_retry": {
+          "points": 30,
+          "passed": true
+        },
+        "retry_without_regeneration": {
+          "points": 20,
+          "passed": true
+        }
+      },
+      "duration_seconds": 89,
+      "shell_commands": 5,
+      "usage": {
+        "input_tokens": 18218,
+        "output_tokens": 2958,
+        "reasoning_tokens": 1429,
+        "cached_input_tokens": 6144
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "micro-export",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "midflight_cancellation": {
+          "points": 30,
+          "passed": true
+        },
+        "post_publish_retry": {
+          "points": 30,
+          "passed": true
+        },
+        "retry_without_regeneration": {
+          "points": 20,
+          "passed": true
+        }
+      },
+      "duration_seconds": 127,
+      "shell_commands": 6,
+      "usage": {
+        "input_tokens": 31354,
+        "output_tokens": 4480,
+        "reasoning_tokens": 2524,
+        "cached_input_tokens": 12672
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    }
+  ],
+  "by_config": {
+    "gpt-5.6-sol|xhigh": {
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "data_complete": true,
+      "valid_weight": 100,
+      "total_weight": 100,
+      "task_count": 5,
+      "quality_score": 96.1,
+      "practical_score": 96.685,
+      "budget_completion_rate": 1,
+      "duration_seconds": 802,
+      "average_duration_seconds": 160.4,
+      "input_tokens": 185778,
+      "output_tokens": 29913,
+      "reasoning_tokens": 19042,
+      "average_input_tokens": 37155.6,
+      "average_reasoning_tokens": 3808.4,
+      "api_retries": 0,
+      "incomplete_tasks": []
+    },
+    "gpt-6-astra|xhigh": {
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "data_complete": true,
+      "valid_weight": 100,
+      "total_weight": 100,
+      "task_count": 5,
+      "quality_score": 83,
+      "practical_score": 85.55,
+      "budget_completion_rate": 1,
+      "duration_seconds": 1103,
+      "average_duration_seconds": 220.6,
+      "input_tokens": 188093,
+      "output_tokens": 28159,
+      "reasoning_tokens": 14452,
+      "average_input_tokens": 37618.6,
+      "average_reasoning_tokens": 2890.4,
+      "api_retries": 0,
+      "incomplete_tasks": []
+    },
+    "gpt-6-luna|xhigh": {
+      "model": "gpt-6-luna",
+      "effort": "xhigh",
+      "data_complete": true,
+      "valid_weight": 100,
+      "total_weight": 100,
+      "task_count": 5,
+      "quality_score": 97,
+      "practical_score": 97.45,
+      "budget_completion_rate": 1,
+      "duration_seconds": 536,
+      "average_duration_seconds": 107.2,
+      "input_tokens": 123886,
+      "output_tokens": 15461,
+      "reasoning_tokens": 9209,
+      "average_input_tokens": 24777.2,
+      "average_reasoning_tokens": 1841.8,
+      "api_retries": 0,
+      "incomplete_tasks": []
+    },
+    "gpt-6-sol|medium": {
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "data_complete": true,
+      "valid_weight": 100,
+      "total_weight": 100,
+      "task_count": 5,
+      "quality_score": 97,
+      "practical_score": 97.45,
+      "budget_completion_rate": 1,
+      "duration_seconds": 333,
+      "average_duration_seconds": 66.6,
+      "input_tokens": 64384,
+      "output_tokens": 8391,
+      "reasoning_tokens": 3173,
+      "average_input_tokens": 12876.8,
+      "average_reasoning_tokens": 634.6,
+      "api_retries": 0,
+      "incomplete_tasks": []
+    },
+    "gpt-6-sol|high": {
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "data_complete": true,
+      "valid_weight": 100,
+      "total_weight": 100,
+      "task_count": 5,
+      "quality_score": 98.5,
+      "practical_score": 98.725,
+      "budget_completion_rate": 1,
+      "duration_seconds": 327,
+      "average_duration_seconds": 65.4,
+      "input_tokens": 63077,
+      "output_tokens": 9622,
+      "reasoning_tokens": 4430,
+      "average_input_tokens": 12615.4,
+      "average_reasoning_tokens": 886,
+      "api_retries": 0,
+      "incomplete_tasks": []
+    },
+    "gpt-6-sol|xhigh": {
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "data_complete": true,
+      "valid_weight": 100,
+      "total_weight": 100,
+      "task_count": 5,
+      "quality_score": 100,
+      "practical_score": 100,
+      "budget_completion_rate": 1,
+      "duration_seconds": 471,
+      "average_duration_seconds": 94.2,
+      "input_tokens": 108296,
+      "output_tokens": 14156,
+      "reasoning_tokens": 7614,
+      "average_input_tokens": 21659.2,
+      "average_reasoning_tokens": 1522.8,
+      "api_retries": 0,
+      "incomplete_tasks": []
+    }
+  },
+  "by_effort": {}
+}
