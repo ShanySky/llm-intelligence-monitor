@@ -1,0 +1,261 @@
+name: Agent micro coding benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-micro-coding-benchmark
+  cancel-in-progress: false
+
+jobs:
+  micro-export:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-agent-micro]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        effort: [medium, xhigh]
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install pinned Codex CLI
+        shell: bash
+        run: npm install -g @openai/codex@0.157.1
+
+      - name: Prepare isolated task workspace
+        shell: bash
+        run: |
+          test -n "$OPENAI_API_KEY" || { echo "Missing OPENAI_API_KEY"; exit 1; }
+          test -n "$OPENAI_BASE_URL" || { echo "Missing OPENAI_BASE_URL"; exit 1; }
+
+          TASK_DIR="/tmp/micro-export-${{ matrix.effort }}"
+          rm -rf "$TASK_DIR"
+          mkdir -p "$TASK_DIR"
+          cp -R benchmarks/micro-export/workspace/. "$TASK_DIR/"
+          chmod +x "$TASK_DIR/run_visible_tests.sh"
+
+          cd "$TASK_DIR"
+          ./run_visible_tests.sh
+          echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
+
+      - name: Run Codex agent
+        id: codex
+        shell: bash
+        run: |
+          start="$(date +%s)"
+          cd "$TASK_DIR"
+          set +e
+          timeout 600s codex exec \
+            --ephemeral \
+            --ignore-user-config \
+            --ignore-rules \
+            --strict-config \
+            --sandbox workspace-write \
+            --skip-git-repo-check \
+            --model gpt-6-sol \
+            -c 'model_reasoning_effort="${{ matrix.effort }}"' \
+            -c "openai_base_url=\"$OPENAI_BASE_URL\"" \
+            --disable apps \
+            --disable plugins \
+            --json \
+            --output-last-message codex-last-message.txt \
+            "Read TASK.md carefully. Inspect the repository, implement the complete fix, run the visible tests, and stop only when the task requirements are satisfied." \
+            > codex-events.jsonl 2> codex-stderr.log
+          status=$?
+          set -e
+          end="$(date +%s)"
+          duration="$((end-start))"
+
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          echo "duration_seconds=$duration" >> "$GITHUB_OUTPUT"
+
+      - name: Hidden verification
+        id: verify
+        shell: bash
+        run: |
+          cd "$TASK_DIR"
+
+          cat > HiddenTest.java <<'JAVA'
+          import java.util.concurrent.atomic.AtomicBoolean;
+
+          public final class HiddenTest {
+              public static void main(String[] args) {
+                  testMidFlightCancellation();
+                  testCrashAfterPublishRetry();
+                  System.out.println("HIDDEN_TEST_PASS");
+              }
+
+              private static void testMidFlightCancellation() {
+                  JobRepository jobs = new JobRepository();
+                  ArtifactStore artifacts = new ArtifactStore();
+                  ExportService service = new ExportService(jobs, artifacts, FailureInjector.none());
+                  String id = "cancel-case-913";
+                  jobs.create(id);
+
+                  service.run(id, new ReportGenerator() {
+                      public int chunkCount() { return 4; }
+                      public String chunk(int index) {
+                          if (index == 1) {
+                              service.requestCancel(id);
+                          }
+                          return new String[] {"AA", "BB", "CC", "DD"}[index];
+                      }
+                  });
+
+                  ExportJob job = jobs.get(id);
+                  check(job.state() == ExportJob.State.CANCELLED,
+                        "mid-flight cancellation must end in CANCELLED");
+                  check(job.artifactKey() == null,
+                        "cancelled job must not record a final artifact");
+                  check(artifacts.countForJob(id) == 0,
+                        "cancelled job must not publish a final artifact");
+              }
+
+              private static void testCrashAfterPublishRetry() {
+                  JobRepository jobs = new JobRepository();
+                  ArtifactStore artifacts = new ArtifactStore();
+                  AtomicBoolean crashOnce = new AtomicBoolean(true);
+
+                  FailureInjector injector = jobId -> {
+                      if (crashOnce.getAndSet(false)) {
+                          throw new RuntimeException("simulated crash after publish");
+                      }
+                  };
+
+                  ExportService service = new ExportService(jobs, artifacts, injector);
+                  String id = "retry-case-417";
+                  jobs.create(id);
+
+                  ReportGenerator generator = new ReportGenerator() {
+                      public int chunkCount() { return 2; }
+                      public String chunk(int index) {
+                          return new String[] {"A", "B"}[index];
+                      }
+                  };
+
+                  boolean crashed = false;
+                  try {
+                      service.run(id, generator);
+                  } catch (RuntimeException expected) {
+                      crashed = true;
+                  }
+                  check(crashed, "first attempt must hit the injected crash");
+                  check(artifacts.countForJob(id) == 1,
+                        "first attempt published exactly one artifact");
+
+                  service.run(id, generator);
+
+                  ExportJob job = jobs.get(id);
+                  check(job.state() == ExportJob.State.COMPLETED,
+                        "retry must finish the job");
+                  check(job.artifactKey() != null,
+                        "retry must reconcile and record the artifact");
+                  check(artifacts.countForJob(id) == 1,
+                        "retry must not create a duplicate final artifact");
+                  check(artifacts.exists(job.artifactKey()),
+                        "recorded artifact must exist");
+                  check("AB".equals(artifacts.get(job.artifactKey())),
+                        "final artifact contents must remain correct");
+              }
+
+              private static void check(boolean condition, String message) {
+                  if (!condition) {
+                      throw new AssertionError(message);
+                  }
+              }
+          }
+          JAVA
+
+          rm -rf hidden-out
+          mkdir -p hidden-out
+
+          set +e
+          javac -d hidden-out src/*.java HiddenTest.java > hidden-compile.log 2>&1
+          compile_status=$?
+          if [ "$compile_status" -eq 0 ]; then
+            java -cp hidden-out VisibleTest > visible-after.log 2>&1
+            visible_status=$?
+            java -cp hidden-out HiddenTest > hidden-test.log 2>&1
+            hidden_status=$?
+          else
+            visible_status=1
+            hidden_status=1
+          fi
+          set -e
+
+          pass=false
+          if [ "$compile_status" -eq 0 ] && [ "$visible_status" -eq 0 ] && [ "$hidden_status" -eq 0 ]; then
+            pass=true
+          fi
+
+          echo "pass=$pass" >> "$GITHUB_OUTPUT"
+          echo "compile_status=$compile_status" >> "$GITHUB_OUTPUT"
+          echo "visible_status=$visible_status" >> "$GITHUB_OUTPUT"
+          echo "hidden_status=$hidden_status" >> "$GITHUB_OUTPUT"
+
+      - name: Build result
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p result
+          cp -R "$TASK_DIR/src" result/final-src || true
+          cp "$TASK_DIR/codex-events.jsonl" result/ || true
+          cp "$TASK_DIR/codex-stderr.log" result/ || true
+          cp "$TASK_DIR/codex-last-message.txt" result/ || true
+          cp "$TASK_DIR/hidden-compile.log" result/ || true
+          cp "$TASK_DIR/visible-after.log" result/ || true
+          cp "$TASK_DIR/hidden-test.log" result/ || true
+
+          python - <<'PY'
+          import json, os
+          result = {
+              "task": "micro-export",
+              "model": "gpt-6-sol",
+              "effort": "${{ matrix.effort }}",
+              "codex_exit_code": int("${{ steps.codex.outputs.exit_code || '999' }}"),
+              "duration_seconds": int("${{ steps.codex.outputs.duration_seconds || '0' }}"),
+              "passed": "${{ steps.verify.outputs.pass }}" == "true",
+              "compile_status": int("${{ steps.verify.outputs.compile_status || '999' }}"),
+              "visible_status": int("${{ steps.verify.outputs.visible_status || '999' }}"),
+              "hidden_status": int("${{ steps.verify.outputs.hidden_status || '999' }}"),
+              "codex_version": "0.157.1",
+          }
+          with open("result/result.json", "w", encoding="utf-8") as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+              f.write("\n")
+          print(json.dumps(result, ensure_ascii=False))
+          PY
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-micro-export-${{ matrix.effort }}-${{ github.run_id }}
+          path: result/
+          if-no-files-found: warn
+          retention-days: 30
