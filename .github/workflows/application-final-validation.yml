@@ -1,0 +1,204 @@
+name: Final application benchmark validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: final-application-benchmark
+  cancel-in-progress: false
+
+jobs:
+  eval:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-app-final]')
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        task: [hard-plan, hard-webhook, hard-review, hard-incident, micro-export]
+        config:
+          - key: gpt-6-astra-xhigh
+            model: gpt-6-astra
+            effort: xhigh
+          - key: gpt-5-6-sol-xhigh
+            model: gpt-5.6-sol
+            effort: xhigh
+          - key: gpt-6-luna-xhigh
+            model: gpt-6-luna
+            effort: xhigh
+          - key: gpt-6-sol-medium
+            model: gpt-6-sol
+            effort: medium
+          - key: gpt-6-sol-high
+            model: gpt-6-sol
+            effort: high
+          - key: gpt-6-sol-xhigh
+            model: gpt-6-sol
+            effort: xhigh
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - uses: actions/setup-java@v4
+        if: matrix.task == 'hard-webhook' || matrix.task == 'micro-export'
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare isolated task
+        shell: bash
+        run: |
+          TASK_DIR="/tmp/final-${{ matrix.task }}-${{ matrix.config.key }}"
+          rm -rf "$TASK_DIR"
+          mkdir -p "$TASK_DIR"
+          cp -R "benchmarks/${{ matrix.task }}/workspace/." "$TASK_DIR/"
+          [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
+          if [ -f "$TASK_DIR/run_visible_tests.sh" ]; then
+            chmod +x "$TASK_DIR/run_visible_tests.sh"
+            (cd "$TASK_DIR" && ./run_visible_tests.sh)
+          fi
+          echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
+
+      - name: Run lightweight agent
+        id: agent
+        shell: bash
+        run: |
+          start="$(date +%s)"
+          set +e
+          timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ matrix.config.model }}"             "${{ matrix.config.effort }}"             "$TASK_DIR/light-agent-result.json"
+          status=$?
+          set -e
+          end="$(date +%s)"
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          echo "wall_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+
+      - name: Score hidden checkpoints
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p result
+          python scripts/score-application-task.py             "${{ matrix.task }}"             "$TASK_DIR"             "$TASK_DIR/score.json"
+
+          python - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+
+          root=Path(os.environ["TASK_DIR"])
+          score=json.loads((root/"score.json").read_text())
+          rp=root/"light-agent-result.json"
+          runner=json.loads(rp.read_text()) if rp.exists() else {}
+          exit_code=int("${{ steps.agent.outputs.exit_code || '999' }}")
+          infra=runner.get("infrastructure_error")
+          if infra:
+              outcome="infrastructure_error"
+          elif exit_code==0:
+              outcome="completed"
+          elif exit_code==124:
+              outcome="model_timeout"
+          else:
+              outcome="runner_error"
+
+          result={
+            "task":"${{ matrix.task }}",
+            "model":"${{ matrix.config.model }}",
+            "effort":"${{ matrix.config.effort }}",
+            "score":score["score"],
+            "checks":score["checks"],
+            "duration_seconds":runner.get("duration_seconds", int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
+            "shell_commands":runner.get("shell_commands",0),
+            "usage":runner.get("usage",{}),
+            "api_retries":runner.get("api_retries",0),
+            "infrastructure_error":infra,
+            "agent_exit_code":exit_code,
+            "outcome":outcome,
+            "data_complete":outcome in ("completed","model_timeout")
+          }
+          Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
+          if rp.exists(): shutil.copy2(rp,"result/light-agent-result.json")
+          for name in ["plan.json","REVIEW.md","REPORT.txt",".actions","FINDINGS.json"]:
+              p=root/name
+              if p.exists(): shutil.copy2(p,"result/"+name.replace("/","_"))
+          if (root/"src").exists(): shutil.copytree(root/"src","result/final-src",dirs_exist_ok=True)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: app-final-${{ matrix.task }}-${{ matrix.config.key }}-${{ github.run_id }}
+          path: result/
+          retention-days: 30
+
+  aggregate:
+    needs: eval
+    if: always() && needs.eval.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: app-final-*-${{ github.run_id }}
+          path: results/application-final
+
+      - name: Build final application summary
+        run: |
+          node scripts/summarize-application-results.mjs             results/application-final             benchmarks/application-final-suite.json             results/application-final-summary.json             results/application-final-summary.md
+          cat results/application-final-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: application-final-summary-${{ github.run_id }}
+          path: |
+            results/application-final-summary.json
+            results/application-final-summary.md
+          retention-days: 60
+
+      - name: Publish latest final validation
+        shell: bash
+        run: |
+          cp results/application-final-summary.md /tmp/application-final-latest.md
+          cp results/application-final-summary.json /tmp/application-final-latest.json
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin application-final-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/application-final-results; then
+            git switch -C application-final-results origin/application-final-results
+          else
+            git switch --orphan application-final-results
+            git rm -rf --ignore-unmatch .
+          fi
+
+          mkdir -p application-final/runs
+          cp /tmp/application-final-latest.md application-final/latest.md
+          cp /tmp/application-final-latest.json application-final/latest.json
+          cp /tmp/application-final-latest.md "application-final/runs/${GITHUB_RUN_ID}.md"
+          cp /tmp/application-final-latest.json "application-final/runs/${GITHUB_RUN_ID}.json"
+
+          git add application-final
+          if ! git diff --cached --quiet; then
+            git commit -m "Record final application validation ${GITHUB_RUN_ID}"
+            git push origin HEAD:application-final-results
+          fi
