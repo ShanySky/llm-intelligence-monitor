@@ -48,6 +48,10 @@ for (const key of Object.keys(safeEnv)) {
 safeEnv.PATH = process.env.PATH ?? '/usr/local/bin:/usr/bin:/bin';
 safeEnv.HOME = taskDir;
 
+const maxTurns = Number(process.env.AGENT_MAX_TURNS ?? 16);
+const shellBudget = Number(process.env.AGENT_SHELL_BUDGET ?? 24);
+const maxOutputTokens = Number(process.env.AGENT_MAX_OUTPUT_TOKENS ?? 4096);
+
 let input = [{ role: 'user', content: [{ type: 'input_text', text: task }] }];
 let totalUsage = { input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, cached_input_tokens: 0 };
 let commands = [];
@@ -74,7 +78,7 @@ async function callModel() {
           input,
           tools,
           tool_choice: 'auto',
-          max_output_tokens: 4096,
+          max_output_tokens: maxOutputTokens,
           store: false,
         }),
       });
@@ -105,7 +109,7 @@ function addUsage(u = {}) {
 
 function runShell(command) {
   commands.push(command);
-  if (commands.length > 24) return 'ERROR: shell action budget exceeded (24)';
+  if (commands.length > shellBudget) return `ERROR: shell action budget exceeded (${shellBudget})`;
   if (/\.\.|\/home\/|\/tmp\/|\/proc\/|\/etc\/|\bcurl\b|\bwget\b|\bprintenv\b|\benv\b|git\s+remote/i.test(command)) {
     return 'ERROR: command rejected by benchmark workspace isolation policy';
   }
@@ -125,7 +129,7 @@ function runShell(command) {
 }
 
 try {
-  for (let turn = 0; turn < 16; turn += 1) {
+  for (let turn = 0; turn < maxTurns; turn += 1) {
     const response = await callModel();
     responses += 1;
     addUsage(response.usage);
@@ -168,6 +172,8 @@ const result = {
   api_retries: apiRetries,
   infrastructure_error: infrastructureError,
   shell_commands: commands.length,
+  shell_budget: shellBudget,
+  max_turns: maxTurns,
   usage: totalUsage,
   final_text: finalText,
 };
