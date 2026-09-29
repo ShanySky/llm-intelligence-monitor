@@ -185,3 +185,64 @@ This restores every retained history file, including files that are intentionall
 ## High manual run mode
 
 A controlled manual run can execute all configured models at reasoning effort `high` without changing the scheduled X High configuration or writing formal history.
+
+
+## 应用型智能评测
+
+除了原有的低成本固定题/轮换题，本项目增加一条独立的应用型评测通道，用于更贴近实际开发工作地衡量模型能力。
+
+重点覆盖：
+
+- 编程方案讨论与架构取舍；
+- Coding / Debug / 多文件修改；
+- Code Review 与生产可靠性分析；
+- Agent 工具使用与证据驱动排障；
+- 压缩版长程任务：跨阶段目标保持、发现新证据后的修正、最终验证闭环。
+
+### 执行方式
+
+正式应用型评测使用项目内的轻量 Agent Harness：
+
+- Responses API；
+- 受控 shell 工具；
+- 隔离的微型仓库工作区；
+- 模型不能读取 GitHub Secrets；
+- 每题目标 3–5 分钟；
+- 单题硬上限 10 分钟。
+
+完整 Codex CLI Harness 仅作为研发/对照工具，不是正式评测的依赖。
+
+### 评分原则
+
+应用题优先使用客观隐藏检查点，而不是 LLM Judge：
+
+- 最终代码/行为是否正确；
+- 是否满足隐藏边界场景；
+- 是否保持兼容性；
+- 是否遗漏关键故障窗口；
+- 是否完成必要验证；
+- API / 网络 / Harness 故障单独记为数据不完整，不当作模型答错。
+
+文字型方案/评审题采用语义域检查，忽略无意义格式差异。只有重复验证后仍表现出稳定区分度的任务，才允许被标记为正式的模型/思考档位区分题。
+
+### 运行分层
+
+- **日常快速监控**：继续使用 Promptfoo 低成本题库，适合每天运行；
+- **应用型校准**：使用轻量 Agent Harness，小规模筛选候选任务；
+- **最终应用验收**：`Final application benchmark validation` 工作流，对多个模型以及 GPT-6 Sol Medium / High / X High 做完整对照；
+- **稳定性复测**：只重复真正有区分信号的任务，不整套重跑。
+
+应用型任务默认不加入每天的全量定时运行，避免 Agent 工具调用和长上下文显著放大 Token 成本。需要模型版本验收、疑似降智、题库校准时再运行完整套件。
+
+### 应用题选择规则
+
+候选题必须同时满足：
+
+1. 难度来自真实工程能力，而不是故意刁钻或纯粹增加工作量；
+2. 需求和代码库足以确定正确行为，隐藏测试不能考未说明的实现细节；
+3. 单题在 10 分钟硬预算内；
+4. 评分可客观复现；
+5. 模型间区分可由完整横向验收确认；
+6. 同模型思考档位区分必须有重复试验支持，单次分差只算候选信号。
+
+当前应用型评测的详细设计见 `docs/application-benchmark-design.md`。
