@@ -158,7 +158,7 @@ jobs:
             git switch -C calibration-results origin/calibration-results
           else
             git switch --orphan calibration-results
-            git rm -rf .
+            git rm -rf --ignore-unmatch .
           fi
 
           mkdir -p calibration/runs
