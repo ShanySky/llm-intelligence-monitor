@@ -88,7 +88,7 @@ jobs:
 
   eval:
     needs: prepare
-    if: needs.prepare.result == 'success' && (github.event_name != 'push' || contains(github.event.head_commit.message, '[run-smoke]') || contains(github.event.head_commit.message, '[run-model:'))
+    if: needs.prepare.result == 'success' && (github.event_name != 'push' || contains(github.event.head_commit.message, '[run-smoke]') || contains(github.event.head_commit.message, '[run-model:') || contains(github.event.head_commit.message, '[run-high]'))
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -143,7 +143,7 @@ jobs:
               done
             fi
           elif [ "$EVENT_NAME" = "push" ]; then
-            if [[ "$COMMIT_MESSAGE" == *"[run-smoke]"* ]] || [[ "$COMMIT_MESSAGE" == *"[run-model:all]"* ]]; then
+            if [[ "$COMMIT_MESSAGE" == *"[run-smoke]"* ]] || [[ "$COMMIT_MESSAGE" == *"[run-model:all]"* ]] || [[ "$COMMIT_MESSAGE" == *"[run-high]"* ]]; then
               enabled=true
             elif [[ "$COMMIT_MESSAGE" == *"[run-model:"* ]]; then
               requested="$(printf '%s' "$COMMIT_MESSAGE" | sed -n 's/.*\[run-model:\([^]]*\)\].*/\1/p')"
@@ -194,7 +194,15 @@ jobs:
           cp selection/selection.json results/selection.json
           repeat="$(node -e "const s=require('./selection/selection.json'); process.stdout.write(String(s.repeat))")"
           echo "EVAL_REPEAT=$repeat" >> "$GITHUB_ENV"
-          node scripts/build-model-config.mjs "${{ matrix.model }}" "${{ matrix.label }}" results/promptfoo-model.yaml
+          effort="xhigh"
+          label="${{ matrix.label }}"
+          if [ "${{ github.event_name }}" = "push" ] && [[ "${{ github.event.head_commit.message }}" == *"[run-high]"* ]]; then
+            effort="high"
+            label="${label/X High/High}"
+          fi
+          echo "EVAL_REASONING_EFFORT=$effort" >> "$GITHUB_ENV"
+          echo "EVAL_LABEL=$label" >> "$GITHUB_ENV"
+          node scripts/build-model-config.mjs "${{ matrix.model }}" "$label" results/promptfoo-model.yaml "$effort"
 
       - name: Run ${{ matrix.label }}
         if: steps.model_select.outputs.enabled == 'true'
