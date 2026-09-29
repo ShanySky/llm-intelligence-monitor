@@ -13,3 +13,4 @@ Executable micro-repo comparison: X High only.
 Light agent harness smoke: micro-export Medium.
 Unified application calibration: four task families, Medium vs X High.
 Targeted application rerun after transient-5xx retry fix.
+Luna-first hard application candidate screen.
