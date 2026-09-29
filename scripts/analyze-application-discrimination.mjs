@@ -63,6 +63,15 @@ for (const family of families) {
 
   const modelSpread = range(xhighScores);
   const effortSpread = range(solScores);
+  const solMedium = solEfforts.find((x) => x.effort === 'medium') ?? null;
+  const solHigh = solEfforts.find((x) => x.effort === 'high') ?? null;
+  const solXhigh = solEfforts.find((x) => x.effort === 'xhigh') ?? null;
+  const directionalEffortGain =
+    solMedium && solXhigh ? solXhigh.average_score - solMedium.average_score : null;
+  const minEffortTrials = Math.min(
+    ...solEfforts.filter((x) => ['medium','high','xhigh'].includes(x.effort)).map((x) => x.trials),
+    Infinity
+  );
   const maxStd = configStats.length ? Math.max(...configStats.map((x)=>x.stddev_score ?? 0)) : null;
   const ceilingConfigs = configStats.filter((x) => x.average_score >= Number(q.ceiling_score ?? 95)).length;
   const ceilingRate = configStats.length ? ceilingConfigs/configStats.length : null;
@@ -71,14 +80,22 @@ for (const family of families) {
   const stable = maxStd == null || maxStd <= Number(q.max_repeat_stddev_points ?? 12);
   const withinBudget = maxDuration == null || maxDuration <= Number(runtime.hard_limit_seconds ?? 600);
   const modelDiscriminator = modelSpread != null && modelSpread >= Number(q.min_model_spread_points ?? 10);
-  const effortDiscriminator = effortSpread != null && effortSpread >= Number(q.min_effort_spread_points ?? 10);
+  const effortCandidate =
+    directionalEffortGain != null &&
+    directionalEffortGain >= Number(q.min_effort_directional_gain_points ?? q.min_effort_spread_points ?? 10);
+  const repeatEnough =
+    Number.isFinite(minEffortTrials) &&
+    minEffortTrials >= Number(q.min_trials_for_effort_confirmation ?? 2);
+  const effortDiscriminator = effortCandidate && repeatEnough && stable;
 
   let classification;
   if (!withinBudget) classification = 'too-slow';
   else if (!stable) classification = 'noisy';
   else if (modelDiscriminator && effortDiscriminator) classification = 'model+effort-discriminator';
-  else if (modelDiscriminator) classification = 'model-discriminator';
   else if (effortDiscriminator) classification = 'effort-discriminator';
+  else if (modelDiscriminator && effortCandidate) classification = 'model+effort-candidate';
+  else if (effortCandidate) classification = 'effort-candidate';
+  else if (modelDiscriminator) classification = 'model-discriminator';
   else if (ceilingRate != null && ceilingRate >= 0.8) classification = 'coverage-only-ceiling';
   else classification = 'coverage-or-needs-more-data';
 
@@ -89,6 +106,8 @@ for (const family of families) {
     classification,
     model_spread_points: modelSpread,
     sol_effort_spread_points: effortSpread,
+    sol_directional_effort_gain_points: directionalEffortGain,
+    min_sol_effort_trials: Number.isFinite(minEffortTrials) ? minEffortTrials : null,
     max_repeat_stddev_points: maxStd,
     ceiling_rate: ceilingRate,
     max_average_duration_seconds: maxDuration,
@@ -113,15 +132,15 @@ const pct = (v) => v == null ? '-' : (v*100).toFixed(0)+'%';
 const lines = [
   '# Application Task Discrimination Analysis',
   '',
-  '| Task | Family | Class | XHigh model spread | Sol effort spread | Repeat stddev | Ceiling rate | Max avg runtime |',
-  '|---|---|---|---:|---:|---:|---:|---:|',
+  '| Task | Family | Class | XHigh model spread | Sol M→XH gain | Min effort trials | Repeat stddev | Ceiling rate | Max avg runtime |',
+  '|---|---|---|---:|---:|---:|---:|---:|---:|',
 ];
 for (const x of tasks) {
-  lines.push(`| ${x.task} | ${x.family} | ${x.classification} | ${f1(x.model_spread_points)} | ${f1(x.sol_effort_spread_points)} | ${f1(x.max_repeat_stddev_points)} | ${pct(x.ceiling_rate)} | ${x.max_average_duration_seconds == null ? '-' : Math.round(x.max_average_duration_seconds)+'s'} |`);
+  lines.push(`| ${x.task} | ${x.family} | ${x.classification} | ${f1(x.model_spread_points)} | ${f1(x.sol_directional_effort_gain_points)} | ${x.min_sol_effort_trials ?? '-'} | ${f1(x.max_repeat_stddev_points)} | ${pct(x.ceiling_rate)} | ${x.max_average_duration_seconds == null ? '-' : Math.round(x.max_average_duration_seconds)+'s'} |`);
 }
 lines.push(
   '',
-  '> Selection rule: prefer stable, in-budget tasks with real between-model or between-effort score spread. Application-critical tasks may remain as coverage checks even when saturated. Effort monotonicity is not assumed or forced.',
+  '> Selection rule: model spread may be identified from a complete cross-model run. Effort discrimination requires a positive Medium→X High quality gain and repeated trials; a one-shot gap is only an effort candidate. Application-critical saturated tasks may remain as coverage checks.',
   ''
 );
 fs.writeFileSync(outMd, lines.join('\n'));
