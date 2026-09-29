@@ -5,7 +5,9 @@
     "floor_score": 20,
     "min_model_spread_points": 10,
     "min_effort_spread_points": 10,
-    "max_repeat_stddev_points": 12
+    "max_repeat_stddev_points": 12,
+    "min_effort_directional_gain_points": 10,
+    "min_trials_for_effort_confirmation": 2
   },
   "runtime": {
     "target_seconds": 300,
@@ -14,6 +16,7 @@
   "selection": {
     "keep_coverage_if_application_critical": true,
     "require_objective_or_semantic_domain_scoring": true,
-    "do_not_require_effort_monotonicity": true
+    "do_not_require_effort_monotonicity": false,
+    "effort_confirmation": "Require repeated positive Medium-to-XHigh quality gain; single-run gaps remain candidates."
   }
 }
