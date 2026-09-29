@@ -281,6 +281,71 @@ public final class FrontierWebhookHiddenTest {
     add("stale_paid_ignored",10,"STALE_PASS" in hidden_out)
     add("newer_paid_reactivates",5,"REPAID_PASS" in hidden_out)
 
+
+elif task == "frontier-migration":
+    hidden = r'''public final class FrontierMigrationHiddenTest {
+  public static void main(String[] args) {
+    run("FALLBACK", FrontierMigrationHiddenTest::legacyFallback);
+    run("ROLLBACK", FrontierMigrationHiddenTest::v2ReadableByV1);
+    run("V1NEWER", FrontierMigrationHiddenTest::newerV1VisibleToV2);
+    run("BACKFILL", FrontierMigrationHiddenTest::backfillLegacy);
+    run("STALE", FrontierMigrationHiddenTest::staleBackfillDoesNotClobber);
+  }
+  interface Case { void run(); }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+  static void legacyFallback() {
+    OrderStore s=new OrderStore(); V1OrderService v1=new V1OrderService(s); V2OrderService v2=new V2OrderService(s);
+    v1.writeStatus("o1","NEW");
+    check("NEW".equals(v2.readStatus("o1")));
+  }
+  static void v2ReadableByV1() {
+    OrderStore s=new OrderStore(); V1OrderService v1=new V1OrderService(s); V2OrderService v2=new V2OrderService(s);
+    v2.writeStatus("o2","PAID","card");
+    check("PAID".equals(v1.readStatus("o2")));
+  }
+  static void newerV1VisibleToV2() {
+    OrderStore s=new OrderStore(); V1OrderService v1=new V1OrderService(s); V2OrderService v2=new V2OrderService(s);
+    v2.writeStatus("o3","PAID","card");
+    v1.writeStatus("o3","CANCELLED");
+    check("CANCELLED".equals(v2.readStatus("o3")));
+  }
+  static void backfillLegacy() {
+    OrderStore s=new OrderStore(); V1OrderService v1=new V1OrderService(s); V2OrderService v2=new V2OrderService(s); BackfillJob b=new BackfillJob(s);
+    v1.writeStatus("o4","SHIPPED");
+    BackfillItem item=b.plan("o4"); b.apply(item);
+    check("SHIPPED".equals(v2.readStatus("o4")));
+    OrderRecord row=s.get("o4"); check(row.newVersion==row.legacyVersion);
+  }
+  static void staleBackfillDoesNotClobber() {
+    OrderStore s=new OrderStore(); V1OrderService v1=new V1OrderService(s); V2OrderService v2=new V2OrderService(s); BackfillJob b=new BackfillJob(s);
+    v1.writeStatus("o5","NEW");
+    BackfillItem stale=b.plan("o5");
+    v2.writeStatus("o5","PAID","card");
+    b.apply(stale);
+    check("PAID".equals(v2.readStatus("o5")));
+    check("PAID".equals(v1.readStatus("o5")));
+    OrderRecord row=s.get("o5"); check(row.newVersion>=2 && row.legacyVersion>=2);
+  }
+  static void check(boolean x){if(!x) throw new AssertionError();}
+}'''
+    (root/"FrontierMigrationHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run(["javac","-d",str(outdir),*map(str,(root/"src").glob("*.java")),str(root/"FrontierMigrationHiddenTest.java")],capture_output=True,text=True)
+    add("compiles",5,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True); visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierMigrationHiddenTest"],capture_output=True,text=True); hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",5,visible)
+    add("legacy_fallback_read",15,"FALLBACK_PASS" in hidden_out)
+    add("v2_write_rollback_compatible",20,"ROLLBACK_PASS" in hidden_out)
+    add("newer_v1_write_visible_to_v2",20,"V1NEWER_PASS" in hidden_out)
+    add("online_backfill_current_legacy",15,"BACKFILL_PASS" in hidden_out)
+    add("stale_backfill_cannot_clobber_live_update",25,"STALE_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
