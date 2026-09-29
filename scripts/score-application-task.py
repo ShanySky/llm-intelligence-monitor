@@ -197,6 +197,92 @@ elif task == "hard-review":
 
 
 
+
+elif task == "frontier-filter":
+    hidden = r'''import java.util.*;
+public final class FrontierFilterHiddenTest {
+  public static void main(String[] args) {
+    run("PRECEDENCE", FrontierFilterHiddenTest::precedence);
+    run("NESTING", FrontierFilterHiddenTest::nesting);
+    run("NULLS", FrontierFilterHiddenTest::nulls);
+    run("ESCAPES", FrontierFilterHiddenTest::escapesAndIdentifiers);
+    run("INVALID", FrontierFilterHiddenTest::invalid);
+  }
+  interface Case { void run(); }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+  static void precedence() {
+    FilterEngine e=new FilterEngine();
+    Map<String,String> r=new HashMap<>();
+    r.put("a","1"); r.put("b","0"); r.put("c","0");
+    check(e.matches("a = \"1\" OR b = \"2\" AND c = \"3\"",r));
+    r.put("a","0"); r.put("b","2"); r.put("c","3");
+    check(e.matches("a = \"1\" OR b = \"2\" AND c = \"3\"",r));
+    r.put("c","0");
+    check(!e.matches("a = \"1\" OR b = \"2\" AND c = \"3\"",r));
+  }
+  static void nesting() {
+    FilterEngine e=new FilterEngine();
+    Map<String,String> r=new HashMap<>();
+    r.put("role","admin"); r.put("tier","free"); r.put("active","yes");
+    check(e.matches("NOT(role = \"guest\" OR(tier = \"free\" AND NOT active = \"yes\"))",r));
+    check(e.matches("(role = \"admin\" AND active = \"yes\") OR role = \"owner\"",r));
+    check(!e.matches("NOT NOT role != \"admin\"",r));
+  }
+  static void nulls() {
+    FilterEngine e=new FilterEngine();
+    Map<String,String> r=new HashMap<>();
+    r.put("present","v"); r.put("explicit",null);
+    check(e.matches("missing IS NULL",r));
+    check(e.matches("explicit is null",r));
+    check(e.matches("present IS NOT NULL",r));
+    check(e.matches("missing != \"x\"",r));
+    check(!e.matches("missing = \"x\"",r));
+    check(!e.matches("present IS NULL",r));
+  }
+  static void escapesAndIdentifiers() {
+    FilterEngine e=new FilterEngine();
+    Map<String,String> r=new HashMap<>();
+    r.put("name","a\"b\\c");
+    r.put("user.role","ops");
+    r.put("feature-flag","on");
+    check(e.matches("name = \"a\\\"b\\\\c\"",r));
+    check(e.matches("user.role = \"ops\" aNd feature-flag = \"on\"",r));
+  }
+  static void invalid() {
+    FilterEngine e=new FilterEngine(); Map<String,String> r=new HashMap<>();
+    expectBad(()->e.matches("",r));
+    expectBad(()->e.matches("a = \"x\" AND",r));
+    expectBad(()->e.matches("(a = \"x\"",r));
+    expectBad(()->e.matches("a = \"x\" garbage",r));
+    expectBad(()->e.matches("a = \"unterminated",r));
+    expectBad(()->e.matches("a = \"bad\\n\"",r));
+    expectBad(()->e.matches("a IS maybe",r));
+  }
+  interface Bad { void run(); }
+  static void expectBad(Bad b) {
+    boolean ok=false; try{b.run();}catch(IllegalArgumentException ex){ok=true;} check(ok);
+  }
+  static void check(boolean x){if(!x) throw new AssertionError();}
+}'''
+    (root/"FrontierFilterHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run(["javac","-d",str(outdir),*map(str,(root/"src").glob("*.java")),str(root/"FrontierFilterHiddenTest.java")],capture_output=True,text=True)
+    add("compiles",10,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True); visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierFilterHiddenTest"],capture_output=True,text=True); hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",10,visible)
+    add("operator_precedence",20,"PRECEDENCE_PASS" in hidden_out)
+    add("nested_parentheses_and_not",20,"NESTING_PASS" in hidden_out)
+    add("null_and_missing_semantics",15,"NULLS_PASS" in hidden_out)
+    add("escaped_strings_and_identifiers",15,"ESCAPES_PASS" in hidden_out)
+    add("malformed_expression_rejection",10,"INVALID_PASS" in hidden_out)
+
+
 elif task == "frontier-scheduler":
     hidden = r'''import java.util.*;
 public final class FrontierSchedulerHiddenTest {
