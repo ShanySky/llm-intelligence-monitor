@@ -1,0 +1,119 @@
+{
+  "generated_at": "2026-09-29T21:19:27.949Z",
+  "task": "hard-review",
+  "configs": [
+    {
+      "key": "gpt-5.6-sol|xhigh",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "trials": 1,
+      "scores": [
+        100
+      ],
+      "mean_score": 100,
+      "min_score": 100,
+      "max_score": 100,
+      "stddev_score": 0,
+      "average_duration_seconds": 178,
+      "average_input_tokens": 52590,
+      "average_reasoning_tokens": 4418,
+      "stable": true
+    },
+    {
+      "key": "gpt-6-astra|xhigh",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "trials": 3,
+      "scores": [
+        15,
+        100,
+        100
+      ],
+      "mean_score": 71.66666666666667,
+      "min_score": 15,
+      "max_score": 100,
+      "stddev_score": 40.069384267237695,
+      "average_duration_seconds": 223.66666666666666,
+      "average_input_tokens": 48379.333333333336,
+      "average_reasoning_tokens": 1810,
+      "stable": false
+    },
+    {
+      "key": "gpt-6-luna|xhigh",
+      "model": "gpt-6-luna",
+      "effort": "xhigh",
+      "trials": 1,
+      "scores": [
+        85
+      ],
+      "mean_score": 85,
+      "min_score": 85,
+      "max_score": 85,
+      "stddev_score": 0,
+      "average_duration_seconds": 158,
+      "average_input_tokens": 51706,
+      "average_reasoning_tokens": 1794,
+      "stable": true
+    },
+    {
+      "key": "gpt-6-sol|medium",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "trials": 3,
+      "scores": [
+        85,
+        65,
+        100
+      ],
+      "mean_score": 83.33333333333333,
+      "min_score": 65,
+      "max_score": 100,
+      "stddev_score": 14.337208778404378,
+      "average_duration_seconds": 88.66666666666667,
+      "average_input_tokens": 17471.666666666668,
+      "average_reasoning_tokens": 432.3333333333333,
+      "stable": false
+    },
+    {
+      "key": "gpt-6-sol|high",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "trials": 3,
+      "scores": [
+        100,
+        85,
+        85
+      ],
+      "mean_score": 90,
+      "min_score": 85,
+      "max_score": 100,
+      "stddev_score": 7.0710678118654755,
+      "average_duration_seconds": 78.33333333333333,
+      "average_input_tokens": 13830,
+      "average_reasoning_tokens": 828.6666666666666,
+      "stable": true
+    },
+    {
+      "key": "gpt-6-sol|xhigh",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "trials": 3,
+      "scores": [
+        100,
+        85,
+        85
+      ],
+      "mean_score": 90,
+      "min_score": 85,
+      "max_score": 100,
+      "stddev_score": 7.0710678118654755,
+      "average_duration_seconds": 113.66666666666667,
+      "average_input_tokens": 32217,
+      "average_reasoning_tokens": 962.3333333333334,
+      "stable": true
+    }
+  ],
+  "sol_effort_spread_points": 6.666666666666671,
+  "xhigh_model_spread_points": 28.33333333333333,
+  "all_stable": false
+}
