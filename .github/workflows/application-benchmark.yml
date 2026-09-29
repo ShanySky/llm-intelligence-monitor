@@ -20,8 +20,13 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        task: [micro-plan, micro-export, micro-review, micro-incident]
-        effort: [medium, xhigh]
+        include:
+          - task: micro-incident
+            effort: medium
+          - task: micro-incident
+            effort: xhigh
+          - task: micro-review
+            effort: xhigh
 
     runs-on: ubuntu-latest
     timeout-minutes: 12
@@ -157,6 +162,13 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Load prior complete application samples
+        shell: bash
+        run: |
+          mkdir -p results
+          git fetch origin application-results || true
+          git show origin/application-results:application/latest.json > results/prior-application-summary.json 2>/dev/null || true
+
       - name: Download all task results
         uses: actions/download-artifact@v4
         with:
@@ -171,7 +183,8 @@ jobs:
             results/application \
             benchmarks/application-suite.json \
             results/application-summary.json \
-            results/application-summary.md
+            results/application-summary.md \
+            results/prior-application-summary.json
           cat results/application-summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload summary
