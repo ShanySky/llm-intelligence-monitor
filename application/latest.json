@@ -1,0 +1,434 @@
+{
+  "generated_at": "2026-09-29T12:06:39.542Z",
+  "manifest": {
+    "version": 1,
+    "target_seconds": 300,
+    "hard_timeout_seconds": 600,
+    "families": [
+      {
+        "id": "micro-plan",
+        "family": "solution_design",
+        "weight": 25
+      },
+      {
+        "id": "micro-export",
+        "family": "coding_long_horizon",
+        "weight": 35
+      },
+      {
+        "id": "micro-review",
+        "family": "code_review",
+        "weight": 20
+      },
+      {
+        "id": "micro-incident",
+        "family": "agent_tool_use",
+        "weight": 20
+      }
+    ],
+    "policy": "Use lightweight harness for calibration; use full Codex harness for shortlisted/final validation."
+  },
+  "rows": [
+    {
+      "task": "micro-export",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "midflight_cancellation": {
+          "points": 30,
+          "passed": true
+        },
+        "post_publish_retry": {
+          "points": 30,
+          "passed": true
+        },
+        "retry_without_regeneration": {
+          "points": 20,
+          "passed": true
+        }
+      },
+      "duration_seconds": 89,
+      "shell_commands": 5,
+      "usage": {
+        "input_tokens": 17670,
+        "output_tokens": 2939,
+        "reasoning_tokens": 1273,
+        "cached_input_tokens": 8320
+      },
+      "agent_exit_code": 0
+    },
+    {
+      "task": "micro-export",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "midflight_cancellation": {
+          "points": 30,
+          "passed": true
+        },
+        "post_publish_retry": {
+          "points": 30,
+          "passed": true
+        },
+        "retry_without_regeneration": {
+          "points": 20,
+          "passed": true
+        }
+      },
+      "duration_seconds": 162,
+      "shell_commands": 5,
+      "usage": {
+        "input_tokens": 27274,
+        "output_tokens": 6376,
+        "reasoning_tokens": 4375,
+        "cached_input_tokens": 13696
+      },
+      "agent_exit_code": 0
+    },
+    {
+      "task": "micro-incident",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "score": 90,
+      "checks": {
+        "targeted_fix_applied": {
+          "points": 30,
+          "passed": true
+        },
+        "within_action_budget": {
+          "points": 10,
+          "passed": true
+        },
+        "gathered_revision_evidence": {
+          "points": 10,
+          "passed": true
+        },
+        "gathered_failure_evidence": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_schema_or_pods": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_speculative_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified_recovery": {
+          "points": 10,
+          "passed": true
+        },
+        "root_cause_report": {
+          "points": 10,
+          "passed": false
+        }
+      },
+      "duration_seconds": 480,
+      "shell_commands": 0,
+      "usage": {},
+      "agent_exit_code": 1
+    },
+    {
+      "task": "micro-incident",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "score": 20,
+      "checks": {
+        "targeted_fix_applied": {
+          "points": 30,
+          "passed": false
+        },
+        "within_action_budget": {
+          "points": 10,
+          "passed": true
+        },
+        "gathered_revision_evidence": {
+          "points": 10,
+          "passed": false
+        },
+        "gathered_failure_evidence": {
+          "points": 10,
+          "passed": false
+        },
+        "checked_schema_or_pods": {
+          "points": 10,
+          "passed": false
+        },
+        "avoided_speculative_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified_recovery": {
+          "points": 10,
+          "passed": false
+        },
+        "root_cause_report": {
+          "points": 10,
+          "passed": false
+        }
+      },
+      "duration_seconds": 480,
+      "shell_commands": 0,
+      "usage": {},
+      "agent_exit_code": 1
+    },
+    {
+      "task": "micro-plan",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "score": 100,
+      "checks": {
+        "valid_plan_json": {
+          "points": 10,
+          "passed": true
+        },
+        "required_S1": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S3": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S4": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S5": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S7": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S8": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S9": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S10": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S12": {
+          "points": 5,
+          "passed": true
+        },
+        "no_unsafe_steps": {
+          "points": 15,
+          "passed": true
+        },
+        "safe_phase_order": {
+          "points": 10,
+          "passed": true
+        },
+        "states_compatibility_invariant": {
+          "points": 10,
+          "passed": true
+        },
+        "states_validation_gates": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 56,
+      "shell_commands": 3,
+      "usage": {
+        "input_tokens": 6757,
+        "output_tokens": 1532,
+        "reasoning_tokens": 942,
+        "cached_input_tokens": 1664
+      },
+      "agent_exit_code": 0
+    },
+    {
+      "task": "micro-plan",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "valid_plan_json": {
+          "points": 10,
+          "passed": true
+        },
+        "required_S1": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S3": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S4": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S5": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S7": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S8": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S9": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S10": {
+          "points": 5,
+          "passed": true
+        },
+        "required_S12": {
+          "points": 5,
+          "passed": true
+        },
+        "no_unsafe_steps": {
+          "points": 15,
+          "passed": true
+        },
+        "safe_phase_order": {
+          "points": 10,
+          "passed": true
+        },
+        "states_compatibility_invariant": {
+          "points": 10,
+          "passed": true
+        },
+        "states_validation_gates": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 62,
+      "shell_commands": 3,
+      "usage": {
+        "input_tokens": 6629,
+        "output_tokens": 1951,
+        "reasoning_tokens": 1359,
+        "cached_input_tokens": 1024
+      },
+      "agent_exit_code": 0
+    },
+    {
+      "task": "micro-review",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "score": 80,
+      "checks": {
+        "self_invocation_async_proxy": {
+          "points": 20,
+          "passed": true
+        },
+        "cache_evict_before_commit": {
+          "points": 25,
+          "passed": true
+        },
+        "async_commit_visibility_race": {
+          "points": 20,
+          "passed": true
+        },
+        "after_commit_direction": {
+          "points": 20,
+          "passed": false
+        },
+        "audit_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 100,
+      "shell_commands": 10,
+      "usage": {
+        "input_tokens": 18500,
+        "output_tokens": 1908,
+        "reasoning_tokens": 463,
+        "cached_input_tokens": 12928
+      },
+      "agent_exit_code": 0
+    },
+    {
+      "task": "micro-review",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "score": 0,
+      "checks": {
+        "self_invocation_async_proxy": {
+          "points": 20,
+          "passed": false
+        },
+        "cache_evict_before_commit": {
+          "points": 25,
+          "passed": false
+        },
+        "async_commit_visibility_race": {
+          "points": 20,
+          "passed": false
+        },
+        "after_commit_direction": {
+          "points": 20,
+          "passed": false
+        },
+        "audit_idempotency": {
+          "points": 10,
+          "passed": false
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": false
+        }
+      },
+      "duration_seconds": 480,
+      "shell_commands": 0,
+      "usage": {},
+      "agent_exit_code": 1
+    }
+  ],
+  "by_effort": {
+    "medium": {
+      "score": 94,
+      "duration_seconds": 725,
+      "input_tokens": 42927,
+      "output_tokens": 6379,
+      "reasoning_tokens": 2678
+    },
+    "xhigh": {
+      "score": 64,
+      "duration_seconds": 1184,
+      "input_tokens": 33903,
+      "output_tokens": 8327,
+      "reasoning_tokens": 5734
+    }
+  }
+}
