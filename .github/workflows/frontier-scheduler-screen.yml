@@ -1,0 +1,89 @@
+name: Frontier scheduler Luna screen
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  screen:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-scheduler-screen]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare
+        shell: bash
+        run: |
+          TASK_DIR="/tmp/frontier-scheduler-screen"
+          rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
+          cp -R benchmarks/frontier-scheduler/workspace/. "$TASK_DIR/"
+          chmod +x "$TASK_DIR/run_visible_tests.sh"
+          (cd "$TASK_DIR" && ./run_visible_tests.sh)
+          echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
+
+      - name: Run Luna High
+        id: agent
+        shell: bash
+        run: |
+          start="$(date +%s)"
+          set +e
+          timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR" "gpt-6-luna" "high" "$TASK_DIR/light-agent-result.json"
+          status=$?
+          set -e
+          end="$(date +%s)"
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          echo "wall_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+
+      - name: Score
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p result
+          python scripts/score-application-task.py frontier-scheduler "$TASK_DIR" "$TASK_DIR/score.json"
+          python - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          root=Path(os.environ["TASK_DIR"])
+          score=json.loads((root/"score.json").read_text())
+          rp=root/"light-agent-result.json"
+          runner=json.loads(rp.read_text()) if rp.exists() else {}
+          result={
+            "task":"frontier-scheduler",
+            "model":"gpt-6-luna",
+            "effort":"high",
+            "score":score["score"],
+            "checks":score["checks"],
+            "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
+            "usage":runner.get("usage",{}),
+            "api_retries":runner.get("api_retries",0),
+            "infrastructure_error":runner.get("infrastructure_error"),
+            "agent_exit_code":int("${{ steps.agent.outputs.exit_code || '999' }}")
+          }
+          Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
+          if rp.exists(): shutil.copy2(rp,"result/light-agent-result.json")
+          if (root/"src").exists(): shutil.copytree(root/"src","result/final-src",dirs_exist_ok=True)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontier-scheduler-screen-${{ github.run_id }}
+          path: result/
+          retention-days: 30
