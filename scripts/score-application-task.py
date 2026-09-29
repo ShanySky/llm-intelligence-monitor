@@ -114,7 +114,8 @@ elif task == "hard-plan":
     try: plan=json.loads(text("plan.json")); valid=True
     except Exception: plan={}; valid=False
     add("valid_plan_json",10,valid)
-    steps=plan.get("steps",[]) if isinstance(plan,dict) else []
+    raw_steps=plan.get("steps",[]) if isinstance(plan,dict) else []
+    steps=[x if isinstance(x,str) else x.get("id") for x in raw_steps if isinstance(x,str) or isinstance(x,dict)]
     required=["P1","P2","P3","P4","P5","P6","P7","P8"]
     unsafe={"P9","P10","P11","P12","P13","P14"}
     for s in required:
