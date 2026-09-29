@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "target_seconds": 300,
+  "hard_timeout_seconds": 600,
+  "families": [
+    {"id":"frontier-plan","family":"solution_design_cross_system","weight":100}
+  ]
+}
