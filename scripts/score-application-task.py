@@ -364,13 +364,13 @@ elif task == "frontier-review":
     add("event_check_insert_race",10,
         ("exists" in review or "check" in review) and ("insert" in review or "unique" in review) and
         ("race" in review or "atomic" in review or "concurrent" in review))
-    add("order_scoped_fulfillment",15,
+    add("order_scoped_fulfillment",20,
         "order" in review and ("event" in review) and ("idempot" in review or "fulfillment" in review) and
         ("key" in review or "scope" in review or "different event" in review))
     add("external_side_effect_crash_window",10,
         ("inventory" in review or "external" in review) and ("crash" in review or "commit" in review) and
         ("retry" in review or "reconcile" in review or "idempot" in review or "outbox" in review))
-    add("requests_changes",5,"verdict: request_changes" in review)
+    add("requests_changes",10,"verdict: request_changes" in review)
 
 else:
     raise SystemExit(f"unknown task {task}")
