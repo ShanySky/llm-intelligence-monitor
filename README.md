@@ -180,3 +180,8 @@ git commit -m "Restore monitor history from history branch"
 ```
 
 This restores every retained history file, including files that are intentionally absent from `main`.
+
+
+## High manual run mode
+
+A controlled manual run can execute all configured models at reasoning effort `high` without changing the scheduled X High configuration or writing formal history.
