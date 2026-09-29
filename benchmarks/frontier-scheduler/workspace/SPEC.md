@@ -12,9 +12,10 @@ Rules:
 7. If several schedules have the same minimum makespan, choose the one whose
    vector of start times is lexicographically smallest when tasks are ordered by
    task ID ascending.
-8. Worker IDs are not part of optimality. After start times are fixed, assign
-   each task the lowest-numbered worker that is free for the task's entire
-   interval; worker numbering starts at 0.
+8. Worker IDs are not part of optimality. After start times are fixed, process
+   tasks by start time ascending then task ID ascending, assigning each task the
+   lowest-numbered worker that is free for the task's entire interval; worker
+   numbering starts at 0.
 9. Unknown dependencies, duplicate task IDs, non-positive durations, or
    workerCount <= 0 are invalid input and must throw IllegalArgumentException.
 10. A dependency cycle must throw IllegalArgumentException.
