@@ -1,0 +1,187 @@
+# Harder application-focused calibration probes.
+# Each task asks for an ordered minimal-sufficient decision/action set.
+
+- description: AH01-EN-rolling-migration-decision-set
+  vars:
+    pair_id: AH01
+    language: en
+    category: architecture
+    ability: solution_design
+    difficulty: research_hard
+    family: multi_constraint_plan_synthesis
+    question: >-
+      A Java/MySQL service needs to replace orders.status VARCHAR with
+      status_code INT + status_reason VARCHAR. There are 80M rows. Deployments
+      are rolling, v1 and v2 overlap, and rollback to v1 must remain safe for one
+      release. No table-blocking operation may exceed roughly two seconds.
+
+      Available engineering decisions:
+      D1 add the new columns nullable through an online-safe DDL path;
+      D2 add the new columns NOT NULL with defaults and let MySQL rewrite rows;
+      D3 deploy v2 with compatibility reads and dual writes to old + new fields;
+      D4 deploy v2 writing only the new fields;
+      D5 backfill historical rows in small resumable batches;
+      D6 verify old/new semantic parity on production data after backfill;
+      D7 after compatibility is no longer required, enforce final constraints on
+         the new representation;
+      D8 remove status in the same release that first deploys v2;
+      D9 perform a rollback drill proving data written by v2 is still correctly
+         interpreted by v1;
+      D10 in a later release, stop compatibility reads/writes after the rollback
+          window has closed;
+      D11 backfill all rows in one UPDATE during deployment;
+      D12 build a shadow table and atomically rename it during the rolling deploy.
+
+      Select the minimal sufficient ordered decision sequence that satisfies all
+      stated requirements without unnecessary risky work. D6 must occur after
+      D5. D9 must occur while compatibility is still active. D10 must occur only
+      after the rollback window is proven safe. D7 belongs after D10.
+      Output decision IDs only, comma-separated.
+  assert:
+    - type: equals
+      value: "D1,D3,D5,D6,D9,D10,D7"
+
+- description: AH02-EN-transaction-cache-async-review
+  vars:
+    pair_id: AH02
+    language: en
+    category: coding
+    ability: code_review_debugging
+    difficulty: research_hard
+    family: multi_bug_code_review
+    question: >-
+      Review this Spring-style design:
+
+        @Transactional
+        public void changePrice(long id, BigDecimal p) {
+          Product x = repo.findById(id).orElseThrow();
+          x.setPrice(p);
+          cache.evict(id);
+          this.auditAsync(id, p);
+        }
+
+        @Async
+        public void auditAsync(long id, BigDecimal p) {
+          Product x = repo.findById(id).orElseThrow();
+          auditClient.send(x.getId(), p);
+        }
+
+      The cache uses cache-aside: on miss, another request reads the DB and
+      repopulates the cache. Production has occasionally served the old price
+      immediately after changePrice returns. The audit call also sometimes
+      blocks the request thread. A developer proposes moving auditAsync to
+      another bean; after that change, rare audit EntityNotFound/stale-state
+      incidents appear under load.
+
+      Candidate findings/fixes:
+      F1 this.auditAsync() can bypass the Spring proxy, so @Async may not apply;
+      F2 evicting before transaction commit creates a window where another
+         request can repopulate the cache with old committed data;
+      F3 moving async work to another bean automatically makes it share the
+         caller transaction safely;
+      F4 moving true async work to another bean can race the commit and observe
+         pre-commit state;
+      F5 the robust shape is to trigger cache invalidation and audit dispatch
+         after successful commit, with audit retry/idempotency as needed;
+      F6 repo.findById inside a transaction is always served from Redis;
+      F7 calling repo.flush() before cache.evict fully eliminates the stale-cache
+         race even if the transaction later rolls back;
+      F8 synchronizing changePrice is sufficient across all service instances.
+
+      Select all and only the findings/fixes that are technically correct and
+      necessary to explain the symptoms and robustly fix the design. Output IDs
+      in ascending numeric order.
+  assert:
+    - type: equals
+      value: "F1,F2,F4,F5"
+
+- description: AH03-EN-agent-diagnostic-sequence
+  vars:
+    pair_id: AH03
+    language: en
+    category: agent
+    ability: tool_use_planning
+    difficulty: research_hard
+    family: bounded_evidence_search
+    question: >-
+      You have a five-action budget to diagnose and fix this production issue.
+      After a release, 25% of requests to /checkout fail with 500. There are four
+      pods. Kubernetes reports all four Ready. Aggregate logs show
+      "Unknown column 'coupon_rule_id'" but only intermittently. The deployment
+      was rolling and the database migration job reports success.
+
+      Available actions:
+      A1 restart all pods immediately;
+      A2 group errors by pod/revision and compare pod image digests;
+      A3 inspect the live DB schema for coupon_rule_id;
+      A4 compare the migration version recorded by the DB with the migration
+         bundled in each running application revision;
+      A5 scale from four pods to eight;
+      A6 if one stale revision is confirmed, remove that revision from service
+         and complete/redo the rollout;
+      A7 rerun every historical migration from version 1;
+      A8 verify /checkout through repeated requests and confirm errors no longer
+         correlate with any revision;
+      A9 disable coupons globally;
+      A10 inspect CPU utilization before looking at schema/revision evidence.
+
+      Choose the minimal evidence-first sequence that can distinguish a schema
+      failure from a mixed/stale application revision, apply the targeted fix,
+      and verify recovery. Do not include speculative restarts, scaling, or
+      unrelated mitigation. Output exactly five action IDs separated by commas.
+  assert:
+    - type: equals
+      value: "A2,A3,A4,A6,A8"
+
+- description: AH04-EN-compressed-long-horizon-checkpoints
+  vars:
+    pair_id: AH04
+    language: en
+    category: long_horizon
+    ability: goal_maintenance_adaptation
+    difficulty: research_hard
+    family: checkpointed_multi_goal_execution
+    question: >-
+      Original goal: introduce a cancellable asynchronous export pipeline while
+      keeping the old synchronous export API compatible for one release. A
+      worker retry after a crash must never create a second final artifact.
+
+      Completed work:
+      P1 create export_job and return jobId;
+      P2 worker claims PENDING jobs;
+      P3 DELETE sets cancel_requested;
+      P4 new UI polls job status;
+      P5 old endpoint still routes through the old synchronous implementation.
+
+      Validation reveals:
+      E1 cancellation after generation starts is ignored;
+      E2 crash after object-store upload but before DB COMMITTED causes retry to
+         upload a second file;
+      E3 UI treats CANCEL_REQUESTED as terminal and stops polling although worker
+         may still be cleaning up;
+      E4 happy-path tests all pass.
+
+      Candidate next actions:
+      N1 add cooperative cancellation checks during generation and immediately
+         before final publish;
+      N2 mark CANCELLED directly in DELETE without coordinating with the worker;
+      N3 derive a stable artifact identity from jobId and reconcile existing
+         publish state on retry;
+      N4 keep timestamp-based artifact names so every retry is unique;
+      N5 make terminal state transitions conditional/atomic so COMPLETED,
+         CANCELLED, and retry recovery cannot overwrite one another;
+      N6 change UI to treat CANCEL_REQUESTED as non-terminal and continue polling
+         until CANCELLED/FAILED/COMPLETED;
+      N7 remove the old synchronous endpoint now that the new UI works;
+      N8 add tests for mid-flight cancellation, crash-after-publish retry, and
+         old-endpoint compatibility;
+      N9 increase the worker timeout;
+      N10 declare the task complete because happy-path tests pass.
+
+      Select the minimal sufficient ordered continuation that addresses every
+      observed failure while preserving the original compatibility goal. Put
+      implementation changes before the final validation action. Output action
+      IDs only, comma-separated.
+  assert:
+    - type: equals
+      value: "N1,N3,N5,N6,N8"
