@@ -1,0 +1,169 @@
+# Research-derived calibration candidates.
+# These are original synthetic tasks inspired by benchmark design principles,
+# not copied benchmark questions.
+
+- description: X01-EN-symbolic-composition
+  vars:
+    pair_id: X01
+    language: en
+    category: reasoning
+    ability: abstract_reasoning
+    difficulty: research
+    family: symbolic_composition
+    question: >-
+      Three symbols ◇, △, and □ are a one-to-one assignment of the following
+      three transformations on a four-digit vector [a,b,c,d]:
+      R: [b,c,d,a]
+      Q: [(c+1) mod 10,(a+2) mod 10,(d+3) mod 10,(b+4) mod 10]
+      S: [9-d,9-c,9-b,9-a].
+      The symbol meanings are hidden, but these demonstrations are given:
+      ◇[1,2,3,4]=[4,3,7,6]
+      △[1,2,3,4]=[2,3,4,1]
+      □[1,2,3,4]=[5,6,7,8].
+      Start from [8,1,6,3] and apply, in order:
+      ◇, □, △, ◇, △.
+      Each step uses the result of the previous step.
+      Output only the final vector as comma-separated digits.
+  assert:
+    - type: equals
+      value: "5,7,3,3"
+
+- description: X02-EN-contextual-control-flow
+  vars:
+    pair_id: X02
+    language: en
+    category: reasoning
+    ability: contextual_reasoning
+    difficulty: research
+    family: contextual_rule_switching
+    question: >-
+      A machine stores [a,b,c,d]. Before every command, compute the sum of the
+      current four digits. If it is even, use the EVEN rule for that command;
+      if it is odd, use the ODD rule. All arithmetic shown as mod 10 is reduced
+      to one digit.
+      EVEN rules:
+      A -> [b,c,d,a]
+      B -> [(a+1) mod 10,b,c,d]
+      C -> [a,c,b,d]
+      D -> [d,c,b,a]
+      ODD rules:
+      A -> [d,c,b,a]
+      B -> [d,a,b,c]
+      C -> [a,b,c,(d+a+1) mod 10]
+      D -> [d,b,c,a].
+      Start at [2,7,1,4] and execute:
+      A,C,D,B,B,A,C,D,A,B,C,A.
+      The parity test is repeated before every command using the current state.
+      Output only the final vector as comma-separated digits.
+  assert:
+    - type: equals
+      value: "1,4,7,4"
+
+- description: X03-EN-conditional-object-tracking
+  vars:
+    pair_id: X03
+    language: en
+    category: reasoning
+    ability: state_tracking
+    difficulty: research
+    family: conditional_object_tracking
+    question: >-
+      Eight objects A,B,C,D,E,F,G,H initially occupy positions 1 through 8 in
+      that order. Execute these operations sequentially:
+      1) swap positions 2 and 7;
+      2) rotate positions 3 through 6 one place to the left;
+      3) if A is currently left of F, swap positions 1 and 8; otherwise reverse
+         positions 2 through 5;
+      4) remove the object currently at position 6 and insert it at position 2,
+         shifting the intervening objects one place right;
+      5) if C and H are currently adjacent, swap positions 4 and 5; otherwise
+         rotate the entire row two places to the right;
+      6) reverse positions 3 through 7;
+      7) if G is currently right of D, remove G and insert it immediately left
+         of D;
+      8) swap positions 1 and 5;
+      9) if B is currently in an even-numbered position, rotate positions 2
+         through 8 one place to the left; otherwise rotate positions 2 through
+         8 one place to the right.
+      Output the final position-1-to-position-8 order as eight letters with no
+      separators.
+  assert:
+    - type: equals
+      value: "GACBFHDE"
+
+- description: X04-EN-constraint-allocation
+  vars:
+    pair_id: X04
+    language: en
+    category: reasoning
+    ability: constraint_satisfaction
+    difficulty: research
+    family: unique_constraint_allocation
+    question: >-
+      Eight people A,B,C,D,E,F,G,H occupy positions 1 through 8, one person per
+      position. All of these constraints hold:
+      D is at one end.
+      A is immediately left of G.
+      B is exactly two positions right of C.
+      F is immediately left of E.
+      H is immediately between C and B, so C-H-B are consecutive.
+      A is left of C.
+      B is left of F.
+      G is not adjacent to H.
+      D is left of E.
+      There is exactly one valid arrangement.
+      Output the order from position 1 to 8 using letters separated by commas.
+  assert:
+    - type: equals
+      value: "D,A,G,C,H,B,F,E"
+
+- description: X05-EN-constrained-subset-count
+  vars:
+    pair_id: X05
+    language: en
+    category: math
+    ability: combinatorial_reasoning
+    difficulty: research
+    family: constrained_combinatorics
+    question: >-
+      Choose a 6-element subset of {1,2,...,18}. Count the subsets satisfying
+      all four conditions:
+      (1) no two selected integers are consecutive;
+      (2) exactly three selected integers are even;
+      (3) the sum of the six selected integers is divisible by 7;
+      (4) exactly one selected integer is divisible by 5.
+      Order does not matter. Output only the number of valid subsets.
+  assert:
+    - type: equals
+      value: "22"
+
+- description: X06-EN-python-stateful-semantics
+  vars:
+    pair_id: X06
+    language: en
+    category: coding
+    ability: code_reasoning
+    difficulty: research
+    family: stateful_code_execution
+    question: >-
+      In Python 3, execute:
+      def outer():
+          x=[1]
+          funcs=[]
+          try:
+              for i in range(3):
+                  x += [x[-1]+i+1]
+                  funcs.append(lambda k=i: x[k]+x[-1])
+                  if i==1:
+                      y=x
+          finally:
+              x[0]=5
+          y.append(9)
+          return funcs,x,y
+      fs,x,y=outer()
+      x[1]+=y[-1]
+      print([f() for f in fs], x, x is y)
+      Output exactly what print emits, with no explanation.
+  assert:
+    - type: equals
+      value: "[14, 20, 13] [5, 11, 4, 7, 9] True"
