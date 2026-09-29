@@ -1,0 +1,306 @@
+# Application-focused calibration candidates.
+# Original synthetic tasks inspired by software-engineering and agent benchmarks.
+# Single-language exploratory probes; not part of the formal daily bank yet.
+
+- description: APP01-EN-zero-downtime-schema-plan
+  vars:
+    pair_id: APP01
+    language: en
+    category: architecture
+    ability: solution_design
+    difficulty: research
+    family: rolling_migration_design
+    question: >-
+      You are reviewing an implementation plan for a Spring Boot service using
+      MySQL 5.7. Table orders has 80 million rows. Production uses rolling
+      deployments, so v1 and v2 instances overlap for 15-30 minutes. v1 reads
+      and writes column status VARCHAR(32). v2 needs normalized columns
+      status_code INT and status_reason VARCHAR(128). Requirements: no downtime;
+      rollback from v2 to v1 must remain safe for one release; existing data must
+      be migrated; no migration may hold a table-blocking lock for more than
+      about 2 seconds.
+
+      Proposal A: in the deployment migration, add both new columns NOT NULL,
+      backfill all 80M rows in one UPDATE, then deploy v2 which reads only the
+      new columns. Remove status in the next release.
+
+      Proposal B: first add nullable new columns using an online-safe DDL path;
+      deploy v2 so writes keep status and the new columns consistent, while reads
+      prefer the new columns but fall back to status; backfill old rows in small
+      resumable batches; verify parity and rollback behavior; only in a later
+      release stop compatibility writes, then enforce final constraints and
+      eventually remove status.
+
+      Proposal C: deploy v2 first. On startup v2 checks whether the new columns
+      exist and ALTERs the table if needed. v2 writes only the new columns;
+      v1 continues writing status. A nightly job copies status into the new
+      columns.
+
+      Proposal D: create orders_v2 with the new schema, add triggers to mirror
+      all writes from orders, bulk-copy 80M rows, atomically rename both tables
+      during the rolling deployment, and immediately switch all v2 reads/writes
+      to orders_v2. Keep orders_old for rollback.
+
+      Choose the best proposal. Then choose all and only the two release gates
+      that are essential for the stated requirements:
+      G1 average API latency stays below 200 ms;
+      G2 mixed v1/v2 instances can concurrently read and write without semantic
+         divergence;
+      G3 the backfill completes within 30 minutes;
+      G4 after v2 has written production data, rolling back to v1 still preserves
+         correct order status;
+      G5 the new columns compress better than status.
+      Output exactly "proposal|gate,gate", with gates in ascending numeric order.
+  assert:
+    - type: equals
+      value: "B|G2,G4"
+
+- description: APP02-EN-idempotent-side-effect-plan
+  vars:
+    pair_id: APP02
+    language: en
+    category: architecture
+    ability: solution_design
+    difficulty: research
+    family: idempotent_distributed_workflow
+    question: >-
+      A four-instance Java service receives payment webhooks. The provider may
+      deliver duplicates, may use different event IDs for later events about the
+      same order, and retries when your endpoint times out. A paid order must
+      trigger inventory reservation exactly once from the business point of view.
+      The external inventory API supports a caller-supplied idempotency key.
+      MySQL is durable; Redis is available but may evict keys.
+
+      Proposal A: SETNX webhook:<eventId> in Redis with a 10-minute TTL. If the
+      key is new, call inventory and return 200. Duplicate keys return 200.
+
+      Proposal B: insert provider eventId into a table with UNIQUE(eventId).
+      Inside the same DB transaction, call inventory, then mark the event
+      processed. On duplicate eventId, return 200.
+
+      Proposal C: keep an event log for audit, but make fulfillment identity
+      order-scoped: UNIQUE(order_id) on a durable fulfillment row with a state
+      machine. Workers claim pending work by conditional DB update, call
+      inventory with idempotency key "fulfillment:<order_id>", retry uncertain
+      outcomes using the same key, and mark COMPLETED only after success.
+
+      Proposal D: publish every webhook to a queue configured for exactly-once
+      delivery. A consumer calls inventory once per queue message; successful
+      messages are acknowledged and deleted.
+
+      Choose the best proposal. Then identify all crash/duplication cases that
+      the design must safely tolerate:
+      F1 process dies after inventory accepted the reservation but before local
+         completion is committed;
+      F2 the same provider eventId is delivered twice;
+      F3 two different provider event IDs both represent the same paid order.
+      Output exactly "proposal|case,case,case", cases ascending.
+  assert:
+    - type: equals
+      value: "C|F1,F2,F3"
+
+- description: APP03-EN-spring-transaction-async-review
+  vars:
+    pair_id: APP03
+    language: en
+    category: coding
+    ability: code_review_debugging
+    difficulty: research
+    family: transaction_async_boundary
+    question: >-
+      A Spring service originally contained:
+        @Transactional
+        public Order create(CreateCmd cmd) {
+          Order o = repo.save(map(cmd));
+          this.sendAsync(o.getId());
+          return o;
+        }
+
+        @Async
+        public void sendAsync(Long id) {
+          Order o = repo.findById(id).orElseThrow();
+          notifier.send(o);
+        }
+
+      Production symptom #1: create() sometimes waits on notifier.send even
+      though sendAsync is annotated @Async. A developer moves sendAsync to a
+      separate @Service so the @Async proxy definitely applies. Production then
+      shows symptom #2: rare EntityNotFoundException in the async worker under
+      load, while the order appears in the DB moments later.
+
+      Candidate fixes:
+      A) keep the separate async bean and add repo.flush() before calling it.
+      B) publish an application event inside create(); handle it in a separate
+         bean with @TransactionalEventListener(AFTER_COMMIT) and @Async; load
+         the order in that handler and make notification retryable/idempotent.
+      C) keep this.sendAsync(), add REQUIRES_NEW to sendAsync(), and synchronize
+         the method.
+      D) sleep 100 ms at the start of the async method, then retry findById once.
+
+      Choose the best fix and the two root causes that together explain the two
+      observed symptoms:
+      R1 self-invocation bypasses Spring proxy interception for @Async;
+      R2 JPA save never assigns an ID until the outer transaction commits;
+      R3 once true async execution is introduced, it can race the outer
+         transaction commit and query before the row is visible;
+      R4 Spring transactions automatically propagate into arbitrary async
+         threads and block them.
+      Output exactly "fix|root,root", roots ascending.
+  assert:
+    - type: equals
+      value: "B|R1,R3"
+
+- description: APP04-EN-vue-request-race-patch
+  vars:
+    pair_id: APP04
+    language: en
+    category: coding
+    ability: code_review_debugging
+    difficulty: research
+    family: async_race_fix
+    question: >-
+      Vue 3 code:
+        const keyword = ref('')
+        const items = ref([])
+        const loading = ref(false)
+
+        watch(keyword, async (q) => {
+          loading.value = true
+          try {
+            items.value = await api.search(q)
+          } finally {
+            loading.value = false
+          }
+        })
+
+      Users type quickly. An older slow request can finish after a newer request
+      and overwrite newer results. The fix must also keep loading=true while the
+      latest request is still pending.
+
+      Patch A: debounce the watcher by 200 ms and leave the async body unchanged.
+
+      Patch B:
+        let seq = 0
+        watch(keyword, async (q) => {
+          const mine = ++seq
+          loading.value = true
+          try {
+            const result = await api.search(q)
+            if (mine === seq) items.value = result
+          } finally {
+            if (mine === seq) loading.value = false
+          }
+        })
+
+      Patch C:
+        watch(keyword, async (q) => {
+          loading.value = true
+          const result = await api.search(q)
+          if (q === keyword.value) items.value = result
+          loading.value = false
+        })
+
+      Patch D: replace the watcher with Promise.all over every request and use
+      the last element of the returned array.
+
+      Choose the best patch and all verification scenarios required to catch the
+      race correctly:
+      T1 request A is slow, request AB is fast, and AB must remain displayed;
+      T2 user types A -> AB -> A, where the first A response arrives last and
+         must not overwrite the second A request;
+      T3 the latest request fails while an older request is still pending, and
+         loading must reflect only the latest request lifecycle.
+      Output exactly "patch|test,test,test", tests ascending.
+  assert:
+    - type: equals
+      value: "B|T1,T2,T3"
+
+- description: APP05-EN-agent-incident-path
+  vars:
+    pair_id: APP05
+    language: en
+    category: agent
+    ability: tool_use_planning
+    difficulty: research
+    family: evidence_driven_incident
+    question: >-
+      You are an agent diagnosing a Kubernetes deployment immediately after a
+      release. External requests to /api return HTTP 502. Given observations:
+      - all api pods are Ready 1/1;
+      - direct readiness probes reported by Kubernetes are passing;
+      - the Service named api selects the expected pods;
+      - no application exception spike is visible.
+      You have a strict four-action budget. Available actions:
+      A1: restart the ingress controller;
+      A2: inspect the Service endpoints and configured targetPort;
+      A3: exec into one api pod and inspect listening TCP ports;
+      A4: increase pod replicas from 4 to 8;
+      A5: compare the release configuration for server.port with the previous
+          release;
+      A6: patch the Service targetPort to the confirmed application port;
+      A7: delete all api pods;
+      A8: verify through the external ingress after the patch.
+
+      The latest release accidentally changed server.port from 8080 to 9090,
+      while the Service still targets 8080. Choose the minimal evidence-first
+      four-action sequence that diagnoses, fixes, and verifies the incident.
+      Do not include speculative restarts or scaling.
+      Output exactly four action IDs separated by commas.
+  assert:
+    - type: equals
+      value: "A2,A3,A6,A8"
+
+- description: APP06-EN-compressed-long-horizon-adaptation
+  vars:
+    pair_id: APP06
+    language: en
+    category: long_horizon
+    ability: goal_maintenance_adaptation
+    difficulty: research
+    family: compressed_multi_stage_execution
+    question: >-
+      Goal: add cancellable asynchronous report exports. Existing clients and
+      existing exports must keep working. A retry after worker crash must not
+      create duplicate final report files.
+
+      Work already completed:
+      1) API creates export_job rows and returns jobId.
+      2) Worker claims PENDING jobs and writes report files.
+      3) DELETE /exports/{id} sets cancel_requested=true.
+      4) Worker checks cancel_requested only once, immediately after claiming.
+      5) Basic happy-path tests pass.
+
+      New evidence from validation:
+      - cancelling a large export after 40% progress does not stop it;
+      - if the worker crashes after uploading the final file but before marking
+        the job COMPLETED, retry uploads a second final file with a new name;
+      - old synchronous export endpoint still works and must remain available
+        for this release.
+
+      Candidate continuation plans:
+      A) mark cancellation complete immediately in DELETE, remove the old
+         endpoint, and add a cron job that deletes duplicate files nightly.
+      B) add cooperative cancellation checkpoints during generation and before
+         publish; use a deterministic artifact identity derived from jobId (or
+         an equivalent idempotent publish contract); on retry reconcile whether
+         that artifact already exists before publishing; make terminal state
+         transitions conditional/atomic; add crash-window and mid-flight-cancel
+         tests; keep the old endpoint for this release.
+      C) keep worker logic unchanged, but make DELETE kill the worker process;
+         configure the queue for at-most-once delivery.
+      D) only increase worker timeout and make filenames include timestamps so
+         every retry is distinguishable.
+
+      Choose the plan that best preserves the original goal under the new
+      evidence. Then choose all and only the three validation gates that are
+      essential before declaring the task complete:
+      V1 cancellation requested during generation stops before final publish;
+      V2 crash after successful publish but before DB completion does not create
+         a second final artifact on retry;
+      V3 old synchronous endpoint still passes its compatibility tests;
+      V4 average export completes under 2 seconds;
+      V5 HTML email formatting is unchanged.
+      Output exactly "plan|gate,gate,gate", gates ascending.
+  assert:
+    - type: equals
+      value: "B|V1,V2,V3"
