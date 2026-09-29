@@ -23,3 +23,4 @@ Frontier Sol calibration: cross-file review Medium vs X High.
 Frontier review repeated validation: Medium/High/X High x2.
 Frontier plan Luna screen.
 Frontier objective plan-review Luna screen.
+Final multi-model application validation.
