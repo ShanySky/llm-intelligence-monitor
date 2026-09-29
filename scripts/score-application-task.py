@@ -349,27 +349,56 @@ elif task == "frontier-migration":
 
 elif task == "frontier-review":
     review=text("REVIEW.md").lower()
-    add("async_self_invocation_proxy",10,
-        "async" in review and ("self-invocation" in review or "self invocation" in review or "proxy" in review))
-    add("cache_invalidation_after_commit",10,
-        "cache" in review and "commit" in review and ("stale" in review or "repopulate" in review or "after commit" in review))
-    add("async_commit_visibility_race",10,
-        "async" in review and "commit" in review and ("race" in review or "visibility" in review or "uncommitted" in review or "before commit" in review))
-    add("audit_reread_version_drift",10,
-        ("re-read" in review or "reread" in review or "current" in review) and
-        ("audit" in review) and
-        ("later" in review or "different" in review or "version" in review or "expected" in review or "mutable" in review))
-    add("stable_audit_idempotency",10,
-        ("uuid" in review or "random" in review) and ("idempot" in review or "dedup" in review or "retry" in review))
-    add("event_check_insert_race",10,
-        ("exists" in review or "check" in review) and ("insert" in review or "unique" in review) and
-        ("race" in review or "atomic" in review or "concurrent" in review))
-    add("order_scoped_fulfillment",20,
-        "order" in review and ("event" in review) and ("idempot" in review or "fulfillment" in review) and
-        ("key" in review or "scope" in review or "different event" in review))
-    add("external_side_effect_crash_window",10,
-        ("inventory" in review or "external" in review) and ("crash" in review or "commit" in review) and
-        ("retry" in review or "reconcile" in review or "idempot" in review or "outbox" in review))
+
+    # Score independent failure domains, not wording-specific subpoints.
+    # Multiple technically equivalent phrasings count; overlapping symptoms do not
+    # receive duplicate credit.
+    add("cache_transaction_boundary",15,
+        "cache" in review and
+        ("commit" in review or "transaction" in review) and
+        ("stale" in review or "repopulate" in review or "old committed" in review or "after commit" in review))
+
+    audit_boundary = (
+        "audit" in review and
+        (
+            ("self-invocation" in review or "self invocation" in review or ("proxy" in review and "async" in review))
+            or
+            ("outbox" in review or "after commit" in review or "durable" in review)
+        )
+    )
+    audit_payload = (
+        "audit" in review and
+        ("re-read" in review or "reread" in review or "current" in review or "mutable" in review or "snapshot" in review)
+        and
+        ("later" in review or "different" in review or "version" in review or "expected" in review or "price" in review)
+    )
+    audit_key = (
+        "audit" in review and
+        ("uuid" in review or "random" in review or "stable" in review)
+        and
+        ("idempot" in review or "dedup" in review or "retry" in review or "key" in review)
+    )
+    add("audit_delivery_boundary",15,audit_boundary)
+    add("audit_payload_and_idempotency",15,audit_payload and audit_key)
+
+    order_scope = (
+        "order" in review and "event" in review and
+        ("idempot" in review or "fulfillment" in review or "reservation" in review) and
+        ("key" in review or "scope" in review or "different event" in review or "per order" in review or "order-scoped" in review)
+    )
+    atomic_claim = (
+        ("unique" in review or "atomic" in review or "lock" in review or "serialized" in review or "concurr" in review)
+        and ("order" in review or "fulfillment" in review or "event" in review)
+    )
+    add("order_scoped_exactly_once",25,order_scope and atomic_claim)
+
+    crash_recovery = (
+        ("inventory" in review or "external" in review or "reservation" in review)
+        and ("crash" in review or "failure" in review)
+        and ("retry" in review or "reconcile" in review or "idempot" in review or "outbox" in review or "same key" in review)
+    )
+    add("external_side_effect_recovery",20,crash_recovery)
+
     add("requests_changes",10,"verdict: request_changes" in review)
 
 else:
