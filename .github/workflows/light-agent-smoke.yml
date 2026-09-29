@@ -1,0 +1,133 @@
+name: Light agent benchmark smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  micro-export:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-light-agent]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare task
+        shell: bash
+        run: |
+          TASK_DIR="/tmp/light-micro-export"
+          rm -rf "$TASK_DIR"
+          mkdir -p "$TASK_DIR"
+          cp -R benchmarks/micro-export/workspace/. "$TASK_DIR/"
+          chmod +x "$TASK_DIR/run_visible_tests.sh"
+          cd "$TASK_DIR"
+          ./run_visible_tests.sh
+          echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
+
+      - name: Run lightweight agent
+        shell: bash
+        run: |
+          timeout 300s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "gpt-6-sol"             "medium"             "$TASK_DIR/light-agent-result.json"
+
+      - name: Hidden verification
+        shell: bash
+        run: |
+          cd "$TASK_DIR"
+          cat > HiddenTest.java <<'JAVA'
+          import java.util.concurrent.atomic.AtomicBoolean;
+
+          public final class HiddenTest {
+              public static void main(String[] args) {
+                  testMidFlightCancellation();
+                  testCrashAfterPublishRetry();
+                  System.out.println("HIDDEN_TEST_PASS");
+              }
+
+              private static void testMidFlightCancellation() {
+                  JobRepository jobs = new JobRepository();
+                  ArtifactStore artifacts = new ArtifactStore();
+                  ExportService service = new ExportService(jobs, artifacts, FailureInjector.none());
+                  String id = "cancel-random-572";
+                  jobs.create(id);
+
+                  service.run(id, new ReportGenerator() {
+                      public int chunkCount() { return 5; }
+                      public String chunk(int index) {
+                          if (index == 2) service.requestCancel(id);
+                          return "C" + index;
+                      }
+                  });
+
+                  ExportJob job = jobs.get(id);
+                  check(job.state() == ExportJob.State.CANCELLED, "must cancel mid-flight");
+                  check(job.artifactKey() == null, "cancelled job cannot point to artifact");
+                  check(artifacts.countForJob(id) == 0, "cancelled job cannot publish");
+              }
+
+              private static void testCrashAfterPublishRetry() {
+                  JobRepository jobs = new JobRepository();
+                  ArtifactStore artifacts = new ArtifactStore();
+                  AtomicBoolean crashOnce = new AtomicBoolean(true);
+                  FailureInjector injector = jobId -> {
+                      if (crashOnce.getAndSet(false)) throw new RuntimeException("post-publish crash");
+                  };
+                  ExportService service = new ExportService(jobs, artifacts, injector);
+                  String id = "retry-random-841";
+                  jobs.create(id);
+
+                  ReportGenerator generator = new ReportGenerator() {
+                      public int chunkCount() { return 3; }
+                      public String chunk(int index) { return new String[]{"X","Y","Z"}[index]; }
+                  };
+
+                  try { service.run(id, generator); } catch (RuntimeException expected) {}
+                  check(artifacts.countForJob(id) == 1, "first attempt must publish once");
+                  service.run(id, generator);
+
+                  ExportJob job = jobs.get(id);
+                  check(job.state() == ExportJob.State.COMPLETED, "retry must complete");
+                  check(artifacts.countForJob(id) == 1, "retry must not duplicate artifact");
+                  check(job.artifactKey() != null && artifacts.exists(job.artifactKey()), "artifact must reconcile");
+                  check("XYZ".equals(artifacts.get(job.artifactKey())), "artifact contents");
+              }
+
+              private static void check(boolean ok, String message) {
+                  if (!ok) throw new AssertionError(message);
+              }
+          }
+          JAVA
+
+          rm -rf hidden-out
+          mkdir hidden-out
+          javac -d hidden-out src/*.java HiddenTest.java
+          java -cp hidden-out VisibleTest
+          java -cp hidden-out HiddenTest
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: light-agent-smoke-${{ github.run_id }}
+          path: |
+            /tmp/light-micro-export/light-agent-result.json
+            /tmp/light-micro-export/src/
+          if-no-files-found: warn
+          retention-days: 30
