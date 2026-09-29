@@ -198,6 +198,93 @@ elif task == "hard-review":
 
 
 
+
+elif task == "frontier-config":
+    hidden = r'''import java.nio.file.*;
+import java.util.*;
+public final class FrontierConfigHiddenTest {
+  public static void main(String[] args) throws Exception {
+    run("LEGACY", FrontierConfigHiddenTest::legacyDefault);
+    run("EXPLICIT", FrontierConfigHiddenTest::explicitSupported);
+    run("INVALID", FrontierConfigHiddenTest::invalidRejected);
+    run("ENV", FrontierConfigHiddenTest::environmentOverride);
+    run("REGRESSION", FrontierConfigHiddenTest::existingFields);
+  }
+  interface Case { void run() throws Exception; }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+  static Path props(String body) throws Exception {
+    Path p=Files.createTempFile("frontier-config-hidden",".properties");
+    Files.writeString(p,body);
+    return p;
+  }
+  static void legacyDefault() throws Exception {
+    Path p=props("logLevel=INFO\nport=8080\n");
+    Config c=new ConfigLoader().load(p,Map.of());
+    check("1.0".equals(c.version()));
+    Files.deleteIfExists(p);
+  }
+  static void explicitSupported() throws Exception {
+    Path p=props("version=1.0\nlogLevel=DEBUG\nport=8082\n");
+    Config c=new ConfigLoader().load(p,Map.of());
+    check("1.0".equals(c.version()));
+    Files.deleteIfExists(p);
+  }
+  static void invalidRejected() throws Exception {
+    Path p=props("version=2.0\n");
+    expectBad(()->new ConfigLoader().load(p,Map.of()));
+    Files.deleteIfExists(p);
+  }
+  static void environmentOverride() throws Exception {
+    Path p=props("version=2.0\nport=7000\n");
+    Config c=new ConfigLoader().load(p,Map.of("APP_VERSION","1.0","APP_PORT","7001"));
+    check("1.0".equals(c.version())); check(c.port()==7001);
+    expectBad(()->new ConfigLoader().load(p,Map.of("APP_VERSION","2.0")));
+    Files.deleteIfExists(p);
+  }
+  static void existingFields() throws Exception {
+    Path p=props("logLevel=WARN\nport=8123\n");
+    Config c=new ConfigLoader().load(p,Map.of("APP_LOG_LEVEL","TRACE"));
+    check("TRACE".equals(c.logLevel())); check(c.port()==8123);
+    Files.deleteIfExists(p);
+  }
+  interface Bad { void run(); }
+  static void expectBad(Bad b) {
+    boolean ok=false; try{b.run();}catch(IllegalArgumentException e){ok=true;} check(ok);
+  }
+  static void check(boolean x){if(!x) throw new AssertionError();}
+}'''
+    (root/"FrontierConfigHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run(["javac","-d",str(outdir),*map(str,(root/"src").glob("*.java")),str(root/"FrontierConfigHiddenTest.java")],capture_output=True,text=True)
+    add("compiles",5,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True); visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierConfigHiddenTest"],capture_output=True,text=True); hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",5,visible)
+    add("legacy_defaults_to_v1",15,"LEGACY_PASS" in hidden_out)
+    add("explicit_v1_supported",10,"EXPLICIT_PASS" in hidden_out)
+    add("unsupported_version_rejected",20,"INVALID_PASS" in hidden_out)
+    add("environment_override_semantics",15,"ENV_PASS" in hidden_out)
+    add("existing_config_regression",10,"REGRESSION_PASS" in hidden_out)
+
+    generated_ok=False
+    try:
+        gr=subprocess.run(["bash","check_generated.sh"],cwd=root,capture_output=True,text=True,timeout=30)
+        schema=json.loads(text("generated/config.schema.json"))
+        prop=schema.get("properties",{}).get("version",{})
+        examples=[text("examples/local.properties"),text("examples/production.properties")]
+        generated_ok=(gr.returncode==0 and prop.get("type")=="string" and prop.get("default")=="1.0" and prop.get("enum")==["1.0"])
+        examples_ok=all(re.search(r"(?m)^version\s*=\s*1\.0\s*$",x) for x in examples)
+    except Exception:
+        generated_ok=False; examples_ok=False
+    add("schema_source_and_generated_contract",15,generated_ok)
+    add("checked_in_examples_versioned",10,examples_ok)
+
+
 elif task == "frontier-filter":
     hidden = r'''import java.util.*;
 public final class FrontierFilterHiddenTest {
