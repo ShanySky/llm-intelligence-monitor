@@ -2,3 +2,4 @@ Manual trigger marker for controlled evaluation runs.
 Latest calibration trigger: 2026-09-29 GPT-6 Sol effort exploration.
 Low-cost Sol calibration trigger: 2026-09-29 subset Medium vs X High.
 Candidate repeat trigger: H05,S01 repeat3 Medium vs X High.
+H05 High-only probe: repeat3.
