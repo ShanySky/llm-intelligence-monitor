@@ -17,3 +17,4 @@ Luna-first hard application candidate screen.
 Hard-plan Luna rerun after scorer compatibility fix.
 Sol calibration on Luna-screened hard webhook/review.
 Frontier Sol calibration: frontier-webhook Medium vs X High.
+Frontier Sol calibration: rolling migration Medium vs X High.
