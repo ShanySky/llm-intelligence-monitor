@@ -95,18 +95,31 @@ jobs:
           runner_path = root / "light-agent-result.json"
           runner = json.loads(runner_path.read_text()) if runner_path.exists() else {}
 
+          exit_code = int("${{ steps.agent.outputs.exit_code || '999' }}")
+          infra_error = runner.get("infrastructure_error")
+          if infra_error:
+              outcome = "infrastructure_error"
+          elif exit_code == 0:
+              outcome = "completed"
+          elif exit_code == 124:
+              outcome = "model_timeout"
+          else:
+              outcome = "runner_error"
+
           result = {
               "task": "${{ matrix.task }}",
               "model": "gpt-6-sol",
               "effort": "${{ matrix.effort }}",
               "score": score["score"],
               "checks": score["checks"],
-              "duration_seconds": runner.get("duration_seconds", 480),
+              "duration_seconds": runner.get("duration_seconds", int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
               "shell_commands": runner.get("shell_commands", 0),
               "usage": runner.get("usage", {}),
               "api_retries": runner.get("api_retries", 0),
-              "infrastructure_error": runner.get("infrastructure_error"),
-              "agent_exit_code": int("${{ steps.agent.outputs.exit_code || '999' }}"),
+              "infrastructure_error": infra_error,
+              "agent_exit_code": exit_code,
+              "outcome": outcome,
+              "data_complete": outcome in ("completed", "model_timeout"),
           }
           Path("result/result.json").write_text(json.dumps(result, indent=2) + "\n")
           if runner_path.exists():
