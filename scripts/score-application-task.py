@@ -346,6 +346,32 @@ elif task == "frontier-migration":
     add("online_backfill_current_legacy",15,"BACKFILL_PASS" in hidden_out)
     add("stale_backfill_cannot_clobber_live_update",25,"STALE_PASS" in hidden_out)
 
+
+elif task == "frontier-review":
+    review=text("REVIEW.md").lower()
+    add("async_self_invocation_proxy",10,
+        "async" in review and ("self-invocation" in review or "self invocation" in review or "proxy" in review))
+    add("cache_invalidation_after_commit",10,
+        "cache" in review and "commit" in review and ("stale" in review or "repopulate" in review or "after commit" in review))
+    add("async_commit_visibility_race",10,
+        "async" in review and "commit" in review and ("race" in review or "visibility" in review or "uncommitted" in review or "before commit" in review))
+    add("audit_reread_version_drift",10,
+        ("re-read" in review or "reread" in review or "current" in review) and
+        ("audit" in review) and
+        ("later" in review or "different" in review or "version" in review or "expected" in review or "mutable" in review))
+    add("stable_audit_idempotency",10,
+        ("uuid" in review or "random" in review) and ("idempot" in review or "dedup" in review or "retry" in review))
+    add("event_check_insert_race",10,
+        ("exists" in review or "check" in review) and ("insert" in review or "unique" in review) and
+        ("race" in review or "atomic" in review or "concurrent" in review))
+    add("order_scoped_fulfillment",15,
+        "order" in review and ("event" in review) and ("idempot" in review or "fulfillment" in review) and
+        ("key" in review or "scope" in review or "different event" in review))
+    add("external_side_effect_crash_window",10,
+        ("inventory" in review or "external" in review) and ("crash" in review or "commit" in review) and
+        ("retry" in review or "reconcile" in review or "idempot" in review or "outbox" in review))
+    add("requests_changes",5,"verdict: request_changes" in review)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
