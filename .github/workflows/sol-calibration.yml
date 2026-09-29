@@ -1,0 +1,190 @@
+name: GPT-6 Sol effort calibration
+
+on:
+  workflow_dispatch:
+    inputs:
+      repeat:
+        description: Repeat count for each test at each reasoning effort
+        required: false
+        default: "1"
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gpt-6-sol-effort-calibration
+  cancel-in-progress: false
+
+jobs:
+  eval:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-sol-calibration]')
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - effort: medium
+            label: GPT-6 Sol Medium
+          - effort: high
+            label: GPT-6 Sol High
+          - effort: xhigh
+            label: GPT-6 Sol X High
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+      PROMPTFOO_RETRY_5XX: "true"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Validate calibration scripts
+        shell: bash
+        run: |
+          node --check scripts/build-model-config.mjs
+          node --check scripts/analyze-discrimination.mjs
+          node --check scripts/combine-results.mjs
+
+      - name: Validate API secrets
+        shell: bash
+        run: |
+          test -n "$OPENAI_API_KEY" || { echo "Missing repository secret: OPENAI_API_KEY"; exit 1; }
+          test -n "$OPENAI_BASE_URL" || { echo "Missing repository secret: OPENAI_BASE_URL"; exit 1; }
+
+      - name: Build GPT-6 Sol ${{ matrix.label }} config
+        shell: bash
+        run: |
+          mkdir -p results
+          node scripts/build-model-config.mjs \
+            "gpt-6-sol" \
+            "${{ matrix.label }}" \
+            "results/promptfoo-${{ matrix.effort }}.yaml" \
+            "${{ matrix.effort }}" \
+            "../tests/core.yaml"
+
+      - name: Run GPT-6 Sol ${{ matrix.effort }}
+        shell: bash
+        env:
+          INPUT_REPEAT: ${{ inputs.repeat }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          repeat="${INPUT_REPEAT:-1}"
+          if [[ "$COMMIT_MESSAGE" == *"[run-sol-calibration-r3]"* ]]; then
+            repeat=3
+          fi
+          echo "Calibration repeat=$repeat"
+          set +e
+          npx -y promptfoo@0.123.1 eval \
+            -c "results/promptfoo-${{ matrix.effort }}.yaml" \
+            --no-cache \
+            --no-share \
+            --repeat "$repeat" \
+            --max-concurrency 2 \
+            -o "results/gpt-6-sol-${{ matrix.effort }}.json" \
+            -o "results/gpt-6-sol-${{ matrix.effort }}.html"
+          status=$?
+          set -e
+
+          # Assertion failures are calibration data, not infrastructure failures.
+          if [ "$status" -ne 0 ] && [ "$status" -ne 100 ]; then
+            exit "$status"
+          fi
+
+      - name: Upload effort result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sol-calibration-${{ matrix.effort }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            results/gpt-6-sol-${{ matrix.effort }}.json
+            results/gpt-6-sol-${{ matrix.effort }}.html
+          if-no-files-found: warn
+          retention-days: 30
+
+  aggregate:
+    needs: eval
+    if: always() && needs.eval.result != 'skipped'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Download all Sol calibration results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sol-calibration-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: results/models
+          merge-multiple: true
+
+      - name: Build discrimination report
+        shell: bash
+        run: |
+          node scripts/combine-results.mjs results/models results/combined-results.json
+          node scripts/analyze-discrimination.mjs \
+            results/combined-results.json \
+            results/discrimination.json \
+            results/discrimination.md
+          cat results/discrimination.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload calibration report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sol-calibration-report-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            results/discrimination.json
+            results/discrimination.md
+            results/combined-results.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publish latest calibration report
+        shell: bash
+        run: |
+          cp results/discrimination.md /tmp/sol-calibration-latest.md
+          cp results/discrimination.json /tmp/sol-calibration-latest.json
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin calibration-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/calibration-results; then
+            git switch -C calibration-results origin/calibration-results
+          else
+            git switch --orphan calibration-results
+            git rm -rf .
+          fi
+
+          mkdir -p calibration/runs
+          cp /tmp/sol-calibration-latest.md calibration/latest.md
+          cp /tmp/sol-calibration-latest.json calibration/latest.json
+          cp /tmp/sol-calibration-latest.md "calibration/runs/${GITHUB_RUN_ID}.md"
+          cp /tmp/sol-calibration-latest.json "calibration/runs/${GITHUB_RUN_ID}.json"
+
+          git add calibration
+          if git diff --cached --quiet; then
+            echo "Calibration report unchanged."
+          else
+            git commit -m "Record GPT-6 Sol effort calibration ${GITHUB_RUN_ID}"
+            git push origin HEAD:calibration-results
+          fi
