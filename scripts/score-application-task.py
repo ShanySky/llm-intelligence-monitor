@@ -196,6 +196,120 @@ elif task == "hard-review":
     add("requests_changes",5,"verdict: request_changes" in review)
 
 
+
+elif task == "frontier-scheduler":
+    hidden = r'''import java.util.*;
+public final class FrontierSchedulerHiddenTest {
+  public static void main(String[] args) {
+    run("CRITICAL", FrontierSchedulerHiddenTest::criticalPath);
+    run("DEPENDENCIES", FrontierSchedulerHiddenTest::dependencies);
+    run("GPU", FrontierSchedulerHiddenTest::gpuExclusive);
+    run("TIE", FrontierSchedulerHiddenTest::tieAndInputOrder);
+    run("INVALID", FrontierSchedulerHiddenTest::invalidInputs);
+  }
+  interface Case { void run(); }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+  static Map<String,ScheduleEntry> map(List<ScheduleEntry> xs) {
+    Map<String,ScheduleEntry> m=new HashMap<>();
+    for(ScheduleEntry e:xs) {
+      if(m.put(e.id(),e)!=null) throw new AssertionError("duplicate schedule entry");
+      check(e.end()-e.start()>0);
+    }
+    return m;
+  }
+  static int makespan(List<ScheduleEntry> xs) {
+    return xs.stream().mapToInt(ScheduleEntry::end).max().orElse(0);
+  }
+  static void starts(Map<String,ScheduleEntry> m, Object... kv) {
+    for(int i=0;i<kv.length;i+=2) check(m.get((String)kv[i]).start()==(Integer)kv[i+1]);
+  }
+  static void criticalPath() {
+    Scheduler s=new Scheduler();
+    List<Task> ts=List.of(
+      new Task("A",4,List.of(),false),
+      new Task("B",4,List.of(),false),
+      new Task("Z",10,List.of(),false));
+    List<ScheduleEntry> p=s.plan(ts,2); Map<String,ScheduleEntry> m=map(p);
+    check(makespan(p)==10);
+    starts(m,"A",0,"B",4,"Z",0);
+    check(m.get("A").worker()==0);
+    check(m.get("Z").worker()==1);
+    check(m.get("B").worker()==0);
+  }
+  static void dependencies() {
+    Scheduler s=new Scheduler();
+    List<Task> ts=List.of(
+      new Task("E",5,List.of("C","D"),false),
+      new Task("C",6,List.of("B"),false),
+      new Task("A",4,List.of(),false),
+      new Task("D",3,List.of("A"),false),
+      new Task("B",2,List.of(),false));
+    List<ScheduleEntry> p=s.plan(ts,2); Map<String,ScheduleEntry> m=map(p);
+    check(makespan(p)==13);
+    starts(m,"A",0,"B",0,"C",2,"D",4,"E",8);
+  }
+  static void gpuExclusive() {
+    Scheduler s=new Scheduler();
+    List<Task> ts=List.of(
+      new Task("A",5,List.of(),true),
+      new Task("B",4,List.of(),true),
+      new Task("C",6,List.of(),false),
+      new Task("D",3,List.of("A"),false),
+      new Task("E",2,List.of("B"),false));
+    List<ScheduleEntry> p=s.plan(ts,2); Map<String,ScheduleEntry> m=map(p);
+    check(makespan(p)==11);
+    starts(m,"A",0,"B",5,"C",0,"D",6,"E",9);
+    ScheduleEntry a=m.get("A"), b=m.get("B");
+    check(a.end()<=b.start() || b.end()<=a.start());
+  }
+  static void tieAndInputOrder() {
+    Scheduler s=new Scheduler();
+    List<Task> one=List.of(
+      new Task("C",2,List.of(),false),
+      new Task("A",2,List.of(),false),
+      new Task("B",2,List.of(),false));
+    List<Task> two=List.of(
+      new Task("B",2,List.of(),false),
+      new Task("C",2,List.of(),false),
+      new Task("A",2,List.of(),false));
+    Map<String,ScheduleEntry> a=map(s.plan(one,2));
+    Map<String,ScheduleEntry> b=map(s.plan(two,2));
+    starts(a,"A",0,"B",0,"C",2);
+    starts(b,"A",0,"B",0,"C",2);
+  }
+  static void invalidInputs() {
+    Scheduler s=new Scheduler();
+    expectBad(()->s.plan(List.of(new Task("A",1,List.of("X"),false)),1));
+    expectBad(()->s.plan(List.of(new Task("A",1,List.of(),false),new Task("A",2,List.of(),false)),1));
+    expectBad(()->s.plan(List.of(new Task("A",1,List.of("B"),false),new Task("B",1,List.of("A"),false)),1));
+    expectBad(()->s.plan(List.of(new Task("A",0,List.of(),false)),1));
+    expectBad(()->s.plan(List.of(new Task("A",1,List.of(),false)),0));
+  }
+  interface Bad { void run(); }
+  static void expectBad(Bad b) {
+    boolean ok=false; try{b.run();}catch(IllegalArgumentException e){ok=true;} check(ok);
+  }
+  static void check(boolean x){if(!x) throw new AssertionError();}
+}'''
+    (root/"FrontierSchedulerHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run(["javac","-d",str(outdir),*map(str,(root/"src").glob("*.java")),str(root/"FrontierSchedulerHiddenTest.java")],capture_output=True,text=True)
+    add("compiles",10,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True); visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierSchedulerHiddenTest"],capture_output=True,text=True); hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",10,visible)
+    add("global_optimality_critical_path",25,"CRITICAL_PASS" in hidden_out)
+    add("precedence_global_optimality",20,"DEPENDENCIES_PASS" in hidden_out)
+    add("exclusive_gpu_resource",15,"GPU_PASS" in hidden_out)
+    add("deterministic_tie_break",10,"TIE_PASS" in hidden_out)
+    add("input_validation_and_cycle",10,"INVALID_PASS" in hidden_out)
+
+
 elif task == "frontier-webhook":
     hidden = r'''import java.util.concurrent.atomic.AtomicBoolean;
 public final class FrontierWebhookHiddenTest {
