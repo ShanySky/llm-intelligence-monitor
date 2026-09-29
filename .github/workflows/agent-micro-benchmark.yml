@@ -75,7 +75,7 @@ jobs:
             --ignore-user-config \
             --ignore-rules \
             --strict-config \
-            --sandbox workspace-write \
+            --sandbox danger-full-access \
             --skip-git-repo-check \
             --model gpt-6-sol \
             -c 'model_reasoning_effort="${{ matrix.effort }}"' \
@@ -86,6 +86,9 @@ jobs:
             -c 'model_providers.benchmark_proxy.wire_api="responses"' \
             -c 'model_providers.benchmark_proxy.requires_openai_auth=false' \
             -c 'model_providers.benchmark_proxy.supports_websockets=false' \
+            -c 'shell_environment_policy.inherit="core"' \
+            -c 'shell_environment_policy.ignore_default_excludes=false' \
+            -c 'shell_environment_policy.exclude=["BENCHMARK_API_KEY"]' \
             --disable apps \
             --disable plugins \
             --json \
