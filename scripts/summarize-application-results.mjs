@@ -21,17 +21,21 @@ function walk(p) {
   }
 }
 if (fs.existsSync(dir)) walk(dir);
+
 let priorRows = [];
 if (priorPath && fs.existsSync(priorPath)) {
   try { priorRows = JSON.parse(fs.readFileSync(priorPath, 'utf8'))?.rows ?? []; } catch {}
 }
-
 if (!currentRows.length && !priorRows.length) throw new Error('No application benchmark result rows found');
 
+const normalizeModel = (r) => String(r.model ?? 'unknown-model');
+const normalizeEffort = (r) => String(r.effort ?? 'unknown');
+const configKey = (r) => `${normalizeModel(r)}|${normalizeEffort(r)}`;
+
 const merged = new Map();
-for (const r of priorRows) merged.set(`${r.task}|${r.effort}`, r);
+for (const r of priorRows) merged.set(`${r.task}|${configKey(r)}`, r);
 for (const r of currentRows) {
-  const key = `${r.task}|${r.effort}`;
+  const key = `${r.task}|${configKey(r)}`;
   const prior = merged.get(key);
   const currentComplete = typeof r.data_complete === 'boolean' ? r.data_complete : !r.infrastructure_error;
   const priorComplete = prior && (typeof prior.data_complete === 'boolean' ? prior.data_complete : !prior.infrastructure_error);
@@ -39,17 +43,28 @@ for (const r of currentRows) {
 }
 const rows = [...merged.values()];
 
-const efforts = [...new Set(rows.map((r) => r.effort))].sort();
-const totalWeight = manifest.families.reduce((s, x) => s + Number(x.weight), 0);
-
 function rowDataComplete(r) {
   if (typeof r.data_complete === 'boolean') return r.data_complete;
   return !r.infrastructure_error;
 }
 
-const byEffort = {};
-for (const effort of efforts) {
-  const rs = rows.filter((r) => r.effort === effort);
+const effortRank = { low: 0, medium: 1, high: 2, xhigh: 3 };
+const configMap = new Map();
+for (const r of rows) {
+  const key = configKey(r);
+  if (!configMap.has(key)) configMap.set(key, { key, model: normalizeModel(r), effort: normalizeEffort(r) });
+}
+const configs = [...configMap.values()].sort((a, b) =>
+  a.model.localeCompare(b.model) ||
+  ((effortRank[a.effort] ?? 99) - (effortRank[b.effort] ?? 99)) ||
+  a.effort.localeCompare(b.effort)
+);
+
+const totalWeight = manifest.families.reduce((s, x) => s + Number(x.weight), 0);
+const byConfig = {};
+
+for (const cfg of configs) {
+  const rs = rows.filter((r) => configKey(r) === cfg.key);
   const valid = rs.filter(rowDataComplete);
   const completeTasks = valid.filter((r) => r.outcome === 'completed' || (!r.outcome && Number(r.agent_exit_code) === 0));
 
@@ -66,64 +81,90 @@ for (const effort of efforts) {
     validWeight += w;
   }
 
-  const allDataComplete = validWeight === totalWeight;
-  byEffort[effort] = {
-    data_complete: allDataComplete,
+  const durationSeconds = valid.reduce((s, r) => s + Number(r.duration_seconds ?? 0), 0);
+  const inputTokens = valid.reduce((s, r) => s + Number(r.usage?.input_tokens ?? 0), 0);
+  const outputTokens = valid.reduce((s, r) => s + Number(r.usage?.output_tokens ?? 0), 0);
+  const reasoningTokens = valid.reduce((s, r) => s + Number(r.usage?.reasoning_tokens ?? 0), 0);
+  const taskCount = valid.length;
+
+  byConfig[cfg.key] = {
+    model: cfg.model,
+    effort: cfg.effort,
+    data_complete: validWeight === totalWeight,
     valid_weight: validWeight,
     total_weight: totalWeight,
+    task_count: taskCount,
     quality_score: validWeight ? qualityWeighted / validWeight : null,
     practical_score: validWeight ? practicalWeighted / validWeight : null,
     budget_completion_rate: valid.length ? completeTasks.length / valid.length : null,
-    duration_seconds: valid.reduce((s, r) => s + Number(r.duration_seconds ?? 0), 0),
-    input_tokens: valid.reduce((s, r) => s + Number(r.usage?.input_tokens ?? 0), 0),
-    output_tokens: valid.reduce((s, r) => s + Number(r.usage?.output_tokens ?? 0), 0),
-    reasoning_tokens: valid.reduce((s, r) => s + Number(r.usage?.reasoning_tokens ?? 0), 0),
+    duration_seconds: durationSeconds,
+    average_duration_seconds: taskCount ? durationSeconds / taskCount : null,
+    input_tokens: inputTokens,
+    output_tokens: outputTokens,
+    reasoning_tokens: reasoningTokens,
+    average_input_tokens: taskCount ? inputTokens / taskCount : null,
+    average_reasoning_tokens: taskCount ? reasoningTokens / taskCount : null,
     api_retries: rs.reduce((s, r) => s + Number(r.api_retries ?? 0), 0),
     incomplete_tasks: rs.filter((r) => !rowDataComplete(r)).map((r) => r.task),
   };
 }
 
-const summary = { generated_at: new Date().toISOString(), manifest, rows, by_effort: byEffort };
+const uniqueModels = [...new Set(configs.map((c) => c.model))];
+const byEffort = {};
+if (uniqueModels.length === 1) {
+  for (const cfg of configs) byEffort[cfg.effort] = byConfig[cfg.key];
+}
+
+const summary = {
+  generated_at: new Date().toISOString(),
+  manifest,
+  configs,
+  rows,
+  by_config: byConfig,
+  by_effort: byEffort,
+};
 fs.mkdirSync(path.dirname(outJson), { recursive: true });
 fs.writeFileSync(outJson, JSON.stringify(summary, null, 2) + '\n');
 
 const fmt = (n) => n == null ? '-' : Number(n).toLocaleString('en-US');
 const pct = (n) => n == null ? '-' : (Number(n) * 100).toFixed(0) + '%';
-const cellFor = (family, effort) => {
-  const r = rows.find((x) => x.task === family.id && x.effort === effort);
+const cfgLabel = (cfg) => `${cfg.model} / ${cfg.effort}`;
+
+function cellFor(family, cfg) {
+  const r = rows.find((x) => x.task === family.id && configKey(x) === cfg.key);
   if (!r) return '-';
   if (!rowDataComplete(r)) return '数据不完整';
   const outcome = r.outcome === 'model_timeout' ? '超时' : '完成';
   return `${Number(r.score).toFixed(0)} / ${outcome} / ${Number(r.duration_seconds ?? 0)}s`;
-};
+}
 
 const lines = [
   '# Application Benchmark',
   '',
-  '| Task | Family | Weight | ' + efforts.join(' | ') + ' |',
-  '|---|---|---:|' + efforts.map(() => '---').join('|') + '|',
+  '| Task | Family | Weight | ' + configs.map(cfgLabel).join(' | ') + ' |',
+  '|---|---|---:|' + configs.map(() => '---').join('|') + '|',
 ];
 for (const family of manifest.families) {
-  lines.push(`| ${family.id} | ${family.family} | ${family.weight} | ${efforts.map((e) => cellFor(family, e)).join(' | ')} |`);
+  lines.push(`| ${family.id} | ${family.family} | ${family.weight} | ${configs.map((c) => cellFor(family, c)).join(' | ')} |`);
 }
 
 lines.push(
   '',
   '## Overall',
   '',
-  '| Effort | Quality | Budget completion | Practical score | Runtime | Input tokens | Reasoning tokens | Data |',
-  '|---|---:|---:|---:|---:|---:|---:|---|',
+  '| Model | Effort | Quality | Budget completion | Practical | Runtime | Avg/task | Input tokens | Reasoning tokens | Data |',
+  '|---|---|---:|---:|---:|---:|---:|---:|---:|---|',
 );
-for (const effort of efforts) {
-  const s = byEffort[effort];
+for (const cfg of configs) {
+  const s = byConfig[cfg.key];
   lines.push(
-    `| ${effort} | ${s.quality_score == null ? '-' : s.quality_score.toFixed(1)} | ${pct(s.budget_completion_rate)} | ${s.practical_score == null ? '-' : s.practical_score.toFixed(1)} | ${s.duration_seconds}s | ${fmt(s.input_tokens)} | ${fmt(s.reasoning_tokens)} | ${s.data_complete ? '完整' : '不完整：' + s.incomplete_tasks.join(', ')} |`
+    `| ${cfg.model} | ${cfg.effort} | ${s.quality_score == null ? '-' : s.quality_score.toFixed(1)} | ${pct(s.budget_completion_rate)} | ${s.practical_score == null ? '-' : s.practical_score.toFixed(1)} | ${s.duration_seconds}s | ${s.average_duration_seconds == null ? '-' : s.average_duration_seconds.toFixed(0) + 's'} | ${fmt(s.input_tokens)} | ${fmt(s.reasoning_tokens)} | ${s.data_complete ? '完整' : '不完整：' + s.incomplete_tasks.join(', ')} |`
   );
 }
 
 lines.push(
   '',
-  '> Quality = hidden-checkpoint score. Practical score = 85% quality + 15% budget-completion reliability. Infrastructure/API failures are marked incomplete and excluded instead of being scored as model failures.',
+  '> Quality = hidden-checkpoint score. Practical = 85% quality + 15% budget-completion reliability. Runtime and token usage are reported separately and are not silently folded into intelligence quality. Infrastructure/API failures are marked incomplete instead of being scored as model failures.',
   ''
 );
 
