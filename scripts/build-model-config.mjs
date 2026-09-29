@@ -4,9 +4,10 @@ const model = process.argv[2];
 const label = process.argv[3];
 const out = process.argv[4] ?? 'results/promptfoo-model.yaml';
 const effort = process.argv[5] ?? 'xhigh';
+const testFile = process.argv[6] ?? '../tests/selected.yaml';
 
 if (!model || !label) {
-  throw new Error('Usage: node scripts/build-model-config.mjs <model> <label> [output] [effort]');
+  throw new Error('Usage: node scripts/build-model-config.mjs <model> <label> [output] [effort] [testFile]');
 }
 if (!['low', 'medium', 'high', 'xhigh'].includes(effort)) {
   throw new Error(`Unsupported reasoning effort: ${effort}`);
@@ -29,7 +30,7 @@ providers:
       maxRetries: 1
 
 tests:
-  - file://../tests/selected.yaml
+  - file://${testFile}
 
 sharing: false
 
@@ -41,4 +42,4 @@ evaluateOptions:
 
 fs.mkdirSync('results', { recursive: true });
 fs.writeFileSync(out, yaml);
-console.log(`Generated ${out} for ${label} (${model}, ${effort})`);
+console.log(`Generated ${out} for ${label} (${model}, ${effort}) using ${testFile}`);
