@@ -9,3 +9,4 @@ Hard application sweep: AH01-AH04, Medium vs X High.
 Executable micro-repo coding benchmark prototype.
 Executable micro-repo auth smoke: Medium only.
 Executable micro-repo shell smoke: Medium only, secret-filtered.
+Executable micro-repo comparison: X High only.
