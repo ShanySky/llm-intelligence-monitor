@@ -1,0 +1,199 @@
+name: Application benchmark calibration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: application-benchmark-calibration
+  cancel-in-progress: false
+
+jobs:
+  eval:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-app-calibration]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        task: [micro-plan, micro-export, micro-review, micro-incident]
+        effort: [medium, xhigh]
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Set up Java 17
+        if: matrix.task == 'micro-export'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare isolated task
+        shell: bash
+        run: |
+          TASK_DIR="/tmp/app-${{ matrix.task }}-${{ matrix.effort }}"
+          rm -rf "$TASK_DIR"
+          mkdir -p "$TASK_DIR"
+          cp -R "benchmarks/${{ matrix.task }}/workspace/." "$TASK_DIR/"
+          if [ -f "$TASK_DIR/ctl" ]; then chmod +x "$TASK_DIR/ctl"; fi
+          if [ -f "$TASK_DIR/run_visible_tests.sh" ]; then
+            chmod +x "$TASK_DIR/run_visible_tests.sh"
+            (cd "$TASK_DIR" && ./run_visible_tests.sh)
+          fi
+          echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
+
+      - name: Run lightweight agent
+        id: agent
+        shell: bash
+        run: |
+          start="$(date +%s)"
+          set +e
+          timeout 480s node scripts/light-agent-runner.mjs \
+            "$TASK_DIR" \
+            "gpt-6-sol" \
+            "${{ matrix.effort }}" \
+            "$TASK_DIR/light-agent-result.json"
+          status=$?
+          set -e
+          end="$(date +%s)"
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          echo "wall_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+
+      - name: Score hidden checkpoints
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p result
+          python scripts/score-application-task.py \
+            "${{ matrix.task }}" \
+            "$TASK_DIR" \
+            "$TASK_DIR/score.json"
+
+          python - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+
+          root = Path(os.environ["TASK_DIR"])
+          score = json.loads((root / "score.json").read_text())
+          runner_path = root / "light-agent-result.json"
+          runner = json.loads(runner_path.read_text()) if runner_path.exists() else {}
+
+          result = {
+              "task": "${{ matrix.task }}",
+              "model": "gpt-6-sol",
+              "effort": "${{ matrix.effort }}",
+              "score": score["score"],
+              "checks": score["checks"],
+              "duration_seconds": runner.get("duration_seconds", 480),
+              "shell_commands": runner.get("shell_commands", 0),
+              "usage": runner.get("usage", {}),
+              "agent_exit_code": int("${{ steps.agent.outputs.exit_code || '999' }}"),
+          }
+          Path("result/result.json").write_text(json.dumps(result, indent=2) + "\n")
+          if runner_path.exists():
+              shutil.copy2(runner_path, "result/light-agent-result.json")
+          if (root / "src").exists():
+              shutil.copytree(root / "src", "result/final-src", dirs_exist_ok=True)
+          for name in ["plan.json", "REVIEW.md", "REPORT.txt", ".actions"]:
+              p = root / name
+              if p.exists():
+                  shutil.copy2(p, "result/" + name.replace("/", "_"))
+          print(json.dumps(result, indent=2))
+          PY
+
+      - name: Upload task result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-bench-${{ matrix.task }}-${{ matrix.effort }}-${{ github.run_id }}
+          path: result/
+          if-no-files-found: warn
+          retention-days: 30
+
+  aggregate:
+    needs: eval
+    if: always() && needs.eval.result != 'skipped'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Download all task results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: app-bench-*-${{ github.run_id }}
+          path: results/application
+          merge-multiple: false
+
+      - name: Build application benchmark summary
+        shell: bash
+        run: |
+          node scripts/summarize-application-results.mjs \
+            results/application \
+            benchmarks/application-suite.json \
+            results/application-summary.json \
+            results/application-summary.md
+          cat results/application-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-benchmark-summary-${{ github.run_id }}
+          path: |
+            results/application-summary.json
+            results/application-summary.md
+          retention-days: 30
+
+      - name: Publish latest application calibration
+        shell: bash
+        run: |
+          cp results/application-summary.md /tmp/application-latest.md
+          cp results/application-summary.json /tmp/application-latest.json
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin application-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/application-results; then
+            git switch -C application-results origin/application-results
+          else
+            git switch --orphan application-results
+            git rm -rf --ignore-unmatch .
+          fi
+
+          mkdir -p application/runs
+          cp /tmp/application-latest.md application/latest.md
+          cp /tmp/application-latest.json application/latest.json
+          cp /tmp/application-latest.md "application/runs/${GITHUB_RUN_ID}.md"
+          cp /tmp/application-latest.json "application/runs/${GITHUB_RUN_ID}.json"
+
+          git add application
+          if git diff --cached --quiet; then
+            echo "Application result unchanged."
+          else
+            git commit -m "Record application benchmark ${GITHUB_RUN_ID}"
+            git push origin HEAD:application-results
+          fi
