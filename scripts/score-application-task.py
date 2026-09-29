@@ -194,6 +194,93 @@ elif task == "hard-review":
     add("after_commit_or_outbox_direction",15,("after commit" in review or "after_commit" in review or "outbox" in review or "transactional event" in review))
     add("requests_changes",5,"verdict: request_changes" in review)
 
+
+elif task == "frontier-webhook":
+    hidden = r'''import java.util.concurrent.atomic.AtomicBoolean;
+public final class FrontierWebhookHiddenTest {
+  public static void main(String[] args) {
+    run("SAME", FrontierWebhookHiddenTest::sameEvent);
+    run("ORDER", FrontierWebhookHiddenTest::differentEventSameOrder);
+    run("CRASH", FrontierWebhookHiddenTest::crashRetry);
+    run("CONCURRENT", FrontierWebhookHiddenTest::concurrentPaid);
+    run("CANCEL", FrontierWebhookHiddenTest::cancelRelease);
+    run("STALE", FrontierWebhookHiddenTest::stalePaidAfterCancel);
+    run("REPAID", FrontierWebhookHiddenTest::newerPaidAfterCancel);
+  }
+  interface Case { void run() throws Exception; }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+  static WebhookService service(EventLog e,FulfillmentRepo f,OrderStateRepo s,InventoryClient i,FailureInjector x) {
+    return new WebhookService(e,f,s,i,x);
+  }
+  static void sameEvent() {
+    EventLog e=new EventLog(); FulfillmentRepo f=new FulfillmentRepo(); OrderStateRepo st=new OrderStateRepo(); InventoryClient i=new InventoryClient();
+    WebhookService s=service(e,f,st,i,FailureInjector.none());
+    s.paid("evt-a","order-1",1); s.paid("evt-a","order-1",1);
+    check(e.size()==1); check(i.reservationCount()==1); check("PAID".equals(st.get("order-1").status));
+  }
+  static void differentEventSameOrder() {
+    EventLog e=new EventLog(); FulfillmentRepo f=new FulfillmentRepo(); OrderStateRepo st=new OrderStateRepo(); InventoryClient i=new InventoryClient();
+    WebhookService s=service(e,f,st,i,FailureInjector.none());
+    s.paid("evt-a","order-2",1); s.paid("evt-b","order-2",1);
+    check(e.size()==2); check(i.reservationCount()==1); check("PAID".equals(st.get("order-2").status));
+  }
+  static void crashRetry() {
+    EventLog e=new EventLog(); FulfillmentRepo f=new FulfillmentRepo(); OrderStateRepo st=new OrderStateRepo(); InventoryClient i=new InventoryClient(); AtomicBoolean once=new AtomicBoolean(true);
+    WebhookService s=service(e,f,st,i,id->{if(once.getAndSet(false)) throw new RuntimeException("crash");});
+    try{s.paid("evt-x","order-3",2);}catch(RuntimeException expected){}
+    check(i.reservationCount()==1);
+    s.paid("evt-x","order-3",2);
+    check(i.reservationCount()==1); check("PAID".equals(st.get("order-3").status));
+    Fulfillment row=f.get("order-3"); check(row!=null && row.completed && row.reservationKey!=null);
+  }
+  static void concurrentPaid() throws Exception {
+    EventLog e=new EventLog(); FulfillmentRepo f=new FulfillmentRepo(); OrderStateRepo st=new OrderStateRepo(); InventoryClient i=new InventoryClient();
+    WebhookService s=service(e,f,st,i,FailureInjector.none());
+    Thread a=new Thread(()->s.paid("evt-c1","order-4",5));
+    Thread b=new Thread(()->s.paid("evt-c2","order-4",5));
+    a.start(); b.start(); a.join(); b.join();
+    check(i.reservationCount()==1); check("PAID".equals(st.get("order-4").status));
+  }
+  static void cancelRelease() {
+    EventLog e=new EventLog(); FulfillmentRepo f=new FulfillmentRepo(); OrderStateRepo st=new OrderStateRepo(); InventoryClient i=new InventoryClient();
+    WebhookService s=service(e,f,st,i,FailureInjector.none());
+    s.paid("evt-p","order-5",2); s.cancelled("evt-c","order-5",3);
+    check(i.reservationCount()==0); check("CANCELLED".equals(st.get("order-5").status)); check(st.get("order-5").version==3);
+  }
+  static void stalePaidAfterCancel() {
+    EventLog e=new EventLog(); FulfillmentRepo f=new FulfillmentRepo(); OrderStateRepo st=new OrderStateRepo(); InventoryClient i=new InventoryClient();
+    WebhookService s=service(e,f,st,i,FailureInjector.none());
+    s.paid("evt-p","order-6",2); s.cancelled("evt-c","order-6",4); s.paid("evt-stale","order-6",3);
+    check(i.reservationCount()==0); check("CANCELLED".equals(st.get("order-6").status)); check(st.get("order-6").version==4);
+  }
+  static void newerPaidAfterCancel() {
+    EventLog e=new EventLog(); FulfillmentRepo f=new FulfillmentRepo(); OrderStateRepo st=new OrderStateRepo(); InventoryClient i=new InventoryClient();
+    WebhookService s=service(e,f,st,i,FailureInjector.none());
+    s.paid("evt-p","order-7",2); s.cancelled("evt-c","order-7",3); s.paid("evt-p2","order-7",4);
+    check(i.reservationCount()==1); check("PAID".equals(st.get("order-7").status)); check(st.get("order-7").version==4);
+  }
+  static void check(boolean x){if(!x) throw new AssertionError();}
+}'''
+    (root/"FrontierWebhookHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run(["javac","-d",str(outdir),*map(str,(root/"src").glob("*.java")),str(root/"FrontierWebhookHiddenTest.java")],capture_output=True,text=True)
+    add("compiles",5,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True); visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierWebhookHiddenTest"],capture_output=True,text=True); hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",5,visible)
+    add("same_event_duplicate",10,"SAME_PASS" in hidden_out)
+    add("different_event_same_order",15,"ORDER_PASS" in hidden_out)
+    add("post_reserve_crash_retry",20,"CRASH_PASS" in hidden_out)
+    add("concurrent_same_order",20,"CONCURRENT_PASS" in hidden_out)
+    add("newer_cancel_releases",10,"CANCEL_PASS" in hidden_out)
+    add("stale_paid_ignored",10,"STALE_PASS" in hidden_out)
+    add("newer_paid_reactivates",5,"REPAID_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
