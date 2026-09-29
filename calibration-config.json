@@ -2,9 +2,9 @@
   "solExploration": {
     "language": "en",
     "repeat": 3,
+    "efforts": ["high"],
     "pairIds": [
-      "H05",
-      "S01"
+      "H05"
     ]
   }
 }
