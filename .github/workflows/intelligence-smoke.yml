@@ -88,7 +88,7 @@ jobs:
 
   eval:
     needs: prepare
-    if: needs.prepare.result == 'success' && (github.event_name != 'push' || contains(github.event.head_commit.message, '[run-smoke]') || contains(github.event.head_commit.message, '[run-model:') || contains(github.event.head_commit.message, '[run-high]'))
+    if: needs.prepare.result == 'success' && (github.event_name != 'push' || contains(github.event.head_commit.message, '[run-smoke]') || contains(github.event.head_commit.message, '[run-model:') || contains(github.event.head_commit.message, '[run-high]') || contains(github.event.head_commit.message, '[run-medium]'))
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -143,7 +143,7 @@ jobs:
               done
             fi
           elif [ "$EVENT_NAME" = "push" ]; then
-            if [[ "$COMMIT_MESSAGE" == *"[run-smoke]"* ]] || [[ "$COMMIT_MESSAGE" == *"[run-model:all]"* ]] || [[ "$COMMIT_MESSAGE" == *"[run-high]"* ]]; then
+            if [[ "$COMMIT_MESSAGE" == *"[run-smoke]"* ]] || [[ "$COMMIT_MESSAGE" == *"[run-model:all]"* ]] || [[ "$COMMIT_MESSAGE" == *"[run-high]"* ]] || [[ "$COMMIT_MESSAGE" == *"[run-medium]"* ]]; then
               enabled=true
             elif [[ "$COMMIT_MESSAGE" == *"[run-model:"* ]]; then
               requested="$(printf '%s' "$COMMIT_MESSAGE" | sed -n 's/.*\[run-model:\([^]]*\)\].*/\1/p')"
@@ -199,6 +199,9 @@ jobs:
           if [ "${{ github.event_name }}" = "push" ] && [[ "${{ github.event.head_commit.message }}" == *"[run-high]"* ]]; then
             effort="high"
             label="${label/X High/High}"
+          elif [ "${{ github.event_name }}" = "push" ] && [[ "${{ github.event.head_commit.message }}" == *"[run-medium]"* ]]; then
+            effort="medium"
+            label="${label/X High/Medium}"
           fi
           echo "EVAL_REASONING_EFFORT=$effort" >> "$GITHUB_ENV"
           echo "EVAL_LABEL=$label" >> "$GITHUB_ENV"
