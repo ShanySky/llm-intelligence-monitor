@@ -188,10 +188,11 @@ elif task == "hard-review":
     review=text("REVIEW.md").lower()
     add("self_invocation_async",15,("self-invocation" in review or "self invocation" in review or "proxy" in review) and "async" in review)
     add("cache_before_commit",15,"cache" in review and "commit" in review and ("stale" in review or "repopulate" in review or "before" in review))
-    add("async_visibility_race",15,"async" in review and "commit" in review and ("race" in review or "visibility" in review or "uncommitted" in review))
     add("order_scoped_inventory_idempotency",20,("order" in review and "idempot" in review) and ("event" in review or "different event" in review))
-    add("random_audit_id_breaks_retry",15,("uuid" in review or "random" in review) and ("audit" in review or "retry" in review or "idempot" in review))
-    add("after_commit_or_outbox_direction",15,("after commit" in review or "after_commit" in review or "outbox" in review or "transactional event" in review))
+    add("random_audit_id_breaks_retry",15,("uuid" in review or "random" in review or "stable" in review) and ("audit" in review or "retry" in review or "idempot" in review))
+    durable=("outbox" in review or "durable handoff" in review or "persist fulfillment" in review or "persist a" in review)
+    after_commit=("after commit" in review or "after_commit" in review or "same transaction" in review or "transactionally" in review)
+    add("durable_after_commit_handoff",30,durable and after_commit)
     add("requests_changes",5,"verdict: request_changes" in review)
 
 
