@@ -40,7 +40,8 @@ jobs:
           const c=require('./benchmarks/real-repo-replay/config.json');
           const cases=[];
           let ok=true;
-          for(const item of c.cases){
+          const references=[...(c.cases??[]),...(c.backup_cases??[])];
+          for(const item of references){
             const row={id:item.id,target_sha:item.target_sha,behavior_score:null,error:null};
             try{
               const dir='/tmp/replay-reference-'+item.id;
