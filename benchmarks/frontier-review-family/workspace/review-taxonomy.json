@@ -1,0 +1,16 @@
+{
+  "failure_classes": [
+    "ignored_write_result",
+    "transaction_visibility",
+    "payload_snapshot",
+    "retry_idempotency",
+    "business_identity_scope",
+    "external_effect_recovery",
+    "lock_order",
+    "stale_lease_fencing",
+    "pagination_stability",
+    "cache_identity_scope",
+    "cache_staleness",
+    "lost_update"
+  ]
+}
