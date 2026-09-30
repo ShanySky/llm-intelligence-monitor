@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-09-30T02:05:30.274Z",
+  "task": "staged-identity-evolution",
+  "model": "gpt-6-luna",
+  "trial_count": 1,
+  "by_effort": {
+    "high": {
+      "effort": "high",
+      "trials": 1,
+      "expected_trials": 1,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 144,
+      "shell_commands": 16,
+      "total_tokens": 77074,
+      "reasoning_tokens": 1376,
+      "saturated": false,
+      "data_complete": true
+    }
+  },
+  "effort_spread_points": 0,
+  "medium_to_xhigh": null,
+  "nonmonotonic": null
+}

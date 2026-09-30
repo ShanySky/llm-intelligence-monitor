@@ -1,0 +1,130 @@
+{
+  "generated_at": "2026-09-30T02:05:30.246Z",
+  "rows": [
+    {
+      "task": "staged-identity-evolution",
+      "score_task": "staged-identity-evolution",
+      "trial": 1,
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 5,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 5,
+          "passed": true
+        },
+        "stage1_legacy_key_stable_and_persisted": {
+          "points": 15,
+          "passed": true
+        },
+        "stage1_concurrent_assignment_single_key": {
+          "points": 10,
+          "passed": true
+        },
+        "stage1_assigned_key_never_rotates": {
+          "points": 10,
+          "passed": true
+        },
+        "stage1_v1_update_preserves_key": {
+          "points": 5,
+          "passed": true
+        },
+        "stage2_rest_additive_contract": {
+          "points": 8,
+          "passed": true
+        },
+        "stage2_jwt_additive_contract": {
+          "points": 7,
+          "passed": true
+        },
+        "stage2_kafka_additive_contract": {
+          "points": 10,
+          "passed": true
+        },
+        "stage3_cache_legacy_fallback": {
+          "points": 10,
+          "passed": true
+        },
+        "stage3_cache_v2_preference": {
+          "points": 5,
+          "passed": true
+        },
+        "stage3_dual_namespace_invalidation": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 144,
+      "responses": 16,
+      "shell_commands": 16,
+      "shell_budget": 60,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "stages": [
+        {
+          "stage": "TASK.md",
+          "index": 1,
+          "revealed_assets": [],
+          "duration_seconds": 60,
+          "responses": 6,
+          "max_turns": 20,
+          "turn_limit_reached": false,
+          "shell_commands": 6,
+          "finished_with_message": true,
+          "final_text": "Implemented the Stage 1 repair: legacy customer keys are generated once and stored, and subsequent v1/v2 writes preserve an already-assigned key. Customer key and name updates are synchronized for mixed traffic; the v2 key accessor also resolves keys for legacy customers.\n\nValidation passed: `./run_visible_tests.sh` (`VISIBLE_TEST_PASS`)."
+        },
+        {
+          "stage": "STAGE2.md",
+          "index": 2,
+          "revealed_assets": [
+            "evidence/partner-validation.log",
+            "run_stage2_checks.sh",
+            "src/JwtContract.java",
+            "src/KafkaContract.java",
+            "src/PartnerCompatibilityProbe.java",
+            "src/RestContract.java"
+          ],
+          "duration_seconds": 43,
+          "responses": 6,
+          "max_turns": 20,
+          "turn_limit_reached": false,
+          "shell_commands": 6,
+          "finished_with_message": true,
+          "final_text": "Reproduced the partner compatibility failure: REST, JWT, and Kafka emitted `customer_key` but omitted the legacy `customer_id` field. Updated each contract to include the numeric ID while retaining the stable customer key.\n\nBoth checks pass:\n- `bash ./run_stage2_checks.sh` — `VISIBLE_TEST_PASS`, `PARTNER_COMPATIBILITY_PASS`\n- `./run_visible_tests.sh` — `VISIBLE_TEST_PASS`\n\nThe Stage 2 script is not executable in the workspace, so I ran it with `bash`."
+        },
+        {
+          "stage": "STAGE3.md",
+          "index": 3,
+          "revealed_assets": [
+            "evidence/cache-validation.log",
+            "run_stage3_checks.sh",
+            "src/CacheCompatibilityProbe.java",
+            "src/CustomerCache.java"
+          ],
+          "duration_seconds": 41,
+          "responses": 4,
+          "max_turns": 20,
+          "turn_limit_reached": false,
+          "shell_commands": 4,
+          "finished_with_message": true,
+          "final_text": "Reproduced the Stage 3 failure: compatible reads checked only the v2 cache key, so they missed legacy entries. Invalidation removed only the numeric-ID entry, leaving stale v2 entries behind.\n\nUpdated compatible reads to prefer the v2 value and fall back to the legacy value. Legacy invalidation now removes both aliases for the supplied identity; it does not flush the cache.\n\nBoth required checks pass:\n- `bash ./run_stage3_checks.sh` — all Stage 3 probes passed.\n- `./run_visible_tests.sh` — `VISIBLE_TEST_PASS`."
+        }
+      ],
+      "usage": {
+        "input_tokens": 73678,
+        "output_tokens": 3396,
+        "reasoning_tokens": 1376,
+        "cached_input_tokens": 50688
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    }
+  ]
+}
