@@ -14,10 +14,10 @@ public final class PriceService {
     @Transactional
     public void changePrice(long id, long expectedVersion, BigDecimal newPrice) {
         if (!repo.updateIfVersion(id, expectedVersion, newPrice)) return;
-        long committedVersion = expectedVersion + 1;
-        TransactionHooks.afterCommit(() -> {
-            cache.evict(id);
-            audits.enqueue(new AuditWork(id, committedVersion, newPrice));
-        });
+        long version = expectedVersion + 1;
+        // A cache miss may repopulate from the still-committed old row while the
+        // transaction is open. Evict only after commit, so that value cannot survive.
+        TransactionHooks.afterCommit(() -> cache.evict(id));
+        TransactionHooks.afterCommit(() -> audits.enqueue(new AuditWork(id, version, newPrice)));
     }
 }

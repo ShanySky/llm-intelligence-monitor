@@ -1,3 +1,4 @@
+
 public final class AuditWorker {
     private final ProductRepository repo;
     private final AuditSink sink;
@@ -8,14 +9,11 @@ public final class AuditWorker {
     }
 
     public void deliver(AuditWork work) {
-        // A work item is an immutable snapshot of the accepted write. Looking up the
-        // current row here can report a later price (or fail after product deletion).
+        // AuditWork carries the accepted value: looking up the current row here
+        // would report a later version when delivery is delayed.
         java.math.BigDecimal price = work.price();
-        if (price == null) {
-            ProductSnapshot snapshot = repo.find(work.productId());
-            price = snapshot.price();
-        }
+        if (price == null) price = repo.find(work.productId()).price();
         sink.send("product:" + work.productId() + ":version:" + work.version(),
-                  work.productId(), work.version(), price);
+            work.productId(), work.version(), price);
     }
 }

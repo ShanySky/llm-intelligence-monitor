@@ -16,11 +16,15 @@ public final class ReservationMover {
     private void withPair(long first, long second) throws Exception {
         long low = Math.min(first, second);
         long high = Math.max(first, second);
-        if (low == high) {
-            try (AutoCloseable ignored = locks.lock(low)) { /* operation */ }
-        } else {
-            try (AutoCloseable a = locks.lock(low);
-                 AutoCloseable b = locks.lock(high)) { /* operation */ }
+        // Avoid acquiring a non-reentrant lock twice for a same-account pair.
+        try (var a = locks.lock(low)) {
+            if (low == high) {
+                // operation is intentionally within the one acquired account lock
+                return;
+            }
+            try (var b = locks.lock(high)) {
+                // move/cancel operation runs while both canonical locks are held
+            }
         }
     }
 }

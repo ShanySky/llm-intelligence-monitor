@@ -20,31 +20,31 @@ public final class WebhookService {
     }
 
     @Transactional
-    public synchronized void paid(String eventId, String orderId, long version) {
-        // Event recording is idempotent, but a previously recorded event must not
-        // suppress recovery of fulfillment after a crash.
-        synchronized (events) {
-            if (!events.exists(eventId)) events.insert(eventId);
-        }
+    public void paid(String eventId, String orderId, long version) {
+        // Event receipt is not proof that fulfillment completed: the process may
+        // have failed after recording the event or after the external reservation.
+        if (!events.exists(eventId)) events.insert(eventId);
 
         OrderState state = states.getOrCreate(orderId);
-        synchronized (state) {
-            if (version < state.version) return;
-            if (version > state.version) {
-                state.version = version;
-                state.status = "PAID";
-            }
-
-            // Fulfillment is per order, not per provider delivery. The stable key
-            // lets inventory deduplicate retries even if the process dies after reserve.
-            Fulfillment f = fulfillments.findOrCreate(orderId, orderId);
-            synchronized (f) {
-                if (f.completed) return;
-                String key = inventory.reserve(orderId, "order:" + orderId);
-                failure.afterReserve(orderId);
-                f.reservationKey = key;
-                f.completed = true;
-            }
+        // Out-of-order events must not roll the order back. Equal versions can
+        // still need to resume fulfillment after a prior partial failure.
+        if (version < state.version) return;
+        if (version > state.version) {
+            state.version = version;
+            state.status = "PAID";
         }
+
+        String operationKey = "order:" + orderId + ":version:" + version;
+        Fulfillment f = fulfillments.findOrCreate(operationKey, orderId);
+        if (f.completed) return;
+
+        // The operation key is stable across provider event IDs and retries;
+        // this is essential when reserve succeeded but local completion did not.
+        String key = "fulfillment:" + orderId + ":version:" + version;
+        String reservation = inventory.reserve(orderId, key);
+        failure.afterReserve(orderId);
+
+        f.reservationKey = reservation;
+        f.completed = true;
     }
 }
