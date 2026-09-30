@@ -68,3 +68,4 @@ Fixed hard external debugging verifier.
 Frontier key rotation Luna screen.
 Deep cross-file review Sol Medium High X High calibration.
 Frontier key rotation Sol Medium cross-check.
+Deep review Sol effort calibration rerun.
