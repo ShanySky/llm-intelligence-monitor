@@ -27,6 +27,26 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - name: Validate frontier funnel eligibility
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const target=require('./benchmarks/frontier-effort-target.json');
+          let registry={tasks:[]};
+          try { registry=JSON.parse(fs.readFileSync('./benchmarks/frontier-registry.json','utf8')); } catch {}
+          const item=(registry.tasks||[]).find(x=>x.id===target.task);
+          const blocked=new Set(['coverage-only-ceiling','invalid-or-superseded','retired']);
+          if (item && blocked.has(item.status) && target.force !== true) {
+            console.error(
+              'Refusing expensive effort calibration for '+target.task+
+              ' because registry status is '+item.status+
+              '. Set "force": true in frontier-effort-target.json only for an intentional revalidation.'
+            );
+            process.exit(2);
+          }
+          console.log('Frontier funnel eligibility OK for '+target.task+(item?' ('+item.status+')':' (unregistered candidate)'));
+          NODE
       - name: Load effort matrix
         id: matrix
         shell: bash
