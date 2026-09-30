@@ -2023,6 +2023,39 @@ elif task == "frontier-dynamic-diagnosis":
     add("causal_evidence_a",10,bool(evidence[0][1]))
     add("causal_evidence_b",10,bool(evidence[1][1]))
 
+
+elif task == "frontier-fullstack-autosave":
+    validator=Path(__file__).resolve().parent/"validators"/"frontier-fullstack-autosave.py"
+    result={}
+    try:
+        vr=subprocess.run(
+            ["python",str(validator),str(root),"--json"],
+            capture_output=True,text=True,timeout=30
+        )
+        result=json.loads(vr.stdout)
+    except Exception:
+        result={}
+
+    runner={}
+    try:
+        runner=json.loads((root/"light-agent-result.json").read_text())
+    except Exception:
+        runner={}
+    queries=[str(x).strip().lower() for x in runner.get("probe_executed_queries", runner.get("probe_queries",[]))]
+    runtime_evidence=(
+        any(("timeout" in q or "retry" in q) for q in queries)
+        and any(("conflict" in q or "409" in q or "concurrent" in q) for q in queries)
+    )
+
+    add("syntax_valid",5,bool(result.get("syntax")))
+    add("visible_regression",5,bool(result.get("visible")))
+    add("timeout_retry_converges_once",25,bool(result.get("timeout")))
+    add("version_conflict_does_not_overwrite",20,bool(result.get("conflict")))
+    add("local_editor_state_waits_for_confirmed_result",10,bool(result.get("state")))
+    add("backend_same_operation_recovers_after_commit_timeout",20,bool(result.get("backend_retry")))
+    add("separate_user_edits_remain_distinct",10,bool(result.get("separate")))
+    add("investigated_both_runtime_failure_domains",5,runtime_evidence)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
