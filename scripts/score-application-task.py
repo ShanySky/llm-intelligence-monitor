@@ -2422,8 +2422,15 @@ elif task == "frontier-review-family":
 
     add("valid_findings_json",5,valid)
 
-    m=re.search(r"-t(\d+)(?:$|[^0-9])",root.name)
-    variant=int(m.group(1)) if m else 1
+    marker=root/".frontier-variant"
+    if marker.exists():
+        try:
+            variant=int(marker.read_text().strip())
+        except Exception:
+            variant=1
+    else:
+        m=re.search(r"-t(\d+)(?:$|[^0-9])",root.name)
+        variant=int(m.group(1)) if m else 1
     expected_by_variant={
       1:{
         ("PriceService.java","ignored_write_result"):15,
