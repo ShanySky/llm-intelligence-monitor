@@ -353,6 +353,24 @@
         "shell_commands": 15
       },
       "note": "Three genuinely progressive stages with hidden future assets still saturated on Luna High; do not add more stages as a difficulty mechanism."
+    },
+    {
+      "id": "hard-incident",
+      "family": "agent_tool_use",
+      "status": "model-discriminator-confirmed",
+      "promoted_to_final": true,
+      "evidence": {
+        "repeated_cross_model_xhigh_means": {
+          "gpt-5.6-sol": 85,
+          "gpt-6-astra": 100,
+          "gpt-6-luna": 100,
+          "gpt-6-sol": 100
+        },
+        "model_spread_points": 15,
+        "cross_model_stable": true,
+        "max_score_stddev": 5
+      },
+      "note": "Promoted from candidate to core after two-trial cross-model validation."
     }
   ]
 }
