@@ -1,0 +1,63 @@
+{
+  "task": "hard-incident",
+  "configs": [
+    {
+      "key": "gpt-5.6-sol|xhigh",
+      "model": "gpt-5.6-sol",
+      "effort": "xhigh",
+      "trials": 2,
+      "scores": [
+        80.0,
+        90.0
+      ],
+      "mean_score": 85.0,
+      "stddev_score": 5.0,
+      "average_duration_seconds": 72.0,
+      "average_total_tokens": 14128.5
+    },
+    {
+      "key": "gpt-6-astra|xhigh",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "trials": 2,
+      "scores": [
+        100.0,
+        100.0
+      ],
+      "mean_score": 100.0,
+      "stddev_score": 0.0,
+      "average_duration_seconds": 65.5,
+      "average_total_tokens": 10068.0
+    },
+    {
+      "key": "gpt-6-luna|xhigh",
+      "model": "gpt-6-luna",
+      "effort": "xhigh",
+      "trials": 2,
+      "scores": [
+        100.0,
+        100.0
+      ],
+      "mean_score": 100.0,
+      "stddev_score": 0.0,
+      "average_duration_seconds": 43.0,
+      "average_total_tokens": 8250.5
+    },
+    {
+      "key": "gpt-6-sol|xhigh",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "trials": 2,
+      "scores": [
+        100.0,
+        100.0
+      ],
+      "mean_score": 100.0,
+      "stddev_score": 0.0,
+      "average_duration_seconds": 41.0,
+      "average_total_tokens": 7762.0
+    }
+  ],
+  "model_spread_points": 15.0,
+  "all_stable": true
+}
