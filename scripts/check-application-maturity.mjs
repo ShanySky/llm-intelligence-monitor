@@ -63,8 +63,10 @@ const confirmedModelTasks=(registry.tasks??[]).filter(x=>
   x.promoted_to_final &&
   ['model-discriminator-confirmed','model+effort-discriminator-confirmed'].includes(x.status)
 ).map(x=>x.id);
+const residentSolModel=registry.resident_model_epoch?.resident_sol_model ?? null;
 const confirmedEffortTasks=(registry.tasks??[]).filter(x=>
-  ['effort-discriminator-confirmed','model+effort-discriminator-confirmed','effort-sensitivity-confirmed'].includes(x.status)
+  ['effort-discriminator-confirmed','model+effort-discriminator-confirmed','effort-sensitivity-confirmed'].includes(x.status) &&
+  (!residentSolModel || x?.evidence?.resident_sol_model===residentSolModel)
 ).map(x=>x.id);
 
 const checks={
@@ -89,6 +91,7 @@ const output={
   },
   effort_core:{
     ...effortCore,
+    resident_sol_model:residentSolModel,
     registry_confirmed_tasks:confirmedEffortTasks,
   },
   application_family_coverage:familyCoverage,
