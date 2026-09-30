@@ -92,6 +92,11 @@ jobs:
             export AGENT_VALIDATION_COMMAND="python '$VALIDATOR' '$TASK_DIR'"
             export AGENT_VALIDATION_BUDGET="8"
           fi
+          PROBE="$GITHUB_WORKSPACE/scripts/probes/$TASK.py"
+          if [ -f "$PROBE" ]; then
+            export AGENT_PROBE_SCRIPT="$PROBE"
+            export AGENT_PROBE_BUDGET="20"
+          fi
           start="$(date +%s)"
           set +e
           timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ needs.prepare.outputs.model }}"             "${{ needs.prepare.outputs.effort }}"             "$TASK_DIR/light-agent-result.json"
@@ -141,6 +146,10 @@ jobs:
             "validation_calls":runner.get("validation_calls",0),
             "validation_budget":runner.get("validation_budget",0),
             "validation_enabled":runner.get("validation_enabled",False),
+            "probe_calls":runner.get("probe_calls",0),
+            "probe_attempts":runner.get("probe_attempts",0),
+            "probe_budget":runner.get("probe_budget",0),
+            "probe_enabled":runner.get("probe_enabled",False),
             "turn_limit_reached":turn_limit,
             "shell_budget_reached":shell_limit,
             "finished_with_message":bool(runner.get("final_text")),
