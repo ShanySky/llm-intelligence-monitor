@@ -38,6 +38,13 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Check out question health history
+        uses: actions/checkout@v4
+        with:
+          ref: history
+          path: history-input
+          fetch-depth: 1
+
       - name: Set up Node.js 24
         uses: actions/setup-node@v4
         with:
@@ -51,6 +58,7 @@ jobs:
           node --check scripts/build-model-config.mjs
           node --check scripts/combine-results.mjs
           node --check scripts/analyze-trends.mjs
+          node --check scripts/analyze-question-health.mjs
           python -m py_compile scripts/send_email.py
           node -e "JSON.parse(require('fs').readFileSync('monitor-config.json','utf8')); JSON.parse(require('fs').readFileSync('tests/question-metadata.json','utf8'));"
 
@@ -60,6 +68,7 @@ jobs:
           ANCHOR_COUNT_OVERRIDE: ${{ inputs.anchor_count }}
           ROTATING_COUNT_OVERRIDE: ${{ inputs.rotating_count }}
           REPEAT_OVERRIDE: ${{ inputs.repeat }}
+          QUESTION_HEALTH_PATH: history-input/question-health-latest.json
         run: |
           mkdir -p results selection
           export RUN_DATE="$(TZ=Asia/Shanghai date +%F)"
@@ -301,7 +310,15 @@ jobs:
 
           if [ "${{ github.event_name }}" = "schedule" ]; then
             node scripts/analyze-trends.mjs history-store/history results/summary.json results/trend.json results/trend.md
+            node scripts/analyze-question-health.mjs \
+              history-store/history \
+              results/summary.json \
+              tests/question-metadata.json \
+              results/question-health.json \
+              results/question-health.md
             cat results/trend.md >> results/summary.md
+            printf "\n\n" >> results/summary.md
+            cat results/question-health.md >> results/summary.md
           else
             cat > results/trend.json <<'JSON'
           {"manualTest":true,"models":[]}
@@ -329,9 +346,11 @@ jobs:
           # development can never conflict with daily history persistence.
           git pull --rebase origin history
 
-          mkdir -p history
+          mkdir -p history question-health
           cp ../results/summary.json "history/$run_date.json"
-          git add "history/$run_date.json"
+          cp ../results/question-health.json question-health-latest.json
+          cp ../results/question-health.json "question-health/$run_date.json"
+          git add "history/$run_date.json" question-health-latest.json "question-health/$run_date.json"
 
           if git diff --cached --quiet; then
             echo "History already up to date."

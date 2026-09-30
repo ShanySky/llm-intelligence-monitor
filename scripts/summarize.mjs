@@ -194,7 +194,8 @@ for (const row of rows) {
   addRow(b.categories[category].all, row);
   if (b.categories[category][language]) addRow(b.categories[category][language], row);
 
-  if (!b.pairs[pairId]) b.pairs[pairId] = { zh: freshStats(), en: freshStats() };
+  if (!b.pairs[pairId]) b.pairs[pairId] = { all: freshStats(), zh: freshStats(), en: freshStats() };
+  addRow(b.pairs[pairId].all, row);
   if (b.pairs[pairId][language]) addRow(b.pairs[pairId][language], row);
 }
 
@@ -237,6 +238,12 @@ const providers = [...buckets.values()].map((b) => {
       (b.languages.zh.total ? finish(b.languages.zh).passRate : 0) * 100 -
       (b.languages.en.total ? finish(b.languages.en).passRate : 0) * 100,
     pairComparison,
+    questionStats: Object.fromEntries(
+      Object.entries(b.pairs).map(([pairId, p]) => [
+        pairId,
+        { all: finish(p.all), zh: finish(p.zh), en: finish(p.en) },
+      ]),
+    ),
     categories: Object.fromEntries(
       Object.entries(b.categories).map(([name, c]) => [
         name,

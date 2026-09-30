@@ -6,10 +6,19 @@ const bankPath = process.argv[3] ?? 'tests/core.yaml';
 const metadataPath = process.argv[4] ?? 'tests/question-metadata.json';
 const outTests = process.argv[5] ?? 'tests/selected.yaml';
 const outSelection = process.argv[6] ?? 'results/selection.json';
+const healthPath = process.env.QUESTION_HEALTH_PATH?.trim() || '';
 
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
 const source = fs.readFileSync(bankPath, 'utf8');
+let questionHealth = {};
+if (healthPath && fs.existsSync(healthPath)) {
+  try {
+    questionHealth = JSON.parse(fs.readFileSync(healthPath, 'utf8'))?.questions ?? {};
+  } catch {
+    questionHealth = {};
+  }
+}
 
 function intOverride(name, fallback) {
   const raw = process.env[name];
@@ -59,6 +68,21 @@ function parseEntries(text) {
 
 function stableHash(text) {
   return crypto.createHash('sha256').update(text).digest('hex');
+}
+
+function healthWeight(pairId) {
+  const raw = Number(questionHealth?.[pairId]?.selectionWeight ?? 1);
+  return Number.isFinite(raw) && raw > 0 ? raw : 1;
+}
+
+function weightedStableScore(seed, pairId) {
+  // Deterministic weighted sampling: larger information weight tends to win
+  // while the date seed still rotates equivalent candidates.
+  const hex = stableHash(`${seed}|${pairId}`).slice(0, 13);
+  const n = Number.parseInt(hex, 16);
+  const max = Number.parseInt('fffffffffffff', 16);
+  const u = Math.min(1 - 1e-12, Math.max(1e-12, (n + 1) / (max + 2)));
+  return -Math.log(u) / healthWeight(pairId);
 }
 
 function allocateQuotas(total, weights) {
@@ -159,9 +183,10 @@ for (const [difficulty, quota] of Object.entries(quotas)) {
       const ac = abilityCounts[metadata[a].ability] ?? 0;
       const bc = abilityCounts[metadata[b].ability] ?? 0;
       if (ac !== bc) return ac - bc;
-      return stableHash(`${runDate}|${difficulty}|${a}`).localeCompare(
-        stableHash(`${runDate}|${difficulty}|${b}`)
-      );
+      const aw = weightedStableScore(`${runDate}|${difficulty}`, a);
+      const bw = weightedStableScore(`${runDate}|${difficulty}`, b);
+      if (aw !== bw) return aw - bw;
+      return a.localeCompare(b);
     });
 
     const chosen = candidates[0];
@@ -208,6 +233,8 @@ const selection = {
   selected: selectedIds.map((id) => ({
     pairId: id,
     ...metadata[id],
+    healthClassification: questionHealth?.[id]?.classification ?? 'unknown',
+    selectionWeight: healthWeight(id),
   })),
   distribution: {
     ability: abilityCounts,
