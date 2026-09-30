@@ -114,16 +114,22 @@ jobs:
         if: always()
         shell: bash
         run: |
-          mkdir -p result
-          curl -fsSL             "https://raw.githubusercontent.com/harbor-framework/terminal-bench-2-1/${{ steps.meta.outputs.commit }}/tasks/${{ steps.meta.outputs.task }}/tests/verify.sh"             -o /tmp/tb-verify.sh
-          docker cp /tmp/tb-verify.sh "$TB_CONTAINER:/tmp/verify.sh"
+          mkdir -p result /tmp/tb-tests
+          BASE="https://raw.githubusercontent.com/harbor-framework/terminal-bench-2-1/${{ steps.meta.outputs.commit }}/tasks/${{ steps.meta.outputs.task }}/tests"
+          curl -fsSL "$BASE/test.sh" -o /tmp/tb-tests/test.sh
+          curl -fsSL "$BASE/test_outputs.py" -o /tmp/tb-tests/test_outputs.py
+          docker exec "$TB_CONTAINER" mkdir -p /tests /logs/verifier
+          docker cp /tmp/tb-tests/test.sh "$TB_CONTAINER:/tests/test.sh"
+          docker cp /tmp/tb-tests/test_outputs.py "$TB_CONTAINER:/tests/test_outputs.py"
           set +e
-          docker exec "$TB_CONTAINER" bash /tmp/verify.sh > result/verifier.log 2>&1
+          docker exec -w /app "$TB_CONTAINER" bash /tests/test.sh > result/verifier.log 2>&1
           verify_status=$?
           set -e
-          if grep -q "TEST PASSED" result/verifier.log; then pass=true; else pass=false; fi
+          reward="$(docker exec "$TB_CONTAINER" sh -lc 'cat /logs/verifier/reward.txt 2>/dev/null || echo 0' | tr -d '\r\n')"
+          if [ "$reward" = "1" ]; then pass=true; else pass=false; fi
           echo "pass=$pass" >> "$GITHUB_OUTPUT"
           echo "status=$verify_status" >> "$GITHUB_OUTPUT"
+          echo "reward=$reward" >> "$GITHUB_OUTPUT"
           cat result/verifier.log
 
       - name: Build result
@@ -157,6 +163,7 @@ jobs:
             "usage":runner.get("usage",{}),
             "agent_exit_code":int("${{ steps.agent.outputs.exit_code || '999' }}"),
             "verifier_status":int("${{ steps.verify.outputs.status || '999' }}"),
+            "verifier_reward":"${{ steps.verify.outputs.reward }}",
             "infrastructure_error":runner.get("infrastructure_error"),
             "identity_ok":identity_ok,
             "actual_model":runner.get("model"),
