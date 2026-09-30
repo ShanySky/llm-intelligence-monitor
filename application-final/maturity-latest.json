@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-09-30T05:03:11.051Z",
+  "automatic_mature": false,
+  "checks": {
+    "model_core": true,
+    "effort_core": false,
+    "application_family_coverage": true,
+    "duration_hard_limit": true,
+    "quick_monitor_health_integration": true,
+    "final_application_workflow": true,
+    "report_refresh_workflow": true,
+    "docs_and_registry": true
+  },
+  "model_core": {
+    "configured_families": 2,
+    "confirmed_families": 2,
+    "minimum_families": 2,
+    "mature": true,
+    "confirmed_tasks": [
+      "frontier-review-deep",
+      "hard-incident"
+    ],
+    "registry_confirmed_tasks": [
+      "frontier-review-deep",
+      "hard-incident"
+    ]
+  },
+  "effort_core": {
+    "confirmed_families": 0,
+    "minimum_families": 1,
+    "mature": false,
+    "confirmed_tasks": [],
+    "registry_confirmed_tasks": []
+  },
+  "application_family_coverage": {
+    "solution_design": true,
+    "coding": true,
+    "code_review": true,
+    "agent": true,
+    "long_horizon": true
+  },
+  "runtime": {
+    "hard_limit_seconds": 600,
+    "max_observed_task_seconds": 413
+  },
+  "manual_acceptance_remaining": [
+    "Confirm application scores remain consistent with real day-to-day Coding/Agent experience over continued use.",
+    "Confirm daily operating cost remains acceptable after several normal scheduled runs."
+  ]
+}

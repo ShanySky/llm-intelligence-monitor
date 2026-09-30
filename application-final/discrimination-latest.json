@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-30T05:02:44.146Z",
+  "generated_at": "2026-09-30T05:03:11.027Z",
   "policy": {
     "version": 1,
     "quality": {
@@ -20,7 +20,10 @@
       "keep_coverage_if_application_critical": true,
       "require_objective_or_semantic_domain_scoring": true,
       "do_not_require_effort_monotonicity": false,
-      "effort_confirmation": "Require repeated positive Medium-to-XHigh quality gain; single-run gaps remain candidates."
+      "effort_confirmation": "Require repeated positive Medium-to-XHigh quality gain; single-run gaps remain candidates.",
+      "model_core_min_families": 2,
+      "effort_core_min_families": 1,
+      "maturity_definition": "Application evaluation is mature only when model discrimination has at least 2 confirmed task families and reasoning-effort discrimination has at least 1 confirmed cross-instance family."
     },
     "efficiency": {
       "min_quality_floor": 95,
@@ -36,14 +39,23 @@
     }
   },
   "core_signal": {
-    "configured_core_families": 2,
-    "confirmed_core_families": 2,
-    "minimum_core_families": 2,
-    "mature": true,
-    "confirmed_tasks": [
-      "frontier-review-deep",
-      "hard-incident"
-    ]
+    "model_core": {
+      "configured_families": 2,
+      "confirmed_families": 2,
+      "minimum_families": 2,
+      "mature": true,
+      "confirmed_tasks": [
+        "frontier-review-deep",
+        "hard-incident"
+      ]
+    },
+    "effort_core": {
+      "confirmed_families": 0,
+      "minimum_families": 1,
+      "mature": false,
+      "confirmed_tasks": []
+    },
+    "mature": false
   },
   "tasks": [
     {
