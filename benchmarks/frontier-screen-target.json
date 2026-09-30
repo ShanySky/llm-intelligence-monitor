@@ -1,9 +1,9 @@
 {
-  "task": "frontier-build-cache",
+  "task": "frontier-import-resume",
   "model": "gpt-6-luna",
   "effort": "high",
   "max_turns": 30,
   "shell_budget": 30,
-  "validation_script": "benchmarks/frontier-build-cache/blackbox_validate.py",
-  "validation_budget": 6
+  "validation_script": "scripts/validators/frontier-import-resume.py",
+  "validation_budget": 8
 }
