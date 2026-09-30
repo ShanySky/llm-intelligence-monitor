@@ -4,8 +4,11 @@
   "model": "gpt-6-luna",
   "effort": "high",
   "tasks": [
-    {"task":"frontier-review-deep","max_turns":30,"shell_budget":30},
-    {"task":"frontier-key-rotation","max_turns":30,"shell_budget":30}
+    {
+      "task": "frontier-review-deep",
+      "max_turns": 30,
+      "shell_budget": 30
+    }
   ],
   "excluded_coverage_only": [
     "frontier-webhook",
@@ -23,6 +26,7 @@
     "frontier-incident-cascade",
     "frontier-lease-fencing",
     "frontier-pagination",
-    "frontier-outbox-recovery"
+    "frontier-outbox-recovery",
+    "frontier-key-rotation"
   ]
 }
