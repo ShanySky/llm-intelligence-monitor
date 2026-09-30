@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-webhook-hidden",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 65,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 30,
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 9270,
+    "output_tokens": 2297,
+    "reasoning_tokens": 1127,
+    "cached_input_tokens": 0
+  },
+  "final_text": "Repaired webhook recovery and mixed-delivery handling:\n\n- Fulfillment and inventory reservations are keyed by order, not event ID.\n- Stable reservation keys let retries reuse the same reservation and let cancellations release it even if local state was not saved.\n- Per-order synchronization and version/status checks prevent stale or conflicting events from changing fulfillment state.\n- Duplicate deliveries can retry incomplete work rather than being discarded solely because the event ID was already recorded.\n\nValidation: `./run_visible_tests.sh` — passed (`VISIBLE_TEST_PASS`)."
+}
