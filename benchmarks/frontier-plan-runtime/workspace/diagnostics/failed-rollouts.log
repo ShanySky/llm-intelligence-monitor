@@ -1,0 +1,4 @@
+attempt-17: backfill completed, then a delayed item restored an older status after a live write
+attempt-21: v2 read cutover passed DB checks but stale cache values appeared after legacy writer traffic
+attempt-24: producer change was healthy in new consumers but old consumer shard rejected the rollout gate
+attempt-29: rollback after cleanup failed because v1 could no longer read required legacy state
