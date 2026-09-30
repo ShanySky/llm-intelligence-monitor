@@ -1,0 +1,23 @@
+{
+  "root_causes": [
+    {"id":"api_config_drift","description":"A serving API pod has rendered configuration inconsistent with the desired release."},
+    {"id":"retry_idempotency_scope","description":"Payment retries use the wrong business idempotency identity."},
+    {"id":"stale_consumer","description":"A fulfillment consumer revision violates the current retry/event compatibility contract."},
+    {"id":"cache_invalidator_mismatch","description":"Mixed invalidator revisions leave stale cache entries."},
+    {"id":"capacity_shortage","description":"Insufficient API processing capacity causes the incident."},
+    {"id":"database_pool_exhaustion","description":"Database connection starvation causes the incident."},
+    {"id":"network_instability","description":"Network/DNS instability causes the incident."}
+  ],
+  "actions": [
+    {"id":"replace_drifted_api_from_desired","description":"Replace only a proven drifted API pod."},
+    {"id":"use_order_version_idempotency","description":"Use stable order-version provider idempotency."},
+    {"id":"upgrade_all_consumers","description":"Upgrade fulfillment consumers to the compatible contract."},
+    {"id":"replace_all_invalidators","description":"Replace invalidators with the compatibility revision."},
+    {"id":"restart_all_services","description":"Restart the complete stack."},
+    {"id":"scale_api","description":"Increase API replica capacity."},
+    {"id":"reset_consumer_offset","description":"Reset fulfillment offsets."},
+    {"id":"flush_entire_cache","description":"Flush all cache entries."},
+    {"id":"disable_retries","description":"Disable provider retries."},
+    {"id":"increase_db_pool","description":"Increase database pool capacity."}
+  ]
+}
