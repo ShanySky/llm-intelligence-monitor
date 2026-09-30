@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cmd="${1:-help}"
+arg="${2:-}"
+
+load_state() {
+  # shellcheck disable=SC1091
+  source .state
+}
+save_state() {
+  cat > .state <<EOF
+config_bad=$config_bad
+consumer_bad=$consumer_bad
+staged_seen=$staged_seen
+final_verified=$final_verified
+EOF
+}
+
+if [[ "$cmd" != "help" ]]; then
+  count="$(wc -l < .actions | tr -d ' ')"
+  if (( count >= 10 )); then
+    echo "ACTION_BUDGET_EXCEEDED: no more recorded actions are allowed" >&2
+    exit 3
+  fi
+  printf '%s %s\n' "$cmd" "$arg" >> .actions
+fi
+
+load_state
+
+case "$cmd" in
+  help)
+    cat <<'EOF'
+status                       - current external checkout summary
+pods                         - API/consumer rollout metadata
+logs NAME                    - recent logs for a named component
+config NAME                  - effective config metadata for an API pod
+queue                        - fulfillment queue/consumer summary
+replace-config NAME          - replace one API pod with desired config
+replace-consumer NAME        - replace one consumer with desired revision
+restart-all                  - restart all checkout API pods
+scale N                      - change API replica target
+reset-offset                 - destructively reset fulfillment consumer offset
+verify                       - run the end-to-end recovery verification
+EOF
+    ;;
+  status)
+    if [[ "$config_bad" == "1" ]]; then
+      echo "checkout: 149/200 2xx, 51/200 500; failures pinned to api-b"
+    elif [[ "$consumer_bad" == "1" ]]; then
+      echo "checkout HTTP: 200/200 2xx; fulfillment correctness not yet verified"
+    else
+      echo "checkout HTTP: 200/200 2xx; fulfillment appears healthy"
+    fi
+    ;;
+  pods)
+    if [[ "$config_bad" == "1" ]]; then
+      echo "api-a rev=42 config=18"
+      echo "api-b rev=42 config=17"
+    else
+      echo "api-a rev=42 config=18"
+      echo "api-b rev=42 config=18"
+    fi
+    if [[ "$consumer_bad" == "1" ]]; then
+      echo "consumer-1 rev=31 contract=2"
+      echo "consumer-2 rev=30 contract=1"
+    else
+      echo "consumer-1 rev=31 contract=2"
+      echo "consumer-2 rev=31 contract=2"
+    fi
+    ;;
+  logs)
+    case "$arg" in
+      api-a)
+        echo "INFO checkout healthy; config revision 18"
+        ;;
+      api-b)
+        if [[ "$config_bad" == "1" ]]; then
+          echo "ERROR payment_mode missing under config revision 17; request rejected"
+        else
+          echo "INFO checkout healthy; config revision 18"
+        fi
+        ;;
+      consumer-1)
+        echo "INFO fulfillment event contract=2 order-key dedupe enabled"
+        ;;
+      consumer-2)
+        if [[ "$staged_seen" == "1" && "$consumer_bad" == "1" ]]; then
+          echo "WARN contract=1 retry path uses delivery-id dedupe; repeated deliveries can fulfill twice"
+        elif [[ "$consumer_bad" == "1" ]]; then
+          echo "INFO consumer-2 running; no actionable checkout evidence yet"
+        else
+          echo "INFO fulfillment event contract=2 order-key dedupe enabled"
+        fi
+        ;;
+      *)
+        echo "unknown component: $arg" >&2
+        exit 2
+        ;;
+    esac
+    ;;
+  config)
+    case "$arg" in
+      api-a) echo "revision=18 payment_mode=tokenized desired=18" ;;
+      api-b)
+        if [[ "$config_bad" == "1" ]]; then
+          echo "revision=17 payment_mode=<missing> desired=18"
+        else
+          echo "revision=18 payment_mode=tokenized desired=18"
+        fi
+        ;;
+      *) echo "unknown API pod: $arg" >&2; exit 2 ;;
+    esac
+    ;;
+  queue)
+    if [[ "$staged_seen" == "1" && "$consumer_bad" == "1" ]]; then
+      echo "fulfillment: 7 duplicate business effects in 200; duplicates pinned to consumer-2 rev=30 contract=1"
+    elif [[ "$consumer_bad" == "0" ]]; then
+      echo "fulfillment: no duplicates; consumers contract=2"
+    else
+      echo "fulfillment: no actionable signal while checkout HTTP failures remain unresolved"
+    fi
+    ;;
+  replace-config)
+    if [[ "$arg" != "api-b" ]]; then
+      echo "replacement rejected: $arg is not the drifted API pod" >&2
+      exit 2
+    fi
+    config_bad=0
+    save_state
+    echo "api-b replaced: rev=42 config=18"
+    ;;
+  replace-consumer)
+    if [[ "$arg" != "consumer-2" ]]; then
+      echo "replacement rejected: $arg is not the stale consumer" >&2
+      exit 2
+    fi
+    if [[ "$staged_seen" != "1" ]]; then
+      echo "replacement refused: no post-HTTP-recovery evidence currently justifies consumer mutation" >&2
+      exit 2
+    fi
+    consumer_bad=0
+    save_state
+    echo "consumer-2 replaced: rev=31 contract=2"
+    ;;
+  restart-all)
+    echo "all API pods restarted; no root-cause state changed"
+    ;;
+  scale)
+    echo "API replica target changed to ${arg:-?}; no root-cause state changed"
+    ;;
+  reset-offset)
+    echo "offset reset rejected by safety guard; destructive action is not required" >&2
+    exit 2
+    ;;
+  verify)
+    if [[ "$config_bad" == "1" ]]; then
+      echo "VERIFY FAIL: 51/200 checkout requests returned 500 on api-b"
+      exit 1
+    fi
+    if [[ "$consumer_bad" == "1" ]]; then
+      staged_seen=1
+      save_state
+      echo "VERIFY PARTIAL: HTTP 200/200, but 7 duplicate fulfillment effects detected on retry"
+      exit 1
+    fi
+    final_verified=1
+    save_state
+    echo "VERIFY PASS: 200/200 checkout 2xx; 200/200 exactly-once fulfillment checks passed"
+    ;;
+  *)
+    echo "unknown command: $cmd" >&2
+    exit 2
+    ;;
+esac
