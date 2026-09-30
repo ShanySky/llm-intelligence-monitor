@@ -1,7 +1,7 @@
 {
-  "task": "frontier-incident-chain",
+  "task": "frontier-pagination",
   "model": "gpt-6-luna",
   "effort": "high",
-  "max_turns": 40,
-  "shell_budget": 40
+  "max_turns": 30,
+  "shell_budget": 30
 }
