@@ -223,14 +223,17 @@ function runValidation() {
 }
 
 function runProbe(query) {
-  probeCalls += 1;
-  probeQueries.push(String(query ?? ''));
+  const normalizedQuery = String(query ?? '');
+  probeAttempts += 1;
+  probeQueries.push(normalizedQuery);
   if (!probeScript) return 'ERROR: runtime probe is not enabled for this task';
-  if (probeCalls > probeBudget) {
+  if (probeCalls >= probeBudget) {
     return 'ERROR: probe action budget exceeded (' + probeBudget + ')';
   }
 
-  const result = spawnSync('python3', [probeScript, taskDir, String(query ?? '')], {
+  probeCalls += 1;
+  probeExecutedQueries.push(normalizedQuery);
+  const result = spawnSync('python3', [probeScript, taskDir, normalizedQuery], {
     cwd: taskDir,
     env: safeEnv,
     encoding: 'utf8',
