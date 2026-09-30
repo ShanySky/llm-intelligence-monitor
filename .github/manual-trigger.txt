@@ -116,3 +116,4 @@ AH01 X High repeat5 completion.
 Hard incident Sol Medium High X High x3.
 Application effort probes v2 Medium vs X High repeat3.
 AG21 repeated effort validation M/H/XH x5.
+Rebuild final suite with repeated-evidence Core maturity.
