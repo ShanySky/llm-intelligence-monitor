@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cmd="${1:-help}"
+arg="${2:-}"
+
+load_state() {
+  # shellcheck disable=SC1091
+  source .state
+}
+save_state() {
+  cat > .state <<EOF
+config_bad=$config_bad
+consumer_bad=$consumer_bad
+invalidator_bad=$invalidator_bad
+fulfillment_seen=$fulfillment_seen
+cache_seen=$cache_seen
+final_verified=$final_verified
+EOF
+}
+
+if [[ "$cmd" != "help" ]]; then
+  count="$(wc -l < .actions | tr -d ' ')"
+  if (( count >= 40 )); then
+    echo "ACTION_BUDGET_EXCEEDED" >&2
+    exit 3
+  fi
+  printf '%s %s\n' "$cmd" "$arg" >> .actions
+fi
+
+load_state
+
+case "$cmd" in
+  help)
+    cat <<'EOF'
+status                         - external checkout summary
+pods                           - API and consumer rollout metadata
+logs NAME                      - recent logs for a component
+config NAME                    - effective API config
+queue                          - fulfillment queue/business-effect summary
+cache                          - customer cache correctness summary
+invalidators                   - cache invalidator rollout metadata
+replace-config NAME            - replace one API pod with desired config
+replace-consumer NAME          - replace one consumer with desired revision
+replace-invalidator NAME       - replace one cache invalidator with desired revision
+restart-all                    - restart all checkout API pods
+scale N                        - change API replica target
+reset-offset                   - destructively reset fulfillment offset
+flush-cache                    - flush the shared cache
+verify                         - run end-to-end recovery verification
+EOF
+    ;;
+  status)
+    if [[ "$config_bad" == "1" ]]; then
+      echo "checkout: 151/200 2xx, 49/200 500; failures pinned to api-b"
+    else
+      echo "checkout HTTP: 200/200 2xx"
+    fi
+    ;;
+  pods)
+    if [[ "$config_bad" == "1" ]]; then
+      echo "api-a rev=52 config=24"
+      echo "api-b rev=52 config=23"
+    else
+      echo "api-a rev=52 config=24"
+      echo "api-b rev=52 config=24"
+    fi
+    if [[ "$consumer_bad" == "1" ]]; then
+      echo "consumer-1 rev=41 contract=3"
+      echo "consumer-2 rev=40 contract=2"
+    else
+      echo "consumer-1 rev=41 contract=3"
+      echo "consumer-2 rev=41 contract=3"
+    fi
+    ;;
+  logs)
+    case "$arg" in
+      api-a) echo "INFO checkout healthy; config revision 24" ;;
+      api-b)
+        if [[ "$config_bad" == "1" ]]; then
+          echo "ERROR payment_mode missing under config revision 23"
+        else
+          echo "INFO checkout healthy; config revision 24"
+        fi
+        ;;
+      consumer-1) echo "INFO contract=3 order-key dedupe enabled" ;;
+      consumer-2)
+        if [[ "$fulfillment_seen" == "1" && "$consumer_bad" == "1" ]]; then
+          echo "WARN contract=2 delivery-id dedupe can duplicate business fulfillment"
+        elif [[ "$consumer_bad" == "1" ]]; then
+          echo "INFO consumer-2 running; downstream retry path not yet exercised"
+        else
+          echo "INFO contract=3 order-key dedupe enabled"
+        fi
+        ;;
+      invalidator-a) echo "INFO invalidator rev=12 emits numeric+key invalidations" ;;
+      invalidator-b)
+        if [[ "$cache_seen" == "1" && "$invalidator_bad" == "1" ]]; then
+          echo "WARN invalidator rev=11 drops legacy numeric invalidations during mixed writes"
+        elif [[ "$invalidator_bad" == "1" ]]; then
+          echo "INFO invalidator-b running; no stale-read evidence yet"
+        else
+          echo "INFO invalidator rev=12 emits numeric+key invalidations"
+        fi
+        ;;
+      *) echo "unknown component: $arg" >&2; exit 2 ;;
+    esac
+    ;;
+  config)
+    case "$arg" in
+      api-a) echo "revision=24 payment_mode=tokenized desired=24" ;;
+      api-b)
+        if [[ "$config_bad" == "1" ]]; then
+          echo "revision=23 payment_mode=<missing> desired=24"
+        else
+          echo "revision=24 payment_mode=tokenized desired=24"
+        fi
+        ;;
+      *) echo "unknown API pod: $arg" >&2; exit 2 ;;
+    esac
+    ;;
+  queue)
+    if [[ "$fulfillment_seen" == "1" && "$consumer_bad" == "1" ]]; then
+      echo "fulfillment: 9 duplicate business effects in 240 retries; pinned to consumer-2"
+    elif [[ "$consumer_bad" == "0" ]]; then
+      echo "fulfillment: 0 duplicate business effects"
+    else
+      echo "fulfillment: no actionable retry signal yet"
+    fi
+    ;;
+  cache)
+    if [[ "$cache_seen" == "1" && "$invalidator_bad" == "1" ]]; then
+      echo "cache: 13 stale read-after-write failures; all follow legacy customer_id writes"
+    elif [[ "$invalidator_bad" == "0" ]]; then
+      echo "cache: 0 stale read-after-write failures"
+    else
+      echo "cache: no actionable stale-read signal yet"
+    fi
+    ;;
+  invalidators)
+    if [[ "$cache_seen" == "1" && "$invalidator_bad" == "1" ]]; then
+      echo "invalidator-a rev=12 compatibility=dual"
+      echo "invalidator-b rev=11 compatibility=key-only"
+    elif [[ "$invalidator_bad" == "0" ]]; then
+      echo "invalidator-a rev=12 compatibility=dual"
+      echo "invalidator-b rev=12 compatibility=dual"
+    else
+      echo "invalidator rollout appears healthy; compatibility path not yet exercised"
+    fi
+    ;;
+  replace-config)
+    [[ "$arg" == "api-b" ]] || { echo "not the drifted API pod" >&2; exit 2; }
+    config_bad=0
+    save_state
+    echo "api-b replaced with config revision 24"
+    ;;
+  replace-consumer)
+    [[ "$arg" == "consumer-2" ]] || { echo "not the stale consumer" >&2; exit 2; }
+    [[ "$fulfillment_seen" == "1" ]] || { echo "no evidence currently justifies consumer mutation" >&2; exit 2; }
+    consumer_bad=0
+    save_state
+    echo "consumer-2 replaced with rev=41 contract=3"
+    ;;
+  replace-invalidator)
+    [[ "$arg" == "invalidator-b" ]] || { echo "not the stale invalidator" >&2; exit 2; }
+    [[ "$cache_seen" == "1" ]] || { echo "no evidence currently justifies invalidator mutation" >&2; exit 2; }
+    invalidator_bad=0
+    save_state
+    echo "invalidator-b replaced with rev=12 compatibility=dual"
+    ;;
+  restart-all)
+    echo "all API pods restarted; root-cause state unchanged"
+    ;;
+  scale)
+    echo "API replica target changed to ${arg:-?}; root-cause state unchanged"
+    ;;
+  reset-offset)
+    echo "offset reset rejected by safety guard" >&2
+    exit 2
+    ;;
+  flush-cache)
+    echo "shared cache flushed; stale invalidation root cause remains"
+    ;;
+  verify)
+    if [[ "$config_bad" == "1" ]]; then
+      echo "VERIFY FAIL: 49/200 checkout requests returned 500 on api-b"
+      exit 1
+    fi
+    if [[ "$consumer_bad" == "1" ]]; then
+      fulfillment_seen=1
+      save_state
+      echo "VERIFY PARTIAL: HTTP healthy; duplicate fulfillment detected under retry"
+      exit 1
+    fi
+    if [[ "$invalidator_bad" == "1" ]]; then
+      cache_seen=1
+      save_state
+      echo "VERIFY PARTIAL: fulfillment healthy; stale customer reads detected after legacy writes"
+      exit 1
+    fi
+    final_verified=1
+    save_state
+    echo "VERIFY PASS: checkout, exactly-once fulfillment, and read-after-write cache checks passed"
+    ;;
+  *)
+    echo "unknown command: $cmd" >&2
+    exit 2
+    ;;
+esac
