@@ -27,28 +27,72 @@ jobs:
           node-version: "24"
 
       - name: Reference commit self-check
+        id: selfcheck
         shell: bash
         run: |
+          set +e
           node - <<'NODE'
           const fs=require('fs');
           const {execFileSync}=require('child_process');
           const c=require('./benchmarks/real-repo-replay/config.json');
+          const cases=[];
+          let ok=true;
           for(const item of c.cases){
-            const dir='/tmp/replay-reference-'+item.id;
-            fs.rmSync(dir,{recursive:true,force:true});
-            fs.mkdirSync(dir,{recursive:true});
-            execFileSync('bash',['-lc',`git archive ${item.target_sha} | tar -x -C "${dir}"`],{stdio:'inherit'});
-            fs.copyFileSync(`benchmarks/real-repo-replay/${item.id}/TASK.md`,dir+'/TASK.md');
-            fs.writeFileSync(dir+'/light-agent-result.json',JSON.stringify({patch_metrics:{changed_files:0,changed_lines:0,added_files:0,deleted_files:0,files:[]}}));
-            const out=dir+'/reference-score.json';
-            execFileSync('node',['scripts/score-real-repo-replay.mjs',item.id,dir,out,'benchmarks/real-repo-replay/config.json'],{stdio:'inherit'});
-            const score=JSON.parse(fs.readFileSync(out,'utf8'));
-            if(Number(score.behavior_score)!==100){
-              throw new Error(item.id+' target reference failed hidden behavior: '+score.behavior_score);
+            const row={id:item.id,target_sha:item.target_sha,behavior_score:null,error:null};
+            try{
+              const dir='/tmp/replay-reference-'+item.id;
+              fs.rmSync(dir,{recursive:true,force:true});
+              fs.mkdirSync(dir,{recursive:true});
+              execFileSync('bash',['-lc',`git archive ${item.target_sha} | tar -x -C "${dir}"`],{stdio:'inherit'});
+              fs.copyFileSync(`benchmarks/real-repo-replay/${item.id}/TASK.md`,dir+'/TASK.md');
+              fs.writeFileSync(dir+'/light-agent-result.json',JSON.stringify({patch_metrics:{changed_files:0,changed_lines:0,added_files:0,deleted_files:0,files:[]}}));
+              const out=dir+'/reference-score.json';
+              execFileSync('node',['scripts/score-real-repo-replay.mjs',item.id,dir,out,'benchmarks/real-repo-replay/config.json'],{stdio:'inherit'});
+              const score=JSON.parse(fs.readFileSync(out,'utf8'));
+              row.behavior_score=Number(score.behavior_score);
+              if(row.behavior_score!==100) ok=false;
+            }catch(error){
+              row.error=String(error?.message??error);
+              ok=false;
             }
+            cases.push(row);
           }
-          console.log('All replay target commits pass hidden behavior self-check.');
+          const report={generated_at:new Date().toISOString(),ok,cases};
+          fs.writeFileSync('replay-reference-selfcheck.json',JSON.stringify(report,null,2)+'\n');
+          console.log(JSON.stringify(report,null,2));
+          process.exitCode=ok?0:2;
           NODE
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Publish reference self-check
+        shell: bash
+        run: |
+          cp replay-reference-selfcheck.json /tmp/replay-reference-selfcheck.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin real-repo-replay-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/real-repo-replay-results; then
+            git switch -C real-repo-replay-results origin/real-repo-replay-results
+          else
+            git switch --orphan real-repo-replay-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p replay
+          cp /tmp/replay-reference-selfcheck.json replay/reference-selfcheck.json
+          git add replay/reference-selfcheck.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Record real-repo replay reference self-check"
+            git push origin HEAD:real-repo-replay-results
+          fi
+
+      - name: Enforce reference self-check
+        if: steps.selfcheck.outputs.status != '0'
+        shell: bash
+        run: |
+          echo "Reference self-check failed; see replay/reference-selfcheck.json."
+          exit 2
 
       - id: matrix
         shell: bash
