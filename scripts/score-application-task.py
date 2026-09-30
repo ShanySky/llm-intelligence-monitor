@@ -1,4 +1,4 @@
-import json, os, re, subprocess, sys
+import json, os, re, subprocess, sys, tempfile
 from pathlib import Path
 
 task = sys.argv[1]
@@ -2723,6 +2723,218 @@ elif task == "frontier-review-precision-family":
 
     verdict=str(data.get("verdict","")).strip().upper() if valid else ""
     add("requests_changes",5,verdict=="REQUEST_CHANGES")
+
+
+elif task == "frontier-runtime-repair-family":
+    m=re.search(r"-t(\d+)(?:$|[^0-9])",root.name)
+    variant=int(m.group(1)) if m else 1
+
+    hidden_by_variant={
+      1:r'''import java.util.concurrent.atomic.AtomicBoolean;
+
+public final class RuntimeRepairHiddenTest {
+  interface Case { void run() throws Exception; }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+  static void check(boolean x){ if(!x) throw new AssertionError(); }
+
+  public static void main(String[] args) {
+    run("RETRY_IDENTITY", RuntimeRepairHiddenTest::retryIdentity);
+    run("CRASH_RECOVERY", RuntimeRepairHiddenTest::crashRecovery);
+    run("VERSION_ISOLATION", RuntimeRepairHiddenTest::versionIsolation);
+    run("ORDER_ISOLATION", RuntimeRepairHiddenTest::orderIsolation);
+  }
+
+  static void retryIdentity() {
+    PaymentProvider p=new PaymentProvider();
+    PaymentService s=new PaymentService(p,FailureInjector.none());
+    s.pay("o-1",7,"d-1");
+    s.pay("o-1",7,"d-2");
+    check(p.effects()==1);
+  }
+
+  static void crashRecovery() {
+    PaymentProvider p=new PaymentProvider();
+    AtomicBoolean first=new AtomicBoolean(true);
+    FailureInjector f=new FailureInjector(){
+      public void afterCharge(){
+        if(first.getAndSet(false)) throw new RuntimeException("crash");
+      }
+    };
+    PaymentService s=new PaymentService(p,f);
+    try { s.pay("o-2",3,"d-a"); } catch(RuntimeException expected) {}
+    s.pay("o-2",3,"d-b");
+    check(p.effects()==1);
+  }
+
+  static void versionIsolation() {
+    PaymentProvider p=new PaymentProvider();
+    PaymentService s=new PaymentService(p,FailureInjector.none());
+    s.pay("o-3",1,"d-1");
+    s.pay("o-3",2,"d-2");
+    check(p.effects()==2);
+  }
+
+  static void orderIsolation() {
+    PaymentProvider p=new PaymentProvider();
+    PaymentService s=new PaymentService(p,FailureInjector.none());
+    s.pay("o-a",1,"d-a");
+    s.pay("o-b",1,"d-b");
+    check(p.effects()==2);
+  }
+}''',
+      2:r'''public final class RuntimeRepairHiddenTest {
+  interface Case { void run() throws Exception; }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+  static void check(boolean x){ if(!x) throw new AssertionError(); }
+
+  public static void main(String[] args) {
+    run("CACHE_ALIAS", RuntimeRepairHiddenTest::cacheAlias);
+    run("STRICT_PRIMARY", RuntimeRepairHiddenTest::strictPrimary);
+    run("EVENTUAL_REPLICA", RuntimeRepairHiddenTest::eventualReplica);
+    run("V2_INVALIDATION", RuntimeRepairHiddenTest::v2Invalidation);
+  }
+
+  static void cacheAlias() {
+    CustomerStore store=new CustomerStore();
+    CustomerCache cache=new CustomerCache();
+    store.create(1,"key-1","alice");
+    CustomerService s=new CustomerService(store,cache);
+    check("alice".equals(s.readV2(1)));
+    s.legacyUpdate(1,"bob");
+    check("bob".equals(s.readV2(1)));
+  }
+
+  static void strictPrimary() {
+    ReadRepository repo=new ReadRepository("v1");
+    StrictCustomerReader r=new StrictCustomerReader(repo);
+    repo.write("v2");
+    check("v2".equals(r.strictRead()));
+  }
+
+  static void eventualReplica() {
+    ReadRepository repo=new ReadRepository("v1");
+    StrictCustomerReader r=new StrictCustomerReader(repo);
+    repo.write("v2");
+    check("v1".equals(r.ordinaryRead()));
+    repo.replicate();
+    check("v2".equals(r.ordinaryRead()));
+  }
+
+  static void v2Invalidation() {
+    CustomerStore store=new CustomerStore();
+    CustomerCache cache=new CustomerCache();
+    store.create(2,"key-2","a");
+    CustomerService s=new CustomerService(store,cache);
+    check("a".equals(s.readV2(2)));
+    s.v2Update(2,"b");
+    check("b".equals(s.readV2(2)));
+  }
+}''',
+      3:r'''public final class RuntimeRepairHiddenTest {
+  interface Case { void run() throws Exception; }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+  static void check(boolean x){ if(!x) throw new AssertionError(); }
+
+  public static void main(String[] args) {
+    run("BACKFILL_STALE", RuntimeRepairHiddenTest::backfillStale);
+    run("BACKFILL_EQUAL", RuntimeRepairHiddenTest::backfillEqual);
+    run("LEGACY_KEY", RuntimeRepairHiddenTest::legacyKey);
+    run("V2_KEY", RuntimeRepairHiddenTest::v2Key);
+  }
+
+  static void backfillStale() {
+    CustomerStore store=new CustomerStore();
+    store.put(new Customer(7,"key-7","OPEN",5));
+    BackfillItem captured=new BackfillItem(7,"OPEN",5);
+    new V2CustomerService(store).update(7,"PAID");
+    new BackfillJob(store).apply(captured);
+    Customer c=store.get(7);
+    check(c.version==6);
+    check("PAID".equals(c.newStatus));
+  }
+
+  static void backfillEqual() {
+    CustomerStore store=new CustomerStore();
+    Customer c=new Customer(8,"key-8","OPEN",4);
+    c.newStatus=null;
+    store.put(c);
+    new BackfillJob(store).apply(new BackfillItem(8,"OPEN",4));
+    check(store.get(8).version==4);
+    check("OPEN".equals(store.get(8).newStatus));
+  }
+
+  static void legacyKey() {
+    CustomerStore store=new CustomerStore();
+    store.put(new Customer(9,"key-9","OPEN",1));
+    new LegacyCustomerService(store).update(9,"PAID");
+    Customer c=store.get(9);
+    check("key-9".equals(c.stableKey));
+    check(c.version==2);
+  }
+
+  static void v2Key() {
+    CustomerStore store=new CustomerStore();
+    store.put(new Customer(10,"key-10","OPEN",1));
+    new V2CustomerService(store).update(10,"PAID");
+    check("key-10".equals(store.get(10).stableKey));
+  }
+}'''
+    }
+    hidden=hidden_by_variant.get(variant,hidden_by_variant[1])
+
+    hidden_out=""
+    visible=False
+    compiled=False
+    with tempfile.TemporaryDirectory(prefix="runtime-repair-hidden-") as td:
+        td=Path(td)
+        hidden_file=td/"RuntimeRepairHiddenTest.java"
+        hidden_file.write_text(hidden)
+        outdir=td/"out"; outdir.mkdir()
+        srcs=list((root/"src").glob("*.java"))
+        cp=subprocess.run(
+            ["javac","-d",str(outdir),*map(str,srcs),str(hidden_file)],
+            capture_output=True,text=True
+        )
+        compiled=cp.returncode==0
+        if compiled:
+            vr=subprocess.run(
+                ["java","-cp",str(outdir),"VisibleTest"],
+                capture_output=True,text=True,timeout=20
+            )
+            visible=vr.returncode==0
+            hr=subprocess.run(
+                ["java","-cp",str(outdir),"RuntimeRepairHiddenTest"],
+                capture_output=True,text=True,timeout=20
+            )
+            hidden_out=hr.stdout+hr.stderr
+
+    add("compiles",5,compiled)
+    add("visible_regression",5,visible)
+
+    if variant==1:
+        add("business_scoped_retry_identity",30,"RETRY_IDENTITY_PASS" in hidden_out)
+        add("post_side_effect_crash_retry_converges",35,"CRASH_RECOVERY_PASS" in hidden_out)
+        add("different_order_versions_remain_distinct",15,"VERSION_ISOLATION_PASS" in hidden_out)
+        add("different_orders_remain_distinct",10,"ORDER_ISOLATION_PASS" in hidden_out)
+    elif variant==2:
+        add("legacy_writer_invalidates_v2_alias",35,"CACHE_ALIAS_PASS" in hidden_out)
+        add("strict_reads_route_to_fresh_primary",35,"STRICT_PRIMARY_PASS" in hidden_out)
+        add("ordinary_reads_may_remain_eventual",10,"EVENTUAL_REPLICA_PASS" in hidden_out)
+        add("v2_writer_invalidation_regression",10,"V2_INVALIDATION_PASS" in hidden_out)
+    else:
+        add("stale_backfill_cannot_overwrite_newer_write",40,"BACKFILL_STALE_PASS" in hidden_out)
+        add("matching_version_backfill_still_applies",15,"BACKFILL_EQUAL_PASS" in hidden_out)
+        add("legacy_writer_preserves_stable_identity",30,"LEGACY_KEY_PASS" in hidden_out)
+        add("v2_writer_preserves_stable_identity",5,"V2_KEY_PASS" in hidden_out)
 
 else:
     raise SystemExit(f"unknown task {task}")
