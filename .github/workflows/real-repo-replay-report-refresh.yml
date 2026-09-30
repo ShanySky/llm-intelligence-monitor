@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
     paths:
-      - ".github/triggers/replay-effort.txt"
+      - ".github/triggers/replay-report.txt"
 
 permissions:
   contents: write
