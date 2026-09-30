@@ -1,0 +1,10 @@
+{
+  "task": "staged-identity-evolution",
+  "workspace": "benchmarks/staged-identity-evolution/workspace",
+  "score_task": "staged-identity-evolution",
+  "model": "gpt-6-luna",
+  "efforts": ["high"],
+  "trials": 1,
+  "max_turns_per_stage": 20,
+  "shell_budget": 60
+}

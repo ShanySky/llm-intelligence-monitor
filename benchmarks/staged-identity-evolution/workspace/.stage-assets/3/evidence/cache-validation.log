@@ -1,0 +1,4 @@
+rollout-gate=mixed-version-cache status=FAILED
+scenario=legacy-v1-write then v2-read result=MISS expected=legacy-value
+scenario=v2-cached-value then legacy-v1-write result=STALE_NEW_VALUE expected=MISS
+observation=legacy writers invalidate numeric customer identity only
