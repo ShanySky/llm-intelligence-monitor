@@ -1,8 +1,8 @@
 {
-  "task": "frontier-import-resume",
+  "task": "frontier-plan-runtime",
   "model": "gpt-6-luna",
   "effort": "high",
-  "max_turns": 36,
-  "shell_budget": 36,
-  "validation_budget": 8
+  "max_turns": 24,
+  "shell_budget": 24,
+  "validation_budget": 3
 }
