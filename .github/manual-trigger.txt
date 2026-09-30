@@ -52,3 +52,4 @@ Incident cascade repeat after nonbinding action cap.
 Frontier cross-file review Luna rescreen.
 Frontier objective plan-review Luna rescreen.
 Frontier review Sol Medium High X High calibration.
+Frontier filter parser Luna rescreen.
