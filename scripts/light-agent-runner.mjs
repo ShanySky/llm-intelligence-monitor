@@ -15,16 +15,30 @@ if (!['medium', 'high', 'xhigh'].includes(effort)) throw new Error('Unsupported 
 const taskPath = path.join(taskDir, 'TASK.md');
 if (!fs.existsSync(taskPath)) throw new Error('TASK.md not found');
 const task = fs.readFileSync(taskPath, 'utf8');
+const dockerContainer = String(process.env.AGENT_DOCKER_CONTAINER ?? '').trim();
+const dockerWorkdir = String(process.env.AGENT_DOCKER_WORKDIR ?? '/app').trim() || '/app';
+const containerMode = Boolean(dockerContainer);
 
-const instructions = [
-  'You are a software engineering agent working in a small isolated task workspace.',
-  'Use the shell tool to inspect files, edit files, and run tests.',
-  'Work toward the actual task requirements, not merely the visible test.',
-  'Prefer minimal sufficient changes. Preserve public interfaces unless the task explicitly permits changes.',
-  'Validate your work before finishing.',
-  'Do not access paths outside the current task workspace.',
-  'When finished, give a concise summary and the validation commands you ran.',
-].join('\n');
+const instructions = (
+  containerMode
+    ? [
+        'You are a software engineering agent operating inside a disposable benchmark container.',
+        'Use the shell tool to inspect and modify the container as needed to complete the task.',
+        'All shell commands run inside the benchmark container; system paths such as /etc and /var are container-local.',
+        'Do not try to access the Docker control plane or the host environment.',
+        'Work toward the actual task requirements and validate the final behavior before finishing.',
+        'When finished, give a concise summary and the validation commands you ran.',
+      ]
+    : [
+        'You are a software engineering agent working in a small isolated task workspace.',
+        'Use the shell tool to inspect files, edit files, and run tests.',
+        'Work toward the actual task requirements, not merely the visible test.',
+        'Prefer minimal sufficient changes. Preserve public interfaces unless the task explicitly permits changes.',
+        'Validate your work before finishing.',
+        'Do not access paths outside the current task workspace.',
+        'When finished, give a concise summary and the validation commands you ran.',
+      ]
+).join('\n');
 
 const tools = [{
   type: 'function',
@@ -51,6 +65,7 @@ safeEnv.HOME = taskDir;
 const maxTurns = Number(process.env.AGENT_MAX_TURNS ?? 16);
 const shellBudget = Number(process.env.AGENT_SHELL_BUDGET ?? 24);
 const maxOutputTokens = Number(process.env.AGENT_MAX_OUTPUT_TOKENS ?? 4096);
+const shellTimeoutMs = Number(process.env.AGENT_SHELL_TIMEOUT_MS ?? 30000);
 
 let input = [{ role: 'user', content: [{ type: 'input_text', text: task }] }];
 let totalUsage = { input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, cached_input_tokens: 0 };
@@ -110,14 +125,25 @@ function addUsage(u = {}) {
 function runShell(command) {
   commands.push(command);
   if (commands.length > shellBudget) return `ERROR: shell action budget exceeded (${shellBudget})`;
-  if (/\.\.|\/home\/|\/tmp\/|\/proc\/|\/etc\/|\bcurl\b|\bwget\b|\bprintenv\b|\benv\b|git\s+remote/i.test(command)) {
+
+  let executable = '/bin/bash';
+  let args = ['-lc', command];
+
+  if (containerMode) {
+    if (/\bdocker\b/i.test(command)) {
+      return 'ERROR: Docker control-plane access is not available inside the benchmark container';
+    }
+    executable = 'docker';
+    args = ['exec', '-w', dockerWorkdir, dockerContainer, '/bin/bash', '-lc', command];
+  } else if (/\.\.|\/home\/|\/tmp\/|\/proc\/|\/etc\/|\bcurl\b|\bwget\b|\bprintenv\b|\benv\b|git\s+remote/i.test(command)) {
     return 'ERROR: command rejected by benchmark workspace isolation policy';
   }
-  const result = spawnSync('/bin/bash', ['-lc', command], {
+
+  const result = spawnSync(executable, args, {
     cwd: taskDir,
     env: safeEnv,
     encoding: 'utf8',
-    timeout: 30000,
+    timeout: shellTimeoutMs,
     maxBuffer: 256 * 1024,
   });
   const output = [
@@ -174,6 +200,8 @@ const result = {
   shell_commands: commands.length,
   shell_budget: shellBudget,
   max_turns: maxTurns,
+  container_mode: containerMode,
+  docker_container: containerMode ? dockerContainer : null,
   usage: totalUsage,
   final_text: finalText,
 };
