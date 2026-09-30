@@ -15,25 +15,28 @@ public final class ImportSource {
     }
 
     public synchronized List<ImportRow> pageByOffset(int offset, int limit) {
-        return orderedRows().stream().skip(offset).limit(limit).toList();
+        return orderedRows().skip(offset).limit(limit).toList();
     }
 
-    synchronized List<ImportRow> pageAfter(long snapshot, long beforeCreatedAt,
-                                            long beforeId, long beforeIngestSeq, int limit) {
-        Comparator<ImportRow> order = order();
+    synchronized List<ImportRow> page(long snapshot, Checkpoint checkpoint, int limit) {
+        Comparator<ImportRow> ordering = ordering();
         return rows.stream()
             .filter(r -> r.ingestSeq <= snapshot)
-            .filter(r -> order.compare(r, new ImportRow(beforeId, beforeCreatedAt, beforeIngestSeq, "")) > 0)
-            .sorted(order)
+            .filter(r -> !checkpoint.hasCursor || ordering.compare(r, cursorRow(checkpoint)) > 0)
+            .sorted(ordering)
             .limit(limit)
             .toList();
     }
 
-    private List<ImportRow> orderedRows() {
-        return rows.stream().sorted(order()).toList();
+    private ImportRow cursorRow(Checkpoint c) {
+        return new ImportRow(c.beforeId, c.beforeCreatedAt, c.beforeIngestSeq, "");
     }
 
-    private static Comparator<ImportRow> order() {
+    private java.util.stream.Stream<ImportRow> orderedRows() {
+        return rows.stream().sorted(ordering());
+    }
+
+    private Comparator<ImportRow> ordering() {
         return Comparator.comparingLong((ImportRow r) -> r.createdAt).reversed()
             .thenComparing(Comparator.comparingLong((ImportRow r) -> r.id).reversed())
             .thenComparing(Comparator.comparingLong((ImportRow r) -> r.ingestSeq).reversed());

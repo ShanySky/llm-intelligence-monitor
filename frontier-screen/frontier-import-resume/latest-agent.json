@@ -2,11 +2,11 @@
   "task_dir": "/tmp/frontier-screen-frontier-import-resume",
   "model": "gpt-6-luna",
   "effort": "high",
-  "duration_seconds": 103,
-  "responses": 8,
+  "duration_seconds": 77,
+  "responses": 5,
   "api_retries": 0,
   "infrastructure_error": null,
-  "shell_commands": 7,
+  "shell_commands": 5,
   "shell_budget": 36,
   "validation_calls": 1,
   "validation_budget": 8,
@@ -15,10 +15,10 @@
   "container_mode": false,
   "docker_container": null,
   "usage": {
-    "input_tokens": 22587,
-    "output_tokens": 2137,
-    "reasoning_tokens": 813,
-    "cached_input_tokens": 11264
+    "input_tokens": 12410,
+    "output_tokens": 1956,
+    "reasoning_tokens": 550,
+    "cached_input_tokens": 5120
   },
-  "final_text": "Implemented the import recovery repair:\n\n- Each job pins its source snapshot on first run.\n- Keyset pagination uses `createdAt`, `id`, and `ingestSeq` to preserve ordering ties.\n- Stable job-and-row idempotency keys prevent duplicate upserts after a crash.\n- Runs are serialized around the shared checkpoint store so concurrent resumes cannot overwrite newer progress.\n\nValidation passed: `./run_visible_tests.sh` and the black-box validation (`VALIDATION_PASS: crash recovery, pinned snapshot, ordering ties, and concurrent resume all converge`)."
+  "final_text": "Implemented resumable imports using a snapshot pinned on the job’s first run, a stable keyset cursor that includes ingest sequence to break ordering ties, and job-scoped locking to serialize concurrent resumes. Upserts now use a stable per-job, per-row idempotency key, so retries converge if a failure occurs after an upsert.\n\nValidation passed:\n- `./run_visible_tests.sh`\n- Benchmark black-box validation: `VALIDATION_PASS`"
 }
