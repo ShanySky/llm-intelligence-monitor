@@ -36,6 +36,8 @@ function stats(effort) {
     shell_commands: mean(valid.map(r=>Number(r.shell_commands ?? 0))),
     probe_calls: mean(valid.map(r=>Number(r.probe_calls ?? 0))),
     probe_attempts: mean(valid.map(r=>Number(r.probe_attempts ?? r.probe_calls ?? 0))),
+    changed_files: mean(valid.map(r=>Number(r.patch_metrics?.changed_files ?? 0))),
+    changed_lines: mean(valid.map(r=>Number(r.patch_metrics?.changed_lines ?? 0))),
     total_tokens: mean(valid.map(totalTokens)),
     reasoning_tokens: mean(valid.map(r=>Number(r?.usage?.reasoning_tokens ?? 0))),
     saturated: valid.some(r=>Boolean(r.turn_limit_reached || r.shell_budget_reached)),
@@ -279,13 +281,13 @@ const lines = [
   '',
   `Trial mode: ${trialMode}`,
   '',
-  '| Effort | Trials | Quality mean | Quality stddev | Runtime avg | Shell avg | Probes avg | Probe attempts avg | Total tokens avg | Reasoning avg | Saturated |',
-  '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|',
+  '| Effort | Trials | Quality mean | Quality stddev | Runtime avg | Shell avg | Probes avg | Patch files | Patch lines | Total tokens avg | Reasoning avg | Saturated |',
+  '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|',
 ];
 for (const key of ['medium','high','xhigh']) {
   const r = byEffort[key];
   if (!r) continue;
-  lines.push(`| ${key} | ${r.trials} | ${f1(r.score)} | ${f1(r.score_stddev)} | ${Math.round(r.duration_seconds??0)}s | ${f1(r.shell_commands)} | ${f1(r.probe_calls)} | ${f1(r.probe_attempts)} | ${Math.round(r.total_tokens??0)} | ${Math.round(r.reasoning_tokens??0)} | ${r.saturated ? 'yes' : 'no'} |`);
+  lines.push(`| ${key} | ${r.trials} | ${f1(r.score)} | ${f1(r.score_stddev)} | ${Math.round(r.duration_seconds??0)}s | ${f1(r.shell_commands)} | ${f1(r.probe_calls)} | ${f1(r.changed_files)} | ${f1(r.changed_lines)} | ${Math.round(r.total_tokens??0)} | ${Math.round(r.reasoning_tokens??0)} | ${r.saturated ? 'yes' : 'no'} |`);
 }
 if (comparison) {
   lines.push(
