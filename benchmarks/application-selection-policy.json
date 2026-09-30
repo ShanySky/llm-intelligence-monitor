@@ -27,7 +27,8 @@
     "metrics": [
       "duration_seconds",
       "shell_commands",
-      "total_tokens"
+      "total_tokens",
+      "probe_calls"
     ],
     "confirmation": "Treat a single run as an efficiency candidate only; require repeated directionally consistent runs before confirmation."
   }
