@@ -1,8 +1,8 @@
 {
-  "task": "frontier-build-cache",
+  "task": "frontier-deep-fix",
   "model": "gpt-6-luna",
   "effort": "high",
-  "max_turns": 30,
-  "shell_budget": 30,
-  "validation_budget": 6
+  "max_turns": 32,
+  "shell_budget": 32,
+  "validation_budget": 4
 }
