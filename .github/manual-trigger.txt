@@ -120,3 +120,4 @@ Rebuild final suite with repeated-evidence Core maturity.
 AG21 semantic-order repeated validation M/H/XH x5.
 Frontier review family Luna High x3.
 Review family Sol Medium High X High across 3 variants.
+Refresh application discrimination report from latest completed suite.
