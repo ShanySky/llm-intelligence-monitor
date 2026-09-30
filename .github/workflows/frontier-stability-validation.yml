@@ -1,0 +1,223 @@
+name: Frontier discriminator stability validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontier-discriminator-stability
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-stability]')
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - id: matrix
+        shell: bash
+        run: |
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const x=require('./benchmarks/frontier-stability-target.json');
+          const include=[];
+          for(const effort of x.efforts ?? ['medium','high','xhigh']){
+            for(let trial=1;trial<=Number(x.trials ?? 2);trial++){
+              include.push({effort,trial});
+            }
+          }
+          console.log('matrix='+JSON.stringify({include}));
+          NODE
+
+  eval:
+    needs: prepare
+    if: needs.prepare.result == 'success'
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Load target
+        id: target
+        shell: bash
+        run: |
+          task="$(node -e "const x=require('./benchmarks/frontier-stability-target.json');process.stdout.write(x.task)")"
+          model="$(node -e "const x=require('./benchmarks/frontier-stability-target.json');process.stdout.write(x.model ?? 'gpt-6-sol')")"
+          max_turns="$(node -e "const x=require('./benchmarks/frontier-stability-target.json');process.stdout.write(String(x.max_turns ?? 40))")"
+          shell_budget="$(node -e "const x=require('./benchmarks/frontier-stability-target.json');process.stdout.write(String(x.shell_budget ?? 40))")"
+          echo "task=$task" >> "$GITHUB_OUTPUT"
+          echo "model=$model" >> "$GITHUB_OUTPUT"
+          echo "max_turns=$max_turns" >> "$GITHUB_OUTPUT"
+          echo "shell_budget=$shell_budget" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare isolated task
+        shell: bash
+        run: |
+          TASK="${{ steps.target.outputs.task }}"
+          TASK_DIR="/tmp/frontier-stability-$TASK-${{ matrix.effort }}-${{ matrix.trial }}"
+          rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
+          cp -R "benchmarks/$TASK/workspace/." "$TASK_DIR/"
+          [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
+          [ ! -f "$TASK_DIR/run_visible_tests.sh" ] || chmod +x "$TASK_DIR/run_visible_tests.sh"
+          [ ! -f "$TASK_DIR/check_generated.sh" ] || chmod +x "$TASK_DIR/check_generated.sh"
+          if [ -f "$TASK_DIR/run_visible_tests.sh" ]; then
+            (cd "$TASK_DIR" && ./run_visible_tests.sh)
+          fi
+          echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
+
+      - name: Run lightweight agent
+        id: agent
+        env:
+          AGENT_MAX_TURNS: ${{ steps.target.outputs.max_turns }}
+          AGENT_SHELL_BUDGET: ${{ steps.target.outputs.shell_budget }}
+        shell: bash
+        run: |
+          start="$(date +%s)"
+          set +e
+          timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ steps.target.outputs.model }}"             "${{ matrix.effort }}"             "$TASK_DIR/light-agent-result.json"
+          status=$?
+          set -e
+          end="$(date +%s)"
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          echo "wall_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+
+      - name: Score
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p result
+          python scripts/score-application-task.py             "${{ steps.target.outputs.task }}"             "$TASK_DIR"             "$TASK_DIR/score.json"
+          python - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          root=Path(os.environ["TASK_DIR"])
+          score=json.loads((root/"score.json").read_text())
+          rp=root/"light-agent-result.json"
+          runner=json.loads(rp.read_text()) if rp.exists() else {}
+          exit_code=int("${{ steps.agent.outputs.exit_code || '999' }}")
+          infra=runner.get("infrastructure_error")
+          if infra:
+              outcome="infrastructure_error"
+          elif exit_code==0:
+              outcome="completed"
+          elif exit_code==124:
+              outcome="model_timeout"
+          else:
+              outcome="runner_error"
+          result={
+            "task":"${{ steps.target.outputs.task }}",
+            "trial":int("${{ matrix.trial }}"),
+            "model":"${{ steps.target.outputs.model }}",
+            "effort":"${{ matrix.effort }}",
+            "score":score["score"],
+            "checks":score["checks"],
+            "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
+            "responses":runner.get("responses",0),
+            "max_turns":runner.get("max_turns"),
+            "shell_commands":runner.get("shell_commands",0),
+            "shell_budget":runner.get("shell_budget"),
+            "turn_limit_reached":bool(runner.get("max_turns")) and runner.get("responses",0)>=runner.get("max_turns"),
+            "shell_budget_reached":bool(runner.get("shell_budget")) and runner.get("shell_commands",0)>=runner.get("shell_budget"),
+            "usage":runner.get("usage",{}),
+            "api_retries":runner.get("api_retries",0),
+            "infrastructure_error":infra,
+            "agent_exit_code":exit_code,
+            "outcome":outcome,
+            "data_complete":outcome in ("completed","model_timeout")
+          }
+          Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
+          if rp.exists(): shutil.copy2(rp,"result/light-agent-result.json")
+          for name in ["REVIEW.md","PLAN.md","plan.json","REPORT.txt","FINDINGS.json",".actions"]:
+              p=root/name
+              if p.exists(): shutil.copy2(p,"result/"+name)
+          if (root/"src").exists(): shutil.copytree(root/"src","result/final-src",dirs_exist_ok=True)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontier-stability-${{ steps.target.outputs.task }}-${{ matrix.effort }}-t${{ matrix.trial }}-${{ github.run_id }}
+          path: result/
+          retention-days: 30
+
+  aggregate:
+    needs: [prepare, eval]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: frontier-stability-*-${{ github.run_id }}
+          path: results/frontier-stability
+
+      - name: Summarize stability
+        shell: bash
+        run: |
+          node scripts/summarize-frontier-stability.mjs             results/frontier-stability             benchmarks/frontier-stability-target.json             results/frontier-stability-summary.json             results/frontier-stability-summary.md
+          cat results/frontier-stability-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontier-stability-summary-${{ github.run_id }}
+          path: |
+            results/frontier-stability-summary.json
+            results/frontier-stability-summary.md
+          retention-days: 60
+
+      - name: Publish latest stability result
+        shell: bash
+        run: |
+          cp results/frontier-stability-summary.json /tmp/frontier-stability-summary.json
+          cp results/frontier-stability-summary.md /tmp/frontier-stability-summary.md
+          TASK="$(node -e "const x=require('./benchmarks/frontier-stability-target.json');process.stdout.write(x.task)")"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin frontier-stability-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/frontier-stability-results; then
+            git switch -C frontier-stability-results origin/frontier-stability-results
+          else
+            git switch --orphan frontier-stability-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p "frontier-stability/$TASK/runs"
+          cp /tmp/frontier-stability-summary.json "frontier-stability/$TASK/latest.json"
+          cp /tmp/frontier-stability-summary.md "frontier-stability/$TASK/latest.md"
+          cp /tmp/frontier-stability-summary.json "frontier-stability/$TASK/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/frontier-stability-summary.md "frontier-stability/$TASK/runs/${GITHUB_RUN_ID}.md"
+          git add frontier-stability
+          if ! git diff --cached --quiet; then
+            git commit -m "Record frontier stability validation $TASK ${GITHUB_RUN_ID}"
+            git push origin HEAD:frontier-stability-results
+          fi
