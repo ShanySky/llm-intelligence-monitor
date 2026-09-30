@@ -336,3 +336,15 @@ the same hidden fixture at 100% before a replay task is accepted.
 This lane is the preferred Effort Core source when synthetic micro-repositories
 saturate at Medium/High/X High. Synthetic tasks remain valuable as coverage and Model
 Core tests.
+
+
+## GitHub Actions 触发治理
+
+为避免研发阶段的 benchmark Workflow 在每次普通提交时全部创建 `skipped` run：
+
+- 正式日测保留 `schedule`；
+- benchmark / calibration / report refresh 默认使用 `workflow_dispatch`；
+- 需要从提交触发时，只允许监听各自的 `.github/triggers/*.txt` 专用触发文件；
+- 禁止重新使用“所有 `main` push 都创建 run，再靠 job-level `if` 跳过”的模式；
+- funnel 判断为 coverage-only / retired 时应正常 skip，不应使用非零退出码制造 failure 邮件；
+- 历史 Actions 清理只删除 skipped / cancelled，成功结果和失败诊断默认保留。
