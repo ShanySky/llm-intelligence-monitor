@@ -1,0 +1,278 @@
+# Application-focused reasoning-effort probes v2.
+# Designed for low-cost Medium vs X High screening before any expensive Agent run.
+# Assertions ignore meaningless whitespace while preserving decision identity/order.
+
+- description: EV21-EN-event-contract-rollout
+  vars:
+    pair_id: EV21
+    language: en
+    category: architecture
+    ability: solution_design
+    difficulty: research_hard
+    family: event_schema_rollout
+    question: >-
+      A checkout platform must migrate Kafka events from legacy customer_id to
+      stable customer_key. Producers and consumers roll independently. Delivery
+      is at-least-once, the replay service can resend six months of old events,
+      and the application producer must remain rollback-compatible with the old
+      producer release for one full release window.
+
+      Decisions:
+      E1 deploy consumers that accept both identity fields and deduplicate by the
+         business order/version key;
+      E2 switch producers directly to customer_key-only events;
+      E3 make the new producer emit customer_id plus customer_key additively;
+      E4 reset consumer offsets after the producer change;
+      E5 validate live delivery plus replayed legacy events through the
+         compatibility consumers;
+      E6 roll the remaining old consumers to the compatibility consumer;
+      E7 close the producer rollback window after mixed-version validation;
+      E8 only after E7, allow a later producer release to stop emitting
+         customer_id;
+      E9 delete the legacy field from stored replay payloads before E5;
+      E10 pause event delivery during the rollout;
+      E11 keep delivery-id dedupe because each retry has a unique ID;
+      E12 clear the DLQ instead of replaying it.
+
+      Select the minimal safe ordered decision sequence. Output IDs only,
+      comma-separated.
+  assert:
+    - type: regex
+      value: "^\\s*E1\\s*,\\s*E3\\s*,\\s*E5\\s*,\\s*E6\\s*,\\s*E7\\s*,\\s*E8\\s*$"
+
+- description: DB21-EN-shard-key-migration
+  vars:
+    pair_id: DB21
+    language: en
+    category: architecture
+    ability: solution_design
+    difficulty: research_hard
+    family: shard_key_migration
+    question: >-
+      A multi-tenant service is replacing a mutable email-derived shard key with
+      an immutable account_key. Old and new application versions overlap for one
+      release, writes continue throughout migration, background backfill can be
+      delayed, and rollback to the old version must remain safe until an
+      explicit gate closes.
+
+      Decisions:
+      D1 add nullable account_key and a mapping index online;
+      D2 deploy compatibility code that resolves both keys and preserves the old
+         routing record on every live write;
+      D3 immediately route all reads/writes by account_key only;
+      D4 make backfill compare the captured row version before installing a
+         mapping;
+      D5 backfill mappings in resumable batches;
+      D6 verify routing parity under concurrent old/new writes;
+      D7 cut primary routing to account_key while dual resolution remains;
+      D8 retire all old writers after cutover validation;
+      D9 close the rollback window;
+      D10 remove legacy routing state in a later irreversible cleanup;
+      D11 rebuild the whole tenant table under a global write lock;
+      D12 derive account_key again from the current email during every read.
+
+      Select the minimal safe ordered sequence. Output IDs only, comma-separated.
+  assert:
+    - type: regex
+      value: "^\\s*D1\\s*,\\s*D2\\s*,\\s*D4\\s*,\\s*D5\\s*,\\s*D6\\s*,\\s*D7\\s*,\\s*D8\\s*,\\s*D9\\s*,\\s*D10\\s*$"
+
+- description: CR21-EN-price-write-reliability-review
+  vars:
+    pair_id: CR21
+    language: en
+    category: coding
+    ability: code_review_debugging
+    difficulty: research_hard
+    family: transactional_reliability_review
+    question: >-
+      Review a production price-update patch. repo.updateIfVersion(...) returns
+      false on optimistic conflict. The method ignores that boolean, evicts a
+      cache inside the transaction, and enqueues AuditWork(productId,
+      expectedVersion+1). An async worker later rereads the current product and
+      sends audit(version from the work item, price from the reread) using a new
+      random UUID on every delivery. Cache misses read committed DB state.
+
+      Candidate findings:
+      F1 ignored updateIfVersion may publish cache/audit effects for a rejected write;
+      F2 cache eviction before commit can let a concurrent miss repopulate old committed data;
+      F3 the audit worker can pair the accepted version with a later price from a newer write;
+      F4 a random delivery UUID defeats sink dedupe on audit retry;
+      F5 moving the worker to another thread automatically joins the caller transaction;
+      F6 calling flush() before eviction makes rollback-safe cache invalidation;
+      F7 a robust repair snapshots the accepted version+price and dispatches durable
+         after-commit work with a stable business key;
+      F8 synchronizing the service method is sufficient across all instances.
+
+      Select all and only blocking findings/fix direction. IDs ascending.
+  assert:
+    - type: regex
+      value: "^\\s*F1\\s*,\\s*F2\\s*,\\s*F3\\s*,\\s*F4\\s*,\\s*F7\\s*$"
+
+- description: CR22-EN-distributed-lease-review
+  vars:
+    pair_id: CR22
+    language: en
+    category: coding
+    ability: code_review_debugging
+    difficulty: research_hard
+    family: lease_fencing_review
+    question: >-
+      Two scheduler instances claim the same job through a database lease.
+      acquire(job) stores owner and expires_at=now()+30s. A worker reads the job,
+      performs a slow external publish, then writes COMPLETED if owner still
+      equals itself. Lease renewal only checks owner and extends expires_at.
+      After a process pause longer than 30s, another instance may acquire the
+      expired lease. The external target supports idempotency only if the caller
+      reuses one stable business key.
+
+      Candidate findings:
+      L1 owner equality alone cannot prevent an expired old holder from acting
+         after a new holder acquires the lease;
+      L2 a monotonically increasing fencing/attempt token should guard durable
+         state transitions from stale holders;
+      L3 the external publish should use a stable job-scoped idempotency identity
+         across takeover/retry;
+      L4 renewing solely by owner can let a resumed stale holder extend a lease
+         after ownership was replaced if owner identifiers can be reused;
+      L5 increasing the lease from 30s to 30m proves exactly-once execution;
+      L6 synchronized Java methods solve cross-instance ownership races;
+      L7 completion should be conditional on the current fencing token, not only owner;
+      L8 randomizing the publish idempotency key on every retry is safer.
+
+      Select all and only blocking findings/fixes. IDs ascending.
+  assert:
+    - type: regex
+      value: "^\\s*L1\\s*,\\s*L2\\s*,\\s*L3\\s*,\\s*L4\\s*,\\s*L7\\s*$"
+
+- description: AG21-EN-correlated-rollout-diagnosis
+  vars:
+    pair_id: AG21
+    language: en
+    category: agent
+    ability: tool_use_planning
+    difficulty: research_hard
+    family: causal_diagnostic_plan
+    question: >-
+      Checkout errors occur only on api-b. api-b is both the only pod on config
+      revision 23 and the only pod in zone-b, where background packet-loss
+      warnings also exist. You have six actions:
+
+      A1 inspect the exact rendered config diff on api-b;
+      A2 move the same api-b binary/config to zone-a and replay checkout;
+      A3 replay api-b with desired config 24 while keeping it in zone-b;
+      A4 restart every pod;
+      A5 after one variable is causally isolated, replace only the causal drift;
+      A6 verify repeated checkout across both zones/revisions;
+      A7 scale the service;
+      A8 disable payment retries;
+      A9 inspect aggregate CPU only.
+
+      Choose the minimal evidence-first sequence that distinguishes config from
+      zone/network correlation, makes only the justified repair, and verifies.
+      Output IDs only, comma-separated.
+  assert:
+    - type: regex
+      value: "^\\s*A1\\s*,\\s*A2\\s*,\\s*A3\\s*,\\s*A5\\s*,\\s*A6\\s*$"
+
+- description: AG22-EN-stale-read-diagnosis
+  vars:
+    pair_id: AG22
+    language: en
+    category: agent
+    ability: tool_use_planning
+    difficulty: research_hard
+    family: layered_consistency_diagnostic
+    question: >-
+      After a customer write, 3% of strict read-after-write requests are stale.
+      The service uses cache-aside plus an async replica. Mixed old/new cache
+      invalidators are deployed. You need to distinguish cache alias invalidation
+      from replica lag without broad mitigation.
+
+      Actions:
+      A1 reproduce a legacy-writer update while forcing the subsequent strict read
+         to primary but keeping cache enabled;
+      A2 repeat after bypassing cache, compare primary versus replica;
+      A3 inspect which cache aliases survive the legacy-writer invalidation;
+      A4 flush the entire cache and declare success if the symptom disappears;
+      A5 if dual alias invalidation is proven missing, repair that compatibility path;
+      A6 if strict reads are proven replica-lag sensitive even with cache bypassed,
+         route only strict reads to primary;
+      A7 restart all invalidators;
+      A8 verify both legacy-writer and v2-writer scenarios after targeted repairs.
+
+      Choose the minimal ordered diagnosis/repair/verification sequence that can
+      establish and fix both independent causes if present. Output IDs only.
+  assert:
+    - type: regex
+      value: "^\\s*A1\\s*,\\s*A3\\s*,\\s*A2\\s*,\\s*A5\\s*,\\s*A6\\s*,\\s*A8\\s*$"
+
+- description: LH21-EN-cancellable-publish-recovery
+  vars:
+    pair_id: LH21
+    language: en
+    category: long_horizon
+    ability: goal_maintenance_adaptation
+    difficulty: research_hard
+    family: checkpointed_recovery
+    question: >-
+      Original goal: migrate a synchronous report generator to cancellable async
+      jobs while preserving the old API for one release and guaranteeing one
+      logical published artifact per job.
+
+      Already implemented: job creation, worker claim, cancel_requested flag,
+      status polling, and old endpoint compatibility. New validation reveals:
+      (1) cancellation during generation is ignored; (2) a crash after object
+      upload but before COMMITTED causes a second upload on retry; (3) a stale
+      worker can overwrite CANCELLED with COMPLETED after takeover; (4) the UI
+      stops polling at CANCEL_REQUESTED.
+
+      Actions:
+      N1 add cooperative cancellation checks during generation and before publish;
+      N2 mark CANCELLED immediately in the DELETE handler;
+      N3 derive stable publish identity from jobId and reconcile already-published state;
+      N4 generate a fresh timestamp artifact name on each retry;
+      N5 guard terminal transitions with the current worker/fencing attempt;
+      N6 keep CANCEL_REQUESTED non-terminal in the UI;
+      N7 delete the old synchronous API;
+      N8 add validation for mid-flight cancel, post-publish crash/takeover, stale
+         completion, and old API compatibility;
+      N9 only increase worker timeout.
+
+      Choose the minimal sufficient ordered continuation, with validation last.
+      Output IDs only.
+  assert:
+    - type: regex
+      value: "^\\s*N1\\s*,\\s*N3\\s*,\\s*N5\\s*,\\s*N6\\s*,\\s*N8\\s*$"
+
+- description: LH22-EN-signing-key-rotation-recovery
+  vars:
+    pair_id: LH22
+    language: en
+    category: long_horizon
+    ability: goal_maintenance_adaptation
+    difficulty: research_hard
+    family: rollout_recovery
+    question: >-
+      Original goal: rotate JWT signing keys without invalidating active sessions
+      and while allowing rollback for one release. The new signer is deployed and
+      emits kid=new. Validation reveals: one verifier cache keys entries only by
+      kid even though two issuers reuse kid=shared; legacy tokens without kid still
+      exist; replacing key material under the same kid leaves stale cached material;
+      rollback may still issue the previous key during the grace window.
+
+      Actions:
+      K1 scope verifier cache by issuer+kid and registry revision;
+      K2 reject every token without kid immediately;
+      K3 during grace, legacy no-kid verification tries only retained overlap keys
+         for the token's issuer;
+      K4 keep the previous issuer key valid until rollback/grace closes;
+      K5 on same-kid key replacement, invalidate via key-registry revision;
+      K6 remove previous keys before the rollback drill;
+      K7 verify new, previous-keyed, legacy-no-kid, same-kid replacement, and
+         cross-issuer isolation before ending grace;
+      K8 after rollback/grace closes, retire previous compatibility keys.
+
+      Choose the minimal safe ordered continuation. Output IDs only.
+  assert:
+    - type: regex
+      value: "^\\s*K1\\s*,\\s*K3\\s*,\\s*K4\\s*,\\s*K5\\s*,\\s*K7\\s*,\\s*K8\\s*$"
