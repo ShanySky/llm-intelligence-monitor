@@ -1,0 +1,222 @@
+name: Real repo replay effort family
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: real-repo-replay-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-replay-family]')
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: matrix
+        shell: bash
+        run: |
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const c=require('./benchmarks/real-repo-replay/config.json');
+          const include=[];
+          for(const effort of c.efforts){
+            for(const item of c.cases) include.push({
+              effort,
+              model:c.model,
+              trial:item.trial,
+              case_id:item.id,
+              target_sha:item.target_sha,
+              max_turns:c.max_turns ?? 28,
+              shell_budget:c.shell_budget ?? 20
+            });
+          }
+          console.log('matrix='+JSON.stringify({include}));
+          NODE
+
+  eval:
+    needs: prepare
+    if: needs.prepare.result == 'success'
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Prepare hidden-parent replay workspace
+        shell: bash
+        run: |
+          TARGET="${{ matrix.target_sha }}"
+          BASE="$(git rev-parse "$TARGET^")"
+          TASK_DIR="/tmp/replay-${{ matrix.case_id }}-${{ matrix.effort }}"
+          rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
+          git archive "$BASE" | tar -x -C "$TASK_DIR"
+          cp "benchmarks/real-repo-replay/${{ matrix.case_id }}/TASK.md" "$TASK_DIR/TASK.md"
+          echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
+          echo "BASE_SHA=$BASE" >> "$GITHUB_ENV"
+
+      - name: Run agent against historical parent
+        id: agent
+        env:
+          AGENT_MAX_TURNS: ${{ matrix.max_turns }}
+          AGENT_SHELL_BUDGET: ${{ matrix.shell_budget }}
+        shell: bash
+        run: |
+          start="$(date +%s)"
+          set +e
+          timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ matrix.model }}"             "${{ matrix.effort }}"             "$TASK_DIR/light-agent-result.json"
+          status=$?
+          set -e
+          end="$(date +%s)"
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          echo "wall_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+
+      - name: Hidden replay scoring
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p result
+          node scripts/score-real-repo-replay.mjs             "${{ matrix.case_id }}"             "$TASK_DIR"             "$TASK_DIR/replay-score.json"             benchmarks/real-repo-replay/config.json
+          python - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          root=Path(os.environ["TASK_DIR"])
+          score=json.loads((root/"replay-score.json").read_text())
+          rp=root/"light-agent-result.json"
+          runner=json.loads(rp.read_text()) if rp.exists() else {}
+          exit_code=int("${{ steps.agent.outputs.exit_code || '999' }}")
+          infra=runner.get("infrastructure_error")
+          if infra: outcome="infrastructure_error"
+          elif exit_code==0: outcome="completed"
+          elif exit_code==124: outcome="model_timeout"
+          else: outcome="runner_error"
+          row={
+            "task":"real-repo-replay-family",
+            "case_id":"${{ matrix.case_id }}",
+            "trial":int("${{ matrix.trial }}"),
+            "base_sha":os.environ.get("BASE_SHA"),
+            "model":"${{ matrix.model }}",
+            "effort":"${{ matrix.effort }}",
+            "score":score["score"],
+            "behavior_score":score["behavior_score"],
+            "patch_quality_score":score.get("patch_quality_score"),
+            "checks":score["checks"],
+            "patch_metrics":runner.get("patch_metrics",{}),
+            "unexpected_changed":score.get("unexpected_changed",[]),
+            "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
+            "shell_commands":runner.get("shell_commands",0),
+            "usage":runner.get("usage",{}),
+            "infrastructure_error":infra,
+            "outcome":outcome,
+            "data_complete":outcome in ("completed","model_timeout")
+          }
+          Path("result/result.json").write_text(json.dumps(row,indent=2)+"\n")
+          if rp.exists(): shutil.copy2(rp,"result/light-agent-result.json")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: replay-${{ matrix.case_id }}-${{ matrix.effort }}-${{ github.run_id }}
+          path: result/
+          retention-days: 30
+
+  aggregate:
+    needs: [prepare, eval]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: replay-*-${{ github.run_id }}
+          path: replay-results
+
+      - name: Summarize replay family
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'),path=require('path');
+          const rows=[];
+          function walk(p){
+            if(!fs.existsSync(p)) return;
+            for(const e of fs.readdirSync(p,{withFileTypes:true})){
+              const f=path.join(p,e.name);
+              if(e.isDirectory()) walk(f);
+              else if(e.name==='result.json') rows.push(JSON.parse(fs.readFileSync(f,'utf8')));
+            }
+          }
+          walk('replay-results');
+          rows.sort((a,b)=>String(a.effort).localeCompare(String(b.effort))||Number(a.trial)-Number(b.trial));
+          const out={generated_at:new Date().toISOString(),trial_mode:'variants',rows};
+          fs.writeFileSync('replay-summary.json',JSON.stringify(out,null,2)+'\n');
+          let md='# Real Repo Replay Family\n\n| Case | Effort | Replay quality | Behavior | Patch quality | Runtime | Changed files | Changed lines |\n|---|---|---:|---:|---:|---:|---:|---:|\n';
+          for(const r of rows) md+=`| ${r.case_id} | ${r.effort} | ${r.score} | ${r.behavior_score} | ${r.patch_quality_score??'-'} | ${r.duration_seconds}s | ${r.patch_metrics?.changed_files??0} | ${r.patch_metrics?.changed_lines??0} |\n`;
+          fs.writeFileSync('replay-summary.md',md);
+          NODE
+          node scripts/analyze-effort-efficiency.mjs             replay-summary.json             benchmarks/application-selection-policy.json             replay-analysis.json             replay-analysis.md
+          cat replay-summary.md >> "$GITHUB_STEP_SUMMARY"
+          printf "\n\n" >> "$GITHUB_STEP_SUMMARY"
+          cat replay-analysis.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: real-repo-replay-summary-${{ github.run_id }}
+          path: |
+            replay-summary.json
+            replay-summary.md
+            replay-analysis.json
+            replay-analysis.md
+          retention-days: 60
+
+      - name: Publish replay evidence
+        shell: bash
+        run: |
+          cp replay-summary.json /tmp/replay-summary.json
+          cp replay-summary.md /tmp/replay-summary.md
+          cp replay-analysis.json /tmp/replay-analysis.json
+          cp replay-analysis.md /tmp/replay-analysis.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin real-repo-replay-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/real-repo-replay-results; then
+            git switch -C real-repo-replay-results origin/real-repo-replay-results
+          else
+            git switch --orphan real-repo-replay-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p replay/runs
+          cp /tmp/replay-summary.json replay/latest.json
+          cp /tmp/replay-summary.md replay/latest.md
+          cp /tmp/replay-analysis.json replay/analysis-latest.json
+          cp /tmp/replay-analysis.md replay/analysis-latest.md
+          cp /tmp/replay-summary.json "replay/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/replay-analysis.json "replay/runs/${GITHUB_RUN_ID}-analysis.json"
+          git add replay
+          if ! git diff --cached --quiet; then
+            git commit -m "Record real-repo replay family ${GITHUB_RUN_ID}"
+            git push origin HEAD:real-repo-replay-results
+          fi
