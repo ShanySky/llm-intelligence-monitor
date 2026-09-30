@@ -1,0 +1,6 @@
+gate=offline-restart status=FAILED
+queue item survived process crash
+server had already committed queued edit before crash
+after restart the queue replay used a new operation identity
+result: version conflict / duplicate logical replay depending on timing
+expected: queued logical edit keeps one durable operation identity across restart
