@@ -123,6 +123,77 @@ let apiRetries = 0;
 let infrastructureError = null;
 const startedAt = Date.now();
 
+const snapshotIgnore = (rel) =>
+  /(^|\/)(?:\.git|out|hidden-out|node_modules)(?:\/|$)/.test(rel) ||
+  /(?:^|\/)(?:light-agent-result|score)\.json$/.test(rel) ||
+  /\.class$/.test(rel);
+
+function snapshotWorkspace(root) {
+  const snap = new Map();
+  function walk(dir) {
+    for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, ent.name);
+      const rel = path.relative(root, full).replace(/\\/g, '/');
+      if (snapshotIgnore(rel)) continue;
+      if (ent.isDirectory()) {
+        walk(full);
+      } else if (ent.isFile()) {
+        try {
+          const stat = fs.statSync(full);
+          if (stat.size > 1024 * 1024) continue;
+          const buf = fs.readFileSync(full);
+          if (buf.includes(0)) continue;
+          snap.set(rel, buf.toString('utf8'));
+        } catch {}
+      }
+    }
+  }
+  walk(root);
+  return snap;
+}
+
+function changedLineCount(beforeText, afterText) {
+  const a = String(beforeText ?? '').split(/\r?\n/);
+  const b = String(afterText ?? '').split(/\r?\n/);
+  if (a.length * b.length > 250000) {
+    return Math.abs(a.length - b.length) + Math.min(a.length, b.length);
+  }
+  const dp = new Array(b.length + 1).fill(0);
+  for (let i = 1; i <= a.length; i += 1) {
+    let prev = 0;
+    for (let j = 1; j <= b.length; j += 1) {
+      const old = dp[j];
+      if (a[i - 1] === b[j - 1]) dp[j] = prev + 1;
+      else dp[j] = Math.max(dp[j], dp[j - 1]);
+      prev = old;
+    }
+  }
+  const lcs = dp[b.length];
+  return (a.length - lcs) + (b.length - lcs);
+}
+
+function diffWorkspace(before, after) {
+  const files = [...new Set([...before.keys(), ...after.keys()])].sort();
+  const changes = [];
+  for (const rel of files) {
+    const hasBefore = before.has(rel);
+    const hasAfter = after.has(rel);
+    if (hasBefore && hasAfter && before.get(rel) === after.get(rel)) continue;
+    const kind = !hasBefore ? 'added' : (!hasAfter ? 'deleted' : 'modified');
+    const changedLines = changedLineCount(before.get(rel) ?? '', after.get(rel) ?? '');
+    changes.push({ path: rel, kind, changed_lines: changedLines });
+  }
+  return {
+    changed_files: changes.length,
+    changed_lines: changes.reduce((sum, x) => sum + Number(x.changed_lines ?? 0), 0),
+    added_files: changes.filter((x) => x.kind === 'added').length,
+    deleted_files: changes.filter((x) => x.kind === 'deleted').length,
+    files: changes,
+  };
+}
+
+const initialWorkspaceSnapshot = snapshotWorkspace(taskDir);
+
 async function callModel() {
   let lastError = null;
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -296,6 +367,9 @@ try {
   infrastructureError = String(error?.message ?? error);
 }
 
+const finalWorkspaceSnapshot = snapshotWorkspace(taskDir);
+const patchMetrics = diffWorkspace(initialWorkspaceSnapshot, finalWorkspaceSnapshot);
+
 const result = {
   task_dir: taskDir,
   model,
@@ -316,6 +390,7 @@ const result = {
   probe_queries: probeQueries,
   probe_executed_queries: probeExecutedQueries,
   probe_observations: probeObservations,
+  patch_metrics: patchMetrics,
   max_turns: maxTurns,
   container_mode: containerMode,
   docker_container: containerMode ? dockerContainer : null,
