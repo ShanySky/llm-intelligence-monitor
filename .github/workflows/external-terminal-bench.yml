@@ -1,0 +1,133 @@
+name: External Terminal-Bench calibration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: external-terminal-bench-calibration
+  cancel-in-progress: false
+
+jobs:
+  screen:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-external-tb]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Load external task metadata
+        id: meta
+        shell: bash
+        run: |
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const x=require('./benchmarks/external-terminal-bench.json');
+          console.log('task='+x.task);
+          console.log('commit='+x.source_commit);
+          console.log('image='+x.docker_image);
+          console.log('timeout='+x.agent_timeout_seconds);
+          NODE
+
+      - name: Start isolated Terminal-Bench container
+        shell: bash
+        run: |
+          C="tb-ext-${GITHUB_RUN_ID}"
+          docker pull "${{ steps.meta.outputs.image }}"
+          docker run -d --name "$C" "${{ steps.meta.outputs.image }}" sleep infinity
+          echo "TB_CONTAINER=$C" >> "$GITHUB_ENV"
+
+          TASK_DIR="/tmp/external-tb-${GITHUB_RUN_ID}"
+          mkdir -p "$TASK_DIR"
+          curl -fsSL             "https://raw.githubusercontent.com/harbor-framework/terminal-bench-2-1/${{ steps.meta.outputs.commit }}/tasks/${{ steps.meta.outputs.task }}/instruction.md"             -o "$TASK_DIR/TASK.md"
+          echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
+
+      - name: Run Luna High external screen
+        id: agent
+        env:
+          AGENT_DOCKER_CONTAINER: ${{ env.TB_CONTAINER }}
+          AGENT_DOCKER_WORKDIR: /app
+          AGENT_MAX_TURNS: "20"
+          AGENT_SHELL_BUDGET: "30"
+          AGENT_SHELL_TIMEOUT_MS: "120000"
+          AGENT_MAX_OUTPUT_TOKENS: "4096"
+        shell: bash
+        run: |
+          start="$(date +%s)"
+          set +e
+          timeout "${{ steps.meta.outputs.timeout }}s" node scripts/light-agent-runner.mjs             "$TASK_DIR"             "gpt-6-luna"             "high"             "$TASK_DIR/light-agent-result.json"
+          status=$?
+          set -e
+          end="$(date +%s)"
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          echo "wall_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+
+      - name: Run upstream verifier
+        id: verify
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p result
+          curl -fsSL             "https://raw.githubusercontent.com/harbor-framework/terminal-bench-2-1/${{ steps.meta.outputs.commit }}/tasks/${{ steps.meta.outputs.task }}/tests/verify.sh"             -o /tmp/tb-verify.sh
+          docker cp /tmp/tb-verify.sh "$TB_CONTAINER:/tmp/verify.sh"
+          set +e
+          docker exec "$TB_CONTAINER" bash /tmp/verify.sh > result/verifier.log 2>&1
+          verify_status=$?
+          set -e
+          if grep -q "TEST PASSED" result/verifier.log; then pass=true; else pass=false; fi
+          echo "pass=$pass" >> "$GITHUB_OUTPUT"
+          echo "status=$verify_status" >> "$GITHUB_OUTPUT"
+          cat result/verifier.log
+
+      - name: Build result
+        if: always()
+        shell: bash
+        run: |
+          cp "$TASK_DIR/light-agent-result.json" result/ 2>/dev/null || true
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path(os.environ["TASK_DIR"])/"light-agent-result.json"
+          runner=json.loads(p.read_text()) if p.exists() else {}
+          result={
+            "source":"terminal-bench-2.1",
+            "source_commit":"${{ steps.meta.outputs.commit }}",
+            "task":"${{ steps.meta.outputs.task }}",
+            "model":"gpt-6-luna",
+            "effort":"high",
+            "score":100 if "${{ steps.verify.outputs.pass }}"=="true" else 0,
+            "passed":"${{ steps.verify.outputs.pass }}"=="true",
+            "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '600' }}")),
+            "shell_commands":runner.get("shell_commands",0),
+            "usage":runner.get("usage",{}),
+            "agent_exit_code":int("${{ steps.agent.outputs.exit_code || '999' }}"),
+            "verifier_status":int("${{ steps.verify.outputs.status || '999' }}"),
+            "infrastructure_error":runner.get("infrastructure_error")
+          }
+          Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
+          print(json.dumps(result,indent=2))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: external-tb-${{ steps.meta.outputs.task }}-${{ github.run_id }}
+          path: result/
+          retention-days: 30
+
+      - name: Cleanup container
+        if: always()
+        shell: bash
+        run: docker rm -f "$TB_CONTAINER" >/dev/null 2>&1 || true
