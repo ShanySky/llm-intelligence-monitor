@@ -501,9 +501,9 @@
     {
       "id": "frontier-review-precision-family",
       "family": "code_review_precision_with_safe_distractors",
-      "status": "model-discrimination-candidate",
+      "status": "effort-sensitivity-repeat-validation",
       "promoted_to_final": false,
-      "note": "High-precision distractor design separated Luna from Sol on one variant, but Sol Medium/High/XHigh all scored 100 across all three variants. Retain for cross-model research; retire from Effort Core funnel.",
+      "note": "GPT-6.1 Sol shows a 13.3-point nonmonotonic High dip across three variants, but this is one family round. Repeat the same 3x3 family before Effort Core promotion to exclude random variance.",
       "evidence": {
         "luna_high_variant_scores": [
           100,
@@ -517,7 +517,33 @@
           "xhigh": 100
         },
         "sol_effort_signal": "none",
-        "variants": 3
+        "variants": 3,
+        "resident_sol_model": "gpt-6.1-sol",
+        "first_gpt_6_1_family_round": {
+          "medium_scores": [
+            100,
+            100,
+            100
+          ],
+          "high_scores": [
+            100,
+            60,
+            100
+          ],
+          "xhigh_scores": [
+            100,
+            100,
+            100
+          ],
+          "means": {
+            "medium": 100,
+            "high": 86.7,
+            "xhigh": 100
+          },
+          "effort_spread_points": 13.3,
+          "shape": "high-dip",
+          "budget_confounded": false
+        }
       }
     },
     {
