@@ -1,0 +1,606 @@
+{
+  "task": "frontier-incident-cascade",
+  "model": "gpt-6-sol",
+  "rows": [
+    {
+      "task": "frontier-incident-cascade",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "trial": 1,
+      "score": 100,
+      "checks": {
+        "targeted_config_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "post_fix_verification_exposed_second_failure": {
+          "points": 15,
+          "passed": true
+        },
+        "targeted_consumer_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "config_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "second_stage_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_broad_or_destructive_actions": {
+          "points": 10,
+          "passed": true
+        },
+        "final_end_to_end_verification": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_both_failure_domains": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 61,
+      "responses": 9,
+      "shell_commands": 8,
+      "max_turns": 40,
+      "shell_budget": 40,
+      "saturated": false,
+      "usage": {
+        "input_tokens": 10369,
+        "output_tokens": 612,
+        "reasoning_tokens": 51,
+        "cached_input_tokens": 3328
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-incident-cascade",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "trial": 2,
+      "score": 100,
+      "checks": {
+        "targeted_config_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "post_fix_verification_exposed_second_failure": {
+          "points": 15,
+          "passed": true
+        },
+        "targeted_consumer_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "config_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "second_stage_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_broad_or_destructive_actions": {
+          "points": 10,
+          "passed": true
+        },
+        "final_end_to_end_verification": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_both_failure_domains": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 62,
+      "responses": 9,
+      "shell_commands": 8,
+      "max_turns": 40,
+      "shell_budget": 40,
+      "saturated": false,
+      "usage": {
+        "input_tokens": 10761,
+        "output_tokens": 650,
+        "reasoning_tokens": 82,
+        "cached_input_tokens": 3456
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-incident-cascade",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "trial": 3,
+      "score": 100,
+      "checks": {
+        "targeted_config_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "post_fix_verification_exposed_second_failure": {
+          "points": 15,
+          "passed": true
+        },
+        "targeted_consumer_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "config_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "second_stage_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_broad_or_destructive_actions": {
+          "points": 10,
+          "passed": true
+        },
+        "final_end_to_end_verification": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_both_failure_domains": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 60,
+      "responses": 9,
+      "shell_commands": 8,
+      "max_turns": 40,
+      "shell_budget": 40,
+      "saturated": false,
+      "usage": {
+        "input_tokens": 10323,
+        "output_tokens": 595,
+        "reasoning_tokens": 64,
+        "cached_input_tokens": 1152
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-incident-cascade",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "trial": 1,
+      "score": 95,
+      "checks": {
+        "targeted_config_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "post_fix_verification_exposed_second_failure": {
+          "points": 15,
+          "passed": true
+        },
+        "targeted_consumer_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "config_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "second_stage_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_broad_or_destructive_actions": {
+          "points": 10,
+          "passed": true
+        },
+        "final_end_to_end_verification": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_both_failure_domains": {
+          "points": 5,
+          "passed": false
+        }
+      },
+      "duration_seconds": 55,
+      "responses": 8,
+      "shell_commands": 7,
+      "max_turns": 40,
+      "shell_budget": 40,
+      "saturated": false,
+      "usage": {
+        "input_tokens": 9349,
+        "output_tokens": 671,
+        "reasoning_tokens": 118,
+        "cached_input_tokens": 2176
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-incident-cascade",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "trial": 2,
+      "score": 100,
+      "checks": {
+        "targeted_config_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "post_fix_verification_exposed_second_failure": {
+          "points": 15,
+          "passed": true
+        },
+        "targeted_consumer_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "config_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "second_stage_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_broad_or_destructive_actions": {
+          "points": 10,
+          "passed": true
+        },
+        "final_end_to_end_verification": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_both_failure_domains": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 61,
+      "responses": 9,
+      "shell_commands": 8,
+      "max_turns": 40,
+      "shell_budget": 40,
+      "saturated": false,
+      "usage": {
+        "input_tokens": 10774,
+        "output_tokens": 712,
+        "reasoning_tokens": 131,
+        "cached_input_tokens": 2432
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-incident-cascade",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "trial": 3,
+      "score": 100,
+      "checks": {
+        "targeted_config_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "post_fix_verification_exposed_second_failure": {
+          "points": 15,
+          "passed": true
+        },
+        "targeted_consumer_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "config_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "second_stage_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_broad_or_destructive_actions": {
+          "points": 10,
+          "passed": true
+        },
+        "final_end_to_end_verification": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_both_failure_domains": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 76,
+      "responses": 11,
+      "shell_commands": 19,
+      "max_turns": 40,
+      "shell_budget": 40,
+      "saturated": false,
+      "usage": {
+        "input_tokens": 15473,
+        "output_tokens": 857,
+        "reasoning_tokens": 97,
+        "cached_input_tokens": 7424
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-incident-cascade",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "trial": 1,
+      "score": 100,
+      "checks": {
+        "targeted_config_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "post_fix_verification_exposed_second_failure": {
+          "points": 15,
+          "passed": true
+        },
+        "targeted_consumer_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "config_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "second_stage_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_broad_or_destructive_actions": {
+          "points": 10,
+          "passed": true
+        },
+        "final_end_to_end_verification": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_both_failure_domains": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 62,
+      "responses": 9,
+      "shell_commands": 8,
+      "max_turns": 40,
+      "shell_budget": 40,
+      "saturated": false,
+      "usage": {
+        "input_tokens": 10868,
+        "output_tokens": 728,
+        "reasoning_tokens": 145,
+        "cached_input_tokens": 2304
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-incident-cascade",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "trial": 2,
+      "score": 100,
+      "checks": {
+        "targeted_config_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "post_fix_verification_exposed_second_failure": {
+          "points": 15,
+          "passed": true
+        },
+        "targeted_consumer_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "config_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "second_stage_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_broad_or_destructive_actions": {
+          "points": 10,
+          "passed": true
+        },
+        "final_end_to_end_verification": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_both_failure_domains": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 87,
+      "responses": 11,
+      "shell_commands": 19,
+      "max_turns": 40,
+      "shell_budget": 40,
+      "saturated": false,
+      "usage": {
+        "input_tokens": 15720,
+        "output_tokens": 892,
+        "reasoning_tokens": 129,
+        "cached_input_tokens": 8320
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-incident-cascade",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "trial": 3,
+      "score": 100,
+      "checks": {
+        "targeted_config_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "post_fix_verification_exposed_second_failure": {
+          "points": 15,
+          "passed": true
+        },
+        "targeted_consumer_repair": {
+          "points": 20,
+          "passed": true
+        },
+        "config_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "second_stage_evidence_before_mutation": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_broad_or_destructive_actions": {
+          "points": 10,
+          "passed": true
+        },
+        "final_end_to_end_verification": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_both_failure_domains": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 66,
+      "responses": 9,
+      "shell_commands": 8,
+      "max_turns": 40,
+      "shell_budget": 40,
+      "saturated": false,
+      "usage": {
+        "input_tokens": 11662,
+        "output_tokens": 694,
+        "reasoning_tokens": 134,
+        "cached_input_tokens": 3456
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    }
+  ],
+  "by_effort": {
+    "medium": {
+      "trials": 3,
+      "scores": [
+        100,
+        100,
+        100
+      ],
+      "mean_score": 100.0,
+      "score_stddev": 0.0,
+      "mean_duration_seconds": 61.0,
+      "mean_shell_commands": 8.0,
+      "mean_total_tokens": 11103.333333333334,
+      "saturated_trials": 0,
+      "complete_trials": 3
+    },
+    "high": {
+      "trials": 3,
+      "scores": [
+        95,
+        100,
+        100
+      ],
+      "mean_score": 98.33333333333333,
+      "score_stddev": 2.3570226039551585,
+      "mean_duration_seconds": 64.0,
+      "mean_shell_commands": 11.333333333333334,
+      "mean_total_tokens": 12612.0,
+      "saturated_trials": 0,
+      "complete_trials": 3
+    },
+    "xhigh": {
+      "trials": 3,
+      "scores": [
+        100,
+        100,
+        100
+      ],
+      "mean_score": 100.0,
+      "score_stddev": 0.0,
+      "mean_duration_seconds": 71.66666666666667,
+      "mean_shell_commands": 11.666666666666666,
+      "mean_total_tokens": 13521.333333333334,
+      "saturated_trials": 0,
+      "complete_trials": 3
+    }
+  },
+  "paired_medium_xhigh": [
+    {
+      "trial": 1,
+      "quality_gain_points": 0,
+      "duration_improvement_percent": -1.639344262295082,
+      "shell_improvement_percent": 0.0,
+      "token_improvement_percent": -5.600582824879337
+    },
+    {
+      "trial": 2,
+      "quality_gain_points": 0,
+      "duration_improvement_percent": -40.32258064516129,
+      "shell_improvement_percent": -137.5,
+      "token_improvement_percent": -45.57882744720007
+    },
+    {
+      "trial": 3,
+      "quality_gain_points": 0,
+      "duration_improvement_percent": -10.0,
+      "shell_improvement_percent": 0.0,
+      "token_improvement_percent": -13.170910423154425
+    }
+  ],
+  "average_quality_gain_points": 0.0,
+  "average_efficiency_improvements_percent": {
+    "duration_improvement_percent": -17.32064163581879,
+    "shell_improvement_percent": -45.833333333333336,
+    "token_improvement_percent": -21.450106898411278
+  },
+  "stable_efficiency_metrics": [],
+  "classification": "no-stable-effort-signal"
+}

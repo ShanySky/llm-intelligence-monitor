@@ -1,0 +1,7 @@
+Incident recovery report
+
+1. Checkout HTTP failures: api-b ran config revision 17 instead of desired 18. Status showed 51/200 HTTP 500s pinned to api-b; config inspection showed payment_mode missing on api-b, and its logs reported requests rejected for that reason. Replaced only api-b's config with `./ctl replace-config api-b`. Checkout then returned 200/200 2xx.
+
+2. Duplicate fulfillment: after the HTTP repair, `./ctl verify` found 7 duplicate effects on retry. Queue output pinned the duplicates to consumer-2 (revision 30, contract 1); its logs showed delivery-id dedupe on retries, whereas consumer-1 at revision 31/contract 2 used order-key dedupe. Replaced only consumer-2 with `./ctl replace-consumer consumer-2`.
+
+Final verification: `./ctl verify` passed with 200/200 checkout 2xx and 200/200 exactly-once fulfillment checks.

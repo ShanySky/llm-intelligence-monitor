@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-stability-frontier-incident-cascade-xhigh-2",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 87,
+  "responses": 11,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 19,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 15720,
+    "output_tokens": 892,
+    "reasoning_tokens": 129,
+    "cached_input_tokens": 8320
+  },
+  "final_text": "Checkout and fulfillment are recovered. I replaced api-b’s stale config after its logs showed a missing `payment_mode`, then replaced consumer-2 after verification and queue evidence identified its older deduplication contract as the source of duplicate fulfillment effects.\n\nI documented the evidence and repairs in `REPORT.txt`. Final validation: `./ctl verify` passed with 200/200 checkout requests successful and 200/200 exactly-once fulfillment checks passed."
+}

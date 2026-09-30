@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-stability-frontier-incident-cascade-medium-3",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 60,
+  "responses": 9,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 8,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 10323,
+    "output_tokens": 595,
+    "reasoning_tokens": 64,
+    "cached_input_tokens": 1152
+  },
+  "final_text": "Checkout and fulfillment are restored. I replaced api-b’s stale config after its missing `payment_mode` was linked to HTTP 500s, then replaced consumer-2’s stale revision after verification exposed duplicate fulfillment on retries. The evidence and repairs are documented in `REPORT.txt`.\n\nValidation: `./ctl verify` passed — 200/200 checkout requests returned 2xx, and 200/200 exactly-once fulfillment checks passed."
+}

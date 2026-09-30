@@ -1,0 +1,7 @@
+Checkout incident recovery
+
+1. Checkout API config drift: status showed 51/200 HTTP 500 responses pinned to api-b; pods showed api-b on config revision 17 while api-a was on 18. api-b logs reported missing payment_mode, and config inspection confirmed revision 17 lacked it while desired revision 18 specified payment_mode=tokenized. Replaced only api-b's config using `./ctl replace-config api-b`. Subsequent status showed 200/200 checkout 2xx.
+
+2. Fulfillment consumer contract drift: after the API repair, verification found 7 duplicate fulfillment effects on retry. Queue output pinned the duplicates to consumer-2 (rev 30, contract 1), while consumer-1 ran rev 31, contract 2. consumer-2 logs explained that contract 1 deduplicated by delivery ID rather than order key, allowing repeated deliveries to fulfill twice; consumer-1 logs confirmed order-key deduplication in contract 2. Replaced only consumer-2 using `./ctl replace-consumer consumer-2`.
+
+Final `./ctl verify`: PASS, 200/200 checkout 2xx and 200/200 exactly-once fulfillment checks.

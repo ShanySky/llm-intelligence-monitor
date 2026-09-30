@@ -1,0 +1,7 @@
+Checkout incident recovery
+
+1. Checkout HTTP failures: status showed 51/200 requests returning 500, pinned to api-b. Pods showed api-b on config 17 while api-a was on 18; api-b logs reported missing payment_mode, and config inspection showed config 17 lacked it while desired config 18 used payment_mode=tokenized. Replaced only api-b's config with `./ctl replace-config api-b`. Subsequent status showed 200/200 checkout requests returning 2xx.
+
+2. Duplicate fulfillment on retries: after the API repair, verification detected 7 duplicate fulfillment effects. Queue output pinned duplicates to consumer-2 rev 30 contract 1; its logs said contract 1 deduplicated by delivery ID, which can fulfill repeated deliveries twice. Consumer-1 was already on rev 31 contract 2 with order-key deduplication. Replaced only consumer-2 with `./ctl replace-consumer consumer-2` to bring it to rev 31 contract 2.
+
+Final verification: 200/200 checkout requests returned 2xx and 200/200 exactly-once fulfillment checks passed. No broad restarts, scaling, or queue offset resets were performed.
