@@ -235,6 +235,13 @@ if (medium && high && xhigh) {
   }
 }
 
+let promotionRecommendation='do-not-promote';
+if (comparison?.classification === 'quality-effort-confirmed') {
+  promotionRecommendation='effort-discriminator-confirmed';
+} else if (effortSensitivity?.classification === 'effort-sensitivity-confirmed') {
+  promotionRecommendation='effort-sensitivity-confirmed';
+}
+
 const output = {
   generated_at: new Date().toISOString(),
   task: rows[0]?.task ?? null,
@@ -246,6 +253,19 @@ const output = {
   medium_to_xhigh: comparison,
   effort_sensitivity: effortSensitivity,
   nonmonotonic: nonMonotonic,
+  promotion_recommendation: promotionRecommendation,
+  promotion_evidence: {
+    trial_mode: trialMode,
+    paired_variants: commonTrials.length,
+    medium_to_xhigh_gain_points: comparison?.medium_to_xhigh_quality_gain_points ?? null,
+    positive_variant_count: comparison?.positive_quality_trial_count ?? null,
+    required_positive_variant_count: comparison?.required_positive_trial_count ?? null,
+    effort_spread_points: effortSensitivity?.spread_points ?? effortSpread,
+    budget_confounded: Boolean(
+      comparison?.classification === 'budget-confounded' ||
+      effortStats.some((x)=>x.saturated)
+    ),
+  },
 };
 fs.writeFileSync(outJson, JSON.stringify(output, null, 2) + '\n');
 
@@ -289,6 +309,8 @@ if (nonMonotonic) {
   );
 }
 lines.push(
+  '',
+  `**Promotion recommendation:** \`${promotionRecommendation}\`.`,
   '',
   '> Directional quality improvement, generic effort sensitivity, efficiency, and non-monotonic anomalies are separate signals. Effort sensitivity means the chosen effort level reliably changes quality; it does not imply that higher effort is better. Formal effort-discriminator promotion still requires repeated positive Medium→X High quality gain.',
 );
