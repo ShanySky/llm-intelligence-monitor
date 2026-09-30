@@ -180,7 +180,7 @@ lines.push(
 for (const cfg of configs) {
   const s = byConfig[cfg.key];
   lines.push(
-    `| ${cfg.model} | ${cfg.effort} | ${s.quality_score == null ? '-' : s.quality_score.toFixed(1)} | ${pct(s.budget_completion_rate)} | ${s.practical_score == null ? '-' : s.practical_score.toFixed(1)} | ${s.duration_seconds}s | ${s.average_duration_seconds == null ? '-' : s.average_duration_seconds.toFixed(0) + 's'} | ${fmt(s.input_tokens)} | ${fmt(s.reasoning_tokens)} | ${s.data_complete ? '完整' : '不完整：' + s.incomplete_tasks.join(', ')} |`
+    `| ${cfg.model} | ${cfg.effort} | ${s.quality_score == null ? '-' : s.quality_score.toFixed(1)} | ${s.core_quality_score == null ? '-' : s.core_quality_score.toFixed(1)} | ${s.core_mature ? '是' : '否'} | ${pct(s.budget_completion_rate)} | ${s.practical_score == null ? '-' : s.practical_score.toFixed(1)} | ${s.duration_seconds}s | ${s.average_duration_seconds == null ? '-' : s.average_duration_seconds.toFixed(0) + 's'} | ${fmt(s.input_tokens)} | ${fmt(s.reasoning_tokens)} | ${s.data_complete ? '完整' : '不完整：' + s.incomplete_tasks.join(', ')} |`
   );
 }
 
