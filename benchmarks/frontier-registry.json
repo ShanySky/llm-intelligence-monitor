@@ -451,6 +451,23 @@
         "effort_signal": "none"
       },
       "note": "Initial Medium 67% vs X High 100% was not stable. After allowing causally equivalent A2/A3 experiment order, all 15 repeated outputs passed."
+    },
+    {
+      "id": "frontier-review-family",
+      "family": "code_review_multi_instance_reliability",
+      "status": "effort-calibration",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high_variant_scores": [
+          70,
+          65,
+          100
+        ],
+        "luna_high_mean": 78.3,
+        "variants": 3,
+        "budget_saturated": false
+      },
+      "note": "Three distinct Code Review instances passed Luna-first funnel. Sol Medium/High/XHigh paired-variant calibration is running."
     }
   ]
 }
