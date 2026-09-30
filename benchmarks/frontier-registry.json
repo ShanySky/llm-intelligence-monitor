@@ -416,6 +416,25 @@
         "trials": 3
       },
       "note": "Even explicit counterfactual/intervention evidence saturated on Luna High; retain only as Agent causal-investigation coverage."
+    },
+    {
+      "id": "AH01",
+      "family": "solution_design_prompt_probe",
+      "status": "invalid-or-superseded",
+      "promoted_to_final": false,
+      "evidence": {
+        "semantic_repeat5": {
+          "medium": 1,
+          "high": 1,
+          "xhigh": 1
+        },
+        "raw_equals_pass_rate": {
+          "medium": 0.4,
+          "high": 0.4,
+          "xhigh": 0.6
+        }
+      },
+      "note": "Historical effort signal was entirely caused by whitespace-sensitive exact-string scoring. All 15 repeat outputs were semantically correct after whitespace normalization."
     }
   ]
 }
