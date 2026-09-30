@@ -2469,6 +2469,7 @@ elif task == "frontier-review-family":
         ("PriceService.java","cache_staleness"):("PriceService.java","transaction_visibility"),
         ("ProfileService.java","cache_staleness"):("ProfileService.java","transaction_visibility"),
         ("LeaseWorker.java","external_effect_recovery"):("LeaseWorker.java","retry_idempotency"),
+        ("LegacyCustomerService.java","lost_update"):("LegacyCustomerService.java","business_identity_scope"),
     }
     alias_reported=set()
     for alias,canonical in alias_pairs.items():
