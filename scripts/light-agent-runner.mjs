@@ -73,7 +73,9 @@ if (validationCommand) {
 
 const safeEnv = { ...process.env };
 for (const key of Object.keys(safeEnv)) {
-  if (/KEY|SECRET|TOKEN|PASSWORD|AUTH/i.test(key)) delete safeEnv[key];
+  if (/KEY|SECRET|TOKEN|PASSWORD|AUTH/i.test(key) || /^GITHUB_/i.test(key) || /^RUNNER_/i.test(key)) {
+    delete safeEnv[key];
+  }
 }
 delete safeEnv.AGENT_VALIDATION_COMMAND;
 delete safeEnv.AGENT_VALIDATION_BUDGET;
@@ -154,7 +156,7 @@ function runShell(command) {
     }
     executable = 'docker';
     args = ['exec', '-w', dockerWorkdir, dockerContainer, '/bin/bash', '-lc', command];
-  } else if (/\.\.|\/home\/|\/tmp\/|\/proc\/|\/etc\/|\bcurl\b|\bwget\b|\bprintenv\b|\benv\b|git\s+remote/i.test(command)) {
+  } else if (/\.\.|\/home\/|\/tmp\/|\/proc\/|\/etc\/|\bcurl\b|\bwget\b|\bprintenv\b|\benv\b|git\s+remote|GITHUB_|RUNNER_/i.test(command)) {
     return 'ERROR: command rejected by benchmark workspace isolation policy';
   }
 
