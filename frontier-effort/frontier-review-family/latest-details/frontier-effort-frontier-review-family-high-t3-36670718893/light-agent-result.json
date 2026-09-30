@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-family-high-t3",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 50,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 16,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 24,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 10174,
+    "output_tokens": 1252,
+    "reasoning_tokens": 376,
+    "cached_input_tokens": 4096
+  },
+  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with six blocking reliability findings.\n\nValidation run: `python3 -m json.tool FINDINGS.json` and checked that `REVIEW.md` ends with exactly one verdict line."
+}

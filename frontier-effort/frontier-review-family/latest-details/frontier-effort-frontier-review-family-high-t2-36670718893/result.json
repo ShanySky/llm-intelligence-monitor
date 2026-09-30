@@ -1,0 +1,77 @@
+{
+  "task": "frontier-review-family",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "trial": 2,
+  "score": 65,
+  "checks": {
+    "valid_findings_json": {
+      "points": 5,
+      "passed": true
+    },
+    "finding_LeaseStore.java_stale_lease_fencing": {
+      "points": 20,
+      "passed": true
+    },
+    "finding_LeaseWorker.java_retry_idempotency": {
+      "points": 15,
+      "passed": true
+    },
+    "finding_LeaseWorker.java_external_effect_recovery": {
+      "points": 15,
+      "passed": false
+    },
+    "finding_ProfileService.java_ignored_write_result": {
+      "points": 15,
+      "passed": true
+    },
+    "finding_ProfileService.java_transaction_visibility": {
+      "points": 15,
+      "passed": false
+    },
+    "finding_PairCoordinator.java_lock_order": {
+      "points": 10,
+      "passed": true
+    },
+    "false_positive_penalty": {
+      "points": -5,
+      "passed": false,
+      "reported": [
+        {
+          "file": "ProfileService.java",
+          "failure_class": "cache_staleness"
+        }
+      ]
+    },
+    "requests_changes": {
+      "points": 5,
+      "passed": true
+    }
+  },
+  "duration_seconds": 61,
+  "responses": 5,
+  "max_turns": 24,
+  "shell_commands": 5,
+  "shell_budget": 16,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "finished_with_message": true,
+  "usage": {
+    "input_tokens": 10662,
+    "output_tokens": 1705,
+    "reasoning_tokens": 726,
+    "cached_input_tokens": 4096
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}
