@@ -146,3 +146,4 @@ Clean GPT-6.1 real-repo replay after serialized publishing.
 GPT-6.1 precision review sensitivity repeat round 2.
 GPT-6.1 Sol precision review variant2 repeat5 M/H/XH.
 Reanalyze precision-review family with multi-variant sensitivity gate.
+Refresh GPT-6.1 resident model maturity state.
