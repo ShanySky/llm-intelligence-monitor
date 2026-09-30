@@ -1,5 +1,5 @@
 {
-  "task": "hard-plan",
+  "task": "hard-incident",
   "trials": 2,
   "max_turns": 40,
   "shell_budget": 40,
