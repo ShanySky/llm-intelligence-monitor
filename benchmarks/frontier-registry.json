@@ -289,15 +289,15 @@
       "promoted_to_final": false,
       "evidence": {
         "luna_high_score": 90,
-        "sol_effort_repeat_means": {
+        "sol_effort_means": {
           "medium": 100,
           "high": 95,
           "xhigh": 100
         },
-        "effort_signal": "none",
-        "missed_luna_check": "isolated_retry_failure_on_healthy_pod"
+        "sol_effort_trials": 2,
+        "effort_signal": "none"
       },
-      "note": "No stable Sol effort quality/efficiency gain. Promoted to repeated cross-model validation because Luna missed a causal isolation check while Sol generally completed it."
+      "note": "Hypothesis-driven probes improved evidence quality difficulty, but repeated Sol M/H/XH showed no stable effort gain. Retain for model comparison, not effort discrimination."
     },
     {
       "id": "frontier-fullstack-autosave",
@@ -311,6 +311,34 @@
         "all_behavioral_checks_passed": true
       },
       "note": "Cross-layer code repair was fully correct; only runtime-investigation evidence was omitted, so it is not promoted as a discriminator."
+    },
+    {
+      "id": "frontier-dynamic-diagnosis",
+      "family": "agent_runtime_investigation_parameterized",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high_instance_scores": [
+          80,
+          100,
+          90
+        ],
+        "sol_effort_instance_means": {
+          "medium": 100,
+          "high": 100,
+          "xhigh": 100
+        },
+        "probe_budget": 20,
+        "effort_signal": "none"
+      },
+      "note": "Three hidden instances are useful coverage, but nonbinding Sol calibration saturated. Superseded for frontier discrimination by catalog-free v2."
+    },
+    {
+      "id": "frontier-dynamic-diagnosis-v2",
+      "family": "agent_runtime_investigation_catalog_free",
+      "status": "screening",
+      "promoted_to_final": false,
+      "note": "Three hidden instances, natural-language opaque probes, no command catalog, nonbinding probe budget."
     }
   ]
 }
