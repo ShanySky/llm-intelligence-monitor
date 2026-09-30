@@ -1,7 +1,7 @@
 {
   "task": "frontier-review-precision-family",
-  "model": "gpt-6-luna",
-  "effort": "high",
+  "model": "gpt-6-sol",
+  "effort": "medium",
   "trial": 1,
   "score": 100,
   "checks": {
@@ -22,11 +22,11 @@
       "passed": true
     }
   },
-  "duration_seconds": 57,
-  "responses": 6,
-  "max_turns": 24,
-  "shell_commands": 5,
-  "shell_budget": 16,
+  "duration_seconds": 70,
+  "responses": 4,
+  "max_turns": 28,
+  "shell_commands": 3,
+  "shell_budget": 18,
   "validation_calls": 0,
   "validation_budget": 0,
   "validation_enabled": false,
@@ -38,10 +38,10 @@
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 9697,
-    "output_tokens": 828,
-    "reasoning_tokens": 256,
-    "cached_input_tokens": 3072
+    "input_tokens": 5451,
+    "output_tokens": 711,
+    "reasoning_tokens": 264,
+    "cached_input_tokens": 1536
   },
   "api_retries": 0,
   "infrastructure_error": null,

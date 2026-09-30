@@ -1,9 +1,9 @@
 {
   "task": "frontier-review-precision-family",
-  "model": "gpt-6-luna",
-  "effort": "high",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
   "trial": 2,
-  "score": 70,
+  "score": 100,
   "checks": {
     "valid_findings_json": {
       "points": 5,
@@ -15,7 +15,7 @@
     },
     "finding_CallbackDispatcher.java_retry_idempotency": {
       "points": 30,
-      "passed": false
+      "passed": true
     },
     "finding_PairCoordinator.java_lock_order": {
       "points": 25,
@@ -26,11 +26,11 @@
       "passed": true
     }
   },
-  "duration_seconds": 70,
-  "responses": 5,
-  "max_turns": 24,
-  "shell_commands": 7,
-  "shell_budget": 16,
+  "duration_seconds": 95,
+  "responses": 4,
+  "max_turns": 28,
+  "shell_commands": 3,
+  "shell_budget": 18,
   "validation_calls": 0,
   "validation_budget": 0,
   "validation_enabled": false,
@@ -42,10 +42,10 @@
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 9704,
-    "output_tokens": 1418,
-    "reasoning_tokens": 832,
-    "cached_input_tokens": 1536
+    "input_tokens": 6366,
+    "output_tokens": 1405,
+    "reasoning_tokens": 710,
+    "cached_input_tokens": 0
   },
   "api_retries": 0,
   "infrastructure_error": null,

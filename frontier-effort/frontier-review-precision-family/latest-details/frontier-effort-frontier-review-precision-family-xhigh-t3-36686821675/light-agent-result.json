@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-xhigh-t3",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 112,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 4,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 9748,
+    "output_tokens": 1626,
+    "reasoning_tokens": 686,
+    "cached_input_tokens": 2432
+  },
+  "final_text": "Wrote `REVIEW.md` and `FINDINGS.json` with three blocking findings: pagination snapshot drift, stale verifier keys after a registry revision, and replica reads in the strict read-after-write path.\n\nValidation: `python3 -m json.tool FINDINGS.json` and a check that every failure class appears in `review-taxonomy.json`."
+}

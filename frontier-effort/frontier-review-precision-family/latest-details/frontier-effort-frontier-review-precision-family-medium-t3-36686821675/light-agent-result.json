@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-medium-t3",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 60,
+  "responses": 4,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 5981,
+    "output_tokens": 792,
+    "reasoning_tokens": 111,
+    "cached_input_tokens": 1664
+  },
+  "final_text": "Wrote `REVIEW.md` and `FINDINGS.json` with three blocking findings: resumed feed pages lose their pinned snapshot, cached verification keys can outlive their registry revision, and strict customer reads can fall through to an asynchronous replica.\n\nValidation: checked that `FINDINGS.json` parses, uses taxonomy-approved classes, and lists each failure domain once."
+}

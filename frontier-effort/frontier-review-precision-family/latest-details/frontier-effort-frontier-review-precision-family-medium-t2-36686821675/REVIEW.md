@@ -1,0 +1,5 @@
+# Blocking findings
+
+- **CallbackDispatcher.java — `send` (`retry_idempotency`).** The remote deduplicates retries only if they carry the same business key, but this method builds the key from `deliveryId`. A retried delivery of the same job generation with a new delivery ID can execute the callback twice. Derive the key from a stable job-generation identifier and reuse it for every attempt of that generation.
+- **LegacyRenewalPath.java — `heartbeat` (`stale_lease_fencing`).** Renewal checks only the owner label. After a lease expires and is reacquired with a new epoch (including by a holder using the same owner label), a delayed heartbeat from the previous acquisition can extend the new lease. Require the caller's epoch and condition the renewal on the current owner **and** epoch, as in the fenced lease path.
+- **PairCoordinator.java — `detach` (`lock_order`).** `detach(a,b)` locks `b` before `a`, unlike `attach`, which always locks ascending IDs. Concurrent calls with opposite argument order (or an attach and detach of the same pair) can each hold one lock and wait forever for the other. Sort the IDs and acquire both locks in ascending order in `detach`.
