@@ -1,10 +1,7 @@
 {
-  "task": "frontier-config",
+  "task": "frontier-incident-cascade",
   "model": "gpt-6-sol",
-  "efforts": [
-    "medium",
-    "xhigh"
-  ],
+  "efforts": ["medium", "high", "xhigh"],
   "max_turns": 40,
   "shell_budget": 40
 }
