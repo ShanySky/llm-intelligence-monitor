@@ -787,9 +787,12 @@ elif task == "frontier-plan-review":
 
 
 elif task == "frontier-identity-rollout":
-    hidden = r'''public final class FrontierIdentityHiddenTest {
+    hidden = r'''import java.util.*;
+import java.util.concurrent.*;
+public final class FrontierIdentityHiddenTest {
   public static void main(String[] args) {
     run("LEGACY_STABLE", FrontierIdentityHiddenTest::legacyGetsStableKey);
+    run("CONCURRENT_STABLE", FrontierIdentityHiddenTest::concurrentLegacyAssignment);
     run("NO_ROTATE", FrontierIdentityHiddenTest::assignedKeyDoesNotRotate);
     run("V1_PRESERVE", FrontierIdentityHiddenTest::v1UpdatePreservesKey);
     run("REST", FrontierIdentityHiddenTest::restAdditive);
@@ -797,7 +800,7 @@ elif task == "frontier-identity-rollout":
     run("KAFKA", FrontierIdentityHiddenTest::kafkaAdditive);
     run("CACHE", FrontierIdentityHiddenTest::cacheFallback);
   }
-  interface Case { void run(); }
+  interface Case { void run() throws Exception; }
   static void run(String name, Case c) {
     try { c.run(); System.out.println(name+"_PASS"); }
     catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
@@ -807,6 +810,26 @@ elif task == "frontier-identity-rollout":
     Customer c=v1.write(41L,"Legacy");
     String a=ids.customerKey(41L), b=ids.customerKey(41L);
     check(a!=null && !a.isBlank()); check(a.equals(b)); check(a.equals(c.customerKey));
+  }
+  static void concurrentLegacyAssignment() throws Exception {
+    CustomerStore s=new CustomerStore(); V1CustomerService v1=new V1CustomerService(s); IdentityService ids=new IdentityService(s);
+    Customer c=v1.write(42L,"Concurrent");
+    int n=12;
+    CountDownLatch ready=new CountDownLatch(n), go=new CountDownLatch(1);
+    Set<String> seen=Collections.synchronizedSet(new HashSet<>());
+    List<Thread> threads=new ArrayList<>();
+    for(int i=0;i<n;i++){
+      Thread t=new Thread(()->{
+        try { ready.countDown(); go.await(); seen.add(ids.customerKey(42L)); }
+        catch(InterruptedException e){ throw new RuntimeException(e); }
+      });
+      threads.add(t); t.start();
+    }
+    ready.await(); go.countDown();
+    for(Thread t:threads)t.join();
+    check(seen.size()==1);
+    String only=seen.iterator().next();
+    check(only!=null && only.equals(c.customerKey));
   }
   static void assignedKeyDoesNotRotate() {
     CustomerStore s=new CustomerStore(); IdentityService ids=new IdentityService(s); V2CustomerService v2=new V2CustomerService(s,ids);
@@ -852,328 +875,14 @@ elif task == "frontier-identity-rollout":
         vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True); visible=vr.returncode==0
         hr=subprocess.run(["java","-cp",str(outdir),"FrontierIdentityHiddenTest"],capture_output=True,text=True); hidden_out=hr.stdout+hr.stderr
     add("visible_regression",5,visible)
-    add("legacy_key_stable_and_persisted",20,"LEGACY_STABLE_PASS" in hidden_out)
+    add("legacy_key_stable_and_persisted",15,"LEGACY_STABLE_PASS" in hidden_out)
+    add("concurrent_legacy_assignment_single_key",15,"CONCURRENT_STABLE_PASS" in hidden_out)
     add("assigned_key_never_rotates",15,"NO_ROTATE_PASS" in hidden_out)
     add("v1_update_preserves_v2_identity",10,"V1_PRESERVE_PASS" in hidden_out)
-    add("rest_additive_contract",15,"REST_PASS" in hidden_out)
+    add("rest_additive_contract",10,"REST_PASS" in hidden_out)
     add("jwt_additive_contract",10,"JWT_PASS" in hidden_out)
-    add("kafka_additive_contract",10,"KAFKA_PASS" in hidden_out)
-    add("cache_legacy_fallback_and_v2_preference",10,"CACHE_PASS" in hidden_out)
-
-
-elif task == "frontier-singleflight-cache":
-    hidden = r'''import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-public final class FrontierCacheHiddenTest {
-  public static void main(String[] args) {
-    run("SAME", FrontierCacheHiddenTest::sameKeySingleFlight);
-    run("DIFF", FrontierCacheHiddenTest::differentKeysConcurrent);
-    run("INVALIDATE", FrontierCacheHiddenTest::invalidateDuringLoad);
-    run("FAILURE", FrontierCacheHiddenTest::failureFanoutAndRetry);
-  }
-
-  interface Case { void run() throws Exception; }
-  static void run(String name, Case c) {
-    try { c.run(); System.out.println(name+"_PASS"); }
-    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
-  }
-
-  static void sameKeySingleFlight() throws Exception {
-    Cache<String,String> cache=new Cache<>();
-    AtomicInteger calls=new AtomicInteger();
-    CountDownLatch entered=new CountDownLatch(1);
-    CountDownLatch release=new CountDownLatch(1);
-    ExecutorService pool=Executors.newFixedThreadPool(6);
-    List<Future<String>> fs=new ArrayList<>();
-
-    for(int i=0;i<6;i++) {
-      fs.add(pool.submit(() -> cache.get("k", key -> {
-        calls.incrementAndGet();
-        entered.countDown();
-        if(!release.await(2,TimeUnit.SECONDS)) throw new RuntimeException("timeout");
-        return "VALUE";
-      })));
-    }
-
-    check(entered.await(1,TimeUnit.SECONDS));
-    Thread.sleep(80);
-    release.countDown();
-    for(Future<String> f:fs) check("VALUE".equals(f.get(2,TimeUnit.SECONDS)));
-    pool.shutdownNow();
-    check(calls.get()==1);
-    check(cache.size()==1);
-  }
-
-  static void differentKeysConcurrent() throws Exception {
-    Cache<String,String> cache=new Cache<>();
-    AtomicInteger active=new AtomicInteger();
-    AtomicInteger maxActive=new AtomicInteger();
-    CountDownLatch bothEntered=new CountDownLatch(2);
-
-    Loader<String,String> loader=key -> {
-      int n=active.incrementAndGet();
-      maxActive.accumulateAndGet(n,Math::max);
-      bothEntered.countDown();
-      if(!bothEntered.await(1500,TimeUnit.MILLISECONDS)) throw new RuntimeException("serialized");
-      active.decrementAndGet();
-      return key.toUpperCase();
-    };
-
-    ExecutorService pool=Executors.newFixedThreadPool(2);
-    Future<String> a=pool.submit(() -> cache.get("a",loader));
-    Future<String> b=pool.submit(() -> cache.get("b",loader));
-    check("A".equals(a.get(3,TimeUnit.SECONDS)));
-    check("B".equals(b.get(3,TimeUnit.SECONDS)));
-    pool.shutdownNow();
-    check(maxActive.get()>=2);
-  }
-
-  static void invalidateDuringLoad() throws Exception {
-    Cache<String,String> cache=new Cache<>();
-    AtomicInteger calls=new AtomicInteger();
-    CountDownLatch entered=new CountDownLatch(1);
-    CountDownLatch release=new CountDownLatch(1);
-
-    ExecutorService pool=Executors.newSingleThreadExecutor();
-    Future<String> first=pool.submit(() -> cache.get("x", key -> {
-      calls.incrementAndGet();
-      entered.countDown();
-      if(!release.await(2,TimeUnit.SECONDS)) throw new RuntimeException("timeout");
-      return "OLD";
-    }));
-
-    check(entered.await(1,TimeUnit.SECONDS));
-    cache.invalidate("x");
-    release.countDown();
-    check("OLD".equals(first.get(2,TimeUnit.SECONDS)));
-    check(cache.size()==0);
-
-    String next=cache.get("x", key -> {
-      calls.incrementAndGet();
-      return "NEW";
-    });
-    pool.shutdownNow();
-
-    check("NEW".equals(next));
-    check(calls.get()==2);
-    check(cache.size()==1);
-  }
-
-  static void failureFanoutAndRetry() throws Exception {
-    Cache<String,String> cache=new Cache<>();
-    AtomicInteger calls=new AtomicInteger();
-    CountDownLatch entered=new CountDownLatch(1);
-    CountDownLatch release=new CountDownLatch(1);
-    ExecutorService pool=Executors.newFixedThreadPool(4);
-    List<Future<String>> fs=new ArrayList<>();
-
-    for(int i=0;i<4;i++) {
-      fs.add(pool.submit(() -> cache.get("fail", key -> {
-        calls.incrementAndGet();
-        entered.countDown();
-        if(!release.await(2,TimeUnit.SECONDS)) throw new RuntimeException("timeout");
-        throw new IllegalStateException("boom");
-      })));
-    }
-
-    check(entered.await(1,TimeUnit.SECONDS));
-    Thread.sleep(80);
-    release.countDown();
-    int failures=0;
-    for(Future<String> f:fs) {
-      try { f.get(2,TimeUnit.SECONDS); }
-      catch(ExecutionException expected) { failures++; }
-    }
-    check(failures==4);
-    check(calls.get()==1);
-
-    String recovered=cache.get("fail", key -> {
-      calls.incrementAndGet();
-      return "RECOVERED";
-    });
-    pool.shutdownNow();
-    check("RECOVERED".equals(recovered));
-    check(calls.get()==2);
-  }
-
-  static void check(boolean x){if(!x)throw new AssertionError();}
-}'''
-    (root/"FrontierCacheHiddenTest.java").write_text(hidden)
-    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
-    cp=subprocess.run(["javac","-d",str(outdir),*map(str,(root/"src").glob("*.java")),str(root/"FrontierCacheHiddenTest.java")],capture_output=True,text=True)
-    add("compiles",10,cp.returncode==0)
-    visible=False; hidden_out=""
-    if cp.returncode==0:
-        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True); visible=vr.returncode==0
-        hr=subprocess.run(["java","-cp",str(outdir),"FrontierCacheHiddenTest"],capture_output=True,text=True,timeout=15); hidden_out=hr.stdout+hr.stderr
-    add("visible_regression",10,visible)
-    add("same_key_single_flight",25,"SAME_PASS" in hidden_out)
-    add("different_keys_load_concurrently",15,"DIFF_PASS" in hidden_out)
-    add("invalidate_during_inflight_load",20,"INVALIDATE_PASS" in hidden_out)
-    add("failure_fanout_and_retry",20,"FAILURE_PASS" in hidden_out)
-
-
-elif task == "frontier-workflow-resume":
-    hidden = r'''import java.util.*;
-import java.util.concurrent.atomic.*;
-
-public final class FrontierWorkflowHiddenTest {
-  public static void main(String[] args) {
-    run("ORDER", FrontierWorkflowHiddenTest::dependencyOrder);
-    run("RESUME", FrontierWorkflowHiddenTest::resumeSkipsCompleted);
-    run("CRASH", FrontierWorkflowHiddenTest::crashUsesStableKey);
-    run("RETRY", FrontierWorkflowHiddenTest::transientRetryAndLimit);
-    run("CANCEL", FrontierWorkflowHiddenTest::cancelStopsNewSteps);
-    run("VALIDATE", FrontierWorkflowHiddenTest::validation);
-  }
-
-  interface Case { void run() throws Exception; }
-  static void run(String name, Case c) {
-    try { c.run(); System.out.println(name+"_PASS"); }
-    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
-  }
-
-  static Workflow abcUnordered() {
-    return new Workflow(List.of(
-      new Step("C",List.of("B")),
-      new Step("A",List.of()),
-      new Step("B",List.of("A"))
-    ));
-  }
-
-  static void dependencyOrder() {
-    JobStore s=new JobStore(); WorkflowEngine e=new WorkflowEngine(s,FailureInjector.none());
-    List<String> ran=new ArrayList<>();
-    e.execute("order",abcUnordered(),(step,key)->ran.add(step));
-    check(ran.equals(List.of("A","B","C")));
-  }
-
-  static void resumeSkipsCompleted() {
-    JobStore s=new JobStore(); WorkflowEngine e=new WorkflowEngine(s,FailureInjector.none());
-    Map<String,Integer> calls=new HashMap<>();
-    Workflow wf=new Workflow(List.of(new Step("A",List.of()),new Step("B",List.of("A"))));
-    StepRunner r=(step,key)->calls.merge(step,1,Integer::sum);
-    e.execute("resume",wf,r);
-    e.execute("resume",wf,r);
-    check(calls.getOrDefault("A",0)==1);
-    check(calls.getOrDefault("B",0)==1);
-  }
-
-  static void crashUsesStableKey() {
-    JobStore s=new JobStore();
-    AtomicBoolean crashOnce=new AtomicBoolean(true);
-    WorkflowEngine first=new WorkflowEngine(s,(job,step)->{
-      if(step.equals("A") && crashOnce.getAndSet(false)) throw new RuntimeException("simulated crash");
-    });
-    Workflow wf=new Workflow(List.of(new Step("A",List.of()),new Step("B",List.of("A"))));
-
-    Map<String,Set<String>> seenKeys=new HashMap<>();
-    AtomicInteger sideEffectsA=new AtomicInteger();
-    StepRunner runner=(step,key)->{
-      Set<String> keys=seenKeys.computeIfAbsent(step,k->new HashSet<>());
-      if(keys.add(key) && step.equals("A")) sideEffectsA.incrementAndGet();
-    };
-
-    boolean crashed=false;
-    try { first.execute("crash",wf,runner); }
-    catch(RuntimeException expected) { crashed=true; }
-    check(crashed);
-    check(!s.get("crash").isCompleted("A"));
-    check(sideEffectsA.get()==1);
-
-    WorkflowEngine resumed=new WorkflowEngine(s,FailureInjector.none());
-    resumed.execute("crash",wf,runner);
-    check(s.get("crash").isCompleted("A"));
-    check(s.get("crash").isCompleted("B"));
-    check(sideEffectsA.get()==1);
-    check(seenKeys.get("A").size()==1);
-  }
-
-  static void transientRetryAndLimit() {
-    JobStore s=new JobStore(); WorkflowEngine e=new WorkflowEngine(s,FailureInjector.none());
-    AtomicInteger bCalls=new AtomicInteger(); List<String> ran=new ArrayList<>();
-    Workflow wf=new Workflow(List.of(
-      new Step("A",List.of()),
-      new Step("B",List.of("A")),
-      new Step("C",List.of("B"))
-    ));
-    e.execute("retry-ok",wf,(step,key)->{
-      if(step.equals("B") && bCalls.incrementAndGet()==1) throw new IllegalStateException("transient");
-      ran.add(step);
-    });
-    check(bCalls.get()==2);
-    check(ran.equals(List.of("A","B","C")));
-
-    JobStore s2=new JobStore(); WorkflowEngine e2=new WorkflowEngine(s2,FailureInjector.none());
-    AtomicInteger calls=new AtomicInteger(); AtomicBoolean cRan=new AtomicBoolean(false);
-    boolean failed=false;
-    try {
-      e2.execute("retry-fail",wf,(step,key)->{
-        if(step.equals("B")) { calls.incrementAndGet(); throw new IllegalStateException("permanent"); }
-        if(step.equals("C")) cRan.set(true);
-      });
-    } catch(RuntimeException expected) { failed=true; }
-    check(failed);
-    check(calls.get()==2);
-    check(!cRan.get());
-    check(!s2.get("retry-fail").isCompleted("B"));
-  }
-
-  static void cancelStopsNewSteps() {
-    JobStore s=new JobStore(); final WorkflowEngine[] holder=new WorkflowEngine[1];
-    holder[0]=new WorkflowEngine(s,FailureInjector.none());
-    Workflow wf=new Workflow(List.of(
-      new Step("A",List.of()),
-      new Step("B",List.of("A"))
-    ));
-    List<String> ran=new ArrayList<>();
-    holder[0].execute("cancel",wf,(step,key)->{
-      ran.add(step);
-      if(step.equals("A")) holder[0].requestCancel("cancel");
-    });
-    check(ran.equals(List.of("A")));
-    check(s.get("cancel").isCompleted("A"));
-    check(!s.get("cancel").isCompleted("B"));
-  }
-
-  static void validation() {
-    JobStore s=new JobStore(); WorkflowEngine e=new WorkflowEngine(s,FailureInjector.none());
-
-    boolean missing=false;
-    try {
-      e.execute("missing",new Workflow(List.of(new Step("A",List.of("NOPE")))),(step,key)->{});
-    } catch(IllegalArgumentException expected) { missing=true; }
-    check(missing);
-
-    boolean cycle=false;
-    try {
-      e.execute("cycle",new Workflow(List.of(
-        new Step("A",List.of("B")),
-        new Step("B",List.of("A"))
-      )),(step,key)->{});
-    } catch(IllegalArgumentException expected) { cycle=true; }
-    check(cycle);
-  }
-
-  static void check(boolean x){if(!x)throw new AssertionError();}
-}'''
-    (root/"FrontierWorkflowHiddenTest.java").write_text(hidden)
-    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
-    cp=subprocess.run(["javac","-d",str(outdir),*map(str,(root/"src").glob("*.java")),str(root/"FrontierWorkflowHiddenTest.java")],capture_output=True,text=True)
-    add("compiles",5,cp.returncode==0)
-    visible=False; hidden_out=""
-    if cp.returncode==0:
-        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True); visible=vr.returncode==0
-        hr=subprocess.run(["java","-cp",str(outdir),"FrontierWorkflowHiddenTest"],capture_output=True,text=True,timeout=15); hidden_out=hr.stdout+hr.stderr
-    add("visible_regression",5,visible)
-    add("dependency_order_from_unordered_input",20,"ORDER_PASS" in hidden_out)
-    add("resume_skips_completed_steps",15,"RESUME_PASS" in hidden_out)
-    add("crash_resume_stable_idempotency_key",25,"CRASH_PASS" in hidden_out)
-    add("bounded_retry_and_downstream_blocking",15,"RETRY_PASS" in hidden_out)
-    add("midflight_cancel_stops_new_steps",10,"CANCEL_PASS" in hidden_out)
-    add("cycle_and_missing_dependency_validation",10,"VALIDATE_PASS" in hidden_out)
+    add("kafka_additive_contract",7,"KAFKA_PASS" in hidden_out)
+    add("cache_legacy_fallback_and_v2_preference",8,"CACHE_PASS" in hidden_out)
 
 else:
     raise SystemExit(f"unknown task {task}")
