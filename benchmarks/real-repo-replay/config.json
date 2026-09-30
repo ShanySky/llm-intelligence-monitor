@@ -37,5 +37,25 @@
       ],
       "preferred_max_changed_lines": 100
     }
+  ],
+  "backup_cases": [
+    {
+      "trial": 4,
+      "id": "core-signal-summary",
+      "target_sha": "e4c921e7f3bfc898d9d8d24275a78189282897c0",
+      "allowed_paths": [
+        "scripts/summarize-application-results.mjs"
+      ],
+      "preferred_max_changed_lines": 120
+    },
+    {
+      "trial": 5,
+      "id": "repeat-sample-policy",
+      "target_sha": "12c852a1d01367e7d1d749811d3d4e224abf3d85",
+      "allowed_paths": [
+        "scripts/analyze-discrimination.mjs"
+      ],
+      "preferred_max_changed_lines": 120
+    }
   ]
 }
