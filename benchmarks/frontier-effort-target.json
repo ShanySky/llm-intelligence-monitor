@@ -6,8 +6,9 @@
     "high",
     "xhigh"
   ],
-  "trials": 3,
-  "trial_mode": "variants",
+  "trials": 5,
+  "trial_mode": "repeats",
+  "fixed_variant": 2,
   "max_turns": 28,
   "shell_budget": 18,
   "probe_budget": 0
