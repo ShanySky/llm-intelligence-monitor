@@ -1,0 +1,112 @@
+{
+  "generated_at": "2026-09-30T03:44:12.195Z",
+  "rows": [
+    {
+      "task": "staged-autosave-evolution",
+      "score_task": "staged-autosave-evolution",
+      "trial": 1,
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 100,
+      "checks": {
+        "syntax_valid": {
+          "points": 5,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 5,
+          "passed": true
+        },
+        "stage1_timeout_retry_converges": {
+          "points": 20,
+          "passed": true
+        },
+        "stage2_conflict_not_overwritten": {
+          "points": 15,
+          "passed": true
+        },
+        "stage2_local_state_preserved_on_conflict": {
+          "points": 10,
+          "passed": true
+        },
+        "stage1_backend_same_operation_recovery": {
+          "points": 15,
+          "passed": true
+        },
+        "stage3_offline_queue_identity_survives_restart": {
+          "points": 20,
+          "passed": true
+        },
+        "stage3_separate_queued_edits_remain_distinct": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 136,
+      "responses": 15,
+      "shell_commands": 15,
+      "shell_budget": 60,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "stages": [
+        {
+          "stage": "TASK.md",
+          "index": 1,
+          "revealed_assets": [],
+          "duration_seconds": 51,
+          "responses": 6,
+          "max_turns": 20,
+          "turn_limit_reached": false,
+          "shell_commands": 6,
+          "finished_with_message": true,
+          "final_text": "Made retries reuse one operation ID for the logical edit, and stored the backend’s committed result before the post-commit failure hook. A retry can now replay the result without applying another version change or audit effect.\n\nBoth checks passed: `./run_visible_tests.sh` and `./run_stage1_checks.sh`. I also made `run_stage1_checks.sh` executable so it could be run as requested."
+        },
+        {
+          "stage": "STAGE2.md",
+          "index": 2,
+          "revealed_assets": [
+            "evidence/conflict-validation.log",
+            "run_stage2_checks.sh",
+            "stage2-check.js"
+          ],
+          "duration_seconds": 39,
+          "responses": 5,
+          "max_turns": 20,
+          "turn_limit_reached": false,
+          "shell_commands": 5,
+          "finished_with_message": true,
+          "final_text": "Updated `saveOrder` to surface version conflicts instead of fetching a newer version and replaying the stale patch. Local state remains unchanged unless a save succeeds. Stage 1’s timeout retry behavior is preserved.\n\nAll checks passed: Stage 2, visible tests, and Stage 1. I also made `run_stage2_checks.sh` executable so it could be run directly."
+        },
+        {
+          "stage": "STAGE3.md",
+          "index": 3,
+          "revealed_assets": [
+            "evidence/offline-restart.log",
+            "frontend/memoryQueueStorage.js",
+            "frontend/offlineQueue.js",
+            "run_stage3_checks.sh",
+            "stage3-check.js"
+          ],
+          "duration_seconds": 46,
+          "responses": 4,
+          "max_turns": 20,
+          "turn_limit_reached": false,
+          "shell_commands": 4,
+          "finished_with_message": true,
+          "final_text": "Offline queue items now receive a unique operation ID when enqueued, and `flush` passes that persisted ID to `saveOrder`. Retries after a restart can replay the same logical edit; separate queued edits keep distinct IDs. Older queue items without an ID are assigned one and stored before sending.\n\nThe Stage 3 check and original visible test passed. Stage 3’s script also passed the Stage 2, Stage 1, and visible checks."
+        }
+      ],
+      "usage": {
+        "input_tokens": 68986,
+        "output_tokens": 2516,
+        "reasoning_tokens": 814,
+        "cached_input_tokens": 53248
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    }
+  ]
+}
