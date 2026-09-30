@@ -1817,6 +1817,30 @@ elif task == "frontier-import-resume":
     add("stable_ordering_across_ties",15,bool(cases.get("TIES")))
     add("concurrent_resume_converges",25,bool(cases.get("CONCURRENT")))
 
+
+elif task == "frontier-plan-runtime":
+    validator=Path(__file__).resolve().parent/"validators"/"frontier-plan-runtime.py"
+    result={}
+    try:
+        vr=subprocess.run(
+            ["python",str(validator),str(root),"--json"],
+            capture_output=True,text=True,timeout=30
+        )
+        result=json.loads(vr.stdout)
+    except Exception:
+        result={}
+    d=result.get("domains",{})
+    add("valid_decision_json",5,bool(d.get("syntax")))
+    add("known_unique_actions",5,bool(d.get("known_unique_actions")))
+    add("online_non_disruptive_rollout",10,bool(d.get("online_safe")))
+    add("mixed_version_persistence_compatibility",15,bool(d.get("persistence_compatibility")))
+    add("live_backfill_race_safety",15,bool(d.get("backfill_race_safety")))
+    add("consumer_before_producer_event_compatibility",10,bool(d.get("event_compatibility")))
+    add("mixed_version_cache_compatibility",10,bool(d.get("cache_compatibility")))
+    add("cutover_only_after_all_readiness_gates",10,bool(d.get("cutover_gate")))
+    add("rollback_window_before_irreversible_cleanup",15,bool(d.get("rollback_safety")))
+    add("minimal_sufficient_action_set",5,bool(d.get("minimal_sufficient")))
+
 else:
     raise SystemExit(f"unknown task {task}")
 
