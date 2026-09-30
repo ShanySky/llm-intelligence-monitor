@@ -15,9 +15,9 @@ const effortLabel = { medium: 'Medium', high: 'High', xhigh: 'X High' };
 
 function parseEffort(provider) {
   const text = String(provider ?? '');
-  if (/X High/i.test(text)) return 'xhigh';
-  if (/\bHigh\b/i.test(text)) return 'high';
-  if (/\bMedium\b/i.test(text)) return 'medium';
+  if (/X[ _-]?High/i.test(text) || /\bxhigh\b/i.test(text)) return 'xhigh';
+  if (/\bhigh\b/i.test(text)) return 'high';
+  if (/\bmedium\b/i.test(text)) return 'medium';
   return null;
 }
 
