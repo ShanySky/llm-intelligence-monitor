@@ -295,9 +295,10 @@
           "xhigh": 100
         },
         "sol_effort_trials": 2,
-        "effort_signal": "none"
+        "effort_signal": "none",
+        "invalid_cross_model_run": "all models 85 due missing probe tool"
       },
-      "note": "Hypothesis-driven probes improved evidence quality difficulty, but repeated Sol M/H/XH showed no stable effort gain. Retain for model comparison, not effort discrimination."
+      "note": "Previous cross-model run was invalid because the cross-model workflow omitted the probe tool. Workflow is fixed; repeated cross-model validation is rerunning."
     },
     {
       "id": "frontier-fullstack-autosave",
