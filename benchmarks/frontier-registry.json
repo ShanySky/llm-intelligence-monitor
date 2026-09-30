@@ -522,7 +522,7 @@
     },
     {
       "id": "real-repo-replay-family",
-      "family": "real_repo_maintenance_replay",
+      "family": "coding_real_repo_commit_replay",
       "status": "screening",
       "promoted_to_final": false,
       "evidence": {
@@ -532,7 +532,14 @@
         "scoring": "80% hidden behavioral equivalence + 20% objective patch discipline",
         "model_epoch": "resident Sol evidence kept separate from historical Sol epochs"
       },
-      "note": "Primary Effort Core research direction after synthetic microrepos repeatedly saturated. Luna-first screening precedes resident Sol M/H/XH."
+      "note": "Replays hidden parent states of real repository maintenance commits with objective behavior and patch-quality scoring; Luna-first screen is running."
+    },
+    {
+      "id": "frontier-runtime-repair-family",
+      "family": "agent_coding_runtime_guided_repair",
+      "status": "screening",
+      "promoted_to_final": false,
+      "note": "Three opaque-runtime variants require diagnosis followed by minimal Java repair; Luna-first screen is running."
     }
   ],
   "resident_model_epoch": {
