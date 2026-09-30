@@ -1,0 +1,13 @@
+{
+  "failure_classes": [
+    "business_identity_scope",
+    "external_effect_recovery",
+    "transaction_visibility",
+    "stale_lease_fencing",
+    "retry_idempotency",
+    "lock_order",
+    "pagination_snapshot",
+    "cache_generation_staleness",
+    "strict_read_consistency"
+  ]
+}
