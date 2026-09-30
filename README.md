@@ -271,6 +271,18 @@ A controlled manual run can execute all configured models at reasoning effort `h
 
 核心漏斗只继续消耗尚未定性的候选；已封顶题不反复进入昂贵校准。固定 coverage 题仍可保留用于回归，但不占 reasoning-effort 区分题权重。
 
+### Core Signal 与 Coverage 分离
+
+完整应用套件不再把所有题简单平均后当作“智能分”。
+
+- `core`：已经经过重复验证、确认具有稳定模型区分信息的题型；
+- `candidate`：有信号但尚未完成重复验证；
+- `coverage`：对真实场景重要，但当前模型容易封顶，主要承担回归覆盖。
+
+报告同时显示 Overall Quality 与 Core Signal。只有至少 2 个已确认 core 题型族完整存在时，Core Signal 才标记为 mature。当前已确认的 core 包括跨文件可靠性 Code Review 与 Agent incident investigation；单次 Final Suite 分差不能直接把 coverage 题晋级为 core。
+
+Agent 调查题支持 opaque `probe` 工具。模型只能看到 probe 返回的运行时证据，不能读取 probe 实现；Harness 会记录实际 query + observation，证据分根据真实返回结果判定，而不是根据“问过哪些关键词”判定。后续更难题优先要求控制变量/反事实实验来证明因果，而不是把所有组件静态查一遍。
+
 ### Frontier 候选漏斗
 
 新应用题不直接进入完整多模型套件，而按成本漏斗推进：
