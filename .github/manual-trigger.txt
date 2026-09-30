@@ -45,3 +45,4 @@ Frontier config time-first repeat with 40/40 soft caps.
 External Terminal-Bench Sol calibration rerun after model wiring fix.
 Staged incident recovery Luna screen.
 Frontier outbox recovery Luna screen.
+Staged incident time-first Luna rescreen.
