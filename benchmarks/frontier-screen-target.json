@@ -4,6 +4,5 @@
   "effort": "high",
   "max_turns": 36,
   "shell_budget": 36,
-  "validation_script": "scripts/validators/frontier-import-resume.py",
   "validation_budget": 8
 }
