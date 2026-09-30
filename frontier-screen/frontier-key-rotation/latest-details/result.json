@@ -1,7 +1,7 @@
 {
   "task": "frontier-key-rotation",
-  "model": "gpt-6-luna",
-  "effort": "high",
+  "model": "gpt-6-sol",
+  "effort": "medium",
   "score": 100,
   "classification": "coverage-only-ceiling",
   "checks": {
@@ -46,19 +46,19 @@
       "passed": true
     }
   },
-  "duration_seconds": 51,
-  "responses": 5,
+  "duration_seconds": 65,
+  "responses": 6,
   "max_turns": 30,
-  "shell_commands": 6,
+  "shell_commands": 5,
   "shell_budget": 30,
   "turn_limit_reached": false,
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 14583,
-    "output_tokens": 1361,
-    "reasoning_tokens": 510,
-    "cached_input_tokens": 6144
+    "input_tokens": 19962,
+    "output_tokens": 1797,
+    "reasoning_tokens": 463,
+    "cached_input_tokens": 12288
   },
   "api_retries": 0,
   "infrastructure_error": null,

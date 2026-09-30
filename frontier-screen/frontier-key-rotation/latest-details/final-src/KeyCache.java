@@ -21,11 +21,11 @@ public final class KeyCache {
             return cached.key;
         }
         KeyVersion loaded = loader.get();
-        if (loaded != null) {
+        if (loaded != null && issuer.equals(loaded.issuer) && kid.equals(loaded.kid)) {
             issuerEntries.put(kid, new Entry(revision, loaded));
-        } else {
-            issuerEntries.remove(kid);
+            return loaded;
         }
-        return loaded;
+        issuerEntries.remove(kid);
+        return null;
     }
 }

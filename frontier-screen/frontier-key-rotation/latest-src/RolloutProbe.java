@@ -4,6 +4,8 @@ public final class RolloutProbe {
         unknownKidMustNotFallback();
         issuerScopedCache();
         removedKeyMustStopWorking();
+        replacedKeyMustInvalidateCache();
+        legacyKeyRemovalAndIssuerIsolation();
         System.out.println("ROLLOUT_PROBE_PASS");
     }
 
@@ -54,6 +56,34 @@ public final class RolloutProbe {
         check(verifier.verify(old), "old keyed token while retained");
         registry.removeKey("issuer-a", "k1");
         check(!verifier.verify(old), "removed key must invalidate cached verification");
+    }
+
+    static void replacedKeyMustInvalidateCache() {
+        KeyRegistry registry = new KeyRegistry();
+        registry.addKey("issuer-a", "shared", "old", true);
+        TokenCodec codec = new TokenCodec();
+        TokenVerifier verifier = new TokenVerifier(registry, new KeyCache(), codec);
+        String old = codec.encode("issuer-a", "shared", "user", "old");
+        check(verifier.verify(old), "warm old key");
+        registry.addKey("issuer-a", "shared", "new", true);
+        check(!verifier.verify(old), "replaced key must not remain cached");
+        check(verifier.verify(codec.encode("issuer-a", "shared", "user", "new")),
+              "new key with same kid must verify");
+    }
+
+    static void legacyKeyRemovalAndIssuerIsolation() {
+        KeyRegistry registry = new KeyRegistry();
+        registry.addKey("issuer-a", "old", "retained", false);
+        registry.addKey("issuer-a", "new", "current", true);
+        registry.addKey("issuer-b", "other", "other-secret", true);
+        TokenCodec codec = new TokenCodec();
+        TokenVerifier verifier = new TokenVerifier(registry, new KeyCache(), codec);
+        String legacy = codec.encode("issuer-a", null, "user", "retained");
+        check(verifier.verify(legacy), "retained legacy key verifies");
+        check(!verifier.verify(codec.encode("issuer-b", null, "user", "retained")),
+              "legacy token cannot use another issuer's key");
+        registry.removeKey("issuer-a", "old");
+        check(!verifier.verify(legacy), "legacy token stops working after key removal");
     }
 
     static void check(boolean ok, String name) {

@@ -12,22 +12,21 @@ public final class TokenVerifier {
     public boolean verify(String token) {
         TokenCodec.Parts p = codec.decode(token);
         if (p.kid == null) {
-            // Tokens from the previous release did not identify a key. Try only
-            // keys retained by this token's issuer during the overlap window.
+            // Previous releases did not include a kid. Only retained keys for this
+            // issuer may validate those sessions, including keys no longer active.
             for (KeyVersion key : registry.all(p.issuer)) {
                 if (codec.matches(p, key.secret)) return true;
             }
             return false;
         }
 
-        long revision = registry.revision(p.issuer);
         KeyVersion key = cache.getOrLoad(
             p.issuer,
-            revision,
+            registry.revision(p.issuer),
             p.kid,
             () -> registry.byKid(p.issuer, p.kid)
         );
-        // A supplied kid is authoritative. Never downgrade to another key.
+        // A supplied kid is authoritative: never try another key on a miss.
         return key != null && codec.matches(p, key.secret);
     }
 }

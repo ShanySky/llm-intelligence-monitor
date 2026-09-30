@@ -1,21 +1,21 @@
 {
   "task_dir": "/tmp/frontier-screen-frontier-key-rotation",
-  "model": "gpt-6-luna",
-  "effort": "high",
-  "duration_seconds": 51,
-  "responses": 5,
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 65,
+  "responses": 6,
   "api_retries": 0,
   "infrastructure_error": null,
-  "shell_commands": 6,
+  "shell_commands": 5,
   "shell_budget": 30,
   "max_turns": 30,
   "container_mode": false,
   "docker_container": null,
   "usage": {
-    "input_tokens": 14583,
-    "output_tokens": 1361,
-    "reasoning_tokens": 510,
-    "cached_input_tokens": 6144
+    "input_tokens": 19962,
+    "output_tokens": 1797,
+    "reasoning_tokens": 463,
+    "cached_input_tokens": 12288
   },
-  "final_text": "Implemented the verification repair:\n\n- Legacy tokens without a `kid` are checked against keys retained by their stated issuer, preserving overlap compatibility.\n- Tokens with a `kid` use only that exact issuer/key pair; unknown keys never fall back to the active key.\n- Cache entries are issuer-scoped and refreshed when the issuer’s registry revision changes.\n\nValidation: `./run_visible_tests.sh` passed. `bash ./run_rollout_checks.sh` passed; direct execution of that script was unavailable because it is not executable."
+  "final_text": "Repaired token verification during key rotation. Legacy tokens without a `kid` can use any retained key for their issuer, while tokens with a `kid` must use that exact key. The cache now separates issuers and refreshes entries when the registry revision changes, so removed or replaced keys do not remain valid.\n\nValidation: `bash run_rollout_checks.sh` and `./run_visible_tests.sh` both passed."
 }
