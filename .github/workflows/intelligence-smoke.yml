@@ -16,7 +16,7 @@ on:
         required: false
         default: ""
       models:
-        description: "Models to run: all, or comma-separated keys (gpt-6-astra,gpt-6-sol,gpt-6-luna,gpt-5-6-sol)"
+        description: "Models to run: all, or comma-separated keys (gpt-6-astra,gpt-6-1-sol,gpt-6-luna,gpt-5-6-sol); legacy gpt-6-sol remains accepted as an alias"
         required: false
         default: "all"
   schedule:
@@ -106,9 +106,9 @@ jobs:
           - key: gpt-6-astra
             model: gpt-6-astra
             label: GPT-6 Astra X High
-          - key: gpt-6-sol
-            model: gpt-6-sol
-            label: GPT-6 Sol X High
+          - key: gpt-6-1-sol
+            model: gpt-6.1-sol
+            label: GPT-6.1 Sol X High
           - key: gpt-6-luna
             model: gpt-6-luna
             label: GPT-6 Luna X High
@@ -145,7 +145,7 @@ jobs:
               IFS=',' read -ra items <<< "$requested"
               for item in "${items[@]}"; do
                 item="$(echo "$item" | xargs)"
-                if [ "$item" = "$MODEL_KEY" ]; then
+                if [ "$item" = "$MODEL_KEY" ] || { [ "$item" = "gpt-6-sol" ] && [ "$MODEL_KEY" = "gpt-6-1-sol" ]; }; then
                   enabled=true
                   break
                 fi
