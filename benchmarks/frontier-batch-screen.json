@@ -1,12 +1,28 @@
 {
-  "version": 1,
+  "version": 2,
+  "purpose": "Luna-first screening for unscreened frontier candidates only. Confirmed ceiling tasks stay as coverage tasks but are removed from this expensive candidate funnel.",
   "model": "gpt-6-luna",
   "effort": "high",
   "tasks": [
-    {"task":"frontier-webhook","max_turns":30,"shell_budget":30},
-    {"task":"frontier-migration","max_turns":30,"shell_budget":30},
-    {"task":"frontier-scheduler","max_turns":30,"shell_budget":30},
-    {"task":"frontier-plan","max_turns":30,"shell_budget":30},
-    {"task":"frontier-review","max_turns":30,"shell_budget":30}
+    {"task":"frontier-review-deep","max_turns":30,"shell_budget":30},
+    {"task":"frontier-key-rotation","max_turns":30,"shell_budget":30}
+  ],
+  "excluded_coverage_only": [
+    "frontier-webhook",
+    "frontier-webhook-hidden",
+    "frontier-migration",
+    "frontier-scheduler",
+    "frontier-plan",
+    "frontier-plan-review",
+    "frontier-review",
+    "frontier-filter",
+    "frontier-config",
+    "frontier-identity-rollout",
+    "frontier-singleflight-cache",
+    "frontier-workflow-resume",
+    "frontier-incident-cascade",
+    "frontier-lease-fencing",
+    "frontier-pagination",
+    "frontier-outbox-recovery"
   ]
 }
