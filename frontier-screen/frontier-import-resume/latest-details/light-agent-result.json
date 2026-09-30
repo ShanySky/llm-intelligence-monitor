@@ -1,0 +1,24 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-import-resume",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 125,
+  "responses": 8,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 7,
+  "shell_budget": 30,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 22269,
+    "output_tokens": 2505,
+    "reasoning_tokens": 1395,
+    "cached_input_tokens": 8704
+  },
+  "final_text": "Implemented resumable import recovery by pinning each job to its first source snapshot, adding a stable ingest-sequence tie-breaker to source ordering, and using deterministic per-job/per-row idempotency keys. Checkpoint saves now preserve the greatest completed offset so concurrent or stale workers cannot move progress backward.\n\nValidation passed:\n- `./run_visible_tests.sh`\n- Black-box validation: crash recovery, pinned snapshot, ordering ties, and concurrent resume all converge."
+}
