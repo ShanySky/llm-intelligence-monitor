@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "updated_at": "2026-09-30",
+  "policy": {
+    "model_discriminator": "Repeated cross-model spread >= 10 points with per-config score stddev <= 12.",
+    "effort_discriminator": "Repeated positive Sol Medium-to-XHigh gain >= 10 points without budget saturation; single-run differences are not sufficient.",
+    "coverage_only": "Luna High >= 95 without budget saturation, or repeated Sol effort runs show ceiling/no stable effort signal.",
+    "invalid_or_superseded": "Infrastructure/scorer/harness confounds invalidate earlier evidence."
+  },
+  "tasks": [
+    {
+      "id": "frontier-review-deep",
+      "family": "code_review_cross_file_reliability",
+      "status": "model-discriminator-confirmed",
+      "promoted_to_final": true,
+      "evidence": {
+        "luna_high_screen": 90,
+        "cross_model_xhigh_mean": {
+          "gpt-6-astra": 100,
+          "gpt-6-sol": 92.5,
+          "gpt-6-luna": 90,
+          "gpt-5.6-sol": 80
+        },
+        "model_spread_points": 20,
+        "cross_model_stable": true,
+        "sol_effort_repeat_means": {
+          "medium": 96.7,
+          "high": 91.7,
+          "xhigh": 95
+        },
+        "effort_signal": "none"
+      }
+    },
+    {
+      "id": "frontier-plan-runtime",
+      "family": "solution_design_runtime_validated",
+      "status": "screening",
+      "promoted_to_final": false
+    },
+    {
+      "id": "staged-identity-evolution",
+      "family": "compressed_long_horizon",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high_screen": 100
+      }
+    },
+    {
+      "id": "frontier-import-resume",
+      "family": "coding_recovery_blackbox",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high_opaque_screen": 100
+      }
+    },
+    {
+      "id": "frontier-build-cache",
+      "family": "coding_incremental_build",
+      "status": "needs-opaque-rescreen",
+      "promoted_to_final": false,
+      "note": "Earlier Luna 100 run preceded the harness-only opaque-validator hardening and is treated as superseded."
+    },
+    {
+      "id": "frontier-config",
+      "family": "coding_generated_config",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "note": "Initial 0 vs 100 effort gap disappeared after removing shell/turn budget confound."
+    },
+    {
+      "id": "frontier-incident-cascade",
+      "family": "agent_incident_recovery",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "sol_effort_scores": {
+          "medium": 100,
+          "high": 100,
+          "xhigh": 100
+        }
+      }
+    },
+    {
+      "id": "staged-migration",
+      "family": "compressed_long_horizon",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "sol_effort_scores": {
+          "medium": 100,
+          "high": 100,
+          "xhigh": 100
+        }
+      }
+    },
+    {
+      "id": "frontier-key-rotation",
+      "family": "coding_security_compatibility",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100,
+        "sol_medium": 100
+      }
+    },
+    {
+      "id": "frontier-pagination",
+      "family": "coding_pagination_consistency",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    },
+    {
+      "id": "frontier-outbox-recovery",
+      "family": "coding_transaction_recovery",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    },
+    {
+      "id": "frontier-lease-fencing",
+      "family": "coding_concurrency_fencing",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    },
+    {
+      "id": "frontier-webhook-hidden",
+      "family": "coding_idempotency_hidden_context",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    },
+    {
+      "id": "frontier-identity-rollout",
+      "family": "coding_cross_layer_compatibility",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    },
+    {
+      "id": "frontier-singleflight-cache",
+      "family": "coding_concurrency_cache",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    },
+    {
+      "id": "frontier-workflow-resume",
+      "family": "agent_long_horizon_workflow",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    },
+    {
+      "id": "frontier-migration",
+      "family": "coding_rolling_migration",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    },
+    {
+      "id": "frontier-plan",
+      "family": "solution_design",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    },
+    {
+      "id": "frontier-plan-review",
+      "family": "solution_plan_review",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    },
+    {
+      "id": "frontier-review",
+      "family": "code_review",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100,
+        "sol_effort_scores": {
+          "medium": 100,
+          "high": 100,
+          "xhigh": 100
+        }
+      }
+    },
+    {
+      "id": "frontier-filter",
+      "family": "coding_debug_parser",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    },
+    {
+      "id": "frontier-scheduler",
+      "family": "coding_algorithmic_scheduler",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100
+      }
+    }
+  ]
+}
