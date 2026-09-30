@@ -13,7 +13,11 @@
       "passed": true
     },
     "legacy_key_stable_and_persisted": {
-      "points": 20,
+      "points": 15,
+      "passed": true
+    },
+    "concurrent_legacy_assignment_single_key": {
+      "points": 15,
       "passed": true
     },
     "assigned_key_never_rotates": {
@@ -25,7 +29,7 @@
       "passed": true
     },
     "rest_additive_contract": {
-      "points": 15,
+      "points": 10,
       "passed": true
     },
     "jwt_additive_contract": {
@@ -33,21 +37,21 @@
       "passed": true
     },
     "kafka_additive_contract": {
-      "points": 10,
+      "points": 7,
       "passed": true
     },
     "cache_legacy_fallback_and_v2_preference": {
-      "points": 10,
+      "points": 8,
       "passed": true
     }
   },
-  "duration_seconds": 93,
+  "duration_seconds": 82,
   "shell_commands": 7,
   "usage": {
-    "input_tokens": 18181,
-    "output_tokens": 2434,
-    "reasoning_tokens": 1220,
-    "cached_input_tokens": 8704
+    "input_tokens": 22141,
+    "output_tokens": 2661,
+    "reasoning_tokens": 1318,
+    "cached_input_tokens": 12288
   },
   "api_retries": 0,
   "infrastructure_error": null,
