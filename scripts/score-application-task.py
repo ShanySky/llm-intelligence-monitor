@@ -2335,6 +2335,81 @@ elif task == "frontier-runtime-diagnosis-cache-db":
     add("collected_cache_causal_evidence",5,evidence_a)
     add("collected_database_pool_causal_evidence",10,evidence_b)
 
+
+elif task == "frontier-causal-diagnosis":
+    validator=Path(__file__).resolve().parent/"validators"/"frontier-causal-diagnosis.py"
+    result={}
+    try:
+        vr=subprocess.run(
+            ["python",str(validator),str(root),"--json"],
+            capture_output=True,text=True,timeout=30
+        )
+        result=json.loads(vr.stdout)
+    except Exception:
+        result={}
+
+    diagnosis={}
+    try:
+        diagnosis=json.loads((root/"DIAGNOSIS.json").read_text())
+    except Exception:
+        diagnosis={}
+    roots=set(x for x in diagnosis.get("root_causes",[]) if isinstance(x,str))
+    actions=set(x for x in diagnosis.get("actions",[]) if isinstance(x,str))
+    variant=int(result.get("variant",1))
+
+    expected={
+        1:{
+            "roots":["api_config_drift","retry_idempotency_scope"],
+            "actions":["replace_drifted_api","fix_business_idempotency"],
+        },
+        2:{
+            "roots":["capacity_shortage","stale_consumer_contract"],
+            "actions":["scale_checkout_api","replace_incompatible_consumer"],
+        },
+        3:{
+            "roots":["cache_invalidator_gap","replica_read_lag"],
+            "actions":["repair_dual_invalidation","route_strict_reads_primary"],
+        },
+    }[variant]
+
+    runner={}
+    try:
+        runner=json.loads((root/"light-agent-result.json").read_text())
+    except Exception:
+        runner={}
+    observations=[]
+    for x in runner.get("probe_observations",[]):
+        if isinstance(x,dict):
+            observations.append(str(x.get("output","")).strip().lower())
+
+    def observed(*terms):
+        return any(all(t in out for t in terms) for out in observations)
+
+    evidence={
+        1:[
+            observed("counterfactual replay on api-b", "100/100 succeed", "zone-b"),
+            observed("controlled timeout replay on healthy api-a", "one order-version key produces 1 effect"),
+        ],
+        2:[
+            observed("add one api replica", "503s fall", "remove replica"),
+            observed("consumer-1 produces one fulfillment", "consumer-2 produces two"),
+        ],
+        3:[
+            observed("dual invalidator yields fresh read", "numeric-only invalidator leaves stable-key alias stale"),
+            observed("primary is immediately fresh", "replica can remain stale"),
+        ],
+    }[variant]
+
+    add("valid_diagnosis_json",5,bool(result.get("syntax")))
+    add("known_unique_ids",5,bool(result.get("known_unique")))
+    add("root_cause_a",15,expected["roots"][0] in roots)
+    add("root_cause_b",15,expected["roots"][1] in roots)
+    add("repair_action_a",15,expected["actions"][0] in actions)
+    add("repair_action_b",15,expected["actions"][1] in actions)
+    add("minimal_no_false_positive_repairs",10,bool(result.get("minimal")))
+    add("counterfactual_evidence_a",10,bool(evidence[0]))
+    add("counterfactual_evidence_b",10,bool(evidence[1]))
+
 else:
     raise SystemExit(f"unknown task {task}")
 
