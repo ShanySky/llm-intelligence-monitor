@@ -2657,6 +2657,73 @@ elif task == "frontier-compat-review-family":
     verdict=str(data.get("verdict","")).strip().upper() if valid else ""
     add("requests_changes",5,verdict=="REQUEST_CHANGES")
 
+
+elif task == "frontier-review-precision-family":
+    raw=text("FINDINGS.json")
+    try:
+        data=json.loads(raw)
+        findings=data.get("findings",[]) if isinstance(data,dict) else []
+        valid=isinstance(findings,list) and isinstance(data.get("verdict"),str)
+    except Exception:
+        data={}; findings=[]; valid=False
+
+    add("valid_findings_json",5,valid)
+
+    m=re.search(r"-t(\d+)(?:$|[^0-9])",root.name)
+    variant=int(m.group(1)) if m else 1
+    expected_by_variant={
+      1:{
+        ("ConfirmationService.java","business_identity_scope"):40,
+        ("RefundService.java","external_effect_recovery"):50,
+      },
+      2:{
+        ("LegacyRenewalPath.java","stale_lease_fencing"):35,
+        ("CallbackDispatcher.java","retry_idempotency"):30,
+        ("PairCoordinator.java","lock_order"):25,
+      },
+      3:{
+        ("FeedService.java","pagination_snapshot"):30,
+        ("VerifierCache.java","cache_generation_staleness"):30,
+        ("StrictCustomerReader.java","strict_read_consistency"):30,
+      },
+    }
+    expected=expected_by_variant.get(variant,expected_by_variant[1])
+
+    reported=set()
+    if valid:
+        for item in findings:
+            if not isinstance(item,dict):
+                continue
+            file=str(item.get("file","")).strip().split("/")[-1]
+            failure=str(item.get("failure_class","")).strip().lower()
+            if file and failure:
+                reported.add((file,failure))
+
+    alias_pairs={
+        ("RefundService.java","retry_idempotency"):("RefundService.java","external_effect_recovery"),
+    }
+    alias_reported=set()
+    for alias,canonical in alias_pairs.items():
+        if alias in reported:
+            reported.add(canonical)
+            alias_reported.add(alias)
+
+    for (file,failure),points in expected.items():
+        add(f"finding_{file}_{failure}",points,(file,failure) in reported)
+
+    extras=sorted(reported-set(expected)-alias_reported)
+    if extras:
+        penalty=min(30,10*len(extras))
+        score-=penalty
+        checks["false_positive_penalty"]={
+            "points":-penalty,
+            "passed":False,
+            "reported":[{"file":f,"failure_class":c} for f,c in extras],
+        }
+
+    verdict=str(data.get("verdict","")).strip().upper() if valid else ""
+    add("requests_changes",5,verdict=="REQUEST_CHANGES")
+
 else:
     raise SystemExit(f"unknown task {task}")
 
