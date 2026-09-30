@@ -1,0 +1,11 @@
+- **Price cache can retain the old committed value after a successful price change.** `changePrice` evicts before the transaction commits. A concurrent cache miss can therefore read the still-committed old DB value and repopulate the shared cache; the transaction then commits without another eviction. Defer eviction until after commit (or use a transactionally coordinated cache update/invalidation) so a pre-commit miss cannot leave stale data cached.
+
+- **Audit is emitted before the price transaction commits and can describe a change that never committed.** `auditAsync` is called from the transactional method, and self-invocation bypasses Spring's `@Async` proxy, so `sendPriceChanged` runs inline before transaction completion. If the transaction subsequently rolls back, the sink has already received an audit for a nonexistent change. Persist an audit/outbox record in the price transaction and deliver it only after commit.
+
+- **The price audit records the new price as both the current and expected price.** The product is mutated before `sendPriceChanged` loads it, so within this transaction `current.getPrice()` is the new value and `expectedPrice` is also the supplied new value. Capture and pass the actual before/after values (and write those values to the audit record) rather than re-reading the already-mutated entity.
+
+- **Audit retries are not deduplicated.** `sendPriceChanged` creates a fresh random idempotency key for every invocation. Under the documented at-least-once delivery model, retrying the same audit with a new key lets the sink accept duplicate audit events. Assign a stable key to the logical price-change event and reuse it on every delivery attempt.
+
+- **Distinct payment events for one order can reserve inventory more than once.** Fulfillment lookup and the inventory idempotency key are both scoped to `eventId`; the context allows different event IDs for the same paid order. Such events create separate fulfillments and call inventory with different keys, including when processed concurrently. Scope fulfillment uniqueness and the inventory idempotency key to the order (or another stable order-level fulfillment identity), with atomic coordination so only that fulfillment is reserved.
+
+VERDICT: REQUEST_CHANGES

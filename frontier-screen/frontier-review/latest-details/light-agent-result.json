@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-review",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 57,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 20,
+  "max_turns": 20,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 10699,
+    "output_tokens": 1610,
+    "reasoning_tokens": 930,
+    "cached_input_tokens": 2560
+  },
+  "final_text": "Created `REVIEW.md` with blocking correctness and reliability findings.\n\nValidation: checked that the final line is exactly `VERDICT: REQUEST_CHANGES`."
+}
