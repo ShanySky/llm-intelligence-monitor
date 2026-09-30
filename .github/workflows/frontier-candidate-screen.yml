@@ -7,7 +7,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   screen:
@@ -108,3 +108,32 @@ jobs:
           name: frontier-generic-screen-${{ steps.target.outputs.task }}-${{ github.run_id }}
           path: result/
           retention-days: 30
+
+
+      - name: Publish latest frontier screen result
+        if: always()
+        shell: bash
+        run: |
+          if [ ! -f result/result.json ]; then
+            echo "No result/result.json to publish"
+            exit 0
+          fi
+          cp result/result.json /tmp/frontier-screen-result.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin frontier-screen-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/frontier-screen-results; then
+            git switch -C frontier-screen-results origin/frontier-screen-results
+          else
+            git switch --orphan frontier-screen-results
+            git rm -rf --ignore-unmatch .
+          fi
+          TASK="${{ steps.target.outputs.task }}"
+          mkdir -p "frontier-screen/$TASK/runs"
+          cp /tmp/frontier-screen-result.json "frontier-screen/$TASK/latest.json"
+          cp /tmp/frontier-screen-result.json "frontier-screen/$TASK/runs/${GITHUB_RUN_ID}.json"
+          git add frontier-screen
+          if ! git diff --cached --quiet; then
+            git commit -m "Record frontier screen $TASK ${GITHUB_RUN_ID}"
+            git push origin HEAD:frontier-screen-results
+          fi
