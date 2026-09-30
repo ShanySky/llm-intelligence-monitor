@@ -501,9 +501,9 @@
     {
       "id": "frontier-review-precision-family",
       "family": "code_review_precision_with_safe_distractors",
-      "status": "stability-validation",
+      "status": "model-discrimination-candidate",
       "promoted_to_final": false,
-      "note": "Two GPT-6.1 family screens disagree on which lower effort fails variant 2 (High first, Medium second), so the apparent family-level effort effect is treated as stochastic until fixed-variant repeat5 proves otherwise.",
+      "note": "Retired from Effort Core. The family-level GPT-6.1 screen had only 1/3 sensitive variants; the attempted fixed-variant repeat did not actually keep scoring fixed to variant 2, so that repeat is invalid and will not be rerun. Keep only as a model-discrimination research candidate.",
       "evidence": {
         "luna_high_variant_scores": [
           100,
@@ -554,7 +554,7 @@
         "fixed_variant_repeat": {
           "variant": 2,
           "trials_per_effort": 5,
-          "status": "running"
+          "status": "invalid-workflow-variant-selection"
         },
         "family_screen_sensitive_variants": 1,
         "family_screen_required_sensitive_variants": 2,
