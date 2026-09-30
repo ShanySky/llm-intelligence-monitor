@@ -1,0 +1,51 @@
+{
+  "task": "frontier-review",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "score": 100,
+  "checks": {
+    "cache_transaction_boundary": {
+      "points": 15,
+      "passed": true
+    },
+    "audit_delivery_boundary": {
+      "points": 15,
+      "passed": true
+    },
+    "audit_payload_and_idempotency": {
+      "points": 15,
+      "passed": true
+    },
+    "order_scoped_exactly_once": {
+      "points": 25,
+      "passed": true
+    },
+    "external_side_effect_recovery": {
+      "points": 20,
+      "passed": true
+    },
+    "requests_changes": {
+      "points": 10,
+      "passed": true
+    }
+  },
+  "duration_seconds": 138,
+  "responses": 10,
+  "max_turns": 40,
+  "shell_commands": 9,
+  "shell_budget": 40,
+  "turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "finished_with_message": true,
+  "usage": {
+    "input_tokens": 33201,
+    "output_tokens": 3360,
+    "reasoning_tokens": 1865,
+    "cached_input_tokens": 22016
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}

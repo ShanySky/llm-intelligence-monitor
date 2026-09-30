@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-medium",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 124,
+  "responses": 12,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 11,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 35881,
+    "output_tokens": 2035,
+    "reasoning_tokens": 541,
+    "cached_input_tokens": 25856
+  },
+  "final_text": "Wrote `REVIEW.md` with four blocking findings and the required `VERDICT: REQUEST_CHANGES` line.\n\nValidation: read `REVIEW.md` and checked its final line."
+}
