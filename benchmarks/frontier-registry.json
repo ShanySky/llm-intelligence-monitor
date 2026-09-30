@@ -537,9 +537,21 @@
     {
       "id": "frontier-runtime-repair-family",
       "family": "agent_coding_runtime_guided_repair",
-      "status": "screening",
+      "status": "coverage-only-ceiling",
       "promoted_to_final": false,
-      "note": "Three opaque-runtime variants require diagnosis followed by minimal Java repair; Luna-first screen is running."
+      "note": "Opaque runtime diagnosis plus real Java repair still saturated on Luna High across all three variants; retain as Agent+Coding coverage and do not enter GPT-6.1 Sol effort calibration.",
+      "evidence": {
+        "luna_high_variant_scores": [
+          100,
+          100,
+          100
+        ],
+        "luna_high_mean": 100,
+        "variants": 3,
+        "duration_seconds_mean": 93,
+        "probe_calls_mean": 5.7,
+        "behavior_signal": "ceiling"
+      }
     }
   ],
   "resident_model_epoch": {
