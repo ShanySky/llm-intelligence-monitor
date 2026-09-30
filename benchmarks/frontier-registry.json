@@ -519,6 +519,20 @@
         "sol_effort_signal": "none",
         "variants": 3
       }
+    },
+    {
+      "id": "real-repo-replay-family",
+      "family": "real_repo_maintenance_replay",
+      "status": "screening",
+      "promoted_to_final": false,
+      "evidence": {
+        "variants": 3,
+        "source": "real historical commits from this repository",
+        "isolation": "target parent archive without .git or target diff",
+        "scoring": "80% hidden behavioral equivalence + 20% objective patch discipline",
+        "model_epoch": "resident Sol evidence kept separate from historical Sol epochs"
+      },
+      "note": "Primary Effort Core research direction after synthetic microrepos repeatedly saturated. Luna-first screening precedes resident Sol M/H/XH."
     }
   ],
   "resident_model_epoch": {
