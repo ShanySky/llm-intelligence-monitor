@@ -1,0 +1,228 @@
+# Application-focused reasoning-effort probes v3.
+# Objective partial scoring: required-decision recall + precision + only semantically
+# necessary ordering constraints. No LLM judge and no exact-string formatting penalty.
+
+- description: SD31-EN-online-identity-rollout
+  vars:
+    pair_id: SD31
+    language: en
+    category: architecture
+    ability: solution_design
+    difficulty: research_hard
+    family: rolling_migration
+    required_ids: "S1,S2,S4,S5,S6,S8,S9,S10"
+    allowed_ids: "S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12"
+    precedence: "S1<S2;S2<S4;S4<S5;S5<S6;S6<S8;S8<S9;S9<S10"
+    question: >-
+      A multi-tenant API is replacing mutable email identity with stable account_key.
+      Old and new application versions overlap for a full release, writes continue,
+      a delayed backfill may race live writes, rollback must remain safe until an
+      explicit gate closes, and downstream events are replayable for six months.
+
+      Decisions:
+      S1 expand schema with nullable account_key and mapping index;
+      S2 deploy compatibility code that resolves both identities and preserves legacy
+         state on live writes;
+      S3 cut all reads/writes immediately to account_key;
+      S4 guard backfill with captured row version;
+      S5 backfill in resumable batches;
+      S6 validate mixed old/new writes plus rollback;
+      S7 delete legacy identity from stored replay payloads;
+      S8 cut primary routing to account_key while compatibility remains;
+      S9 retire old writers after cutover validation;
+      S10 close rollback, then remove legacy compatibility later;
+      S11 take a global write lock for the migration;
+      S12 regenerate account_key from current email on every read.
+
+      Select the minimal safe decisions in an order that respects only necessary
+      rollout dependencies. Output decision IDs only, comma-separated.
+  assert:
+    - type: javascript
+      value: file://tests/scorers/ordered-id-partial-score.js
+      threshold: 0.98
+
+- description: CR31-EN-price-audit-review
+  vars:
+    pair_id: CR31
+    language: en
+    category: coding
+    ability: code_review_debugging
+    difficulty: research_hard
+    family: transactional_review
+    required_ids: "F1,F2,F3,F4,F7"
+    allowed_ids: "F1,F2,F3,F4,F5,F6,F7,F8,F9"
+    precedence: ""
+    question: >-
+      Review a distributed price update. updateIfVersion returns false on optimistic
+      conflict, but the caller ignores it. Cache eviction happens inside the
+      transaction. AuditWork stores productId and expectedVersion+1; an async worker
+      later rereads the current product price and sends using a fresh UUID per attempt.
+      The audit sink deduplicates only by the caller's key.
+
+      Candidate findings:
+      F1 rejected writes can still trigger cache/audit effects;
+      F2 pre-commit eviction can be followed by stale cache repopulation;
+      F3 audit version can be paired with a later price;
+      F4 random delivery UUID defeats retry dedupe;
+      F5 another thread automatically inherits the caller transaction;
+      F6 flush-before-evict makes rollback-safe cache invalidation;
+      F7 robust direction is snapshot accepted version+price and dispatch durable
+         after-commit work with a stable business key;
+      F8 synchronized on one service instance fixes all deployment races;
+      F9 increasing DB pool size repairs the correctness failures.
+
+      Select all and only blocking findings/fix directions. IDs only.
+  assert:
+    - type: javascript
+      value: file://tests/scorers/ordered-id-partial-score.js
+      threshold: 0.98
+
+- description: CR32-EN-lease-fencing-review
+  vars:
+    pair_id: CR32
+    language: en
+    category: coding
+    ability: code_review_debugging
+    difficulty: research_hard
+    family: lease_fencing_review
+    required_ids: "L1,L2,L3,L4,L7"
+    allowed_ids: "L1,L2,L3,L4,L5,L6,L7,L8,L9"
+    precedence: ""
+    question: >-
+      Two workers claim a database lease. acquire increments no generation; renewal
+      checks only owner and extends expires_at. A paused worker can resume after lease
+      expiry and after another worker reacquires the job. The worker performs an
+      external publish before writing COMPLETED. Owner IDs can be reused after process
+      restart. The external target deduplicates only when retries reuse one stable
+      business key.
+
+      Candidate findings:
+      L1 owner equality alone cannot fence a stale resumed holder;
+      L2 a monotonically increasing lease/attempt token should fence durable writes;
+      L3 external publish retries need a stable job/business idempotency key;
+      L4 renewal must also prove the current fencing generation;
+      L5 a 30-minute lease proves exactly-once execution;
+      L6 synchronized Java methods solve cross-instance races;
+      L7 completion must be conditional on current fencing generation;
+      L8 random publish keys are safer after takeover;
+      L9 deleting expired lease rows before every claim is sufficient fencing.
+
+      Select all and only blocking findings/fix directions. IDs only.
+  assert:
+    - type: javascript
+      value: file://tests/scorers/ordered-id-partial-score.js
+      threshold: 0.98
+
+- description: AG31-EN-two-cause-production-diagnosis
+  vars:
+    pair_id: AG31
+    language: en
+    category: agent
+    ability: tool_use_planning
+    difficulty: research_hard
+    family: causal_diagnostic_plan
+    required_ids: "A1,A2,A3,A5,A6,A7"
+    allowed_ids: "A1,A2,A3,A4,A5,A6,A7,A8,A9,A10"
+    precedence: "A1<A2;A1<A3;A2<A5;A3<A5;A5<A6;A6<A7"
+    question: >-
+      Checkout has two symptoms after a rolling release: HTTP 500s occur only on
+      api-b, while timeout retries can duplicate provider effects even on healthy
+      api-a. api-b differs from api-a in both zone and rendered config revision.
+
+      Actions:
+      A1 inspect exact rendered config difference and pod-attributed errors;
+      A2 replay the same api-b binary/config in zone-a to isolate zone correlation;
+      A3 replay api-b in zone-b with desired config while holding other variables;
+      A4 restart every pod;
+      A5 after isolation, replace only the proven config drift;
+      A6 run a controlled timeout-after-provider-accept experiment on healthy api-a
+         and inspect provider idempotency identity;
+      A7 repair retry identity only if that experiment proves delivery-scoped keys;
+      A8 scale all APIs;
+      A9 disable retries;
+      A10 flush shared cache.
+
+      Choose the minimal evidence-first diagnosis/repair sequence for both independent
+      symptoms. A2 and A3 are both required but may be performed in either order.
+      IDs only.
+  assert:
+    - type: javascript
+      value: file://tests/scorers/ordered-id-partial-score.js
+      threshold: 0.98
+
+- description: LH31-EN-async-export-recovery
+  vars:
+    pair_id: LH31
+    language: en
+    category: long_horizon
+    ability: goal_maintenance_adaptation
+    difficulty: research_hard
+    family: checkpointed_recovery
+    required_ids: "N1,N3,N5,N6,N8"
+    allowed_ids: "N1,N2,N3,N4,N5,N6,N7,N8,N9,N10"
+    precedence: "N1<N8;N3<N8;N5<N8;N6<N8"
+    question: >-
+      Original goal: migrate synchronous exports to cancellable async jobs while
+      preserving the old endpoint for one release and guaranteeing one logical
+      published artifact per job. Already implemented: job creation, worker claim,
+      cancel_requested, polling, old endpoint compatibility.
+
+      New validation finds: cancellation during generation is ignored; a crash after
+      upload but before COMMITTED causes another upload; a stale worker can overwrite
+      CANCELLED after takeover; UI treats CANCEL_REQUESTED as terminal.
+
+      Actions:
+      N1 cooperative cancellation during generation and before publish;
+      N2 mark CANCELLED immediately in DELETE before the worker observes it;
+      N3 stable publish identity from jobId plus reconcile already-published state;
+      N4 fresh timestamp object name on each retry;
+      N5 fence terminal transitions by current worker attempt;
+      N6 keep CANCEL_REQUESTED non-terminal in UI;
+      N7 delete the old synchronous endpoint now;
+      N8 validate mid-flight cancel, post-publish crash, stale completion and old API;
+      N9 only increase worker timeout;
+      N10 clear storage prefix before every retry.
+
+      Choose the minimal sufficient continuation; validation must come after the fixes.
+      IDs only.
+  assert:
+    - type: javascript
+      value: file://tests/scorers/ordered-id-partial-score.js
+      threshold: 0.98
+
+- description: AG32-EN-stale-read-layer-isolation
+  vars:
+    pair_id: AG32
+    language: en
+    category: agent
+    ability: tool_use_planning
+    difficulty: research_hard
+    family: layered_consistency_diagnostic
+    required_ids: "R1,R2,R3,R5,R6,R8"
+    allowed_ids: "R1,R2,R3,R4,R5,R6,R7,R8,R9,R10"
+    precedence: "R1<R5;R2<R6;R3<R5;R5<R8;R6<R8"
+    question: >-
+      Strict read-after-write is stale in 3% of cases. The path uses cache-aside and
+      an async replica. Old and new cache invalidators overlap. You must determine
+      whether cache alias invalidation and replica lag are independently causal.
+
+      Actions:
+      R1 reproduce a legacy-writer update with strict read forced to primary while
+         cache stays enabled;
+      R2 bypass cache and compare strict primary versus replica immediately after write;
+      R3 inspect which legacy/stable cache aliases survive invalidation;
+      R4 flush the entire cache and stop if the symptom disappears;
+      R5 repair dual-alias invalidation only if legacy-writer evidence proves it;
+      R6 route only strict reads to primary if cache-bypassed evidence proves replica lag;
+      R7 restart all invalidators;
+      R8 verify legacy-writer and v2-writer paths after targeted fixes;
+      R9 disable replica reads globally;
+      R10 increase cache TTL.
+
+      Choose the minimal evidence-first sequence capable of proving and repairing both
+      independent causes. R1/R3 and R2 are independent investigations; only their
+      causal prerequisites and final verification order are constrained. IDs only.
+  assert:
+    - type: javascript
+      value: file://tests/scorers/ordered-id-partial-score.js
+      threshold: 0.98
