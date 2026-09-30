@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       efforts: ${{ steps.matrix.outputs.efforts }}
+      trials: ${{ steps.matrix.outputs.trials }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -29,7 +30,9 @@ jobs:
         shell: bash
         run: |
           efforts="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(JSON.stringify(x.efforts ?? ['medium','xhigh']))")"
+          trials="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');const n=Math.max(1,Number(x.trials ?? 1));process.stdout.write(JSON.stringify(Array.from({length:n},(_,i)=>i+1)))")"
           echo "efforts=$efforts" >> "$GITHUB_OUTPUT"
+          echo "trials=$trials" >> "$GITHUB_OUTPUT"
 
   eval:
     needs: prepare
@@ -39,6 +42,7 @@ jobs:
       max-parallel: 3
       matrix:
         effort: ${{ fromJSON(needs.prepare.outputs.efforts) }}
+        trial: ${{ fromJSON(needs.prepare.outputs.trials) }}
 
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -73,7 +77,7 @@ jobs:
         shell: bash
         run: |
           TASK="${{ steps.target.outputs.task }}"
-          TASK_DIR="/tmp/frontier-effort-$TASK-${{ matrix.effort }}"
+          TASK_DIR="/tmp/frontier-effort-$TASK-${{ matrix.effort }}-t${{ matrix.trial }}"
           rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
           cp -R "benchmarks/$TASK/workspace/." "$TASK_DIR/"
           [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
@@ -127,6 +131,7 @@ jobs:
             "task":"${{ steps.target.outputs.task }}",
             "model":"${{ steps.target.outputs.model }}",
             "effort":"${{ matrix.effort }}",
+            "trial":int("${{ matrix.trial }}"),
             "score":score["score"],
             "checks":score["checks"],
             "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
@@ -152,7 +157,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: frontier-effort-${{ steps.target.outputs.task }}-${{ matrix.effort }}-${{ github.run_id }}
+          name: frontier-effort-${{ steps.target.outputs.task }}-${{ matrix.effort }}-t${{ matrix.trial }}-${{ github.run_id }}
           path: result/
           retention-days: 30
 
@@ -180,13 +185,13 @@ jobs:
           const rows=[];
           function walk(p){for(const e of fs.readdirSync(p,{withFileTypes:true})){const f=path.join(p,e.name);if(e.isDirectory())walk(f);else if(e.name==='result.json')rows.push(JSON.parse(fs.readFileSync(f,'utf8')))}}
           walk('results/frontier-effort');
-          rows.sort((a,b)=>a.effort.localeCompare(b.effort));
+          rows.sort((a,b)=>a.effort.localeCompare(b.effort) || Number(a.trial??1)-Number(b.trial??1));
           const out={generated_at:new Date().toISOString(),rows};
           fs.writeFileSync('results/frontier-effort-summary.json',JSON.stringify(out,null,2)+'\n');
-          let md='# Frontier Effort Calibration\n\n| Effort | Score | Runtime | Turns | Turn cap | Shell | Shell cap | Saturated | Outcome |\n|---|---:|---:|---:|---:|---:|---:|---|---|\n';
+          let md='# Frontier Effort Calibration\n\n| Effort | Trial | Score | Runtime | Turns | Turn cap | Shell | Shell cap | Saturated | Outcome |\n|---|---:|---:|---:|---:|---:|---:|---:|---|---|\n';
           for(const r of rows) {
             const sat=(r.turn_limit_reached||r.shell_budget_reached)?'yes':'no';
-            md+=`| ${r.effort} | ${r.score} | ${r.duration_seconds}s | ${r.responses??0} | ${r.max_turns??'-'} | ${r.shell_commands??0} | ${r.shell_budget??'-'} | ${sat} | ${r.outcome} |\n`;
+            md+=`| ${r.effort} | ${r.trial??1} | ${r.score} | ${r.duration_seconds}s | ${r.responses??0} | ${r.max_turns??'-'} | ${r.shell_commands??0} | ${r.shell_budget??'-'} | ${sat} | ${r.outcome} |\n`;
           }
           fs.writeFileSync('results/frontier-effort-summary.md',md);
           console.log(md);
