@@ -1,0 +1,24 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-plan-runtime",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 54,
+  "responses": 7,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 7,
+  "shell_budget": 24,
+  "validation_calls": 2,
+  "validation_budget": 3,
+  "validation_enabled": true,
+  "max_turns": 24,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 14705,
+    "output_tokens": 1020,
+    "reasoning_tokens": 565,
+    "cached_input_tokens": 4608
+  },
+  "final_text": "Created `DECISION.json` with a safe rolling sequence that preserves rollback compatibility through the explicit rollback gate.\n\nValidation: `validate` passed, including mixed-version, live migration, event, cache, cutover, rollback, and minimality checks."
+}
