@@ -1282,6 +1282,151 @@ elif task == "frontier-incident-chain":
     )
     add("reported_all_failure_domains",5,report_ok)
 
+
+elif task == "frontier-pagination":
+    hidden = r'''import java.util.*;
+
+public final class FrontierPaginationHiddenTest {
+  public static void main(String[] args) {
+    run("TIES", FrontierPaginationHiddenTest::tieBoundary);
+    run("SNAPSHOT", FrontierPaginationHiddenTest::snapshotIsolation);
+    run("LEGACY", FrontierPaginationHiddenTest::legacyCursor);
+    run("TRAVERSE", FrontierPaginationHiddenTest::completeTraversal);
+    run("INVALID", FrontierPaginationHiddenTest::invalidCursor);
+  }
+
+  interface Case { void run() throws Exception; }
+
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name + "_PASS"); }
+    catch (Throwable t) { System.out.println(name + "_FAIL:" + t); }
+  }
+
+  static void tieBoundary() {
+    FeedStore store = new FeedStore();
+    store.add(10, 300, "a");
+    store.add(9, 200, "b");
+    store.add(8, 200, "c");
+    store.add(7, 200, "d");
+    store.add(6, 100, "e");
+    FeedService service = new FeedService(store, new CursorCodec());
+
+    Page p1 = service.page(null, 2);
+    Page p2 = service.page(p1.nextToken, 2);
+    check(ids(p1).equals(List.of(10L, 9L)));
+    check(ids(p2).equals(List.of(8L, 7L)));
+  }
+
+  static void snapshotIsolation() {
+    FeedStore store = new FeedStore();
+    store.add(5, 500, "a");
+    store.add(4, 400, "b");
+    store.add(3, 300, "c");
+    store.add(2, 200, "d");
+    store.add(1, 100, "e");
+    FeedService service = new FeedService(store, new CursorCodec());
+
+    Page p1 = service.page(null, 2);
+    store.add(99, 350, "late");
+    store.add(100, 50, "late-low");
+    Page p2 = service.page(p1.nextToken, 2);
+    Page p3 = service.page(p2.nextToken, 2);
+
+    List<Long> seen = new ArrayList<>();
+    seen.addAll(ids(p1)); seen.addAll(ids(p2)); seen.addAll(ids(p3));
+    check(seen.equals(List.of(5L,4L,3L,2L,1L)));
+    check(!seen.contains(99L) && !seen.contains(100L));
+  }
+
+  static void legacyCursor() {
+    FeedStore store = new FeedStore();
+    store.add(5, 500, "a");
+    store.add(4, 400, "b");
+    store.add(3, 300, "c");
+    store.add(2, 200, "d");
+    store.add(1, 100, "e");
+    FeedService service = new FeedService(store, new CursorCodec());
+
+    Page p = service.page("v1:300", 10);
+    check(ids(p).equals(List.of(2L,1L)));
+    check(p.nextToken == null);
+  }
+
+  static void completeTraversal() {
+    FeedStore store = new FeedStore();
+    store.add(12, 400, "a");
+    store.add(11, 400, "b");
+    store.add(10, 400, "c");
+    store.add(9, 300, "d");
+    store.add(8, 300, "e");
+    store.add(7, 200, "f");
+    store.add(6, 100, "g");
+    FeedService service = new FeedService(store, new CursorCodec());
+
+    List<Long> got = new ArrayList<>();
+    String token = null;
+    int pages = 0;
+    do {
+      Page p = service.page(token, 2);
+      got.addAll(ids(p));
+      token = p.nextToken;
+      pages++;
+      check(pages < 10);
+    } while (token != null);
+
+    check(got.equals(List.of(12L,11L,10L,9L,8L,7L,6L)));
+    check(new HashSet<>(got).size() == got.size());
+  }
+
+  static void invalidCursor() {
+    FeedStore store = new FeedStore();
+    store.add(1, 1, "a");
+    FeedService service = new FeedService(store, new CursorCodec());
+    expectBad(() -> service.page("v2:not-a-number:1:1", 10));
+    expectBad(() -> service.page("garbage", 10));
+  }
+
+  static List<Long> ids(Page p) {
+    List<Long> out = new ArrayList<>();
+    for (FeedItem x : p.items) out.add(x.id);
+    return out;
+  }
+
+  interface Bad { void run(); }
+  static void expectBad(Bad b) {
+    boolean ok=false;
+    try { b.run(); } catch (IllegalArgumentException e) { ok=true; }
+    check(ok);
+  }
+
+  static void check(boolean x) {
+    if (!x) throw new AssertionError();
+  }
+}'''
+    (root/"FrontierPaginationHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run([
+        "javac","-d",str(outdir),
+        *map(str,(root/"src").glob("*.java")),
+        str(root/"FrontierPaginationHiddenTest.java")
+    ],capture_output=True,text=True)
+    add("compiles",5,cp.returncode==0)
+    visible=False; probe=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True)
+        visible=vr.returncode==0
+        pr=subprocess.run(["java","-cp",str(outdir),"PaginationProbe"],capture_output=True,text=True)
+        probe=pr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierPaginationHiddenTest"],capture_output=True,text=True)
+        hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",5,visible)
+    add("repository_diagnostic_probe",10,probe)
+    add("stable_total_order_across_timestamp_ties",20,"TIES_PASS" in hidden_out)
+    add("cursor_pins_snapshot_across_writes",25,"SNAPSHOT_PASS" in hidden_out)
+    add("legacy_cursor_remains_accepted",15,"LEGACY_PASS" in hidden_out)
+    add("complete_duplicate_free_traversal",15,"TRAVERSE_PASS" in hidden_out)
+    add("invalid_cursor_rejected",5,"INVALID_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
