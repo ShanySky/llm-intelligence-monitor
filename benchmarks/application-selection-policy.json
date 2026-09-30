@@ -18,5 +18,16 @@
     "require_objective_or_semantic_domain_scoring": true,
     "do_not_require_effort_monotonicity": false,
     "effort_confirmation": "Require repeated positive Medium-to-XHigh quality gain; single-run gaps remain candidates."
+  },
+  "efficiency": {
+    "min_quality_floor": 95,
+    "min_improvement_percent": 15,
+    "min_improved_metrics": 2,
+    "metrics": [
+      "duration_seconds",
+      "shell_commands",
+      "total_tokens"
+    ],
+    "confirmation": "Treat a single run as an efficiency candidate only; require repeated directionally consistent runs before confirmation."
   }
 }
