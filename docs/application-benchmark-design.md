@@ -192,3 +192,25 @@ Agent 调查 Harness 增加 opaque `probe`：
 Patch Quality 默认只作为独立维度展示，不静默混入 intelligence quality。只有经过跨实例重复验证，确认该维度能稳定反映 reasoning effort / model 差异后，才允许进入 Effort Core 或 Model Core。
 
 这样做的目的，是避免当前前沿模型在行为测试上同时封顶后失去区分力，同时也避免使用主观 LLM Judge。对 real-repo replay 类型任务，测试通过是必要条件，补丁完整性、工程等价性与改动纪律才是 gate 之上的主要信息来源。
+
+## Real-Repo Replay
+
+Synthetic micro-repositories remain useful for coverage, hidden-edge regression and
+cross-model Model Core tasks, but repeated calibration showed that frontier Sol
+reasoning levels often saturate them.
+
+Effort Core therefore prioritizes **real repository replay**:
+
+- choose a small historical maintenance commit from this repository;
+- build the agent workspace from the target commit's parent with `git archive`;
+- do not copy `.git`, the target commit, target diff, hidden fixtures or reference
+  patch into the agent workspace;
+- present only the original maintenance objective in `TASK.md`;
+- use hidden behavior fixtures as the correctness/equivalence gate;
+- score patch discipline separately from behavior: touched files, forbidden areas,
+  unnecessary files and excessive footprint;
+- reference commits must pass a 100% hidden self-check before any model run;
+- only cross-instance repeated resident-Sol evidence can enter Effort Core.
+
+The replay family intentionally uses small real changes so individual tasks normally
+fit the 3–5 minute target and remain below the 10 minute hard limit.
