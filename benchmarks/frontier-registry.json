@@ -497,6 +497,13 @@
         "luna_high_mean": 100,
         "variants": 3
       }
+    },
+    {
+      "id": "frontier-review-precision-family",
+      "family": "code_review_precision_with_safe_distractors",
+      "status": "screening",
+      "promoted_to_final": false,
+      "note": "Three Code Review variants mix true blocking bugs with robust-but-suspicious distractors; Luna-first screening is running."
     }
   ]
 }
