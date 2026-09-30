@@ -110,7 +110,13 @@ jobs:
             "score":score["score"],
             "checks":score["checks"],
             "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
+            "responses":runner.get("responses",0),
+            "max_turns":runner.get("max_turns"),
             "shell_commands":runner.get("shell_commands",0),
+            "shell_budget":runner.get("shell_budget"),
+            "turn_limit_reached":bool(runner.get("max_turns")) and runner.get("responses",0) >= runner.get("max_turns"),
+            "shell_budget_reached":bool(runner.get("shell_budget")) and runner.get("shell_commands",0) >= runner.get("shell_budget"),
+            "finished_with_message":bool(runner.get("final_text")),
             "usage":runner.get("usage",{}),
             "api_retries":runner.get("api_retries",0),
             "infrastructure_error":infra,
@@ -157,8 +163,11 @@ jobs:
           rows.sort((a,b)=>a.effort.localeCompare(b.effort));
           const out={generated_at:new Date().toISOString(),rows};
           fs.writeFileSync('results/frontier-effort-summary.json',JSON.stringify(out,null,2)+'\n');
-          let md='# Frontier Effort Calibration\n\n| Effort | Score | Runtime | Input tokens | Reasoning tokens | Shell | Outcome |\n|---|---:|---:|---:|---:|---:|---|\n';
-          for(const r of rows) md+=`| ${r.effort} | ${r.score} | ${r.duration_seconds}s | ${r.usage?.input_tokens??0} | ${r.usage?.reasoning_tokens??0} | ${r.shell_commands??0} | ${r.outcome} |\n`;
+          let md='# Frontier Effort Calibration\n\n| Effort | Score | Runtime | Turns | Turn cap | Shell | Shell cap | Saturated | Outcome |\n|---|---:|---:|---:|---:|---:|---:|---|---|\n';
+          for(const r of rows) {
+            const sat=(r.turn_limit_reached||r.shell_budget_reached)?'yes':'no';
+            md+=`| ${r.effort} | ${r.score} | ${r.duration_seconds}s | ${r.responses??0} | ${r.max_turns??'-'} | ${r.shell_commands??0} | ${r.shell_budget??'-'} | ${sat} | ${r.outcome} |\n`;
+          }
           fs.writeFileSync('results/frontier-effort-summary.md',md);
           console.log(md);
           NODE
@@ -177,6 +186,8 @@ jobs:
         run: |
           cp results/frontier-effort-summary.json /tmp/frontier-effort-summary.json
           cp results/frontier-effort-summary.md /tmp/frontier-effort-summary.md
+          rm -rf /tmp/frontier-effort-details
+          cp -R results/frontier-effort /tmp/frontier-effort-details
           TASK="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(x.task)")"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -188,6 +199,8 @@ jobs:
             git rm -rf --ignore-unmatch .
           fi
           mkdir -p "frontier-effort/$TASK/runs"
+          rm -rf "frontier-effort/$TASK/latest-details"
+          cp -R /tmp/frontier-effort-details "frontier-effort/$TASK/latest-details"
           cp /tmp/frontier-effort-summary.json latest.json
           cp /tmp/frontier-effort-summary.md latest.md
           cp /tmp/frontier-effort-summary.json "frontier-effort/$TASK/latest.json"
