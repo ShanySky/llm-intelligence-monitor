@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-filter",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 77,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 7,
+  "shell_budget": 20,
+  "max_turns": 20,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 17391,
+    "output_tokens": 2116,
+    "reasoning_tokens": 581,
+    "cached_input_tokens": 8704
+  },
+  "final_text": "Replaced the legacy left-to-right evaluator with a tokenizer and recursive-descent parser implementing the documented precedence, parentheses, unary `NOT`, null predicates, and string escapes. Malformed or trailing input now throws `IllegalArgumentException`.\n\nValidation: `./run_visible_tests.sh` — passed."
+}
