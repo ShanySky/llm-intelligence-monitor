@@ -3,7 +3,7 @@
   "updated_at": "2026-09-30",
   "policy": {
     "model_discriminator": "Repeated cross-model spread >= 10 points with per-config score stddev <= 12.",
-    "effort_discriminator": "Repeated positive Sol Medium-to-XHigh gain >= 10 points without budget saturation; single-run differences are not sufficient.",
+    "effort_discriminator": "Repeated resident-Sol Medium-to-XHigh quality gain >= 10 points across the configured family gate without budget saturation; single-run differences are not sufficient. Current resident Sol is gpt-6.1-sol.",
     "coverage_only": "Luna High >= 95 without budget saturation, or repeated Sol effort runs show ceiling/no stable effort signal.",
     "invalid_or_superseded": "Infrastructure/scorer/harness confounds invalidate earlier evidence."
   },
