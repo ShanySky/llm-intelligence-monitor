@@ -520,5 +520,11 @@
         "variants": 3
       }
     }
-  ]
+  ],
+  "resident_model_epoch": {
+    "effective_date": "2026-09-30",
+    "resident_sol_model": "gpt-6.1-sol",
+    "previous_sol_model": "gpt-6-sol",
+    "policy": "Evidence produced with gpt-6-sol remains historical. New Effort Core confirmation for the resident Sol model must be reproduced with gpt-6.1-sol."
+  }
 }
