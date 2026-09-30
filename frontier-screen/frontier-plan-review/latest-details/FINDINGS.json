@@ -1,0 +1,11 @@
+{
+  "unsafe_steps": ["P04", "P06", "P08", "P10", "P12", "P14"],
+  "notes": {
+    "P04": "Independently rolling services may still require customer_id; issuing key-only tokens before they are upgraded breaks authentication/identity handling.",
+    "P06": "The partner still requires customer_id and cannot handle customer_key-only events until its next release window.",
+    "P08": "A key-only cache cutover drops support for v1 numeric invalidations while v1 shares Redis, risking stale data after writes.",
+    "P10": "v1 can still create NULL-key rows during the rollback window, so NOT NULL can break writes and prematurely block rollback.",
+    "P12": "Removing customer_id before the contractual one-release compatibility window ends breaks old REST clients.",
+    "P14": "Generating an unpersisted fresh UUID per read makes the identity unstable, violating the requirement that customer_key never change."
+  }
+}
