@@ -491,9 +491,18 @@
     {
       "id": "frontier-compat-review-family",
       "family": "code_review_compatibility_semantics",
-      "status": "screening",
+      "status": "coverage-only-ceiling",
       "promoted_to_final": false,
-      "note": "Three compatibility-semantics variants are in Luna-first screening; only advance if the family avoids ceiling."
+      "note": "All three compatibility-semantics variants saturated on Luna High. Contract-to-code mapping remained too direct; do not enter Sol effort calibration.",
+      "evidence": {
+        "luna_high_variant_scores": [
+          100,
+          100,
+          100
+        ],
+        "luna_high_mean": 100,
+        "variants": 3
+      }
     }
   ]
 }
