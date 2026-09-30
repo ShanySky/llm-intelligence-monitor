@@ -14,13 +14,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  eval:
+  prepare:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-effort]')
+    runs-on: ubuntu-latest
+    outputs:
+      efforts: ${{ steps.matrix.outputs.efforts }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Load effort matrix
+        id: matrix
+        shell: bash
+        run: |
+          efforts="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(JSON.stringify(x.efforts ?? ['medium','xhigh']))")"
+          echo "efforts=$efforts" >> "$GITHUB_OUTPUT"
+
+  eval:
+    needs: prepare
+    if: needs.prepare.result == 'success'
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 3
       matrix:
-        effort: [medium, xhigh]
+        effort: ${{ fromJSON(needs.prepare.outputs.efforts) }}
 
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -43,9 +61,11 @@ jobs:
         shell: bash
         run: |
           task="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(x.task)")"
+          model="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(x.model ?? 'gpt-6-sol')")"
           max_turns="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(String(x.max_turns ?? 12))")"
           shell_budget="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(String(x.shell_budget ?? 12))")"
           echo "task=$task" >> "$GITHUB_OUTPUT"
+          echo "model=$model" >> "$GITHUB_OUTPUT"
           echo "max_turns=$max_turns" >> "$GITHUB_OUTPUT"
           echo "shell_budget=$shell_budget" >> "$GITHUB_OUTPUT"
 
@@ -73,7 +93,7 @@ jobs:
         run: |
           start="$(date +%s)"
           set +e
-          timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "gpt-6-sol"             "${{ matrix.effort }}"             "$TASK_DIR/light-agent-result.json"
+          timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ steps.target.outputs.model }}"             "${{ matrix.effort }}"             "$TASK_DIR/light-agent-result.json"
           status=$?
           set -e
           end="$(date +%s)"
@@ -105,7 +125,7 @@ jobs:
               outcome="runner_error"
           result={
             "task":"${{ steps.target.outputs.task }}",
-            "model":"gpt-6-sol",
+            "model":"${{ steps.target.outputs.model }}",
             "effort":"${{ matrix.effort }}",
             "score":score["score"],
             "checks":score["checks"],
