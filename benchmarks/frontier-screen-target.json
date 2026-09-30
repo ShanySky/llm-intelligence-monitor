@@ -1,5 +1,5 @@
 {
-  "task": "frontier-incident-cascade",
+  "task": "frontier-outbox-recovery",
   "model": "gpt-6-luna",
   "effort": "high"
 }
