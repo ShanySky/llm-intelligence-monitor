@@ -62,6 +62,12 @@ const trialMap = (effort) => new Map(
 const mTrials = trialMap('medium');
 const xTrials = trialMap('xhigh');
 const commonTrials = [...mTrials.keys()].filter((t)=>xTrials.has(t)).sort((a,b)=>a-b);
+const allTrialMaps = Object.fromEntries(
+  ['medium','high','xhigh'].map((effort)=>[effort,trialMap(effort)])
+);
+const allTrialIds = [...new Set(
+  Object.values(allTrialMaps).flatMap((m)=>[...m.keys()])
+)].sort((a,b)=>a-b);
 
 const pctImprovement = (baseline, candidate) => {
   if (!Number.isFinite(baseline) || baseline <= 0 || !Number.isFinite(candidate)) return null;
@@ -187,13 +193,28 @@ const scores = effortStats.map(x=>x.score).filter(Number.isFinite);
 const effortSpread = scores.length ? Math.max(...scores)-Math.min(...scores) : null;
 let effortSensitivity = null;
 if (effortStats.length >= 2 && effortSpread != null) {
-  const repeated = Math.min(...effortStats.map(x=>x.trials)) >= minTrials;
+  const threshold = Number(quality.min_effort_spread_points ?? 10);
+  const repeated = trialMode === 'variants'
+    ? Math.min(...effortStats.map(x=>x.trials)) >= familyMinVariants
+    : Math.min(...effortStats.map(x=>x.trials)) >= minTrials;
   const stable = trialMode === 'variants'
     ? true
     : Math.max(...effortStats.map(x=>x.score_stddev)) <= maxStd;
   const saturated = effortStats.some(x=>x.saturated);
   const complete = effortStats.every(x=>x.data_complete);
-  const threshold = Number(quality.min_effort_spread_points ?? 10);
+
+  const variantSensitivity = allTrialIds.map((trial)=>{
+    const values=['medium','high','xhigh']
+      .map((effort)=>allTrialMaps[effort].get(trial))
+      .filter(Boolean)
+      .map((row)=>Number(row.score??0));
+    const spread=values.length>=2?Math.max(...values)-Math.min(...values):0;
+    return {trial,spread_points:spread,sensitive:spread>=threshold};
+  });
+  const sensitiveVariantCount=variantSensitivity.filter(x=>x.sensitive).length;
+  const variantConsistencyOk = trialMode !== 'variants' ||
+    sensitiveVariantCount >= familyMinPositiveVariants;
+
   if (effortSpread >= threshold) {
     const sorted=[...effortStats].sort((a,b)=>b.score-a.score);
     const ordered=['medium','high','xhigh']
@@ -211,8 +232,11 @@ if (effortStats.length >= 2 && effortSpread != null) {
       stable,
       saturated,
       data_complete:complete,
+      sensitive_variant_count:sensitiveVariantCount,
+      required_sensitive_variant_count:trialMode==='variants'?familyMinPositiveVariants:null,
+      variant_sensitivity:trialMode==='variants'?variantSensitivity:undefined,
       classification:
-        complete && !saturated && repeated && stable
+        complete && !saturated && repeated && stable && variantConsistencyOk
           ? 'effort-sensitivity-confirmed'
           : 'effort-sensitivity-candidate',
     };
@@ -224,15 +248,36 @@ if (medium && high && xhigh) {
   const highDip = Math.min(medium.score,xhigh.score)-high.score;
   const highSpike = high.score-Math.max(medium.score,xhigh.score);
   const magnitude = Math.max(highDip,highSpike,0);
-  const repeated = Math.min(medium.trials,high.trials,xhigh.trials) >= minTrials;
+  const repeated = trialMode === 'variants'
+    ? Math.min(medium.trials,high.trials,xhigh.trials) >= familyMinVariants
+    : Math.min(medium.trials,high.trials,xhigh.trials) >= minTrials;
   const stable = trialMode === 'variants'
     ? true
     : Math.max(medium.score_stddev,high.score_stddev,xhigh.score_stddev) <= maxStd;
   if (magnitude >= Number(quality.min_effort_spread_points ?? 10)) {
+    const direction=highDip >= highSpike ? 'high-dip' : 'high-spike';
+    const threshold=Number(quality.min_effort_spread_points ?? 10);
+    const perVariant=allTrialIds.map((trial)=>{
+      const m=allTrialMaps.medium.get(trial);
+      const h=allTrialMaps.high.get(trial);
+      const x=allTrialMaps.xhigh.get(trial);
+      if(!m||!h||!x) return {trial,magnitude_points:0,signal:false};
+      const ms=Number(m.score??0), hs=Number(h.score??0), xs=Number(x.score??0);
+      const value=direction==='high-dip'
+        ? Math.min(ms,xs)-hs
+        : hs-Math.max(ms,xs);
+      return {trial,magnitude_points:value,signal:value>=threshold};
+    });
+    const signalCount=perVariant.filter(x=>x.signal).length;
+    const variantConsistencyOk=trialMode!=='variants' ||
+      signalCount>=familyMinPositiveVariants;
     nonMonotonic = {
-      direction: highDip >= highSpike ? 'high-dip' : 'high-spike',
-      magnitude_points: magnitude,
-      classification: repeated && stable
+      direction,
+      magnitude_points:magnitude,
+      signal_variant_count:signalCount,
+      required_signal_variant_count:trialMode==='variants'?familyMinPositiveVariants:null,
+      per_variant:trialMode==='variants'?perVariant:undefined,
+      classification:repeated && stable && variantConsistencyOk
         ? 'nonmonotonic-effort-anomaly-confirmed'
         : 'nonmonotonic-effort-anomaly-candidate',
       repeated,
