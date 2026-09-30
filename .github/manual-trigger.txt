@@ -89,3 +89,4 @@ Runtime rollout planning Luna screen.
 Deep cross-file coding repair Luna screen.
 Opaque runtime diagnosis Luna screen.
 Hardened opaque build-cache rescreen.
+Runtime diagnosis Sol effort calibration x2 with nonbinding probe budget.
