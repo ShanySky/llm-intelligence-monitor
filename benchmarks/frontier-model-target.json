@@ -1,0 +1,12 @@
+{
+  "task": "frontier-review-deep",
+  "trials": 2,
+  "max_turns": 40,
+  "shell_budget": 40,
+  "configs": [
+    {"key":"gpt-6-astra-xhigh","model":"gpt-6-astra","effort":"xhigh"},
+    {"key":"gpt-6-sol-xhigh","model":"gpt-6-sol","effort":"xhigh"},
+    {"key":"gpt-6-luna-xhigh","model":"gpt-6-luna","effort":"xhigh"},
+    {"key":"gpt-5-6-sol-xhigh","model":"gpt-5.6-sol","effort":"xhigh"}
+  ]
+}
