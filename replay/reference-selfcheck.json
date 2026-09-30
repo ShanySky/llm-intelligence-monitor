@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-30T08:36:56.812Z",
-  "ok": true,
+  "generated_at": "2026-09-30T09:04:12.520Z",
+  "ok": false,
   "cases": [
     {
       "id": "repeat-evidence-promotion",
@@ -19,6 +19,18 @@
       "target_sha": "5bd797ffe84d4ad233aab03129ccbd2c43d5bf7f",
       "behavior_score": 100,
       "error": null
+    },
+    {
+      "id": "core-signal-summary",
+      "target_sha": "e4c921e7f3bfc898d9d8d24275a78189282897c0",
+      "behavior_score": null,
+      "error": "Command failed: node scripts/score-real-repo-replay.mjs core-signal-summary /tmp/replay-reference-core-signal-summary /tmp/replay-reference-core-signal-summary/reference-score.json benchmarks/real-repo-replay/config.json"
+    },
+    {
+      "id": "repeat-sample-policy",
+      "target_sha": "12c852a1d01367e7d1d749811d3d4e224abf3d85",
+      "behavior_score": null,
+      "error": "Command failed: node scripts/score-real-repo-replay.mjs repeat-sample-policy /tmp/replay-reference-repeat-sample-policy /tmp/replay-reference-repeat-sample-policy/reference-score.json benchmarks/real-repo-replay/config.json"
     }
   ]
 }
