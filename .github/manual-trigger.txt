@@ -96,3 +96,4 @@ Deep coding v2 hidden-contract Luna rescreen.
 Runtime diagnosis effort rerun after probe metric fix.
 Hypothesis-driven runtime diagnosis v2 Luna screen.
 Runtime diagnosis v2 Sol effort calibration x2.
+Dynamic diagnosis family Luna High x3 hidden instances.
