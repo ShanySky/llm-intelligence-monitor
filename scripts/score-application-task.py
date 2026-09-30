@@ -1864,6 +1864,48 @@ elif task == "frontier-deep-fix":
     add("post_side_effect_crash_retry_converges",20,bool(cases.get("CRASH_RETRY")))
     add("canonical_pair_lock_order",10,bool(cases.get("LOCK_ORDER")))
 
+
+elif task == "frontier-runtime-diagnosis":
+    validator=Path(__file__).resolve().parent/"validators"/"frontier-runtime-diagnosis.py"
+    result={}
+    try:
+        vr=subprocess.run(
+            ["python",str(validator),str(root),"--json"],
+            capture_output=True,text=True,timeout=30
+        )
+        result=json.loads(vr.stdout)
+    except Exception:
+        result={}
+
+    runner={}
+    try:
+        runner=json.loads((root/"light-agent-result.json").read_text())
+    except Exception:
+        runner={}
+    queries=[str(x).strip().lower() for x in runner.get("probe_queries",[])]
+
+    config_evidence=(
+        "pods" in queries
+        and ("config api-b" in queries or "logs api-b" in queries or "experiment normal api-b" in queries)
+    )
+    retry_evidence=(
+        "experiment timeout api-a" in queries
+        or (
+            "queue" in queries
+            and "experiment normal api-a" in queries
+            and "experiment timeout api-b" in queries
+        )
+    )
+
+    add("valid_repair_json",5,bool(result.get("syntax")))
+    add("identified_api_config_drift",15,bool(result.get("config_root")))
+    add("identified_retry_idempotency_scope",20,bool(result.get("idempotency_root")))
+    add("targeted_config_repair",15,bool(result.get("config_action")))
+    add("business_scoped_idempotency_repair",20,bool(result.get("idempotency_action")))
+    add("minimal_no_unrelated_repairs",10,bool(result.get("minimal")))
+    add("collected_config_causal_evidence",5,config_evidence)
+    add("isolated_retry_failure_on_healthy_pod",10,retry_evidence)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
