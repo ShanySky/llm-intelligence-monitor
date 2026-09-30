@@ -15,6 +15,10 @@ public final class CustomerCache {
         return data.get("customer-key:" + customerKey);
     }
 
+    public String getCompatible(long legacyId, String customerKey) {
+        return getV2(customerKey);
+    }
+
     public int size() {
         return data.size();
     }
