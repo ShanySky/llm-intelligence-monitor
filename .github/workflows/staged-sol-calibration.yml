@@ -2,10 +2,6 @@ name: Staged application Sol calibration
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-
 permissions:
   contents: read
 
