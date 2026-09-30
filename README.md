@@ -283,6 +283,18 @@ A controlled manual run can execute all configured models at reasoning effort `h
 
 Agent 调查题支持 opaque `probe` 工具。模型只能看到 probe 返回的运行时证据，不能读取 probe 实现；Harness 会记录实际 query + observation，证据分根据真实返回结果判定，而不是根据“问过哪些关键词”判定。后续更难题优先要求控制变量/反事实实验来证明因果，而不是把所有组件静态查一遍。
 
+### 应用评测成熟度
+
+正式应用报告把信息分成三层，避免大量容易封顶的 coverage 题掩盖真正的能力差异：
+
+- **Coverage**：保证方案、Coding、Review、Agent、长程任务等真实场景都有行为回归覆盖；
+- **Model Core**：只包含经过重复横向验证、能够稳定区分模型的题型族；当前成熟门槛为至少 2 个独立题型族；
+- **Effort Core**：只包含跨多个实例重复验证后，能够稳定体现 GPT-6 Sol Medium → X High 正向质量提升的题型族；当前成熟门槛为至少 1 个。
+
+只有 Model Core 和 Effort Core 都达到门槛，应用评测才标记为整体 mature。单次 Final Suite 的分差只能作为诊断信号，不能自动晋级。
+
+题目研发状态统一记录在 `benchmarks/frontier-registry.json`。已经确认封顶的任务可以继续作为 coverage，但不会重复进入昂贵的 effort / cross-model 漏斗。
+
 ### Frontier 候选漏斗
 
 新应用题不直接进入完整多模型套件，而按成本漏斗推进：
