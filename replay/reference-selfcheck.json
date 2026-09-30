@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-09-30T08:32:14.540Z",
+  "ok": true,
+  "cases": [
+    {
+      "id": "repeat-evidence-promotion",
+      "target_sha": "0fe6e031c6fb35d408fd69aade1e7de1bcf603e0",
+      "behavior_score": 100,
+      "error": null
+    },
+    {
+      "id": "variant-effort-counts",
+      "target_sha": "bda09b65e1428975dbfa79a6c0aa96ef1756f4f9",
+      "behavior_score": 100,
+      "error": null
+    },
+    {
+      "id": "split-core-maturity",
+      "target_sha": "5bd797ffe84d4ad233aab03129ccbd2c43d5bf7f",
+      "behavior_score": 100,
+      "error": null
+    }
+  ]
+}
