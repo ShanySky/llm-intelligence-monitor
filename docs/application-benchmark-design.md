@@ -173,3 +173,22 @@ Agent 调查 Harness 增加 opaque `probe`：
 
 下一阶段 effort 区分题优先采用**反事实/干预型调查**：观测相关性不足以确定根因，模型必须设计保持其它变量不变的实验，才能拿到完整证据分。
 
+
+
+## Correctness Gate 与 Patch Quality
+
+应用型 Coding 任务不再把“hidden tests 全过”直接等同于高质量完成。
+
+正式评分分两层：
+
+1. **Correctness Gate**：visible / hidden verifier、兼容性、恢复窗口、并发边界等行为检查。未达到行为门槛时，不讨论 patch quality。
+2. **Patch Quality**：仅在行为门槛通过后，客观衡量补丁是否符合最小充分实现：
+   - 是否修改了任务说明、visible tests 等禁止区域；
+   - 是否触碰与故障域无关的源码；
+   - 是否新增/删除不必要文件；
+   - changed files / changed lines 是否明显超过参考修复域；
+   - 公共接口与兼容路径是否仍由行为验证保证。
+
+Patch Quality 默认只作为独立维度展示，不静默混入 intelligence quality。只有经过跨实例重复验证，确认该维度能稳定反映 reasoning effort / model 差异后，才允许进入 Effort Core 或 Model Core。
+
+这样做的目的，是避免当前前沿模型在行为测试上同时封顶后失去区分力，同时也避免使用主观 LLM Judge。对 real-repo replay 类型任务，测试通过是必要条件，补丁完整性、工程等价性与改动纪律才是 gate 之上的主要信息来源。
