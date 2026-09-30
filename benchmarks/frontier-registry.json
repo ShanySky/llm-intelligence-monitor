@@ -501,9 +501,24 @@
     {
       "id": "frontier-review-precision-family",
       "family": "code_review_precision_with_safe_distractors",
-      "status": "screening",
+      "status": "model-discrimination-candidate",
       "promoted_to_final": false,
-      "note": "Three Code Review variants mix true blocking bugs with robust-but-suspicious distractors; Luna-first screening is running."
+      "note": "High-precision distractor design separated Luna from Sol on one variant, but Sol Medium/High/XHigh all scored 100 across all three variants. Retain for cross-model research; retire from Effort Core funnel.",
+      "evidence": {
+        "luna_high_variant_scores": [
+          100,
+          70,
+          100
+        ],
+        "luna_high_mean": 90,
+        "sol_effort_variant_means": {
+          "medium": 100,
+          "high": 100,
+          "xhigh": 100
+        },
+        "sol_effort_signal": "none",
+        "variants": 3
+      }
     }
   ]
 }
