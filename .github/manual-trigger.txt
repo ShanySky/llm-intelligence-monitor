@@ -41,3 +41,4 @@ Persisted frontier config Medium vs X High calibration.
 Identity rollout concurrency-boundary rescreen.
 External Terminal-Bench configure-git-webserver stress calibration.
 External Terminal-Bench Sol Medium/XHigh calibration.
+Frontier config time-first repeat with 40/40 soft caps.
