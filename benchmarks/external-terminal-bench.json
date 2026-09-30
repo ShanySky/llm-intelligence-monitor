@@ -2,8 +2,8 @@
   "version": 1,
   "source": "https://github.com/harbor-framework/terminal-bench-2-1",
   "source_commit": "7131e4375048a0e408a8fb404b5f499d726b695b",
-  "task": "configure-git-webserver",
-  "docker_image": "alexgshaw/configure-git-webserver:20251031",
-  "purpose": "External stress calibration only; not part of daily benchmark score.",
+  "task": "custom-memory-heap-crash",
+  "docker_image": "alexgshaw/custom-memory-heap-crash:20251031",
+  "purpose": "External hard debugging calibration only; not part of daily benchmark score.",
   "agent_timeout_seconds": 600
 }
