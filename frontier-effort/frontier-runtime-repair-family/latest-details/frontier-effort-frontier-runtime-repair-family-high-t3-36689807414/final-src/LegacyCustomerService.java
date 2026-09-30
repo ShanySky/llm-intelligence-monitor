@@ -3,6 +3,10 @@ public final class LegacyCustomerService {
     public LegacyCustomerService(CustomerStore store){ this.store=store; }
 
     public void update(long id,String status) {
-        store.updateLegacy(id,status);
+        synchronized (store) {
+            Customer old=store.get(id);
+            Customer replacement=new Customer(id,old.stableKey,status,old.version+1);
+            store.put(replacement);
+        }
     }
 }

@@ -30,10 +30,10 @@
       "passed": true
     }
   },
-  "duration_seconds": 85,
-  "responses": 8,
+  "duration_seconds": 70,
+  "responses": 6,
   "max_turns": 30,
-  "shell_commands": 4,
+  "shell_commands": 3,
   "shell_budget": 24,
   "validation_calls": 1,
   "validation_budget": 8,
@@ -44,14 +44,14 @@
   "probe_enabled": true,
   "patch_metrics": {
     "changed_files": 1,
-    "changed_lines": 14,
+    "changed_lines": 13,
     "added_files": 0,
     "deleted_files": 0,
     "files": [
       {
         "path": "src/PaymentService.java",
         "kind": "modified",
-        "changed_lines": 14
+        "changed_lines": 13
       }
     ]
   },
@@ -59,9 +59,9 @@
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 13782,
-    "output_tokens": 1413,
-    "reasoning_tokens": 762,
+    "input_tokens": 11103,
+    "output_tokens": 1008,
+    "reasoning_tokens": 383,
     "cached_input_tokens": 3072
   },
   "api_retries": 0,

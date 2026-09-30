@@ -3,6 +3,11 @@ public final class V2CustomerService {
     public V2CustomerService(CustomerStore store){ this.store=store; }
 
     public void update(long id,String status) {
-        store.updateV2(id,status);
+        synchronized (store) {
+            Customer c=store.get(id);
+            c.legacyStatus=status;
+            c.newStatus=status;
+            c.version++;
+        }
     }
 }

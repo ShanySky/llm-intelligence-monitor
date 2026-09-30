@@ -30,43 +30,38 @@
       "passed": true
     }
   },
-  "duration_seconds": 71,
+  "duration_seconds": 68,
   "responses": 6,
   "max_turns": 30,
-  "shell_commands": 4,
+  "shell_commands": 3,
   "shell_budget": 24,
   "validation_calls": 1,
   "validation_budget": 8,
   "validation_enabled": true,
-  "probe_calls": 3,
-  "probe_attempts": 3,
+  "probe_calls": 5,
+  "probe_attempts": 5,
   "probe_budget": 12,
   "probe_enabled": true,
   "patch_metrics": {
-    "changed_files": 4,
-    "changed_lines": 38,
+    "changed_files": 3,
+    "changed_lines": 30,
     "added_files": 0,
     "deleted_files": 0,
     "files": [
       {
         "path": "src/BackfillJob.java",
         "kind": "modified",
-        "changed_lines": 4
-      },
-      {
-        "path": "src/CustomerStore.java",
-        "kind": "modified",
-        "changed_lines": 25
+        "changed_lines": 12
       },
       {
         "path": "src/LegacyCustomerService.java",
         "kind": "modified",
-        "changed_lines": 4
+        "changed_lines": 8
       },
       {
         "path": "src/V2CustomerService.java",
         "kind": "modified",
-        "changed_lines": 5
+        "changed_lines": 10
       }
     ]
   },
@@ -74,10 +69,10 @@
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 11020,
-    "output_tokens": 1442,
-    "reasoning_tokens": 618,
-    "cached_input_tokens": 4096
+    "input_tokens": 12697,
+    "output_tokens": 1379,
+    "reasoning_tokens": 552,
+    "cached_input_tokens": 5632
   },
   "api_retries": 0,
   "infrastructure_error": null,

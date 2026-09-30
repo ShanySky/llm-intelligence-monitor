@@ -31,9 +31,9 @@
     }
   },
   "duration_seconds": 86,
-  "responses": 11,
+  "responses": 9,
   "max_turns": 30,
-  "shell_commands": 6,
+  "shell_commands": 5,
   "shell_budget": 24,
   "validation_calls": 1,
   "validation_budget": 8,
@@ -64,10 +64,10 @@
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 22745,
-    "output_tokens": 718,
-    "reasoning_tokens": 103,
-    "cached_input_tokens": 12800
+    "input_tokens": 19398,
+    "output_tokens": 810,
+    "reasoning_tokens": 167,
+    "cached_input_tokens": 10752
   },
   "api_retries": 0,
   "infrastructure_error": null,

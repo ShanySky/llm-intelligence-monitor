@@ -1,0 +1,75 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-runtime-repair-family-high-t1",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 70,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 24,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 4,
+  "probe_attempts": 4,
+  "probe_budget": 12,
+  "probe_enabled": true,
+  "probe_queries": [
+    "What production failure mode is currently observed, and what runtime evidence links it to the underlying cause?",
+    "At the provider boundary, what requests and responses are recorded during the failing production scenario?",
+    "What happens during timeout/crash retry, including whether the provider executes the payment more than once?",
+    "For retries of the same order and version with different delivery IDs after afterCharge throws, what should the provider idempotency key be, and how are different versions treated?"
+  ],
+  "probe_executed_queries": [
+    "What production failure mode is currently observed, and what runtime evidence links it to the underlying cause?",
+    "At the provider boundary, what requests and responses are recorded during the failing production scenario?",
+    "What happens during timeout/crash retry, including whether the provider executes the payment more than once?",
+    "For retries of the same order and version with different delivery IDs after afterCharge throws, what should the provider idempotency key be, and how are different versions treated?"
+  ],
+  "probe_observations": [
+    {
+      "query": "What production failure mode is currently observed, and what runtime evidence links it to the underlying cause?",
+      "output": "STDOUT:\nNO_MATCH: ask about provider boundary, timeout/crash retry, or another concrete subsystem.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "At the provider boundary, what requests and responses are recorded during the failing production scenario?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary: same order=o-17 version=7 produced keys delivery:d-81 then delivery:d-82 and two logical effects\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What happens during timeout/crash retry, including whether the provider executes the payment more than once?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary: same order=o-17 version=7 produced keys delivery:d-81 then delivery:d-82 and two logical effects\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For retries of the same order and version with different delivery IDs after afterCharge throws, what should the provider idempotency key be, and how are different versions treated?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary: same order=o-17 version=7 produced keys delivery:d-81 then delivery:d-82 and two logical effects\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "patch_metrics": {
+    "changed_files": 1,
+    "changed_lines": 13,
+    "added_files": 0,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "src/PaymentService.java",
+        "kind": "modified",
+        "changed_lines": 13
+      }
+    ]
+  },
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 11103,
+    "output_tokens": 1008,
+    "reasoning_tokens": 383,
+    "cached_input_tokens": 3072
+  },
+  "final_text": "Repaired payment idempotency so retries for the same order and version reuse a stable business-operation key, regardless of delivery ID. Completion tracking now uses that same key, while different order versions remain distinct.\n\nValidation passed:\n- `./run_visible_tests.sh`\n- Black-box validation: `VALIDATION_PASS`"
+}

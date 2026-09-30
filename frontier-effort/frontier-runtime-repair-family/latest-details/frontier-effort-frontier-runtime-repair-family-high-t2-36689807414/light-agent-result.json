@@ -1,0 +1,80 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-runtime-repair-family-high-t2",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 86,
+  "responses": 9,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 24,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 4,
+  "probe_attempts": 4,
+  "probe_budget": 12,
+  "probe_enabled": true,
+  "probe_queries": [
+    "What active production incident is occurring in the customer service, including runtime symptoms and the causal behavior? Identify evidence from live-like execution rather than merely suspicious code.",
+    "Trace the precise cache invalidation and versioned-read sequence behind the stale v2 response after a legacy write. What mutation and cache key state are involved?",
+    "Trace strict read-after-write failure through CustomerStore and StrictCustomerReader. What freshness metadata or routing behavior causes the old replica value to be returned?",
+    "For strict versus ordinary read semantics, after a write before replication which repository read is required for each path, and does any retry or eventual consistency requirement affect strictRead?"
+  ],
+  "probe_executed_queries": [
+    "What active production incident is occurring in the customer service, including runtime symptoms and the causal behavior? Identify evidence from live-like execution rather than merely suspicious code.",
+    "Trace the precise cache invalidation and versioned-read sequence behind the stale v2 response after a legacy write. What mutation and cache key state are involved?",
+    "Trace strict read-after-write failure through CustomerStore and StrictCustomerReader. What freshness metadata or routing behavior causes the old replica value to be returned?",
+    "For strict versus ordinary read semantics, after a write before replication which repository read is required for each path, and does any retry or eventual consistency requirement affect strictRead?"
+  ],
+  "probe_observations": [
+    {
+      "query": "What active production incident is occurring in the customer service, including runtime symptoms and the causal behavior? Identify evidence from live-like execution rather than merely suspicious code.",
+      "output": "STDOUT:\ntwo stale-read signatures: v2 read after a legacy writer can return an old cached value; strict read-after-write can return old replica data\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Trace the precise cache invalidation and versioned-read sequence behind the stale v2 response after a legacy write. What mutation and cache key state are involved?",
+      "output": "STDOUT:\nlegacy writer updated primary row alice->bob; numeric alias was invalidated but stable:key-1 remained cached as alice; primary row is bob\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Trace strict read-after-write failure through CustomerStore and StrictCustomerReader. What freshness metadata or routing behavior causes the old replica value to be returned?",
+      "output": "STDOUT:\ncontrolled strict-read experiment: primary=v2 immediately after commit, replica remains v1 until replication; strict path currently returned replica=v1\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For strict versus ordinary read semantics, after a write before replication which repository read is required for each path, and does any retry or eventual consistency requirement affect strictRead?",
+      "output": "STDOUT:\ncontrolled strict-read experiment: primary=v2 immediately after commit, replica remains v1 until replication; strict path currently returned replica=v1\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 3,
+    "added_files": 0,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "src/CustomerService.java",
+        "kind": "modified",
+        "changed_lines": 1
+      },
+      {
+        "path": "src/StrictCustomerReader.java",
+        "kind": "modified",
+        "changed_lines": 2
+      }
+    ]
+  },
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 19398,
+    "output_tokens": 810,
+    "reasoning_tokens": 167,
+    "cached_input_tokens": 10752
+  },
+  "final_text": "Repaired both production stale-read paths:\n\n- Legacy updates now evict the stable-key cache entry as well as the legacy-key entry.\n- Strict reads now read from the primary; ordinary reads continue to use the replica.\n\nValidation passed: `./run_visible_tests.sh` and black-box validation (`VALIDATION_PASS`)."
+}

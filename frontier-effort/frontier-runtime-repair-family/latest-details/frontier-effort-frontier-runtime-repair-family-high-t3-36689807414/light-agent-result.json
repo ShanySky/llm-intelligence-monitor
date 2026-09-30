@@ -1,0 +1,92 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-runtime-repair-family-high-t3",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 68,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 24,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 5,
+  "probe_attempts": 5,
+  "probe_budget": 12,
+  "probe_enabled": true,
+  "probe_queries": [
+    "What is the current production incident symptom and which runtime failure path is actively triggered? Provide focused evidence of relevant component behavior.",
+    "Investigate the migration validation incident: what exact sequence reproduces status rollback after live writes? Identify implicated backfill and store semantics, with evidence.",
+    "Investigate stable customer identity loss after legacy-version updates. What data field/key behavior causes it, and which methods participate?",
+    "What is observed after a legacy customer update to existing record? Does it preserve stable key and v2 state, and what repair semantics are required?",
+    "Check whether concurrent v2 and backfill writes can race between read and commit, and whether any atomic compare/version operation exists in this store."
+  ],
+  "probe_executed_queries": [
+    "What is the current production incident symptom and which runtime failure path is actively triggered? Provide focused evidence of relevant component behavior.",
+    "Investigate the migration validation incident: what exact sequence reproduces status rollback after live writes? Identify implicated backfill and store semantics, with evidence.",
+    "Investigate stable customer identity loss after legacy-version updates. What data field/key behavior causes it, and which methods participate?",
+    "What is observed after a legacy customer update to existing record? Does it preserve stable key and v2 state, and what repair semantics are required?",
+    "Check whether concurrent v2 and backfill writes can race between read and commit, and whether any atomic compare/version operation exists in this store."
+  ],
+  "probe_observations": [
+    {
+      "query": "What is the current production incident symptom and which runtime failure path is actively triggered? Provide focused evidence of relevant component behavior.",
+      "output": "STDOUT:\nmigration validation shows occasional status rollback after live writes and loss of stable customer identity after legacy-version updates\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Investigate the migration validation incident: what exact sequence reproduces status rollback after live writes? Identify implicated backfill and store semantics, with evidence.",
+      "output": "STDOUT:\nmigration validation shows occasional status rollback after live writes and loss of stable customer identity after legacy-version updates\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Investigate stable customer identity loss after legacy-version updates. What data field/key behavior causes it, and which methods participate?",
+      "output": "STDOUT:\ncaptured backfill item: id=7 status=OPEN version=5; live v2 write committed PAID version=6; delayed backfill later restored OPEN/version=5\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What is observed after a legacy customer update to existing record? Does it preserve stable key and v2 state, and what repair semantics are required?",
+      "output": "STDOUT:\ncustomer id=9 had stableKey=key-9 before a legacy writer update; after the update stableKey became null while legacy status/version advanced\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Check whether concurrent v2 and backfill writes can race between read and commit, and whether any atomic compare/version operation exists in this store.",
+      "output": "STDOUT:\ncaptured backfill item: id=7 status=OPEN version=5; live v2 write committed PAID version=6; delayed backfill later restored OPEN/version=5\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "patch_metrics": {
+    "changed_files": 3,
+    "changed_lines": 30,
+    "added_files": 0,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "src/BackfillJob.java",
+        "kind": "modified",
+        "changed_lines": 12
+      },
+      {
+        "path": "src/LegacyCustomerService.java",
+        "kind": "modified",
+        "changed_lines": 8
+      },
+      {
+        "path": "src/V2CustomerService.java",
+        "kind": "modified",
+        "changed_lines": 10
+      }
+    ]
+  },
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 12697,
+    "output_tokens": 1379,
+    "reasoning_tokens": 552,
+    "cached_input_tokens": 5632
+  },
+  "final_text": "Repaired both incident paths:\n\n- Backfill now applies atomically and will not overwrite a customer row with a newer version.\n- Legacy updates preserve the customer’s stable key.\n- Live v2 writes, legacy writes, and backfill updates synchronize on the store to avoid read/write races.\n\nValidation passed: `./run_visible_tests.sh` and black-box validation."
+}
