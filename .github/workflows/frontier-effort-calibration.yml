@@ -202,6 +202,11 @@ jobs:
           }
           Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
           if rp.exists(): shutil.copy2(rp,"result/light-agent-result.json")
+          for name in ["REVIEW.md","FINDINGS.json","PLAN.md","plan.json","REPORT.txt","DIAGNOSIS.json","REPAIR.json","DECISION.json",".actions"]:
+              p=root/name
+              if p.exists():
+                  if p.is_dir(): shutil.copytree(p,"result/"+name.replace("/","_"),dirs_exist_ok=True)
+                  else: shutil.copy2(p,"result/"+name.replace("/","_"))
           if (root/"src").exists(): shutil.copytree(root/"src","result/final-src",dirs_exist_ok=True)
           PY
 
