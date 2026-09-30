@@ -2,10 +2,6 @@ name: Hard survivor Sol calibration
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-
 permissions:
   contents: read
 
