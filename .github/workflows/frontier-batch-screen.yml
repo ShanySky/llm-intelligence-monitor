@@ -66,7 +66,6 @@ jobs:
           TASK_DIR="/tmp/frontier-batch-$TASK"
           rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
           cp -R "benchmarks/$TASK/workspace/." "$TASK_DIR/"
-          node scripts/install-blackbox-validator.mjs "$TASK" "$TASK_DIR"
           [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
           [ ! -f "$TASK_DIR/run_visible_tests.sh" ] || chmod +x "$TASK_DIR/run_visible_tests.sh"
           [ ! -f "$TASK_DIR/check_generated.sh" ] || chmod +x "$TASK_DIR/check_generated.sh"
@@ -82,6 +81,17 @@ jobs:
           AGENT_SHELL_BUDGET: ${{ matrix.shell_budget }}
         shell: bash
         run: |
+          TASK="${{ matrix.task }}"
+          VALIDATOR=""
+          if [ -f "$GITHUB_WORKSPACE/benchmarks/$TASK/blackbox_validate.py" ]; then
+            VALIDATOR="$GITHUB_WORKSPACE/benchmarks/$TASK/blackbox_validate.py"
+          elif [ -f "$GITHUB_WORKSPACE/scripts/validators/$TASK.py" ]; then
+            VALIDATOR="$GITHUB_WORKSPACE/scripts/validators/$TASK.py"
+          fi
+          if [ -n "$VALIDATOR" ]; then
+            export AGENT_VALIDATION_COMMAND="python '$VALIDATOR' '$TASK_DIR'"
+            export AGENT_VALIDATION_BUDGET="8"
+          fi
           start="$(date +%s)"
           set +e
           timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ needs.prepare.outputs.model }}"             "${{ needs.prepare.outputs.effort }}"             "$TASK_DIR/light-agent-result.json"
@@ -128,6 +138,9 @@ jobs:
             "max_turns":runner.get("max_turns"),
             "shell_commands":runner.get("shell_commands",0),
             "shell_budget":runner.get("shell_budget"),
+            "validation_calls":runner.get("validation_calls",0),
+            "validation_budget":runner.get("validation_budget",0),
+            "validation_enabled":runner.get("validation_enabled",False),
             "turn_limit_reached":turn_limit,
             "shell_budget_reached":shell_limit,
             "finished_with_message":bool(runner.get("final_text")),
