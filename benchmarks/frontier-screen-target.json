@@ -1,5 +1,5 @@
 {
-  "task": "frontier-identity-rollout",
+  "task": "frontier-incident-cascade",
   "model": "gpt-6-luna",
   "effort": "high"
 }
