@@ -76,6 +76,7 @@ if (medium && xhigh) {
   const improvements = {
     duration_seconds: pctImprovement(medium.duration_seconds, xhigh.duration_seconds),
     shell_commands: pctImprovement(medium.shell_commands, xhigh.shell_commands),
+    probe_calls: pctImprovement(medium.probe_calls, xhigh.probe_calls),
     total_tokens: pctImprovement(medium.total_tokens, xhigh.total_tokens),
   };
   const improvedMetrics = Object.entries(improvements)
