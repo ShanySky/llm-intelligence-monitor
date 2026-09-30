@@ -2,23 +2,23 @@
   "task_dir": "/tmp/frontier-screen-frontier-import-resume",
   "model": "gpt-6-luna",
   "effort": "high",
-  "duration_seconds": 77,
-  "responses": 5,
+  "duration_seconds": 94,
+  "responses": 7,
   "api_retries": 0,
   "infrastructure_error": null,
   "shell_commands": 5,
   "shell_budget": 36,
-  "validation_calls": 1,
+  "validation_calls": 2,
   "validation_budget": 8,
   "validation_enabled": true,
   "max_turns": 36,
   "container_mode": false,
   "docker_container": null,
   "usage": {
-    "input_tokens": 12410,
-    "output_tokens": 1956,
-    "reasoning_tokens": 550,
-    "cached_input_tokens": 5120
+    "input_tokens": 16213,
+    "output_tokens": 2019,
+    "reasoning_tokens": 937,
+    "cached_input_tokens": 7680
   },
-  "final_text": "Implemented resumable imports using a snapshot pinned on the job’s first run, a stable keyset cursor that includes ingest sequence to break ordering ties, and job-scoped locking to serialize concurrent resumes. Upserts now use a stable per-job, per-row idempotency key, so retries converge if a failure occurs after an upsert.\n\nValidation passed:\n- `./run_visible_tests.sh`\n- Benchmark black-box validation: `VALIDATION_PASS`"
+  "final_text": "Repaired resumable imports by pinning each job to its initial source snapshot, using stable row ordering for ties, and generating deterministic per-job row idempotency keys. Runs for the same job are also serialized so concurrent resumes cannot overwrite progress.\n\nValidation passed:\n- `./run_visible_tests.sh`\n- Black-box validation: crash recovery, pinned snapshot, ordering ties, and concurrent resume all converge."
 }

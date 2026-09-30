@@ -30,22 +30,22 @@
       "passed": true
     }
   },
-  "duration_seconds": 77,
-  "responses": 5,
+  "duration_seconds": 94,
+  "responses": 7,
   "max_turns": 36,
   "shell_commands": 5,
   "shell_budget": 36,
-  "validation_calls": 1,
+  "validation_calls": 2,
   "validation_budget": 8,
   "validation_enabled": true,
   "turn_limit_reached": false,
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 12410,
-    "output_tokens": 1956,
-    "reasoning_tokens": 550,
-    "cached_input_tokens": 5120
+    "input_tokens": 16213,
+    "output_tokens": 2019,
+    "reasoning_tokens": 937,
+    "cached_input_tokens": 7680
   },
   "api_retries": 0,
   "infrastructure_error": null,

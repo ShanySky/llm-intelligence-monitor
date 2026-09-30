@@ -3,8 +3,6 @@ public final class Checkpoint {
     long snapshot = -1;
     long beforeCreatedAt = Long.MAX_VALUE;
     long beforeId = Long.MAX_VALUE;
-    long beforeIngestSeq = Long.MAX_VALUE;
-    boolean hasCursor;
 
     Checkpoint copy() {
         Checkpoint c = new Checkpoint();
@@ -12,8 +10,6 @@ public final class Checkpoint {
         c.snapshot = snapshot;
         c.beforeCreatedAt = beforeCreatedAt;
         c.beforeId = beforeId;
-        c.beforeIngestSeq = beforeIngestSeq;
-        c.hasCursor = hasCursor;
         return c;
     }
 }
