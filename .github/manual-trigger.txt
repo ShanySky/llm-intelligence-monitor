@@ -106,3 +106,4 @@ Runtime diagnosis v2 cross-model rerun with probe tool.
 Final application validation with two confirmed core families.
 Local-contract deep coding v3 Luna screen.
 Runtime diagnosis family Luna batch screen.
+Catalog-free dynamic diagnosis Sol M/H/XH x3.
