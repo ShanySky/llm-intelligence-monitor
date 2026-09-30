@@ -1,0 +1,57 @@
+name: Reanalyze final application results
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  reanalyze:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[reanalyze-app-final]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Load latest final result
+        shell: bash
+        run: |
+          mkdir -p results
+          git fetch origin application-final-results
+          git show origin/application-final-results:application-final/latest.json > results/application-final-summary.json
+
+      - name: Reanalyze discrimination
+        shell: bash
+        run: |
+          node scripts/analyze-application-discrimination.mjs             results/application-final-summary.json             benchmarks/application-selection-policy.json             results/application-discrimination.json             results/application-discrimination.md
+          cat results/application-discrimination.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish refreshed discrimination
+        shell: bash
+        run: |
+          cp results/application-discrimination.json /tmp/application-discrimination.json
+          cp results/application-discrimination.md /tmp/application-discrimination.md
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C application-final-results origin/application-final-results
+
+          mkdir -p application-final/runs
+          cp /tmp/application-discrimination.json application-final/discrimination-latest.json
+          cp /tmp/application-discrimination.md application-final/discrimination-latest.md
+          cp /tmp/application-discrimination.json "application-final/runs/${GITHUB_RUN_ID}-reanalyzed-discrimination.json"
+          cp /tmp/application-discrimination.md "application-final/runs/${GITHUB_RUN_ID}-reanalyzed-discrimination.md"
+
+          git add application-final
+          if ! git diff --cached --quiet; then
+            git commit -m "Reanalyze final application discrimination ${GITHUB_RUN_ID}"
+            git push origin HEAD:application-final-results
+          fi
