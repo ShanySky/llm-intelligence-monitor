@@ -20,6 +20,8 @@ const dockerWorkdir = String(process.env.AGENT_DOCKER_WORKDIR ?? '/app').trim() 
 const containerMode = Boolean(dockerContainer);
 const validationCommand = String(process.env.AGENT_VALIDATION_COMMAND ?? '').trim();
 const validationBudget = Number(process.env.AGENT_VALIDATION_BUDGET ?? 8);
+const probeScript = String(process.env.AGENT_PROBE_SCRIPT ?? '').trim();
+const probeBudget = Number(process.env.AGENT_PROBE_BUDGET ?? 12);
 
 const instructions = (
   containerMode
@@ -71,6 +73,23 @@ if (validationCommand) {
   });
 }
 
+if (probeScript) {
+  tools.push({
+    type: 'function',
+    name: 'probe',
+    description: 'Query the benchmark-provided opaque runtime diagnostic interface. Use focused queries to gather evidence before changing the workspace.',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Task-specific diagnostic query.' },
+      },
+      required: ['query'],
+      additionalProperties: false,
+    },
+    strict: true,
+  });
+}
+
 const safeEnv = { ...process.env };
 for (const key of Object.keys(safeEnv)) {
   if (/KEY|SECRET|TOKEN|PASSWORD|AUTH/i.test(key) || /^GITHUB_/i.test(key) || /^RUNNER_/i.test(key)) {
@@ -79,6 +98,8 @@ for (const key of Object.keys(safeEnv)) {
 }
 delete safeEnv.AGENT_VALIDATION_COMMAND;
 delete safeEnv.AGENT_VALIDATION_BUDGET;
+delete safeEnv.AGENT_PROBE_SCRIPT;
+delete safeEnv.AGENT_PROBE_BUDGET;
 safeEnv.PATH = process.env.PATH ?? '/usr/local/bin:/usr/bin:/bin';
 safeEnv.HOME = taskDir;
 
@@ -91,6 +112,7 @@ let input = [{ role: 'user', content: [{ type: 'input_text', text: task }] }];
 let totalUsage = { input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, cached_input_tokens: 0 };
 let commands = [];
 let validationCalls = 0;
+let probeCalls = 0;
 let finalText = '';
 let responses = 0;
 let apiRetries = 0;
@@ -197,6 +219,28 @@ function runValidation() {
   return output.slice(0, 24000);
 }
 
+function runProbe(query) {
+  probeCalls += 1;
+  if (!probeScript) return 'ERROR: runtime probe is not enabled for this task';
+  if (probeCalls > probeBudget) {
+    return 'ERROR: probe action budget exceeded (' + probeBudget + ')';
+  }
+
+  const result = spawnSync('python3', [probeScript, taskDir, String(query ?? '')], {
+    cwd: taskDir,
+    env: safeEnv,
+    encoding: 'utf8',
+    timeout: shellTimeoutMs,
+    maxBuffer: 256 * 1024,
+  });
+  const output = [
+    result.stdout ? 'STDOUT:\n' + result.stdout : '',
+    result.stderr ? 'STDERR:\n' + result.stderr : '',
+    'EXIT_CODE=' + (result.status ?? 124),
+  ].filter(Boolean).join('\n');
+  return output.slice(0, 24000);
+}
+
 try {
   for (let turn = 0; turn < maxTurns; turn += 1) {
     const response = await callModel();
@@ -205,7 +249,7 @@ try {
   
     const outputs = Array.isArray(response.output) ? response.output : [];
     const calls = outputs.filter((item) =>
-      item?.type === 'function_call' && (item?.name === 'shell' || item?.name === 'validate')
+      item?.type === 'function_call' && (item?.name === 'shell' || item?.name === 'validate' || item?.name === 'probe')
     );
     const messages = outputs.filter((item) => item?.type === 'message');
   
@@ -218,7 +262,9 @@ try {
         catch { args = {}; }
         const result = call.name === 'validate'
           ? runValidation()
-          : runShell(String(args.command ?? ''));
+          : call.name === 'probe'
+            ? runProbe(String(args.query ?? ''))
+            : runShell(String(args.command ?? ''));
         input.push({ type: 'function_call_output', call_id: call.call_id, output: result });
       }
       continue;
@@ -249,6 +295,9 @@ const result = {
   validation_calls: validationCalls,
   validation_budget: validationCommand ? validationBudget : 0,
   validation_enabled: Boolean(validationCommand),
+  probe_calls: probeCalls,
+  probe_budget: probeScript ? probeBudget : 0,
+  probe_enabled: Boolean(probeScript),
   max_turns: maxTurns,
   container_mode: containerMode,
   docker_container: containerMode ? dockerContainer : null,
