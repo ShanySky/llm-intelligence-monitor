@@ -190,6 +190,7 @@ jobs:
             "probe_attempts":runner.get("probe_attempts",runner.get("probe_calls",0)),
             "probe_budget":runner.get("probe_budget",0),
             "probe_enabled":runner.get("probe_enabled",False),
+            "patch_metrics":runner.get("patch_metrics",{}),
             "turn_limit_reached":bool(runner.get("max_turns")) and runner.get("responses",0) >= runner.get("max_turns"),
             "shell_budget_reached":bool(runner.get("shell_budget")) and runner.get("shell_commands",0) >= runner.get("shell_budget"),
             "finished_with_message":bool(runner.get("final_text")),
