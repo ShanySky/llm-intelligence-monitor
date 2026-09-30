@@ -132,3 +132,4 @@ Deep fix v3 patch-quality probe M/H/XH x3.
 GPT-6.1 Sol high-precision review family M/H/XH x3.
 GPT-6.1 Sol deep-fix patch quality M/H/XH x3.
 Real repo replay family Luna High screen.
+Runtime-guided repair family Luna High x3.
