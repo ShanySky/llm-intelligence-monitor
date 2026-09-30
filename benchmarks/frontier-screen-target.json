@@ -1,7 +1,7 @@
 {
   "task": "frontier-key-rotation",
-  "model": "gpt-6-luna",
-  "effort": "high",
+  "model": "gpt-6-sol",
+  "effort": "medium",
   "max_turns": 30,
   "shell_budget": 30
 }
