@@ -1,4 +1,4 @@
-name: GPT-6 Sol effort calibration
+name: GPT-6.1 Sol effort calibration
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: gpt-6-sol-effort-calibration
+  group: gpt-6-1-sol-effort-calibration
   cancel-in-progress: false
 
 jobs:
@@ -82,13 +82,13 @@ jobs:
           bank_path="$(node -e "const c=require('./calibration-config.json'); process.stdout.write(c.solExploration?.bankPath ?? 'tests/core.yaml')")"
           node scripts/select-calibration-tests.mjs             calibration-config.json             "$bank_path"             tests/sol-calibration-selected.yaml
 
-      - name: Build GPT-6 Sol ${{ matrix.effort }} config
+      - name: Build GPT-6.1 Sol ${{ matrix.effort }} config
         shell: bash
         run: |
           mkdir -p results
-          node scripts/build-model-config.mjs             "gpt-6-sol"             "${{ matrix.effort }}"             "results/promptfoo-${{ matrix.effort }}.yaml"             "${{ matrix.effort }}"             "../tests/sol-calibration-selected.yaml"
+          node scripts/build-model-config.mjs             "gpt-6.1-sol"             "${{ matrix.effort }}"             "results/promptfoo-${{ matrix.effort }}.yaml"             "${{ matrix.effort }}"             "../tests/sol-calibration-selected.yaml"
 
-      - name: Run GPT-6 Sol ${{ matrix.effort }}
+      - name: Run GPT-6.1 Sol ${{ matrix.effort }}
         shell: bash
         env:
           INPUT_REPEAT: ${{ inputs.repeat }}
@@ -97,7 +97,7 @@ jobs:
           repeat="${INPUT_REPEAT:-$default_repeat}"
           echo "Calibration repeat=$repeat"
           set +e
-          npx -y promptfoo@0.123.1 eval             -c "results/promptfoo-${{ matrix.effort }}.yaml"             --no-cache             --no-share             --repeat "$repeat"             --max-concurrency 2             -o "results/gpt-6-sol-${{ matrix.effort }}.json"             -o "results/gpt-6-sol-${{ matrix.effort }}.html"
+          npx -y promptfoo@0.123.1 eval             -c "results/promptfoo-${{ matrix.effort }}.yaml"             --no-cache             --no-share             --repeat "$repeat"             --max-concurrency 2             -o "results/gpt-6-1-sol-${{ matrix.effort }}.json"             -o "results/gpt-6-1-sol-${{ matrix.effort }}.html"
           status=$?
           set -e
 
@@ -111,8 +111,8 @@ jobs:
         with:
           name: sol-calibration-${{ matrix.effort }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            results/gpt-6-sol-${{ matrix.effort }}.json
-            results/gpt-6-sol-${{ matrix.effort }}.html
+            results/gpt-6-1-sol-${{ matrix.effort }}.json
+            results/gpt-6-1-sol-${{ matrix.effort }}.html
           if-no-files-found: warn
           retention-days: 30
 
@@ -186,6 +186,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Calibration report unchanged."
           else
-            git commit -m "Record GPT-6 Sol effort calibration ${GITHUB_RUN_ID}"
+            git commit -m "Record GPT-6.1 Sol effort calibration ${GITHUB_RUN_ID}"
             git push origin HEAD:calibration-results
           fi
