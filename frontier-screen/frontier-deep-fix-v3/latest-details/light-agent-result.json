@@ -1,0 +1,30 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-deep-fix-v3",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 90,
+  "responses": 8,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 6,
+  "shell_budget": 36,
+  "validation_calls": 2,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "max_turns": 36,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 35639,
+    "output_tokens": 2573,
+    "reasoning_tokens": 1194,
+    "cached_input_tokens": 18432
+  },
+  "final_text": "Implemented the reliability repairs: price changes now trigger cache invalidation and audit enqueue only after a successful update, with audits carrying the committed price and a stable idempotency key. Payment retries now converge on shared order/version fulfillment state and reuse a stable reservation key. Paired account locks are acquired in a consistent order, with duplicate-account locking avoided.\n\nValidation passed:\n- `./run_visible_tests.sh`\n- Black-box validator: pricing, fulfillment recovery, and pair concurrency checks passed."
+}
