@@ -2056,6 +2056,83 @@ elif task == "frontier-fullstack-autosave":
     add("separate_user_edits_remain_distinct",10,bool(result.get("separate")))
     add("investigated_both_runtime_failure_domains",5,runtime_evidence)
 
+
+elif task == "frontier-dynamic-diagnosis-v2":
+    validator=Path(__file__).resolve().parent/"validators"/"frontier-dynamic-diagnosis-v2.py"
+    result={}
+    try:
+        vr=subprocess.run(
+            ["python",str(validator),str(root),"--json"],
+            capture_output=True,text=True,timeout=30
+        )
+        result=json.loads(vr.stdout)
+    except Exception:
+        result={}
+
+    diagnosis={}
+    try:
+        diagnosis=json.loads((root/"DIAGNOSIS.json").read_text())
+    except Exception:
+        diagnosis={}
+    roots=set(x for x in diagnosis.get("root_causes",[]) if isinstance(x,str))
+    actions=set(x for x in diagnosis.get("actions",[]) if isinstance(x,str))
+    variant=int(result.get("variant",1))
+
+    expected={
+        1:{
+            "roots":["api_config_drift","retry_idempotency_scope"],
+            "actions":["replace_drifted_api","fix_business_idempotency"],
+        },
+        2:{
+            "roots":["capacity_shortage","stale_consumer_contract"],
+            "actions":["scale_checkout_api","replace_incompatible_consumer"],
+        },
+        3:{
+            "roots":["cache_invalidator_gap","replica_read_lag"],
+            "actions":["repair_dual_invalidation","route_strict_reads_primary"],
+        },
+    }[variant]
+
+    runner={}
+    try:
+        runner=json.loads((root/"light-agent-result.json").read_text())
+    except Exception:
+        runner={}
+    queries=[str(x).strip().lower() for x in runner.get("probe_executed_queries",runner.get("probe_queries",[]))]
+
+    def has_query(required=(), any_terms=()):
+        for q in queries:
+            if all(x in q for x in required) and (not any_terms or any(x in q for x in any_terms)):
+                return True
+        return False
+
+    http_by_pod=has_query(any_terms=("500","http","error","failure")) and has_query(any_terms=("pod","api-a","api-b","distribution","slice","which"))
+    dup_boundary=has_query(any_terms=("duplicate","effect","idempot")) and has_query(any_terms=("boundary","provider","fulfillment","where","first"))
+    api_b_detail=has_query(required=("api-b",),any_terms=("config","configuration","rendered","payment_mode","log","request"))
+    retry_api_a=has_query(required=("api-a",),any_terms=("timeout","retry","replay","experiment","inject"))
+    capacity=has_query(any_terms=("capacity","cpu","queue depth","saturation","scale","replica count"))
+    consumer=has_query(any_terms=("consumer","fulfillment","event contract","redelivery","dedupe"))
+    stale_path=has_query(any_terms=("stale","read-after-write","cache","invalidator","alias"))
+    cache_detail=has_query(any_terms=("cache","invalidator","invalidation","alias"))
+    primary_read=has_query(required=("primary",),any_terms=("strict","read","fresh","experiment","compare"))
+    replica_read=has_query(required=("replica",),any_terms=("strict","read","fresh","experiment","compare","lag"))
+
+    evidence={
+        1:[http_by_pod and api_b_detail, dup_boundary and retry_api_a],
+        2:[http_by_pod and capacity, dup_boundary and consumer],
+        3:[stale_path and cache_detail, primary_read and replica_read],
+    }[variant]
+
+    add("valid_diagnosis_json",5,bool(result.get("syntax")))
+    add("known_unique_ids",5,bool(result.get("known_unique")))
+    add("root_cause_a",15,expected["roots"][0] in roots)
+    add("root_cause_b",15,expected["roots"][1] in roots)
+    add("repair_action_a",15,expected["actions"][0] in actions)
+    add("repair_action_b",15,expected["actions"][1] in actions)
+    add("minimal_no_false_positive_repairs",10,bool(result.get("minimal")))
+    add("causal_evidence_a",10,bool(evidence[0]))
+    add("causal_evidence_b",10,bool(evidence[1]))
+
 else:
     raise SystemExit(f"unknown task {task}")
 
