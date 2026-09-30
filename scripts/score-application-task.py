@@ -2583,6 +2583,80 @@ public final class StagedFulfillmentEvolutionHiddenTest {
     add("delivery_redelivery_uses_business_identity",25,"REDELIVERY_PASS" in hidden_out)
     add("different_versions_remain_distinct",15,"VERSIONS_PASS" in hidden_out)
 
+
+elif task == "frontier-compat-review-family":
+    raw=text("FINDINGS.json")
+    try:
+        data=json.loads(raw)
+        findings=data.get("findings",[]) if isinstance(data,dict) else []
+        valid=isinstance(findings,list) and isinstance(data.get("verdict"),str)
+    except Exception:
+        data={}; findings=[]; valid=False
+
+    add("valid_findings_json",5,valid)
+
+    m=re.search(r"-t(\d+)(?:$|[^0-9])",root.name)
+    variant=int(m.group(1)) if m else 1
+    expected_by_variant={
+      1:{
+        ("LegacyCustomerService.java","identity_preservation"):35,
+        ("CustomerCache.java","cache_alias_invalidation"):25,
+        ("BackfillJob.java","migration_race"):30,
+      },
+      2:{
+        ("VerifierCache.java","cache_identity_scope"):25,
+        ("VerifierCache.java","cache_generation_staleness"):20,
+        ("LegacyVerifier.java","legacy_verification_scope"):25,
+        ("SessionService.java","identity_preservation"):20,
+      },
+      3:{
+        ("EventProducer.java","event_contract_compatibility"):30,
+        ("FulfillmentConsumer.java","business_dedupe_scope"):30,
+        ("ReplayCompactor.java","replay_compatibility"):30,
+      },
+    }
+    expected=expected_by_variant.get(variant,expected_by_variant[1])
+
+    reported=set()
+    if valid:
+        for item in findings:
+            if not isinstance(item,dict):
+                continue
+            file=str(item.get("file","")).strip().split("/")[-1]
+            failure=str(item.get("failure_class","")).strip().lower()
+            if file and failure:
+                reported.add((file,failure))
+
+    # Allow common semantically equivalent wording without manufacturing
+    # taxonomy-based score gaps.
+    alias_pairs={
+        ("BackfillJob.java","lost_update"):("BackfillJob.java","migration_race"),
+        ("FulfillmentConsumer.java","retry_idempotency"):("FulfillmentConsumer.java","business_dedupe_scope"),
+        ("EventProducer.java","rollback_compatibility"):("EventProducer.java","event_contract_compatibility"),
+        ("ReplayCompactor.java","rollback_compatibility"):("ReplayCompactor.java","replay_compatibility"),
+    }
+    alias_reported=set()
+    for alias,canonical in alias_pairs.items():
+        if alias in reported:
+            reported.add(canonical)
+            alias_reported.add(alias)
+
+    for (file,failure),points in expected.items():
+        add(f"finding_{file}_{failure}",points,(file,failure) in reported)
+
+    extras=sorted(reported-set(expected)-alias_reported)
+    if extras:
+        penalty=min(15,5*len(extras))
+        score-=penalty
+        checks["false_positive_penalty"]={
+            "points":-penalty,
+            "passed":False,
+            "reported":[{"file":f,"failure_class":c} for f,c in extras],
+        }
+
+    verdict=str(data.get("verdict","")).strip().upper() if valid else ""
+    add("requests_changes",5,verdict=="REQUEST_CHANGES")
+
 else:
     raise SystemExit(f"unknown task {task}")
 
