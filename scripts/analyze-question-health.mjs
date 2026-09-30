@@ -10,9 +10,19 @@ const configPath = process.argv[7] ?? 'monitor-config.json';
 
 const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-const anchorPool = new Set(config?.daily?.anchorPool ?? []);
+const anchorPoolList = config?.daily?.anchorPool ?? [];
+const anchorPool = new Set(anchorPoolList);
 const activeAnchorCount = Number(config?.daily?.anchorCount ?? 0);
-const activeAnchors = new Set((config?.daily?.anchorPool ?? []).slice(0, activeAnchorCount));
+const configuredCoreCount = Number(config?.daily?.anchorCoreCount ?? activeAnchorCount);
+const coreAnchorCount = Math.max(0, Math.min(activeAnchorCount, configuredCoreCount));
+const configuredCoreAnchors = anchorPoolList.slice(0, coreAnchorCount);
+const selectedAnchors = current?.selection?.anchors ?? anchorPoolList.slice(0, activeAnchorCount);
+const selectedCoreAnchors = current?.selection?.coreAnchors ?? configuredCoreAnchors;
+const selectedAdaptiveAnchors = current?.selection?.adaptiveAnchors ??
+  selectedAnchors.filter((id) => !selectedCoreAnchors.includes(id));
+const activeAnchors = new Set(selectedAnchors);
+const coreAnchors = new Set(selectedCoreAnchors);
+const adaptiveAnchors = new Set(selectedAdaptiveAnchors);
 const current = JSON.parse(fs.readFileSync(currentPath, 'utf8'));
 const minDays = 3;
 
@@ -123,15 +133,19 @@ for (const pairId of Object.keys(metadata)) {
     selectionWeight,
     inAnchorPool: anchorPool.has(pairId),
     activeAnchor: activeAnchors.has(pairId),
+    coreAnchor: coreAnchors.has(pairId),
+    adaptiveAnchor: adaptiveAnchors.has(pairId),
     anchorRecommendation:
-      activeAnchors.has(pairId) && classification === 'stable-ceiling'
-        ? 'retire-at-next-anchor-epoch'
-        : 'keep',
+      coreAnchors.has(pairId) && classification === 'stable-ceiling'
+        ? 'retire-core-at-next-anchor-epoch'
+        : (anchorPool.has(pairId) && classification === 'stable-ceiling'
+            ? 'downweight-adaptive'
+            : 'keep'),
   };
 }
 
 const recommendedAnchorRetirements = Object.values(questions)
-  .filter((q) => q.anchorRecommendation === 'retire-at-next-anchor-epoch')
+  .filter((q) => q.anchorRecommendation === 'retire-core-at-next-anchor-epoch')
   .map((q) => q.pairId);
 
 const output = {
@@ -139,6 +153,8 @@ const output = {
   minDaysForClassification: minDays,
   sourceDays: [...new Set([...observations.values()].flat().map((x) => x.day))].sort(),
   activeAnchors: [...activeAnchors],
+  coreAnchors: [...coreAnchors],
+  adaptiveAnchors: [...adaptiveAnchors],
   recommendedAnchorRetirements,
   questions,
 };
@@ -159,9 +175,14 @@ const lines = [
   '|---|---|---:|---:|---:|---:|---|---:|---|',
 ];
 for (const q of rows) {
-  const anchor = q.activeAnchor
-    ? (q.anchorRecommendation === 'retire-at-next-anchor-epoch' ? '退役候选' : '固定')
-    : '-';
+  let anchor = '-';
+  if (q.coreAnchor) {
+    anchor = q.anchorRecommendation === 'retire-core-at-next-anchor-epoch' ? '核心退役候选' : '核心固定';
+  } else if (q.adaptiveAnchor) {
+    anchor = q.anchorRecommendation === 'downweight-adaptive' ? '自适应降权' : '自适应';
+  } else if (q.inAnchorPool) {
+    anchor = q.anchorRecommendation === 'downweight-adaptive' ? '池内降权' : '锚点池';
+  }
   lines.push(`| ${q.pairId} | ${q.ability} | ${q.sampledDays} | ${pct(q.averagePassRate)} | ${pct(q.maxDailyModelSpread)} | ${pct(q.languageDisagreementRate)} | ${q.classification} | ${f1(q.selectionWeight)} | ${anchor} |`);
 }
 lines.push(
@@ -172,7 +193,7 @@ lines.push(
     ? `建议在下一次 anchor 版本切换时替换：${recommendedAnchorRetirements.join(', ')}`
     : '当前没有达到退役条件的固定锚点。',
   '',
-  '> 只有至少 3 个正式日测样本日后才自动分类。stable-ceiling 会立即在轮换抽题中降权；固定锚点不会日常自动变更，而是在明确的 anchor 版本切换时按退役建议替换，以保留历史可比性。',
+  '> 只有至少 3 个正式日测样本日后才自动分类。stable-ceiling 会立即降低轮换题和自适应锚点的抽中概率；核心固定锚点不会日常自动变更，而是在明确的 anchor 版本切换时按退役建议替换，以保留历史可比性。',
   ''
 );
 fs.writeFileSync(outMd, lines.join('\n') + '\n');
