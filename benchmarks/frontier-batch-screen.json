@@ -3,13 +3,7 @@
   "purpose": "Luna-first screening for unscreened frontier candidates only. Confirmed ceiling tasks are retained as coverage but excluded; promoted candidates are validated by dedicated stability/model workflows.",
   "model": "gpt-6-luna",
   "effort": "high",
-  "tasks": [
-    {
-      "task": "frontier-import-resume",
-      "max_turns": 30,
-      "shell_budget": 30
-    }
-  ],
+  "tasks": [],
   "excluded_coverage_only": [
     "frontier-webhook",
     "frontier-webhook-hidden",
@@ -28,7 +22,8 @@
     "frontier-pagination",
     "frontier-outbox-recovery",
     "frontier-key-rotation",
-    "frontier-build-cache"
+    "frontier-build-cache",
+    "frontier-import-resume"
   ],
   "promoted_candidates": {
     "frontier-review-deep": {
