@@ -1,0 +1,43 @@
+{
+  "task": "frontier-singleflight-cache",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "score": 100,
+  "checks": {
+    "compiles": {
+      "points": 10,
+      "passed": true
+    },
+    "visible_regression": {
+      "points": 10,
+      "passed": true
+    },
+    "same_key_single_flight": {
+      "points": 25,
+      "passed": true
+    },
+    "different_keys_load_concurrently": {
+      "points": 15,
+      "passed": true
+    },
+    "invalidate_during_inflight_load": {
+      "points": 20,
+      "passed": true
+    },
+    "failure_fanout_and_retry": {
+      "points": 20,
+      "passed": true
+    }
+  },
+  "duration_seconds": 56,
+  "shell_commands": 3,
+  "usage": {
+    "input_tokens": 5523,
+    "output_tokens": 1536,
+    "reasoning_tokens": 855,
+    "cached_input_tokens": 0
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0
+}
