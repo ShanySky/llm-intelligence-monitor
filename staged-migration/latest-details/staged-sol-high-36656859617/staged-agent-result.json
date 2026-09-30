@@ -1,0 +1,44 @@
+{
+  "task_dir": "/tmp/staged-migration-high",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "duration_seconds": 116,
+  "stages": [
+    {
+      "stage": "TASK.md",
+      "index": 1,
+      "duration_seconds": 51,
+      "responses": 5,
+      "max_turns": 20,
+      "turn_limit_reached": false,
+      "shell_commands": 4,
+      "finished_with_message": true,
+      "final_text": "Updated v2 to read legacy-only rows and to write the legacy status alongside the new format, so v1 sees v2 updates during a rollback. V2 also uses the newer version when v1 writes afterward.\n\n`./run_visible_tests.sh` passes."
+    },
+    {
+      "stage": "STAGE2.md",
+      "index": 2,
+      "duration_seconds": 65,
+      "responses": 4,
+      "max_turns": 20,
+      "turn_limit_reached": false,
+      "shell_commands": 3,
+      "finished_with_message": true,
+      "final_text": "Backfill now checks that its snapshot still matches the current legacy version and that the new format has not already been updated. It skips stale snapshots while still migrating current legacy values. V2 continues to read newer v1 writes and dual-write for v1 compatibility.\n\n`./run_visible_tests.sh` passes; targeted checks for stale and current backfills also pass."
+    }
+  ],
+  "stage_count": 2,
+  "responses": 9,
+  "max_turns_per_stage": 20,
+  "api_retries": 1,
+  "infrastructure_error": null,
+  "shell_commands": 7,
+  "shell_budget": 50,
+  "shell_budget_reached": false,
+  "usage": {
+    "input_tokens": 27970,
+    "output_tokens": 2495,
+    "reasoning_tokens": 1026,
+    "cached_input_tokens": 22272
+  }
+}

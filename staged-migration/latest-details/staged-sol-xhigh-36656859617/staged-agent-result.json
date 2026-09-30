@@ -1,0 +1,44 @@
+{
+  "task_dir": "/tmp/staged-migration-xhigh",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 111,
+  "stages": [
+    {
+      "stage": "TASK.md",
+      "index": 1,
+      "duration_seconds": 53,
+      "responses": 5,
+      "max_turns": 20,
+      "turn_limit_reached": false,
+      "shell_commands": 4,
+      "finished_with_message": true,
+      "final_text": "Updated v2 to read legacy-only rows and prefer a newer v1 status. V2 now writes both status formats, so v1 sees the current status after traffic rolls back. Both `./run_visible_tests.sh` and a rolling-compatibility check passed."
+    },
+    {
+      "stage": "STAGE2.md",
+      "index": 2,
+      "duration_seconds": 58,
+      "responses": 4,
+      "max_turns": 20,
+      "turn_limit_reached": false,
+      "shell_commands": 3,
+      "finished_with_message": true,
+      "final_text": "Backfill now applies a snapshot only if its legacy value is still current and no newer status has been migrated. This preserves v2’s ability to read later v1 writes while allowing current legacy rows to migrate.\n\n`./run_visible_tests.sh` and targeted rolling-release/backfill checks passed."
+    }
+  ],
+  "stage_count": 2,
+  "responses": 9,
+  "max_turns_per_stage": 20,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 7,
+  "shell_budget": 50,
+  "shell_budget_reached": false,
+  "usage": {
+    "input_tokens": 38184,
+    "output_tokens": 2714,
+    "reasoning_tokens": 1114,
+    "cached_input_tokens": 28800
+  }
+}

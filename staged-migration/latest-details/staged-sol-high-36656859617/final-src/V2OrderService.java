@@ -8,13 +8,12 @@ public final class V2OrderService {
     public void writeStatus(String id, String status, String reason) {
         OrderRecord row = store.getOrCreate(id);
         synchronized (row) {
-            int code = StatusCodec.toCode(status);
             long v = row.nextVersion();
-            row.legacyStatus = status;
-            row.legacyVersion = v;
-            row.statusCode = code;
+            row.statusCode = StatusCodec.toCode(status);
             row.statusReason = reason;
             row.newVersion = v;
+            row.legacyStatus = status;
+            row.legacyVersion = v;
         }
     }
 
@@ -24,10 +23,10 @@ public final class V2OrderService {
             return null;
         }
         synchronized (row) {
-            if (row.statusCode == null || row.legacyVersion > row.newVersion) {
-                return row.legacyStatus;
+            if (row.statusCode != null && row.newVersion >= row.legacyVersion) {
+                return StatusCodec.fromCode(row.statusCode);
             }
-            return StatusCodec.fromCode(row.statusCode);
+            return row.legacyStatus;
         }
     }
 }

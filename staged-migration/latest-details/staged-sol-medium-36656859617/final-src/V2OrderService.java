@@ -8,8 +8,9 @@ public final class V2OrderService {
     public void writeStatus(String id, String status, String reason) {
         OrderRecord row = store.getOrCreate(id);
         synchronized (row) {
+            int code = StatusCodec.toCode(status);
             long v = row.nextVersion();
-            row.statusCode = StatusCodec.toCode(status);
+            row.statusCode = code;
             row.statusReason = reason;
             row.newVersion = v;
             row.legacyStatus = status;
@@ -23,7 +24,7 @@ public final class V2OrderService {
             return null;
         }
         synchronized (row) {
-            if (row.statusCode == null || row.legacyVersion > row.newVersion) {
+            if (row.legacyVersion > row.newVersion || row.statusCode == null) {
                 return row.legacyStatus;
             }
             return StatusCodec.fromCode(row.statusCode);

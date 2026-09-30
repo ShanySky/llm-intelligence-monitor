@@ -11,10 +11,8 @@ public final class BackfillJob {
             return null;
         }
         synchronized (row) {
-            if (row.legacyStatus == null) {
-                return null;
-            }
-            return new BackfillItem(id, row.legacyStatus, row.legacyVersion);
+            return row.legacyStatus == null ? null
+                    : new BackfillItem(id, row.legacyStatus, row.legacyVersion);
         }
     }
 
@@ -22,10 +20,7 @@ public final class BackfillJob {
         if (item == null) {
             return;
         }
-        OrderRecord row = store.get(item.id());
-        if (row == null) {
-            return;
-        }
+        OrderRecord row = store.getOrCreate(item.id());
         synchronized (row) {
             if (row.legacyVersion != item.sourceVersion()
                     || !item.legacyStatus().equals(row.legacyStatus)

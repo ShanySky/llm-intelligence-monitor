@@ -16,6 +16,11 @@ public final class V1OrderService {
 
     public String readStatus(String id) {
         OrderRecord row = store.get(id);
-        return row == null ? null : row.legacyStatus;
+        if (row == null) {
+            return null;
+        }
+        synchronized (row) {
+            return row.legacyStatus;
+        }
     }
 }

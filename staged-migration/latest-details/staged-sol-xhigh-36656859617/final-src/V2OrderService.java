@@ -23,7 +23,7 @@ public final class V2OrderService {
             return null;
         }
         synchronized (row) {
-            if (row.statusCode == null || row.legacyVersion > row.newVersion) {
+            if (row.legacyVersion > row.newVersion || row.statusCode == null) {
                 return row.legacyStatus;
             }
             return StatusCodec.fromCode(row.statusCode);

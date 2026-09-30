@@ -1,7 +1,7 @@
 {
   "task": "staged-migration",
   "model": "gpt-6-sol",
-  "effort": "high",
+  "effort": "medium",
   "score": 100,
   "checks": {
     "compiles": {
@@ -33,7 +33,7 @@
       "passed": true
     }
   },
-  "duration_seconds": 114,
+  "duration_seconds": 89,
   "responses": 9,
   "shell_commands": 7,
   "shell_budget": 50,
@@ -43,31 +43,31 @@
     {
       "stage": "TASK.md",
       "index": 1,
-      "duration_seconds": 55,
+      "duration_seconds": 46,
       "responses": 5,
       "max_turns": 20,
       "turn_limit_reached": false,
       "shell_commands": 4,
       "finished_with_message": true,
-      "final_text": "Updated v2 to read the legacy status when it is the newest value and to write both the v2 and legacy status fields. This lets v2 read v1-written rows and lets v1 see statuses written by v2 after a rollback.\n\n`./run_visible_tests.sh` passed."
+      "final_text": "V2 now reads legacy-only rows and uses the newer status when v1 and v2 writes overlap. V2 also writes the legacy status, so rolling traffic back to v1 sees its latest write. Public APIs are unchanged.\n\n`./run_visible_tests.sh` passes."
     },
     {
       "stage": "STAGE2.md",
       "index": 2,
-      "duration_seconds": 58,
+      "duration_seconds": 43,
       "responses": 4,
       "max_turns": 20,
       "turn_limit_reached": false,
       "shell_commands": 3,
       "finished_with_message": true,
-      "final_text": "Backfill now applies a snapshot only when its legacy version is still current and no newer status has been migrated. This preserves newer v1 or v2 writes while allowing current legacy values to migrate. Stage 1 compatibility remains intact.\n\n`./run_visible_tests.sh` passed, as did targeted checks for stale and current snapshots."
+      "final_text": "Backfill now applies a snapshot only if its legacy version is still current and no newer status has been migrated. This prevents stale backfill from overwriting live updates while allowing current legacy values to migrate. V2 continues to read newer v1 writes.\n\nThe stage-specific checks and `./run_visible_tests.sh` pass."
     }
   ],
   "usage": {
-    "input_tokens": 29131,
-    "output_tokens": 2913,
-    "reasoning_tokens": 1250,
-    "cached_input_tokens": 17920
+    "input_tokens": 23971,
+    "output_tokens": 1728,
+    "reasoning_tokens": 397,
+    "cached_input_tokens": 13184
   },
   "api_retries": 0,
   "infrastructure_error": null,
