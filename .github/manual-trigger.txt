@@ -62,3 +62,4 @@ Hard external debugging calibration: custom-memory-heap-crash.
 Hard external Terminal-Bench debugging calibration.
 Frontier pagination Luna screen.
 Repeat frontier review for efficiency confirmation.
+Rolling migration Luna screen under current funnel.
