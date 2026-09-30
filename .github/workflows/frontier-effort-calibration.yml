@@ -220,6 +220,9 @@ jobs:
 
   aggregate:
     needs: eval
+    concurrency:
+      group: frontier-effort-results-publish
+      cancel-in-progress: false
     permissions:
       contents: write
     if: always() && needs.eval.result != 'skipped'
