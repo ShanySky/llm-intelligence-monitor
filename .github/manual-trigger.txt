@@ -128,3 +128,4 @@ Compatibility review family Luna High x3.
 Partial-score effort probes v3 Medium vs X High.
 High-precision review family Luna High x3.
 High-precision review family Sol M/H/XH x3.
+Deep fix v3 patch-quality probe M/H/XH x3.
