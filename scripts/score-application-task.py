@@ -2098,29 +2098,38 @@ elif task == "frontier-dynamic-diagnosis-v2":
         runner=json.loads((root/"light-agent-result.json").read_text())
     except Exception:
         runner={}
-    queries=[str(x).strip().lower() for x in runner.get("probe_executed_queries",runner.get("probe_queries",[]))]
+    observations=[]
+    for x in runner.get("probe_observations",[]):
+        if isinstance(x,dict):
+            observations.append({
+                "query":str(x.get("query","")).strip().lower(),
+                "output":str(x.get("output","")).strip().lower(),
+            })
 
-    def has_query(required=(), any_terms=()):
-        for q in queries:
-            if all(x in q for x in required) and (not any_terms or any(x in q for x in any_terms)):
-                return True
-        return False
+    # Evidence credit requires the actual opaque probe result, not merely asking
+    # a query containing the right keywords.
+    outputs=[x["output"] for x in observations]
 
-    http_by_pod=has_query(any_terms=("500","http","error","failure")) and has_query(any_terms=("pod","api-a","api-b","distribution","slice","which"))
-    dup_boundary=has_query(any_terms=("duplicate","effect","idempot")) and has_query(any_terms=("boundary","provider","fulfillment","where","first"))
-    api_b_detail=has_query(required=("api-b",),any_terms=("config","configuration","rendered","payment_mode","log","request"))
-    retry_api_a=has_query(required=("api-a",),any_terms=("timeout","retry","replay","experiment","inject"))
-    capacity=has_query(any_terms=("capacity","cpu","queue depth","saturation","scale","replica count"))
-    consumer=has_query(any_terms=("consumer","fulfillment","event contract","redelivery","dedupe"))
-    stale_path=has_query(any_terms=("stale","read-after-write","cache","invalidator","alias"))
-    cache_detail=has_query(any_terms=("cache","invalidator","invalidation","alias"))
-    primary_read=has_query(required=("primary",),any_terms=("strict","read","fresh","experiment","compare"))
-    replica_read=has_query(required=("replica",),any_terms=("strict","read","fresh","experiment","compare","lag"))
+    def observed(*terms):
+        return any(all(t in out for t in terms) for out in outputs)
 
     evidence={
-        1:[http_by_pod and api_b_detail, dup_boundary and retry_api_a],
-        2:[http_by_pod and capacity, dup_boundary and consumer],
-        3:[stale_path and cache_detail, primary_read and replica_read],
+        1:[
+            observed("api-b", "rendered-config=23", "payment_mode=<missing>")
+            and observed("api-a=0/100", "api-b=49/100"),
+            observed("healthy-pod timeout experiment", "different delivery-scoped key", "2 logical effects"),
+        ],
+        2:[
+            observed("cpu=98-100%", "request queue peaks", "adding one replica removes test 503s"),
+            observed("consumer-2", "delivery-id dedupe", "fulfill one order version twice")
+            and observed("duplicates first appear in fulfillment"),
+        ],
+        3:[
+            observed("stable-key alias stale", "invalidator-b")
+            and observed("stale responses=17/500"),
+            observed("strict primary read is fresh")
+            and observed("strict replica read can remain stale"),
+        ],
     }[variant]
 
     add("valid_diagnosis_json",5,bool(result.get("syntax")))
