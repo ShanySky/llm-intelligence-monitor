@@ -483,7 +483,7 @@ public final class FrontierSchedulerHiddenTest {
     add("input_validation_and_cycle",10,"INVALID_PASS" in hidden_out)
 
 
-elif task == "frontier-webhook":
+elif task in ("frontier-webhook", "frontier-webhook-hidden"):
     hidden = r'''import java.util.concurrent.atomic.AtomicBoolean;
 public final class FrontierWebhookHiddenTest {
   public static void main(String[] args) {
