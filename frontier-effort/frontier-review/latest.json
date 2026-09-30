@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-30T01:26:00.272Z",
+  "generated_at": "2026-09-30T01:45:25.819Z",
   "rows": [
     {
       "task": "frontier-review",
       "model": "gpt-6-sol",
       "effort": "high",
-      "score": 100,
+      "score": 80,
       "checks": {
         "cache_transaction_boundary": {
           "points": 15,
@@ -25,26 +25,26 @@
         },
         "external_side_effect_recovery": {
           "points": 20,
-          "passed": true
+          "passed": false
         },
         "requests_changes": {
           "points": 10,
           "passed": true
         }
       },
-      "duration_seconds": 138,
-      "responses": 10,
+      "duration_seconds": 135,
+      "responses": 11,
       "max_turns": 40,
-      "shell_commands": 9,
+      "shell_commands": 10,
       "shell_budget": 40,
       "turn_limit_reached": false,
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 33201,
-        "output_tokens": 3360,
-        "reasoning_tokens": 1865,
-        "cached_input_tokens": 22016
+        "input_tokens": 40212,
+        "output_tokens": 3063,
+        "reasoning_tokens": 1634,
+        "cached_input_tokens": 22656
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -83,19 +83,19 @@
           "passed": true
         }
       },
-      "duration_seconds": 124,
-      "responses": 12,
+      "duration_seconds": 54,
+      "responses": 4,
       "max_turns": 40,
-      "shell_commands": 11,
+      "shell_commands": 3,
       "shell_budget": 40,
       "turn_limit_reached": false,
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 35881,
-        "output_tokens": 2035,
-        "reasoning_tokens": 541,
-        "cached_input_tokens": 25856
+        "input_tokens": 7051,
+        "output_tokens": 1079,
+        "reasoning_tokens": 498,
+        "cached_input_tokens": 1920
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -134,19 +134,19 @@
           "passed": true
         }
       },
-      "duration_seconds": 112,
-      "responses": 8,
+      "duration_seconds": 268,
+      "responses": 25,
       "max_turns": 40,
-      "shell_commands": 7,
+      "shell_commands": 24,
       "shell_budget": 40,
       "turn_limit_reached": false,
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 24649,
-        "output_tokens": 2821,
-        "reasoning_tokens": 1671,
-        "cached_input_tokens": 17408
+        "input_tokens": 114125,
+        "output_tokens": 4633,
+        "reasoning_tokens": 2067,
+        "cached_input_tokens": 91648
       },
       "api_retries": 0,
       "infrastructure_error": null,

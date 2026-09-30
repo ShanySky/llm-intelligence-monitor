@@ -29,19 +29,19 @@
       "passed": true
     }
   },
-  "duration_seconds": 124,
-  "responses": 12,
+  "duration_seconds": 54,
+  "responses": 4,
   "max_turns": 40,
-  "shell_commands": 11,
+  "shell_commands": 3,
   "shell_budget": 40,
   "turn_limit_reached": false,
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 35881,
-    "output_tokens": 2035,
-    "reasoning_tokens": 541,
-    "cached_input_tokens": 25856
+    "input_tokens": 7051,
+    "output_tokens": 1079,
+    "reasoning_tokens": 498,
+    "cached_input_tokens": 1920
   },
   "api_retries": 0,
   "infrastructure_error": null,

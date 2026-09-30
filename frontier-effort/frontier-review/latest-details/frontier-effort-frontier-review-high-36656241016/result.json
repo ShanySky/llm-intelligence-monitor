@@ -1,8 +1,8 @@
 {
   "task": "frontier-review",
   "model": "gpt-6-sol",
-  "effort": "xhigh",
-  "score": 100,
+  "effort": "high",
+  "score": 80,
   "checks": {
     "cache_transaction_boundary": {
       "points": 15,
@@ -22,26 +22,26 @@
     },
     "external_side_effect_recovery": {
       "points": 20,
-      "passed": true
+      "passed": false
     },
     "requests_changes": {
       "points": 10,
       "passed": true
     }
   },
-  "duration_seconds": 112,
-  "responses": 8,
+  "duration_seconds": 135,
+  "responses": 11,
   "max_turns": 40,
-  "shell_commands": 7,
+  "shell_commands": 10,
   "shell_budget": 40,
   "turn_limit_reached": false,
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 24649,
-    "output_tokens": 2821,
-    "reasoning_tokens": 1671,
-    "cached_input_tokens": 17408
+    "input_tokens": 40212,
+    "output_tokens": 3063,
+    "reasoning_tokens": 1634,
+    "cached_input_tokens": 22656
   },
   "api_retries": 0,
   "infrastructure_error": null,

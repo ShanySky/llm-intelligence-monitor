@@ -1,0 +1,48 @@
+{
+  "generated_at": "2026-09-30T01:45:25.851Z",
+  "task": "frontier-review",
+  "model": "gpt-6-sol",
+  "by_effort": {
+    "high": {
+      "effort": "high",
+      "score": 80,
+      "duration_seconds": 135,
+      "shell_commands": 10,
+      "total_tokens": 43275,
+      "reasoning_tokens": 1634,
+      "saturated": false,
+      "data_complete": true
+    },
+    "medium": {
+      "effort": "medium",
+      "score": 100,
+      "duration_seconds": 54,
+      "shell_commands": 3,
+      "total_tokens": 8130,
+      "reasoning_tokens": 498,
+      "saturated": false,
+      "data_complete": true
+    },
+    "xhigh": {
+      "effort": "xhigh",
+      "score": 100,
+      "duration_seconds": 268,
+      "shell_commands": 24,
+      "total_tokens": 118758,
+      "reasoning_tokens": 2067,
+      "saturated": false,
+      "data_complete": true
+    }
+  },
+  "medium_to_xhigh": {
+    "medium_to_xhigh_quality_gain_points": 0,
+    "improvements_percent": {
+      "duration_seconds": -396.2962962962963,
+      "shell_commands": -700,
+      "total_tokens": -1360.738007380074
+    },
+    "improved_metrics": [],
+    "classification": "quality-ceiling-no-effort-signal",
+    "repeated_confirmation_required": true
+  }
+}
