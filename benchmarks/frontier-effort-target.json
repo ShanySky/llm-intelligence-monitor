@@ -1,9 +1,9 @@
 {
-  "task": "hard-incident",
-  "model": "gpt-6-sol",
-  "efforts": ["medium", "high", "xhigh"],
+  "task": "frontier-review-family",
+  "model": "gpt-6-luna",
+  "efforts": ["high"],
   "trials": 3,
-  "max_turns": 32,
-  "shell_budget": 24,
+  "max_turns": 24,
+  "shell_budget": 16,
   "probe_budget": 0
 }
