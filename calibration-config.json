@@ -2,20 +2,14 @@
   "solExploration": {
     "bankPath": "tests/application-effort-probes-v2.yaml",
     "language": "en",
-    "repeat": 3,
+    "repeat": 5,
     "efforts": [
       "medium",
+      "high",
       "xhigh"
     ],
     "pairIds": [
-      "EV21",
-      "DB21",
-      "CR21",
-      "CR22",
-      "AG21",
-      "AG22",
-      "LH21",
-      "LH22"
+      "AG21"
     ]
   }
 }
