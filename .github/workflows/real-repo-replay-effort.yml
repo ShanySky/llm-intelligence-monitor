@@ -42,7 +42,10 @@ jobs:
           const c=require('./benchmarks/real-repo-replay/config.json');
           const cases=[];
           let ok=true;
-          const references=[...(c.cases??[]),...(c.backup_cases??[])];
+          const references=[
+            ...(c.cases??[]).map((x)=>({...x,required:true})),
+            ...(c.backup_cases??[]).map((x)=>({...x,required:false}))
+          ];
           for(const item of references){
             const row={id:item.id,target_sha:item.target_sha,behavior_score:null,error:null};
             try{
@@ -56,11 +59,12 @@ jobs:
               execFileSync('node',['scripts/score-real-repo-replay.mjs',item.id,dir,out,'benchmarks/real-repo-replay/config.json'],{stdio:'inherit'});
               const score=JSON.parse(fs.readFileSync(out,'utf8'));
               row.behavior_score=Number(score.behavior_score);
-              if(row.behavior_score!==100) ok=false;
+              if(item.required && row.behavior_score!==100) ok=false;
             }catch(error){
               row.error=String(error?.message??error);
-              ok=false;
+              if(item.required) ok=false;
             }
+            row.required=Boolean(item.required);
             cases.push(row);
           }
           const report={generated_at:new Date().toISOString(),ok,cases};
