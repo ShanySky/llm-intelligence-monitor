@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-incident-cascade-high",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "duration_seconds": 79,
+  "responses": 11,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 19,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 15648,
+    "output_tokens": 887,
+    "reasoning_tokens": 139,
+    "cached_input_tokens": 6784
+  },
+  "final_text": "Checkout is recovered. I replaced api-b’s outdated config, which was causing HTTP 500s, and consumer-2’s outdated contract, which was causing duplicate fulfillment effects. The evidence and repairs are documented in `REPORT.txt`.\n\nValidation: `./ctl verify` passed with 200/200 checkout requests returning 2xx and 200/200 exactly-once fulfillment checks."
+}

@@ -2,7 +2,7 @@
   "task": "frontier-incident-cascade",
   "model": "gpt-6-sol",
   "effort": "high",
-  "score": 90,
+  "score": 100,
   "checks": {
     "targeted_config_repair": {
       "points": 20,
@@ -30,26 +30,26 @@
     },
     "final_end_to_end_verification": {
       "points": 10,
-      "passed": false
+      "passed": true
     },
     "reported_both_failure_domains": {
       "points": 5,
       "passed": true
     }
   },
-  "duration_seconds": 76,
-  "responses": 10,
+  "duration_seconds": 79,
+  "responses": 11,
   "max_turns": 40,
-  "shell_commands": 9,
+  "shell_commands": 19,
   "shell_budget": 40,
   "turn_limit_reached": false,
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 16297,
-    "output_tokens": 1205,
-    "reasoning_tokens": 553,
-    "cached_input_tokens": 5888
+    "input_tokens": 15648,
+    "output_tokens": 887,
+    "reasoning_tokens": 139,
+    "cached_input_tokens": 6784
   },
   "api_retries": 0,
   "infrastructure_error": null,

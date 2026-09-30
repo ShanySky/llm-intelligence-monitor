@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-incident-cascade-medium",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 78,
+  "responses": 11,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 18,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 15220,
+    "output_tokens": 832,
+    "reasoning_tokens": 97,
+    "cached_input_tokens": 9472
+  },
+  "final_text": "Checkout and fulfillment are recovered. I replaced api-b’s outdated config after its logs tied checkout 500s to a missing `payment_mode`, then replaced consumer-2 after verification and queue evidence tied duplicate fulfillment effects to its older deduplication contract.\n\nI documented the evidence and repairs in `REPORT.txt`. Final validation: `./ctl verify` passed with 200/200 checkout 2xx responses and 200/200 exactly-once fulfillment checks."
+}

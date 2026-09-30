@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-incident-cascade-xhigh",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 61,
+  "responses": 9,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 8,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 12316,
+    "output_tokens": 729,
+    "reasoning_tokens": 154,
+    "cached_input_tokens": 6528
+  },
+  "final_text": "Checkout and fulfillment are recovered. I replaced api-b’s outdated config, then replaced consumer-2 after verification exposed duplicate fulfillment effects. The final `./ctl verify` passed: 200/200 checkout requests succeeded, and 200/200 fulfillment checks passed.\n\nRoot causes, evidence, and repairs are documented in `REPORT.txt`."
+}
