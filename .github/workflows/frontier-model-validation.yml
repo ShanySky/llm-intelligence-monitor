@@ -1,0 +1,270 @@
+name: Frontier cross-model validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontier-cross-model-validation
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-models]')
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      task: ${{ steps.matrix.outputs.task }}
+      max_turns: ${{ steps.matrix.outputs.max_turns }}
+      shell_budget: ${{ steps.matrix.outputs.shell_budget }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - id: matrix
+        shell: bash
+        run: |
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const x=require('./benchmarks/frontier-model-target.json');
+          const include=[];
+          for(const c of x.configs){
+            for(let trial=1;trial<=Number(x.trials??2);trial++) include.push({...c,trial});
+          }
+          console.log('matrix='+JSON.stringify({include}));
+          console.log('task='+x.task);
+          console.log('max_turns='+String(x.max_turns??40));
+          console.log('shell_budget='+String(x.shell_budget??40));
+          NODE
+
+  eval:
+    needs: prepare
+    if: needs.prepare.result == 'success'
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare task
+        shell: bash
+        run: |
+          TASK_DIR="/tmp/frontier-model-${{ needs.prepare.outputs.task }}-${{ matrix.key }}-t${{ matrix.trial }}"
+          rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
+          cp -R "benchmarks/${{ needs.prepare.outputs.task }}/workspace/." "$TASK_DIR/"
+          [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
+          [ ! -f "$TASK_DIR/run_visible_tests.sh" ] || chmod +x "$TASK_DIR/run_visible_tests.sh"
+          if [ -f "$TASK_DIR/run_visible_tests.sh" ]; then
+            (cd "$TASK_DIR" && ./run_visible_tests.sh)
+          fi
+          echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
+
+      - name: Run lightweight agent
+        id: agent
+        env:
+          AGENT_MAX_TURNS: ${{ needs.prepare.outputs.max_turns }}
+          AGENT_SHELL_BUDGET: ${{ needs.prepare.outputs.shell_budget }}
+        shell: bash
+        run: |
+          start="$(date +%s)"
+          set +e
+          timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ matrix.model }}"             "${{ matrix.effort }}"             "$TASK_DIR/light-agent-result.json"
+          status=$?
+          set -e
+          end="$(date +%s)"
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          echo "wall_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+
+      - name: Score
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p result
+          python scripts/score-application-task.py             "${{ needs.prepare.outputs.task }}"             "$TASK_DIR"             "$TASK_DIR/score.json"
+          python - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          root=Path(os.environ["TASK_DIR"])
+          score=json.loads((root/"score.json").read_text())
+          rp=root/"light-agent-result.json"
+          runner=json.loads(rp.read_text()) if rp.exists() else {}
+          exit_code=int("${{ steps.agent.outputs.exit_code || '999' }}")
+          infra=runner.get("infrastructure_error")
+          if infra:
+              outcome="infrastructure_error"
+          elif exit_code==0:
+              outcome="completed"
+          elif exit_code==124:
+              outcome="model_timeout"
+          else:
+              outcome="runner_error"
+          result={
+            "task":"${{ needs.prepare.outputs.task }}",
+            "trial":int("${{ matrix.trial }}"),
+            "model":"${{ matrix.model }}",
+            "effort":"${{ matrix.effort }}",
+            "score":score["score"],
+            "checks":score["checks"],
+            "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
+            "responses":runner.get("responses",0),
+            "shell_commands":runner.get("shell_commands",0),
+            "usage":runner.get("usage",{}),
+            "api_retries":runner.get("api_retries",0),
+            "infrastructure_error":infra,
+            "agent_exit_code":exit_code,
+            "outcome":outcome,
+            "data_complete":outcome in ("completed","model_timeout")
+          }
+          Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
+          if rp.exists(): shutil.copy2(rp,"result/light-agent-result.json")
+          for name in ["REVIEW.md","PLAN.md","plan.json","REPORT.txt","FINDINGS.json"]:
+              p=root/name
+              if p.exists(): shutil.copy2(p,"result/"+name)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontier-model-${{ needs.prepare.outputs.task }}-${{ matrix.key }}-t${{ matrix.trial }}-${{ github.run_id }}
+          path: result/
+          retention-days: 30
+
+  aggregate:
+    needs: [prepare, eval]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: frontier-model-*-${{ github.run_id }}
+          path: results/frontier-model
+
+      - name: Summarize cross-model validation
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, statistics
+          from pathlib import Path
+
+          rows=[]
+          for p in Path("results/frontier-model").rglob("result.json"):
+              try:
+                  r=json.loads(p.read_text())
+                  if r.get("data_complete") is not False and not r.get("infrastructure_error"):
+                      rows.append(r)
+              except Exception:
+                  pass
+          if not rows:
+              raise SystemExit("No valid model-validation rows")
+
+          grouped={}
+          for r in rows:
+              key=f"{r['model']}|{r['effort']}"
+              grouped.setdefault(key,[]).append(r)
+
+          configs=[]
+          for key,xs in grouped.items():
+              scores=[float(x.get("score",0)) for x in xs]
+              durations=[float(x.get("duration_seconds",0)) for x in xs]
+              tokens=[float(x.get("usage",{}).get("input_tokens",0))+float(x.get("usage",{}).get("output_tokens",0)) for x in xs]
+              configs.append({
+                  "key":key,
+                  "model":xs[0]["model"],
+                  "effort":xs[0]["effort"],
+                  "trials":len(xs),
+                  "scores":scores,
+                  "mean_score":sum(scores)/len(scores),
+                  "stddev_score":statistics.pstdev(scores) if len(scores)>1 else 0,
+                  "average_duration_seconds":sum(durations)/len(durations),
+                  "average_total_tokens":sum(tokens)/len(tokens),
+              })
+          configs.sort(key=lambda x:x["model"])
+          means=[x["mean_score"] for x in configs]
+          out={
+              "task":rows[0]["task"],
+              "configs":configs,
+              "model_spread_points":max(means)-min(means) if means else None,
+              "all_stable":all(x["stddev_score"]<=12 for x in configs)
+          }
+          Path("model-summary.json").write_text(json.dumps(out,indent=2)+"\n")
+
+          lines=[
+              "# Frontier Cross-Model Validation","",
+              f"Task: {out['task']}","",
+              "| Model | Effort | Trials | Scores | Mean | Stddev | Avg runtime | Avg total tokens |",
+              "|---|---|---:|---|---:|---:|---:|---:|"
+          ]
+          for x in configs:
+              lines.append(
+                  f"| {x['model']} | {x['effort']} | {x['trials']} | " +
+                  f"{', '.join(str(int(v) if v.is_integer() else v) for v in x['scores'])} | " +
+                  f"{x['mean_score']:.1f} | {x['stddev_score']:.1f} | " +
+                  f"{x['average_duration_seconds']:.1f}s | {x['average_total_tokens']:.0f} |"
+              )
+          lines += [
+              "",
+              f"- Model spread: {out['model_spread_points']:.1f} points",
+              f"- All configs stable (stddev <= 12): {'yes' if out['all_stable'] else 'no'}",
+              ""
+          ]
+          Path("model-summary.md").write_text("\n".join(lines))
+          print("\n".join(lines))
+          PY
+          cat model-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontier-model-summary-${{ github.run_id }}
+          path: |
+            model-summary.json
+            model-summary.md
+          retention-days: 60
+
+      - name: Publish latest cross-model validation
+        shell: bash
+        run: |
+          TASK="${{ needs.prepare.outputs.task }}"
+          cp model-summary.json /tmp/model-summary.json
+          cp model-summary.md /tmp/model-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin frontier-model-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/frontier-model-results; then
+            git switch -C frontier-model-results origin/frontier-model-results
+          else
+            git switch --orphan frontier-model-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p "frontier-model/$TASK/runs"
+          cp /tmp/model-summary.json "frontier-model/$TASK/latest.json"
+          cp /tmp/model-summary.md "frontier-model/$TASK/latest.md"
+          cp /tmp/model-summary.json "frontier-model/$TASK/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/model-summary.md "frontier-model/$TASK/runs/${GITHUB_RUN_ID}.md"
+          git add frontier-model
+          if ! git diff --cached --quiet; then
+            git commit -m "Record frontier model validation $TASK ${GITHUB_RUN_ID}"
+            git push origin HEAD:frontier-model-results
+          fi
