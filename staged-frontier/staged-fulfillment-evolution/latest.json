@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-09-30T05:03:02.549Z",
+  "rows": [
+    {
+      "task": "staged-fulfillment-evolution",
+      "score_task": "staged-fulfillment-evolution",
+      "trial": 1,
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 5,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 5,
+          "passed": true
+        },
+        "crash_retry_converges": {
+          "points": 30,
+          "passed": true
+        },
+        "line_items_remain_distinct": {
+          "points": 20,
+          "passed": true
+        },
+        "delivery_redelivery_uses_business_identity": {
+          "points": 25,
+          "passed": true
+        },
+        "different_versions_remain_distinct": {
+          "points": 15,
+          "passed": true
+        }
+      },
+      "duration_seconds": 108,
+      "responses": 14,
+      "shell_commands": 15,
+      "shell_budget": 60,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "stages": [
+        {
+          "stage": "TASK.md",
+          "index": 1,
+          "revealed_assets": [],
+          "duration_seconds": 46,
+          "responses": 5,
+          "max_turns": 20,
+          "turn_limit_reached": false,
+          "shell_commands": 5,
+          "finished_with_message": true,
+          "final_text": "Repaired retry recovery by keying fulfillment rows to `(orderId, version, lineItemId)` rather than the delivery event ID, and using that same business identity as the inventory idempotency key. A retry after the inventory call now reuses the reservation instead of creating a duplicate.\n\n`./run_visible_tests.sh` passes."
+        },
+        {
+          "stage": "STAGE2.md",
+          "index": 2,
+          "revealed_assets": [
+            "run_stage2_checks.sh",
+            "src/MultiItemProbe.java"
+          ],
+          "duration_seconds": 35,
+          "responses": 5,
+          "max_turns": 20,
+          "turn_limit_reached": false,
+          "shell_commands": 5,
+          "finished_with_message": true,
+          "final_text": "The Stage 2 probe passes: fulfillment rows and inventory reservations are distinct for separate line items in the same order version. The existing business identity already includes `lineItemId`, so no further code change was needed.\n\n`./run_stage2_checks.sh` was not executable in the workspace; running it with `bash run_stage2_checks.sh` passed both `VISIBLE_TEST` and `MULTI_ITEM`."
+        },
+        {
+          "stage": "STAGE3.md",
+          "index": 3,
+          "revealed_assets": [
+            "run_stage3_checks.sh",
+            "src/RedeliveryProbe.java"
+          ],
+          "duration_seconds": 28,
+          "responses": 4,
+          "max_turns": 20,
+          "turn_limit_reached": false,
+          "shell_commands": 5,
+          "finished_with_message": true,
+          "final_text": "The repository already keys both local fulfillment state and the inventory idempotency key by `(orderId, version, lineItemId)`, not by delivery event ID. The Stage 3 evidence confirms that redeliveries converge while a new order version remains distinct, so no further change was needed.\n\nBoth checks pass: `bash run_stage3_checks.sh` and `./run_visible_tests.sh`."
+        }
+      ],
+      "usage": {
+        "input_tokens": 46012,
+        "output_tokens": 2191,
+        "reasoning_tokens": 1029,
+        "cached_input_tokens": 32768
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    }
+  ]
+}

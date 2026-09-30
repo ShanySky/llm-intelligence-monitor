@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-09-30T05:03:02.665Z",
+  "task": "staged-fulfillment-evolution",
+  "model": "gpt-6-luna",
+  "trial_count": 1,
+  "trial_mode": "repeats",
+  "by_effort": {
+    "high": {
+      "effort": "high",
+      "trials": 1,
+      "expected_trials": 1,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 108,
+      "shell_commands": 15,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "total_tokens": 48203,
+      "reasoning_tokens": 1029,
+      "saturated": false,
+      "data_complete": true
+    }
+  },
+  "effort_spread_points": 0,
+  "medium_to_xhigh": null,
+  "effort_sensitivity": null,
+  "nonmonotonic": null
+}
