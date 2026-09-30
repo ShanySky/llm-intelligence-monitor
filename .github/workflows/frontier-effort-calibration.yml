@@ -87,7 +87,7 @@ jobs:
         shell: bash
         run: |
           task="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(x.task)")"
-          model="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(x.model ?? 'gpt-6-sol')")"
+          model="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(x.model ?? 'gpt-6.1-sol')")"
           max_turns="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(String(x.max_turns ?? 12))")"
           shell_budget="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(String(x.shell_budget ?? 12))")"
           probe_budget="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(String(x.probe_budget ?? 12))")"
