@@ -138,6 +138,7 @@ jobs:
             "validation_budget":runner.get("validation_budget",0),
             "validation_enabled":runner.get("validation_enabled",False),
             "probe_calls":runner.get("probe_calls",0),
+            "probe_attempts":runner.get("probe_attempts",runner.get("probe_calls",0)),
             "probe_budget":runner.get("probe_budget",0),
             "probe_enabled":runner.get("probe_enabled",False),
             "turn_limit_reached":turn_limit,
