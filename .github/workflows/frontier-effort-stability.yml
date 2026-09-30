@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - ".github/triggers/frontier-effort.txt"
+      - ".github/triggers/frontier-effort-stability.txt"
 
 permissions:
   contents: read
