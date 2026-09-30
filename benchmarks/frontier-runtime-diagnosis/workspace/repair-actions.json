@@ -1,0 +1,20 @@
+{
+  "root_causes": [
+    {"id":"api_config_drift","description":"One API pod is running rendered config inconsistent with the desired release."},
+    {"id":"retry_idempotency_scope","description":"Provider retries use an idempotency identity scoped too narrowly or too broadly for the business operation."},
+    {"id":"stale_consumer","description":"An older fulfillment consumer revision is incompatible with the emitted event contract."},
+    {"id":"cache_invalidator_mismatch","description":"Mixed invalidator revisions leave stale customer cache entries."},
+    {"id":"capacity_shortage","description":"Insufficient API capacity causes the observed failures."}
+  ],
+  "actions": [
+    {"id":"replace_drifted_api_from_desired","description":"Replace only the API pod proven to have rendered-config drift."},
+    {"id":"use_order_version_idempotency","description":"Use one stable provider idempotency key for the same logical order version across retries/deliveries."},
+    {"id":"upgrade_all_consumers","description":"Upgrade every fulfillment consumer to the latest revision."},
+    {"id":"replace_all_invalidators","description":"Replace all cache invalidators with the latest revision."},
+    {"id":"restart_all_services","description":"Restart the entire checkout stack."},
+    {"id":"scale_api","description":"Increase API replica count."},
+    {"id":"reset_consumer_offset","description":"Reset the fulfillment consumer offset."},
+    {"id":"flush_entire_cache","description":"Flush the complete shared cache."},
+    {"id":"disable_retries","description":"Disable provider retries."}
+  ]
+}
