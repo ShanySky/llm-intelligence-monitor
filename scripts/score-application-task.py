@@ -2410,6 +2410,75 @@ elif task == "frontier-causal-diagnosis":
     add("counterfactual_evidence_a",10,bool(evidence[0]))
     add("counterfactual_evidence_b",10,bool(evidence[1]))
 
+
+elif task == "frontier-review-family":
+    raw=text("FINDINGS.json")
+    try:
+        data=json.loads(raw)
+        findings=data.get("findings",[]) if isinstance(data,dict) else []
+        valid=isinstance(findings,list) and isinstance(data.get("verdict"),str)
+    except Exception:
+        data={}; findings=[]; valid=False
+
+    add("valid_findings_json",5,valid)
+
+    m=re.search(r"-t(\d+)(?:$|[^0-9])",root.name)
+    variant=int(m.group(1)) if m else 1
+    expected_by_variant={
+      1:{
+        ("PriceService.java","ignored_write_result"):15,
+        ("PriceService.java","transaction_visibility"):15,
+        ("AuditWorker.java","payload_snapshot"):10,
+        ("AuditWorker.java","retry_idempotency"):10,
+        ("WebhookService.java","business_identity_scope"):20,
+        ("WebhookService.java","external_effect_recovery"):10,
+        ("ReservationMover.java","lock_order"):10,
+      },
+      2:{
+        ("LeaseStore.java","stale_lease_fencing"):20,
+        ("LeaseWorker.java","retry_idempotency"):15,
+        ("LeaseWorker.java","external_effect_recovery"):15,
+        ("ProfileService.java","ignored_write_result"):15,
+        ("ProfileService.java","transaction_visibility"):15,
+        ("PairCoordinator.java","lock_order"):10,
+      },
+      3:{
+        ("FeedService.java","pagination_stability"):20,
+        ("VerifierCache.java","cache_identity_scope"):15,
+        ("VerifierCache.java","cache_staleness"):15,
+        ("BackfillJob.java","lost_update"):20,
+        ("LegacyCustomerService.java","business_identity_scope"):10,
+        ("PairLockManager.java","lock_order"):10,
+      },
+    }
+    expected=expected_by_variant.get(variant,expected_by_variant[1])
+
+    reported=set()
+    if valid:
+        for item in findings:
+            if not isinstance(item,dict):
+                continue
+            file=str(item.get("file","")).strip().split("/")[-1]
+            failure=str(item.get("failure_class","")).strip().lower()
+            if file and failure:
+                reported.add((file,failure))
+
+    for (file,failure),points in expected.items():
+        add(f"finding_{file}_{failure}",points,(file,failure) in reported)
+
+    extras=sorted(reported-set(expected))
+    if extras:
+        penalty=min(15,5*len(extras))
+        score-=penalty
+        checks["false_positive_penalty"]={
+            "points":-penalty,
+            "passed":False,
+            "reported":[{"file":f,"failure_class":c} for f,c in extras],
+        }
+
+    verdict=str(data.get("verdict","")).strip().upper() if valid else ""
+    add("requests_changes",5,verdict=="REQUEST_CHANGES")
+
 else:
     raise SystemExit(f"unknown task {task}")
 
