@@ -1,9 +1,9 @@
 {
-  "task": "frontier-dynamic-diagnosis-v2",
-  "model": "gpt-6-sol",
-  "efforts": ["medium", "high", "xhigh"],
+  "task": "frontier-causal-diagnosis",
+  "model": "gpt-6-luna",
+  "efforts": ["high"],
   "trials": 3,
-  "max_turns": 30,
-  "shell_budget": 18,
+  "max_turns": 28,
+  "shell_budget": 12,
   "probe_budget": 20
 }
