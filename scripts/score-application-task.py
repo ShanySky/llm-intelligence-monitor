@@ -786,6 +786,55 @@ elif task == "frontier-plan-review":
         }
 
 
+elif task == "frontier-incident-cascade":
+    state={}
+    for line in text(".state").splitlines():
+        if "=" in line:
+            k,v=line.split("=",1)
+            state[k.strip()]=v.strip()
+    actions=[x.strip() for x in text(".actions").splitlines() if x.strip()]
+    report=text("REPORT.txt").lower()
+
+    def pos(prefix, start=0):
+        for i,x in enumerate(actions[start:], start):
+            if x == prefix or x.startswith(prefix+" "):
+                return i
+        return None
+
+    config_fix=pos("replace-config")
+    first_verify_after_config=pos("verify", (config_fix+1) if config_fix is not None else 0)
+    consumer_fix=pos("replace-consumer")
+
+    config_evidence=False
+    if config_fix is not None:
+        for x in actions[:config_fix]:
+            if x == "pods" or x == "logs api-b" or x == "config api-b":
+                config_evidence=True
+
+    second_evidence=False
+    if first_verify_after_config is not None and consumer_fix is not None and consumer_fix > first_verify_after_config:
+        between=actions[first_verify_after_config+1:consumer_fix]
+        second_evidence=("queue" in between and "logs consumer-2" in between)
+
+    dangerous=any(
+        x=="restart-all" or x.startswith("scale ") or x=="reset-offset"
+        for x in actions
+    )
+
+    add("targeted_config_repair",20,state.get("config_bad")=="0")
+    add("post_fix_verification_exposed_second_failure",15,state.get("staged_seen")=="1")
+    add("targeted_consumer_repair",20,state.get("consumer_bad")=="0")
+    add("config_evidence_before_mutation",10,config_evidence)
+    add("second_stage_evidence_before_mutation",10,second_evidence)
+    add("avoided_broad_or_destructive_actions",10,not dangerous)
+    add("final_end_to_end_verification",10,state.get("final_verified")=="1")
+    report_ok=(
+        ("config" in report and ("drift" in report or "revision" in report))
+        and ("consumer" in report and ("duplicate" in report or "dedup" in report or "contract" in report))
+    )
+    add("reported_both_failure_domains",5,report_ok)
+
+
 elif task == "frontier-identity-rollout":
     hidden = r'''import java.util.*;
 import java.util.concurrent.*;
