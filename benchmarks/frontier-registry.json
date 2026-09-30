@@ -66,9 +66,14 @@
     {
       "id": "frontier-build-cache",
       "family": "coding_incremental_build",
-      "status": "needs-opaque-rescreen",
+      "status": "coverage-only-ceiling",
       "promoted_to_final": false,
-      "note": "Earlier Luna 100 run preceded the harness-only opaque-validator hardening and is treated as superseded."
+      "note": "Re-screened after opaque-validator hardening; quality still saturated.",
+      "evidence": {
+        "luna_high_opaque_screen": 100,
+        "validation_calls": 3,
+        "duration_seconds": 100
+      }
     },
     {
       "id": "frontier-config",
@@ -249,8 +254,14 @@
     {
       "id": "frontier-runtime-diagnosis",
       "family": "agent_runtime_investigation",
-      "status": "screening",
-      "promoted_to_final": false
+      "status": "efficiency-candidate",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high_quality": 100,
+        "probe_budget": 7,
+        "legacy_probe_attempts": 12
+      },
+      "note": "Quality saturated, but Luna used excessive probe attempts; Sol repeated effort calibration is running with a nonbinding probe budget."
     }
   ]
 }
