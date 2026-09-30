@@ -1,0 +1,88 @@
+{
+  "rows": [
+    {
+      "source": "terminal-bench-2.1",
+      "source_commit": "7131e4375048a0e408a8fb404b5f499d726b695b",
+      "task": "configure-git-webserver",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "score": 100,
+      "passed": true,
+      "duration_seconds": 188,
+      "responses": 12,
+      "max_turns": 40,
+      "shell_commands": 12,
+      "shell_budget": 50,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "usage": {
+        "input_tokens": 59742,
+        "output_tokens": 3500,
+        "reasoning_tokens": 1071,
+        "cached_input_tokens": 45440
+      },
+      "agent_exit_code": 0,
+      "verifier_status": 0,
+      "infrastructure_error": null,
+      "identity_ok": true,
+      "actual_model": "gpt-6-sol",
+      "actual_effort": "medium"
+    },
+    {
+      "source": "terminal-bench-2.1",
+      "source_commit": "7131e4375048a0e408a8fb404b5f499d726b695b",
+      "task": "configure-git-webserver",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "score": 100,
+      "passed": true,
+      "duration_seconds": 208,
+      "responses": 12,
+      "max_turns": 40,
+      "shell_commands": 12,
+      "shell_budget": 50,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "usage": {
+        "input_tokens": 90247,
+        "output_tokens": 5138,
+        "reasoning_tokens": 2422,
+        "cached_input_tokens": 71168
+      },
+      "agent_exit_code": 0,
+      "verifier_status": 0,
+      "infrastructure_error": null,
+      "identity_ok": true,
+      "actual_model": "gpt-6-sol",
+      "actual_effort": "high"
+    },
+    {
+      "source": "terminal-bench-2.1",
+      "source_commit": "7131e4375048a0e408a8fb404b5f499d726b695b",
+      "task": "configure-git-webserver",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "passed": true,
+      "duration_seconds": 167,
+      "responses": 9,
+      "max_turns": 40,
+      "shell_commands": 8,
+      "shell_budget": 50,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "usage": {
+        "input_tokens": 42636,
+        "output_tokens": 4020,
+        "reasoning_tokens": 1828,
+        "cached_input_tokens": 32768
+      },
+      "agent_exit_code": 0,
+      "verifier_status": 0,
+      "infrastructure_error": null,
+      "identity_ok": true,
+      "actual_model": "gpt-6-sol",
+      "actual_effort": "xhigh"
+    }
+  ]
+}
