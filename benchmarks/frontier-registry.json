@@ -523,16 +523,40 @@
     {
       "id": "real-repo-replay-family",
       "family": "coding_real_repo_commit_replay",
-      "status": "screening",
+      "status": "effort-calibration",
       "promoted_to_final": false,
       "evidence": {
         "variants": 3,
         "source": "real historical commits from this repository",
         "isolation": "target parent archive without .git or target diff",
         "scoring": "80% hidden behavioral equivalence + 20% objective patch discipline",
-        "model_epoch": "resident Sol evidence kept separate from historical Sol epochs"
+        "model_epoch": "resident Sol evidence kept separate from historical Sol epochs",
+        "luna_high_replay_scores": [
+          10,
+          84,
+          0
+        ],
+        "luna_high_behavior_scores": [
+          10,
+          80,
+          0
+        ],
+        "luna_high_mean": 31.3,
+        "luna_high_runtime_seconds": [
+          187,
+          214,
+          411
+        ],
+        "luna_high_shell_commands": [
+          14,
+          14,
+          27
+        ],
+        "initial_shell_budget": 20,
+        "budget_confounded_variant": 3,
+        "next_epoch": "gpt-6.1-sol-medium-high-xhigh with shell/turn budget 36"
       },
-      "note": "Replays hidden parent states of real repository maintenance commits with objective behavior and patch-quality scoring; Luna-first screen is running."
+      "note": "Real-repo replay produced strong non-ceiling difficulty. Variant 3 exceeded the initial Luna shell budget, so the resident Sol calibration uses nonbinding 36/36 turn+shell budgets before any effort conclusion."
     },
     {
       "id": "frontier-runtime-repair-family",
