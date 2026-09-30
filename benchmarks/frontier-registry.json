@@ -238,6 +238,17 @@
     {
       "id": "frontier-deep-fix",
       "family": "coding_debug_cross_file_reliability",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100,
+        "validation_calls": 2
+      },
+      "note": "Executable cross-file repair still saturated on Luna High."
+    },
+    {
+      "id": "frontier-runtime-diagnosis",
+      "family": "agent_runtime_investigation",
       "status": "screening",
       "promoted_to_final": false
     }
