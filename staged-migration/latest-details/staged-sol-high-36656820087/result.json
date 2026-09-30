@@ -1,0 +1,77 @@
+{
+  "task": "staged-migration",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "score": 100,
+  "checks": {
+    "compiles": {
+      "points": 5,
+      "passed": true
+    },
+    "visible_regression": {
+      "points": 5,
+      "passed": true
+    },
+    "legacy_fallback_read": {
+      "points": 15,
+      "passed": true
+    },
+    "v2_write_rollback_compatible": {
+      "points": 20,
+      "passed": true
+    },
+    "newer_v1_write_visible_to_v2": {
+      "points": 20,
+      "passed": true
+    },
+    "online_backfill_current_legacy": {
+      "points": 15,
+      "passed": true
+    },
+    "stale_backfill_cannot_clobber_live_update": {
+      "points": 25,
+      "passed": true
+    }
+  },
+  "duration_seconds": 114,
+  "responses": 9,
+  "shell_commands": 7,
+  "shell_budget": 50,
+  "stage_turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "stages": [
+    {
+      "stage": "TASK.md",
+      "index": 1,
+      "duration_seconds": 55,
+      "responses": 5,
+      "max_turns": 20,
+      "turn_limit_reached": false,
+      "shell_commands": 4,
+      "finished_with_message": true,
+      "final_text": "Updated v2 to read the legacy status when it is the newest value and to write both the v2 and legacy status fields. This lets v2 read v1-written rows and lets v1 see statuses written by v2 after a rollback.\n\n`./run_visible_tests.sh` passed."
+    },
+    {
+      "stage": "STAGE2.md",
+      "index": 2,
+      "duration_seconds": 58,
+      "responses": 4,
+      "max_turns": 20,
+      "turn_limit_reached": false,
+      "shell_commands": 3,
+      "finished_with_message": true,
+      "final_text": "Backfill now applies a snapshot only when its legacy version is still current and no newer status has been migrated. This preserves newer v1 or v2 writes while allowing current legacy values to migrate. Stage 1 compatibility remains intact.\n\n`./run_visible_tests.sh` passed, as did targeted checks for stale and current snapshots."
+    }
+  ],
+  "usage": {
+    "input_tokens": 29131,
+    "output_tokens": 2913,
+    "reasoning_tokens": 1250,
+    "cached_input_tokens": 17920
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}

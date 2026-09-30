@@ -1,0 +1,77 @@
+{
+  "task": "staged-migration",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "score": 100,
+  "checks": {
+    "compiles": {
+      "points": 5,
+      "passed": true
+    },
+    "visible_regression": {
+      "points": 5,
+      "passed": true
+    },
+    "legacy_fallback_read": {
+      "points": 15,
+      "passed": true
+    },
+    "v2_write_rollback_compatible": {
+      "points": 20,
+      "passed": true
+    },
+    "newer_v1_write_visible_to_v2": {
+      "points": 20,
+      "passed": true
+    },
+    "online_backfill_current_legacy": {
+      "points": 15,
+      "passed": true
+    },
+    "stale_backfill_cannot_clobber_live_update": {
+      "points": 25,
+      "passed": true
+    }
+  },
+  "duration_seconds": 85,
+  "responses": 8,
+  "shell_commands": 6,
+  "shell_budget": 50,
+  "stage_turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "stages": [
+    {
+      "stage": "TASK.md",
+      "index": 1,
+      "duration_seconds": 47,
+      "responses": 5,
+      "max_turns": 20,
+      "turn_limit_reached": false,
+      "shell_commands": 4,
+      "finished_with_message": true,
+      "final_text": "Updated v2 to read legacy-only rows and to write the legacy status alongside the new format, so v1 sees v2 updates during a rollback. V2 also uses the newer value when v1 writes after v2.\n\n`./run_visible_tests.sh` passes."
+    },
+    {
+      "stage": "STAGE2.md",
+      "index": 2,
+      "duration_seconds": 38,
+      "responses": 3,
+      "max_turns": 20,
+      "turn_limit_reached": false,
+      "shell_commands": 2,
+      "finished_with_message": true,
+      "final_text": "Backfill now applies a snapshot only if it still matches the current legacy version and no newer-format value has been written. This preserves newer v1 and v2 updates while still migrating unchanged legacy rows.\n\n`./run_visible_tests.sh` passes."
+    }
+  ],
+  "usage": {
+    "input_tokens": 21149,
+    "output_tokens": 1879,
+    "reasoning_tokens": 531,
+    "cached_input_tokens": 12288
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}
