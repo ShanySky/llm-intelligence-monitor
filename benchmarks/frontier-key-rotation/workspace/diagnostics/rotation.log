@@ -1,0 +1,4 @@
+2026-09-29T16:00:02Z INFO issuer-a activated kid=k2; retained kid=k1 for overlap
+2026-09-29T16:03:18Z WARN legacy session without kid rejected immediately after rotation
+2026-09-29T16:07:54Z WARN issuer-b auth anomaly observed after issuer-a warmed kid=shared cache entry
+2026-09-29T16:09:41Z INFO kid=k1 removed after overlap window
