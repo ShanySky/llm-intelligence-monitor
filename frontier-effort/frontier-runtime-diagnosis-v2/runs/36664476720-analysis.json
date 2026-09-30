@@ -1,0 +1,91 @@
+{
+  "generated_at": "2026-09-30T03:33:03.457Z",
+  "task": "frontier-runtime-diagnosis-v2",
+  "model": "gpt-6-sol",
+  "trial_count": 2,
+  "by_effort": {
+    "medium": {
+      "effort": "medium",
+      "trials": 2,
+      "expected_trials": 2,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 81,
+      "shell_commands": 3,
+      "probe_calls": 20,
+      "probe_attempts": 22.5,
+      "total_tokens": 28951,
+      "reasoning_tokens": 127.5,
+      "saturated": false,
+      "data_complete": true
+    },
+    "high": {
+      "effort": "high",
+      "trials": 2,
+      "expected_trials": 2,
+      "score": 95,
+      "score_stddev": 5,
+      "duration_seconds": 103,
+      "shell_commands": 3,
+      "probe_calls": 17.5,
+      "probe_attempts": 18,
+      "total_tokens": 39435.5,
+      "reasoning_tokens": 124,
+      "saturated": false,
+      "data_complete": true
+    },
+    "xhigh": {
+      "effort": "xhigh",
+      "trials": 2,
+      "expected_trials": 2,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 125,
+      "shell_commands": 3,
+      "probe_calls": 17.5,
+      "probe_attempts": 18,
+      "total_tokens": 46750,
+      "reasoning_tokens": 131.5,
+      "saturated": false,
+      "data_complete": true
+    }
+  },
+  "effort_spread_points": 5,
+  "medium_to_xhigh": {
+    "medium_to_xhigh_quality_gain_points": 0,
+    "improvements_percent": {
+      "duration_seconds": -54.32098765432099,
+      "shell_commands": 0,
+      "probe_calls": 12.5,
+      "total_tokens": -61.479741632413386
+    },
+    "improved_metrics": [],
+    "common_trials": 2,
+    "positive_quality_trial_rate": 0,
+    "efficiency_signal_trial_rate": 0.5,
+    "classification": "quality-ceiling-no-m-to-xh-signal",
+    "repeated_confirmation_required": true,
+    "paired_trials": [
+      {
+        "trial": 1,
+        "medium_score": 100,
+        "xhigh_score": 100,
+        "quality_gain": 0,
+        "efficiency_improved_metrics": [
+          "probe_calls",
+          "total_tokens"
+        ],
+        "efficiency_signal": true
+      },
+      {
+        "trial": 2,
+        "medium_score": 100,
+        "xhigh_score": 100,
+        "quality_gain": 0,
+        "efficiency_improved_metrics": [],
+        "efficiency_signal": false
+      }
+    ]
+  },
+  "nonmonotonic": null
+}
