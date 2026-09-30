@@ -1,9 +1,9 @@
 {
   "task": "frontier-dynamic-diagnosis-v2",
-  "model": "gpt-6-luna",
-  "effort": "high",
-  "trial": 1,
-  "score": 90,
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "trial": 2,
+  "score": 100,
   "checks": {
     "valid_diagnosis_json": {
       "points": 5,
@@ -39,29 +39,29 @@
     },
     "causal_evidence_b": {
       "points": 10,
-      "passed": false
+      "passed": true
     }
   },
-  "duration_seconds": 66,
-  "responses": 9,
+  "duration_seconds": 81,
+  "responses": 11,
   "max_turns": 30,
   "shell_commands": 2,
   "shell_budget": 18,
   "validation_calls": 1,
   "validation_budget": 8,
   "validation_enabled": true,
-  "probe_calls": 13,
-  "probe_attempts": 13,
+  "probe_calls": 12,
+  "probe_attempts": 12,
   "probe_budget": 20,
   "probe_enabled": true,
   "turn_limit_reached": false,
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 18823,
-    "output_tokens": 1148,
-    "reasoning_tokens": 261,
-    "cached_input_tokens": 8704
+    "input_tokens": 21712,
+    "output_tokens": 910,
+    "reasoning_tokens": 125,
+    "cached_input_tokens": 11392
   },
   "api_retries": 0,
   "infrastructure_error": null,
