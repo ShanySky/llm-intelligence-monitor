@@ -1605,6 +1605,36 @@ elif task == "frontier-key-rotation":
     add("same_kid_replacement_observes_registry_revision",15,"REPLACE_PASS" in hidden_out)
     add("active_signing_path_regression",10,"ACTIVE_PASS" in hidden_out)
 
+
+elif task == "frontier-import-resume":
+    validator=Path(__file__).resolve().parent/"validators"/"frontier-import-resume.py"
+    proc=subprocess.run(
+        [sys.executable,str(validator),str(root),"--json"],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    try:
+        data=json.loads(proc.stdout.strip().splitlines()[-1])
+    except Exception:
+        data={"compiles":False,"cases":{}}
+    cases=data.get("cases",{}) if isinstance(data,dict) else {}
+
+    add("compiles",5,bool(data.get("compiles")))
+
+    visible=False
+    try:
+        vr=subprocess.run(["bash","run_visible_tests.sh"],cwd=root,capture_output=True,text=True,timeout=30)
+        visible=vr.returncode==0
+    except Exception:
+        visible=False
+    add("visible_regression",5,visible)
+
+    add("crash_retry_exactly_once_external_effect",20,bool(cases.get("CRASH")))
+    add("snapshot_pinned_before_external_effect",30,bool(cases.get("SNAPSHOT")))
+    add("stable_ordering_across_ties",15,bool(cases.get("TIES")))
+    add("concurrent_resume_converges",25,bool(cases.get("CONCURRENT")))
+
 else:
     raise SystemExit(f"unknown task {task}")
 
