@@ -1,0 +1,8 @@
+{
+  "task": "frontier-review-deep",
+  "model": "gpt-6-sol",
+  "efforts": ["medium", "high", "xhigh"],
+  "trials": 3,
+  "max_turns": 40,
+  "shell_budget": 40
+}
