@@ -230,7 +230,7 @@ results.sort((a, b) =>
 
 const output = {
   generatedAt: new Date().toISOString(),
-  mode: 'gpt-6-sol-effort-calibration',
+  mode: 'gpt-6.1-sol-effort-calibration',
   exploratory: true,
   availableEfforts,
   overall: Object.fromEntries(availableEfforts.map((e) => [e, finish(overall[e])])),
@@ -248,7 +248,7 @@ const fmt = (v, digits = 0) => v == null ? '-' : Number(v).toLocaleString('en-US
 const latency = (v) => v == null ? '-' : `${(v / 1000).toFixed(1)}s`;
 
 const lines = [
-  '# GPT-6 Sol 思考档位低成本校准',
+  '# GPT-6.1 Sol 思考档位低成本校准',
   '',
   `> 这是探索性筛选，不是最终定级。优先使用 Promptfoo 客观 assertion score（0–1），没有部分分数时才退回 pass/fail。正式 effort 候选至少需要 ${minRepeatSamples} 个重复样本且 Medium→X High 平均客观分提升至少 10pp；单次分差只记为 one-shot candidate。`,
   '',
