@@ -1,0 +1,139 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-causal-diagnosis-high-t1",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 124,
+  "responses": 20,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 12,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 15,
+  "probe_attempts": 15,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "probe_queries": [
+    "help",
+    "Observe current checkout incident signals, affected requests and runtime dimensions.",
+    "What are current checkout failure symptoms and their correlation with API pod revision/config revision?",
+    "Compare api-a and api-b with same request traffic, holding zone, config, and capacity constant.",
+    "Controlled experiment: change only api-b rendered configuration from revision 23 to 24, holding pod, zone, load, and request path constant.",
+    "Observe payment timeout retries: compare provider business idempotency keys across attempts for the same logical order version.",
+    "Counterfactual payment retry experiment: keep provider timeout and retry behavior identical, but reuse the same order-version business idempotency key across attempts.",
+    "Observe duplicate fulfillment events and compare consumer revisions, replay identities, and deduplication contract.",
+    "Observe stale checkout reads, cache aliases, strict read-after-write routing, and replica lag signals.",
+    "Is cache invalidation causally responsible for checkout failures? Compare cache hit and bypass for same customer after update.",
+    "Controlled experiment: bypass cache while holding request, API, and database path constant; does checkout outcome change?",
+    "Check replica read lag on strict read-after-write request.",
+    "Compare strict read-after-write checkout with primary versus replica, holding all else constant.",
+    "What is happening to stale cache aliases during mixed invalidation?",
+    "Controlled counterfactual: increase API capacity only, holding config and traffic constant; does it resolve the 49/200 failures?"
+  ],
+  "probe_executed_queries": [
+    "help",
+    "Observe current checkout incident signals, affected requests and runtime dimensions.",
+    "What are current checkout failure symptoms and their correlation with API pod revision/config revision?",
+    "Compare api-a and api-b with same request traffic, holding zone, config, and capacity constant.",
+    "Controlled experiment: change only api-b rendered configuration from revision 23 to 24, holding pod, zone, load, and request path constant.",
+    "Observe payment timeout retries: compare provider business idempotency keys across attempts for the same logical order version.",
+    "Counterfactual payment retry experiment: keep provider timeout and retry behavior identical, but reuse the same order-version business idempotency key across attempts.",
+    "Observe duplicate fulfillment events and compare consumer revisions, replay identities, and deduplication contract.",
+    "Observe stale checkout reads, cache aliases, strict read-after-write routing, and replica lag signals.",
+    "Is cache invalidation causally responsible for checkout failures? Compare cache hit and bypass for same customer after update.",
+    "Controlled experiment: bypass cache while holding request, API, and database path constant; does checkout outcome change?",
+    "Check replica read lag on strict read-after-write request.",
+    "Compare strict read-after-write checkout with primary versus replica, holding all else constant.",
+    "What is happening to stale cache aliases during mixed invalidation?",
+    "Controlled counterfactual: increase API capacity only, holding config and traffic constant; does it resolve the 49/200 failures?"
+  ],
+  "probe_observations": [
+    {
+      "query": "help",
+      "output": "STDOUT:\nPROBE_GUIDANCE: ask one focused observation or controlled experiment.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe current checkout incident signals, affected requests and runtime dimensions.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What are current checkout failure symptoms and their correlation with API pod revision/config revision?",
+      "output": "STDOUT:\n49/200 request failures; 4/200 timeout-retry scenarios create duplicate provider effects; failures correlate with api-b and zone-b\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare api-a and api-b with same request traffic, holding zone, config, and capacity constant.",
+      "output": "STDOUT:\napi-a config=24 zone=a failures=0/100; api-b config=23 zone=b failures=49/100; api-b logs mention missing payment_mode; zone-b also has unrelated packet-loss warnings\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled experiment: change only api-b rendered configuration from revision 23 to 24, holding pod, zone, load, and request path constant.",
+      "output": "STDOUT:\ncounterfactual replay on api-b with desired config=24 while staying in zone-b: 100/100 succeed; zone-b packet-loss background signal unchanged\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe payment timeout retries: compare provider business idempotency keys across attempts for the same logical order version.",
+      "output": "STDOUT:\nduplicate business effects occur after provider timeouts; affected retries use different delivery identities; consumer-2 is also one revision behind\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Counterfactual payment retry experiment: keep provider timeout and retry behavior identical, but reuse the same order-version business idempotency key across attempts.",
+      "output": "STDOUT:\ncontrolled timeout replay on healthy api-a: current delivery-scoped keys produce 2 provider effects; forcing one order-version key produces 1 effect with retries still enabled\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe duplicate fulfillment events and compare consumer revisions, replay identities, and deduplication contract.",
+      "output": "STDOUT:\nreplaying the resulting additive event through both consumers produces one fulfillment each; consumer revision does not create a second payment effect\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe stale checkout reads, cache aliases, strict read-after-write routing, and replica lag signals.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Is cache invalidation causally responsible for checkout failures? Compare cache hit and bypass for same customer after update.",
+      "output": "STDOUT:\napi-a config=24 zone=a failures=0/100; api-b config=23 zone=b failures=49/100; api-b logs mention missing payment_mode; zone-b also has unrelated packet-loss warnings\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled experiment: bypass cache while holding request, API, and database path constant; does checkout outcome change?",
+      "output": "STDOUT:\napi-a config=24 zone=a failures=0/100; api-b config=23 zone=b failures=49/100; api-b logs mention missing payment_mode; zone-b also has unrelated packet-loss warnings\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Check replica read lag on strict read-after-write request.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare strict read-after-write checkout with primary versus replica, holding all else constant.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What is happening to stale cache aliases during mixed invalidation?",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled counterfactual: increase API capacity only, holding config and traffic constant; does it resolve the 49/200 failures?",
+      "output": "STDOUT:\ncounterfactual replay on api-b with desired config=24 while staying in zone-b: 100/100 succeed; zone-b packet-loss background signal unchanged\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 48166,
+    "output_tokens": 1038,
+    "reasoning_tokens": 290,
+    "cached_input_tokens": 29184
+  },
+  "final_text": "Created `DIAGNOSIS.json` with the two causally supported root causes and their minimal repairs.\n\nValidation: `functions.validate` — passed."
+}

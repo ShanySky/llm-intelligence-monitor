@@ -1,0 +1,176 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-causal-diagnosis-high-t3",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 83,
+  "responses": 12,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 12,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 20,
+  "probe_attempts": 22,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "probe_queries": [
+    "help",
+    "What diagnostic observations and controlled experiments are available?",
+    "Observe checkout incident status and request failures by API pod.",
+    "Compare rendered API configuration on api-a and api-b.",
+    "Observe payment provider retry idempotency keys for one logical order.",
+    "Observe fulfillment duplicate delivery and consumer revisions.",
+    "Run controlled experiment routing strict read-after-write requests to primary, holding traffic constant.",
+    "Run controlled experiment replacing older cache invalidator with current revision, holding traffic constant.",
+    "Run controlled experiment increasing API capacity while holding other variables constant.",
+    "Run controlled experiment changing API config on api-a only.",
+    "Compare strict read-after-write responses when routed to primary versus replica.",
+    "Compare legacy and stable-key cache invalidation behavior in a controlled write/read test.",
+    "Compare api-a and api-b by pinning identical traffic and configuration.",
+    "Test whether payment retry key changes across attempts for same order version.",
+    "Observe cache invalidation behavior and strict read stale response attribution.",
+    "Measure strict read-after-write stale rate with cache bypass versus normal route.",
+    "Run a counterfactual with dual cache invalidation and current replica routing.",
+    "Which controlled experiments can determine whether cache invalidation or replica lag causes stale checkout reads?",
+    "Observe payment retries for the same logical order version and provider business keys.",
+    "Observe fulfillment consumer replay and deduplication behavior across revisions.",
+    "Observe API capacity, saturation, and failure behavior under peak load.",
+    "Observe network error rates and database connection pool pressure."
+  ],
+  "probe_executed_queries": [
+    "help",
+    "What diagnostic observations and controlled experiments are available?",
+    "Observe checkout incident status and request failures by API pod.",
+    "Compare rendered API configuration on api-a and api-b.",
+    "Observe payment provider retry idempotency keys for one logical order.",
+    "Observe fulfillment duplicate delivery and consumer revisions.",
+    "Run controlled experiment routing strict read-after-write requests to primary, holding traffic constant.",
+    "Run controlled experiment replacing older cache invalidator with current revision, holding traffic constant.",
+    "Run controlled experiment increasing API capacity while holding other variables constant.",
+    "Run controlled experiment changing API config on api-a only.",
+    "Compare strict read-after-write responses when routed to primary versus replica.",
+    "Compare legacy and stable-key cache invalidation behavior in a controlled write/read test.",
+    "Compare api-a and api-b by pinning identical traffic and configuration.",
+    "Test whether payment retry key changes across attempts for same order version.",
+    "Observe cache invalidation behavior and strict read stale response attribution.",
+    "Measure strict read-after-write stale rate with cache bypass versus normal route.",
+    "Run a counterfactual with dual cache invalidation and current replica routing.",
+    "Which controlled experiments can determine whether cache invalidation or replica lag causes stale checkout reads?",
+    "Observe payment retries for the same logical order version and provider business keys.",
+    "Observe fulfillment consumer replay and deduplication behavior across revisions."
+  ],
+  "probe_observations": [
+    {
+      "query": "help",
+      "output": "STDOUT:\nPROBE_GUIDANCE: ask one focused observation or controlled experiment.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What diagnostic observations and controlled experiments are available?",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe checkout incident status and request failures by API pod.",
+      "output": "STDOUT:\n200/200 HTTP success; 0 duplicate effects; 17/500 strict read-after-write responses are stale; invalidator-b is older and strict reads use replica\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare rendered API configuration on api-a and api-b.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe payment provider retry idempotency keys for one logical order.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe fulfillment duplicate delivery and consumer revisions.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run controlled experiment routing strict read-after-write requests to primary, holding traffic constant.",
+      "output": "STDOUT:\nbypass cache after v2 write: primary is immediately fresh while replica can remain stale 300-900ms\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run controlled experiment replacing older cache invalidator with current revision, holding traffic constant.",
+      "output": "STDOUT:\nhold read route on primary, write through legacy path: dual invalidator yields fresh read; numeric-only invalidator leaves stable-key alias stale\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run controlled experiment increasing API capacity while holding other variables constant.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run controlled experiment changing API config on api-a only.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare strict read-after-write responses when routed to primary versus replica.",
+      "output": "STDOUT:\nsome strict reads remain stale 300-900ms; ordinary reads are allowed to use replica\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare legacy and stable-key cache invalidation behavior in a controlled write/read test.",
+      "output": "STDOUT:\nhold read route on primary, write through legacy path: dual invalidator yields fresh read; numeric-only invalidator leaves stable-key alias stale\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare api-a and api-b by pinning identical traffic and configuration.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Test whether payment retry key changes across attempts for same order version.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe cache invalidation behavior and strict read stale response attribution.",
+      "output": "STDOUT:\nlegacy-writer stale cases retain stable-key cache alias; invalidator-b rev=10 is numeric-only; invalidator-a rev=12 is dual\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Measure strict read-after-write stale rate with cache bypass versus normal route.",
+      "output": "STDOUT:\nhold read route on primary, write through legacy path: dual invalidator yields fresh read; numeric-only invalidator leaves stable-key alias stale\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run a counterfactual with dual cache invalidation and current replica routing.",
+      "output": "STDOUT:\nhold read route on primary, write through legacy path: dual invalidator yields fresh read; numeric-only invalidator leaves stable-key alias stale\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Which controlled experiments can determine whether cache invalidation or replica lag causes stale checkout reads?",
+      "output": "STDOUT:\nhold read route on primary, write through legacy path: dual invalidator yields fresh read; numeric-only invalidator leaves stable-key alias stale\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe payment retries for the same logical order version and provider business keys.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe fulfillment consumer replay and deduplication behavior across revisions.",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 27947,
+    "output_tokens": 1333,
+    "reasoning_tokens": 435,
+    "cached_input_tokens": 14848
+  },
+  "final_text": "Wrote `DIAGNOSIS.json` with the two causally supported root causes: replica lag on strict reads and the cache invalidation gap.\n\nValidation: `functions.validate` — **VALIDATION_PASS**."
+}

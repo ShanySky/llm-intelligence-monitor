@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-09-30T04:19:44.549Z",
+  "task": "frontier-causal-diagnosis",
+  "model": "gpt-6-luna",
+  "trial_count": 3,
+  "by_effort": {
+    "high": {
+      "effort": "high",
+      "trials": 3,
+      "expected_trials": 3,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 122.66666666666667,
+      "shell_commands": 3.6666666666666665,
+      "probe_calls": 18.333333333333332,
+      "probe_attempts": 19.333333333333332,
+      "total_tokens": 49544,
+      "reasoning_tokens": 387.3333333333333,
+      "saturated": false,
+      "data_complete": true
+    }
+  },
+  "effort_spread_points": 0,
+  "medium_to_xhigh": null,
+  "nonmonotonic": null
+}

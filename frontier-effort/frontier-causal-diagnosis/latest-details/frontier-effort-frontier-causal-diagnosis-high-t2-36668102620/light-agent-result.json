@@ -1,0 +1,175 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-causal-diagnosis-high-t2",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 161,
+  "responses": 26,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 12,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 20,
+  "probe_attempts": 21,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Help: enumerate diagnostic probes and available causal experiments",
+    "checkout health",
+    "Compare api-a and api-b request failures while holding traffic shape and host zone constant",
+    "Run controlled API capacity experiment: increase checkout API replicas only, same traffic, configs, zones; compare peak 503s",
+    "Controlled provider retry idempotency experiment: same logical order version with timeout-after-accept, compare stable business key versus current retry key",
+    "Controlled fulfillment redelivery experiment: replay same message to consumer revisions holding payload and queue state constant",
+    "Controlled cache invalidation test: update customer through legacy numeric identity then read stable customer key; compare dual invalidation",
+    "cache invalidation",
+    "Observe cache",
+    "Counterfactual route strict read-after-write requests to primary instead of replica, hold all else fixed; compare stale reads",
+    "strict reads primary replica lag",
+    "Compare strict read-after-write from primary and replica while holding request constant",
+    "Hold invalidator revision constant and compare legacy numeric identity with stable customer-key alias after update",
+    "Controlled experiment increase database connection pool size only; measure request failures",
+    "Observe network errors, database pool saturation, strict read replica lag, and cache invalidation",
+    "Observe database pool saturation during peak 503 windows",
+    "Hold traffic and API replicas constant; increase database pool size only and compare 503 failures",
+    "stale cache aliases legacy and stable identity controlled invalidation",
+    "fulfillment duplicates redelivery consumer revisions",
+    "Compare cache invalidation using legacy numeric and stable customer-key aliases",
+    "customer cache stale"
+  ],
+  "probe_executed_queries": [
+    "Help: enumerate diagnostic probes and available causal experiments",
+    "checkout health",
+    "Compare api-a and api-b request failures while holding traffic shape and host zone constant",
+    "Run controlled API capacity experiment: increase checkout API replicas only, same traffic, configs, zones; compare peak 503s",
+    "Controlled provider retry idempotency experiment: same logical order version with timeout-after-accept, compare stable business key versus current retry key",
+    "Controlled fulfillment redelivery experiment: replay same message to consumer revisions holding payload and queue state constant",
+    "Controlled cache invalidation test: update customer through legacy numeric identity then read stable customer key; compare dual invalidation",
+    "cache invalidation",
+    "Observe cache",
+    "Counterfactual route strict read-after-write requests to primary instead of replica, hold all else fixed; compare stale reads",
+    "strict reads primary replica lag",
+    "Compare strict read-after-write from primary and replica while holding request constant",
+    "Hold invalidator revision constant and compare legacy numeric identity with stable customer-key alias after update",
+    "Controlled experiment increase database connection pool size only; measure request failures",
+    "Observe network errors, database pool saturation, strict read replica lag, and cache invalidation",
+    "Observe database pool saturation during peak 503 windows",
+    "Hold traffic and API replicas constant; increase database pool size only and compare 503 failures",
+    "stale cache aliases legacy and stable identity controlled invalidation",
+    "fulfillment duplicates redelivery consumer revisions",
+    "Compare cache invalidation using legacy numeric and stable customer-key aliases"
+  ],
+  "probe_observations": [
+    {
+      "query": "Help: enumerate diagnostic probes and available causal experiments",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "checkout health",
+      "output": "STDOUT:\n42/200 peak 503s; 6/200 fulfillment duplicates on redelivery; api-b config revision differs and consumer-2 is older\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare api-a and api-b request failures while holding traffic shape and host zone constant",
+      "output": "STDOUT:\napi-a=20/100 peak 503; api-b=22/100 peak 503; api-b config=23-equivalent, active-key semantic diff versus desired=none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run controlled API capacity experiment: increase checkout API replicas only, same traffic, configs, zones; compare peak 503s",
+      "output": "STDOUT:\nhold binary/config/traffic mix constant and add one API replica: test 503s fall from 21% to 0%; remove replica and 503s return\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled provider retry idempotency experiment: same logical order version with timeout-after-accept, compare stable business key versus current retry key",
+      "output": "STDOUT:\nprovider timeout retries preserve one business key; provider logical effects=1; duplicates first appear in fulfillment\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled fulfillment redelivery experiment: replay same message to consumer revisions holding payload and queue state constant",
+      "output": "STDOUT:\nreplay same order version with two delivery IDs: consumer-1 produces one fulfillment, consumer-2 produces two\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled cache invalidation test: update customer through legacy numeric identity then read stable customer key; compare dual invalidation",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "cache invalidation",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe cache",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Counterfactual route strict read-after-write requests to primary instead of replica, hold all else fixed; compare stale reads",
+      "output": "STDOUT:\nhold binary/config/traffic mix constant and add one API replica: test 503s fall from 21% to 0%; remove replica and 503s return\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "strict reads primary replica lag",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare strict read-after-write from primary and replica while holding request constant",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Hold invalidator revision constant and compare legacy numeric identity with stable customer-key alias after update",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled experiment increase database connection pool size only; measure request failures",
+      "output": "STDOUT:\napi-a=20/100 peak 503; api-b=22/100 peak 503; api-b config=23-equivalent, active-key semantic diff versus desired=none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe network errors, database pool saturation, strict read replica lag, and cache invalidation",
+      "output": "STDOUT:\ntransport healthy during 503 windows\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Observe database pool saturation during peak 503 windows",
+      "output": "STDOUT:\napi-a=20/100 peak 503; api-b=22/100 peak 503; api-b config=23-equivalent, active-key semantic diff versus desired=none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Hold traffic and API replicas constant; increase database pool size only and compare 503 failures",
+      "output": "STDOUT:\napi-a=20/100 peak 503; api-b=22/100 peak 503; api-b config=23-equivalent, active-key semantic diff versus desired=none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "stale cache aliases legacy and stable identity controlled invalidation",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "fulfillment duplicates redelivery consumer revisions",
+      "output": "STDOUT:\nprovider timeout retries preserve one business key; provider logical effects=1; duplicates first appear in fulfillment\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare cache invalidation using legacy numeric and stable customer-key aliases",
+      "output": "STDOUT:\nNO_MATCH: ask a focused observation or controlled experiment that isolates one hypothesis.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 68867,
+    "output_tokens": 1281,
+    "reasoning_tokens": 437,
+    "cached_input_tokens": 43008
+  },
+  "final_text": "Wrote `DIAGNOSIS.json` with the capacity shortage and incompatible fulfillment consumer as the supported root causes, and their minimal repairs.\n\nValidation: `functions.validate` — `VALIDATION_PASS`."
+}
