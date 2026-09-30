@@ -1,10 +1,10 @@
 {
-  "task": "frontier-review-family",
-  "model": "gpt-6-sol",
-  "efforts": ["medium", "high", "xhigh"],
+  "task": "frontier-compat-review-family",
+  "model": "gpt-6-luna",
+  "efforts": ["high"],
   "trials": 3,
   "trial_mode": "variants",
-  "max_turns": 28,
-  "shell_budget": 18,
+  "max_turns": 24,
+  "shell_budget": 16,
   "probe_budget": 0
 }
