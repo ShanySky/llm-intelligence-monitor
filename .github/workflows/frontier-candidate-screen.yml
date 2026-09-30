@@ -54,7 +54,6 @@ jobs:
           TASK_DIR="/tmp/frontier-screen-$TASK"
           rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
           cp -R "benchmarks/$TASK/workspace/." "$TASK_DIR/"
-          node scripts/install-blackbox-validator.mjs "$TASK" "$TASK_DIR"
           [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
           if [ -f "$TASK_DIR/run_visible_tests.sh" ]; then
             chmod +x "$TASK_DIR/run_visible_tests.sh"
@@ -69,8 +68,17 @@ jobs:
           AGENT_SHELL_BUDGET: ${{ steps.target.outputs.shell_budget }}
         shell: bash
         run: |
+          TASK="${{ steps.target.outputs.task }}"
+          VALIDATOR=""
           if [ -n "${{ steps.target.outputs.validation_script }}" ]; then
-            export AGENT_VALIDATION_COMMAND="python '$GITHUB_WORKSPACE/${{ steps.target.outputs.validation_script }}' '$TASK_DIR'"
+            VALIDATOR="$GITHUB_WORKSPACE/${{ steps.target.outputs.validation_script }}"
+          elif [ -f "$GITHUB_WORKSPACE/benchmarks/$TASK/blackbox_validate.py" ]; then
+            VALIDATOR="$GITHUB_WORKSPACE/benchmarks/$TASK/blackbox_validate.py"
+          elif [ -f "$GITHUB_WORKSPACE/scripts/validators/$TASK.py" ]; then
+            VALIDATOR="$GITHUB_WORKSPACE/scripts/validators/$TASK.py"
+          fi
+          if [ -n "$VALIDATOR" ]; then
+            export AGENT_VALIDATION_COMMAND="python '$VALIDATOR' '$TASK_DIR'"
             export AGENT_VALIDATION_BUDGET="${{ steps.target.outputs.validation_budget }}"
           fi
           start="$(date +%s)"
