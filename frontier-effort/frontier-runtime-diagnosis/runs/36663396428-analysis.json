@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-09-30T03:16:26.154Z",
+  "task": "frontier-runtime-diagnosis",
+  "model": "gpt-6-sol",
+  "trial_count": 2,
+  "by_effort": {
+    "medium": {
+      "effort": "medium",
+      "trials": 2,
+      "expected_trials": 2,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 69.5,
+      "shell_commands": 2,
+      "total_tokens": 15328.5,
+      "reasoning_tokens": 33,
+      "saturated": false,
+      "data_complete": true
+    },
+    "high": {
+      "effort": "high",
+      "trials": 2,
+      "expected_trials": 2,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 84.5,
+      "shell_commands": 3,
+      "total_tokens": 17479.5,
+      "reasoning_tokens": 70.5,
+      "saturated": false,
+      "data_complete": true
+    },
+    "xhigh": {
+      "effort": "xhigh",
+      "trials": 2,
+      "expected_trials": 2,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 67.5,
+      "shell_commands": 3,
+      "total_tokens": 15729,
+      "reasoning_tokens": 84.5,
+      "saturated": false,
+      "data_complete": true
+    }
+  },
+  "effort_spread_points": 0,
+  "medium_to_xhigh": {
+    "medium_to_xhigh_quality_gain_points": 0,
+    "improvements_percent": {
+      "duration_seconds": 2.877697841726619,
+      "shell_commands": -50,
+      "probe_calls": null,
+      "total_tokens": -2.6127801154711814
+    },
+    "improved_metrics": [],
+    "common_trials": 2,
+    "positive_quality_trial_rate": 0,
+    "efficiency_signal_trial_rate": 0,
+    "classification": "quality-ceiling-no-m-to-xh-signal",
+    "repeated_confirmation_required": true,
+    "paired_trials": [
+      {
+        "trial": 1,
+        "medium_score": 100,
+        "xhigh_score": 100,
+        "quality_gain": 0,
+        "efficiency_improved_metrics": [],
+        "efficiency_signal": false
+      },
+      {
+        "trial": 2,
+        "medium_score": 100,
+        "xhigh_score": 100,
+        "quality_gain": 0,
+        "efficiency_improved_metrics": [],
+        "efficiency_signal": false
+      }
+    ]
+  },
+  "nonmonotonic": null
+}

@@ -1,0 +1,67 @@
+{
+  "task": "frontier-runtime-diagnosis",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "trial": 2,
+  "score": 100,
+  "checks": {
+    "valid_repair_json": {
+      "points": 5,
+      "passed": true
+    },
+    "identified_api_config_drift": {
+      "points": 15,
+      "passed": true
+    },
+    "identified_retry_idempotency_scope": {
+      "points": 20,
+      "passed": true
+    },
+    "targeted_config_repair": {
+      "points": 15,
+      "passed": true
+    },
+    "business_scoped_idempotency_repair": {
+      "points": 20,
+      "passed": true
+    },
+    "minimal_no_unrelated_repairs": {
+      "points": 10,
+      "passed": true
+    },
+    "collected_config_causal_evidence": {
+      "points": 5,
+      "passed": true
+    },
+    "isolated_retry_failure_on_healthy_pod": {
+      "points": 10,
+      "passed": true
+    }
+  },
+  "duration_seconds": 101,
+  "responses": 10,
+  "max_turns": 30,
+  "shell_commands": 4,
+  "shell_budget": 20,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 17,
+  "probe_attempts": 0,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "finished_with_message": true,
+  "usage": {
+    "input_tokens": 18889,
+    "output_tokens": 735,
+    "reasoning_tokens": 81,
+    "cached_input_tokens": 11776
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}
