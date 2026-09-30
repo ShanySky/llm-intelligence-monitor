@@ -1,11 +1,11 @@
 {
-  "version": 2,
-  "purpose": "Luna-first screening for unscreened frontier candidates only. Confirmed ceiling tasks stay as coverage tasks but are removed from this expensive candidate funnel.",
+  "version": 3,
+  "purpose": "Luna-first screening for unscreened frontier candidates only. Confirmed ceiling tasks are retained as coverage but excluded; promoted candidates are validated by dedicated stability/model workflows.",
   "model": "gpt-6-luna",
   "effort": "high",
   "tasks": [
     {
-      "task": "frontier-review-deep",
+      "task": "frontier-import-resume",
       "max_turns": 30,
       "shell_budget": 30
     }
@@ -27,6 +27,14 @@
     "frontier-lease-fencing",
     "frontier-pagination",
     "frontier-outbox-recovery",
-    "frontier-key-rotation"
-  ]
+    "frontier-key-rotation",
+    "frontier-build-cache"
+  ],
+  "promoted_candidates": {
+    "frontier-review-deep": {
+      "status": "model-discrimination-candidate",
+      "reason": "Luna High scored 90, while repeated Sol effort trials showed no stable Medium-to-XHigh quality or efficiency gain.",
+      "next": "cross-model-validation"
+    }
+  }
 }
