@@ -188,11 +188,13 @@ jobs:
             git rm -rf --ignore-unmatch .
           fi
           mkdir -p "frontier-effort/$TASK/runs"
+          cp /tmp/frontier-effort-summary.json latest.json
+          cp /tmp/frontier-effort-summary.md latest.md
           cp /tmp/frontier-effort-summary.json "frontier-effort/$TASK/latest.json"
           cp /tmp/frontier-effort-summary.md "frontier-effort/$TASK/latest.md"
           cp /tmp/frontier-effort-summary.json "frontier-effort/$TASK/runs/${GITHUB_RUN_ID}.json"
           cp /tmp/frontier-effort-summary.md "frontier-effort/$TASK/runs/${GITHUB_RUN_ID}.md"
-          git add frontier-effort
+          git add latest.json latest.md frontier-effort
           if ! git diff --cached --quiet; then
             git commit -m "Record frontier effort calibration $TASK ${GITHUB_RUN_ID}"
             git push origin HEAD:frontier-effort-results
