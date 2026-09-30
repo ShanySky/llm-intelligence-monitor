@@ -186,7 +186,9 @@ const effortSpread = scores.length ? Math.max(...scores)-Math.min(...scores) : n
 let effortSensitivity = null;
 if (effortStats.length >= 2 && effortSpread != null) {
   const repeated = Math.min(...effortStats.map(x=>x.trials)) >= minTrials;
-  const stable = Math.max(...effortStats.map(x=>x.score_stddev)) <= maxStd;
+  const stable = trialMode === 'variants'
+    ? true
+    : Math.max(...effortStats.map(x=>x.score_stddev)) <= maxStd;
   const saturated = effortStats.some(x=>x.saturated);
   const complete = effortStats.every(x=>x.data_complete);
   const threshold = Number(quality.min_effort_spread_points ?? 10);
@@ -221,7 +223,9 @@ if (medium && high && xhigh) {
   const highSpike = high.score-Math.max(medium.score,xhigh.score);
   const magnitude = Math.max(highDip,highSpike,0);
   const repeated = Math.min(medium.trials,high.trials,xhigh.trials) >= minTrials;
-  const stable = Math.max(medium.score_stddev,high.score_stddev,xhigh.score_stddev) <= maxStd;
+  const stable = trialMode === 'variants'
+    ? true
+    : Math.max(medium.score_stddev,high.score_stddev,xhigh.score_stddev) <= maxStd;
   if (magnitude >= Number(quality.min_effort_spread_points ?? 10)) {
     nonMonotonic = {
       direction: highDip >= highSpike ? 'high-dip' : 'high-spike',
