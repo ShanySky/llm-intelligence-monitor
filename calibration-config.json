@@ -2,8 +2,14 @@
   "solExploration": {
     "bankPath": "tests/application-hard-candidates.yaml",
     "language": "en",
-    "repeat": 1,
-    "efforts": ["medium", "xhigh"],
-    "pairIds": ["AH01", "AH02", "AH03", "AH04"]
+    "repeat": 5,
+    "efforts": [
+      "medium",
+      "high",
+      "xhigh"
+    ],
+    "pairIds": [
+      "AH01"
+    ]
   }
 }
