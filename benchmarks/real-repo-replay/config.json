@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "purpose": "Replay real historical maintenance fixes from this repository without exposing target commits to the agent.",
+  "model": "gpt-6.1-sol",
+  "efforts": ["medium", "high", "xhigh"],
+  "max_turns": 28,
+  "shell_budget": 20,
+  "cases": [
+    {
+      "trial": 1,
+      "id": "repeat-evidence-promotion",
+      "target_sha": "0fe6e031c6fb35d408fd69aade1e7de1bcf603e0",
+      "allowed_paths": ["scripts/analyze-application-discrimination.mjs"],
+      "preferred_max_changed_lines": 120
+    },
+    {
+      "trial": 2,
+      "id": "variant-effort-counts",
+      "target_sha": "bda09b65e1428975dbfa79a6c0aa96ef1756f4f9",
+      "allowed_paths": ["scripts/analyze-effort-efficiency.mjs"],
+      "preferred_max_changed_lines": 80
+    },
+    {
+      "trial": 3,
+      "id": "split-core-maturity",
+      "target_sha": "5bd797ffe84d4ad233aab03129ccbd2c43d5bf7f",
+      "allowed_paths": ["scripts/analyze-application-discrimination.mjs"],
+      "preferred_max_changed_lines": 100
+    }
+  ]
+}
