@@ -474,6 +474,26 @@
         "budget_saturated": false
       },
       "note": "One of three variants showed +15 points Medium→XHigh, but family mean gain is only +5 and paired consistency is 1/3. Keep as research evidence; not Effort Core."
+    },
+    {
+      "id": "staged-fulfillment-evolution",
+      "family": "compressed_long_horizon_fulfillment_identity",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100,
+        "duration_seconds": 108,
+        "stages": 3,
+        "shell_commands": 15
+      },
+      "note": "Three progressive stages still saturated on Luna High. Retain only as long-horizon coverage; do not spend Sol effort calibration."
+    },
+    {
+      "id": "frontier-compat-review-family",
+      "family": "code_review_compatibility_semantics",
+      "status": "screening",
+      "promoted_to_final": false,
+      "note": "Three compatibility-semantics variants are in Luna-first screening; only advance if the family avoids ceiling."
     }
   ]
 }
