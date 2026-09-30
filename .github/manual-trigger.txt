@@ -118,3 +118,4 @@ Application effort probes v2 Medium vs X High repeat3.
 AG21 repeated effort validation M/H/XH x5.
 Rebuild final suite with repeated-evidence Core maturity.
 AG21 semantic-order repeated validation M/H/XH x5.
+Frontier review family Luna High x3.
