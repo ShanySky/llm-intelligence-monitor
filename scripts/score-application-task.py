@@ -1447,7 +1447,7 @@ elif task == "frontier-review-deep":
         ("AuditWorker.java","payload_snapshot"):10,
         ("AuditWorker.java","retry_idempotency"):10,
         ("WebhookService.java","business_identity_scope"):20,
-        ("WebhookService.java","external_effect_recovery"):15,
+        ("WebhookService.java","external_effect_recovery"):10,
         ("ReservationMover.java","lock_order"):10,
     }
 
@@ -1475,7 +1475,7 @@ elif task == "frontier-review-deep":
         }
 
     verdict=str(data.get("verdict","")).strip().upper() if valid else ""
-    add("requests_changes",10,verdict=="REQUEST_CHANGES")
+    add("requests_changes",5,verdict=="REQUEST_CHANGES")
 
 elif task == "frontier-key-rotation":
     hidden = r'''public final class FrontierKeyRotationHiddenTest {
