@@ -246,22 +246,41 @@
       "status": "coverage-only-ceiling",
       "promoted_to_final": false,
       "evidence": {
-        "luna_high": 100,
+        "luna_high_v2": 100,
+        "duration_seconds": 155,
         "validation_calls": 2
       },
-      "note": "Executable cross-file repair still saturated on Luna High."
+      "note": "Still saturated after removing the explicit failure checklist and moving constraints into repository contracts."
     },
     {
       "id": "frontier-runtime-diagnosis",
       "family": "agent_runtime_investigation",
-      "status": "efficiency-candidate",
+      "status": "coverage-only-ceiling",
       "promoted_to_final": false,
       "evidence": {
-        "luna_high_quality": 100,
-        "probe_budget": 7,
-        "legacy_probe_attempts": 12
+        "sol_medium_mean": 100,
+        "sol_high_mean": 100,
+        "sol_xhigh_mean": 100,
+        "trials_per_effort": 2,
+        "effort_signal": "none"
       },
-      "note": "Quality saturated, but Luna used excessive probe attempts; Sol repeated effort calibration is running with a nonbinding probe budget."
+      "note": "Repeated Sol calibration with nonbinding probe budget found no quality or efficiency separation."
+    },
+    {
+      "id": "hard-plan",
+      "family": "solution_design",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": true,
+      "evidence": {
+        "repeated_cross_model_xhigh_means": {
+          "gpt-5.6-sol": 95,
+          "gpt-6-astra": 100,
+          "gpt-6-luna": 100,
+          "gpt-6-sol": 100
+        },
+        "model_spread_points": 5
+      },
+      "note": "Retained for solution-design coverage, but repeated cross-model spread is below the 10-point discriminator threshold."
     }
   ]
 }
