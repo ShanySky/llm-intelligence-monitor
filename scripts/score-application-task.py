@@ -1906,6 +1906,44 @@ elif task == "frontier-runtime-diagnosis":
     add("collected_config_causal_evidence",5,config_evidence)
     add("isolated_retry_failure_on_healthy_pod",10,retry_evidence)
 
+
+elif task == "frontier-runtime-diagnosis-v2":
+    validator=Path(__file__).resolve().parent/"validators"/"frontier-runtime-diagnosis-v2.py"
+    result={}
+    try:
+        vr=subprocess.run(
+            ["python",str(validator),str(root),"--json"],
+            capture_output=True,text=True,timeout=30
+        )
+        result=json.loads(vr.stdout)
+    except Exception:
+        result={}
+
+    runner={}
+    try:
+        runner=json.loads((root/"light-agent-result.json").read_text())
+    except Exception:
+        runner={}
+    queries=[str(x).strip().lower() for x in runner.get("probe_executed_queries", runner.get("probe_queries",[]))]
+
+    config_evidence=any(
+        "api-b" in q and any(k in q for k in ("config","configuration","rendered","log","500"))
+        for q in queries
+    )
+    retry_evidence=any(
+        "api-a" in q and any(k in q for k in ("timeout","retry","replay","experiment","inject"))
+        for q in queries
+    )
+
+    add("valid_repair_json",5,bool(result.get("syntax")))
+    add("identified_api_config_drift",15,bool(result.get("config_root")))
+    add("identified_retry_idempotency_scope",20,bool(result.get("retry_root")))
+    add("targeted_config_repair",15,bool(result.get("config_action")))
+    add("business_scoped_idempotency_repair",20,bool(result.get("retry_action")))
+    add("minimal_no_unrelated_repairs",10,bool(result.get("minimal")))
+    add("collected_pod_specific_config_evidence",5,config_evidence)
+    add("isolated_retry_failure_on_healthy_pod",10,retry_evidence)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
