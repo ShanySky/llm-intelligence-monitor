@@ -1763,6 +1763,30 @@ public final class StagedIdentityEvolutionHiddenTest {
     add("stage3_cache_v2_preference",5,"CACHE_PREFER_PASS" in hidden_out)
     add("stage3_dual_namespace_invalidation",10,"CACHE_INVALIDATE_PASS" in hidden_out)
 
+
+elif task == "frontier-build-cache":
+    visible=False
+    try:
+        vr=subprocess.run(["bash","run_visible_tests.sh"],cwd=root,capture_output=True,text=True,timeout=30)
+        visible=vr.returncode==0
+    except Exception:
+        visible=False
+    add("visible_regression",10,visible)
+
+    verifier=Path("benchmarks/frontier-build-cache/blackbox_validate.py").resolve()
+    blackbox=""
+    try:
+        br=subprocess.run([sys.executable,str(verifier),str(root)],capture_output=True,text=True,timeout=60)
+        blackbox=br.stdout+br.stderr
+    except Exception as e:
+        blackbox=str(e)
+
+    add("direct_source_change_rebuilds",10,"PASS direct_change" in blackbox)
+    add("transitive_dependency_change_invalidates_downstream",30,"PASS transitive_change" in blackbox)
+    add("failed_rebuild_does_not_poison_cache",30,"PASS retry_after_compile_failure" in blackbox)
+    add("unrelated_change_does_not_overbuild",10,"PASS unrelated_change" in blackbox)
+    add("dependency_cycle_is_rejected",10,"PASS cycle_rejected" in blackbox)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
