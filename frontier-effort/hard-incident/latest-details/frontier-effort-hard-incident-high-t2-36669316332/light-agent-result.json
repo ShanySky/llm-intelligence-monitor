@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-hard-incident-high-t2",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "duration_seconds": 50,
+  "responses": 7,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 6,
+  "shell_budget": 24,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 32,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 9463,
+    "output_tokens": 665,
+    "reasoning_tokens": 245,
+    "cached_input_tokens": 2944
+  },
+  "final_text": "The failure was caused by configuration drift on `api-c`: it had `SCHEMA_MODE=legacy` while the current ConfigMap specified `current`. I replaced only `api-c` and documented the evidence and repair in `REPORT.txt`.\n\nValidation: `./ctl verify` passed 300/300, and `./ctl status` reported 0% checkout errors. Eight ctl actions were used."
+}

@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-hard-incident-xhigh-t2",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 35,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 4,
+  "shell_budget": 24,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 32,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 6398,
+    "output_tokens": 590,
+    "reasoning_tokens": 208,
+    "cached_input_tokens": 2304
+  },
+  "final_text": "**Root cause:** `api-c` was Ready and running the same image as the other pods, but retained `SCHEMA_MODE=legacy` while the ConfigMap specified `current`. Its logs showed a coupon-related database column error.\n\n**Repair:** Replaced only `api-c` from the current configuration generation. `REPORT.txt` records the evidence and repair.\n\n**Validation:** `./ctl verify` passed 300/300, and `./ctl status` reported 0% checkout errors. Used 8 ctl actions; no restart or scale."
+}

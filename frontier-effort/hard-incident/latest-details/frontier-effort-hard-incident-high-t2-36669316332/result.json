@@ -1,0 +1,67 @@
+{
+  "task": "hard-incident",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "trial": 2,
+  "score": 100,
+  "checks": {
+    "targeted_replacement": {
+      "points": 30,
+      "passed": true
+    },
+    "within_budget": {
+      "points": 10,
+      "passed": true
+    },
+    "checked_failure_log": {
+      "points": 10,
+      "passed": true
+    },
+    "checked_pod_config": {
+      "points": 15,
+      "passed": true
+    },
+    "checked_current_configmap": {
+      "points": 10,
+      "passed": true
+    },
+    "avoided_restart_scale": {
+      "points": 10,
+      "passed": true
+    },
+    "verified": {
+      "points": 10,
+      "passed": true
+    },
+    "reported_config_drift": {
+      "points": 5,
+      "passed": true
+    }
+  },
+  "duration_seconds": 50,
+  "responses": 7,
+  "max_turns": 32,
+  "shell_commands": 6,
+  "shell_budget": 24,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "finished_with_message": true,
+  "usage": {
+    "input_tokens": 9463,
+    "output_tokens": 665,
+    "reasoning_tokens": 245,
+    "cached_input_tokens": 2944
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}

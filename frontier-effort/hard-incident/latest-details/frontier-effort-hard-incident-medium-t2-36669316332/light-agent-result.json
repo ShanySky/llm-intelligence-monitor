@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-hard-incident-medium-t2",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 44,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 24,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 32,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 7477,
+    "output_tokens": 604,
+    "reasoning_tokens": 224,
+    "cached_input_tokens": 2432
+  },
+  "final_text": "The failure was caused by configuration drift on `api-c`: it had `SCHEMA_MODE=legacy` while the current ConfigMap used `SCHEMA_MODE=current`. I replaced only `api-c` from the current configuration and wrote the findings to `REPORT.txt`.\n\nValidation: `./ctl verify` returned `VERIFY PASS 300/300`."
+}

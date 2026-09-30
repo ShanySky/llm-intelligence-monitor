@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-hard-incident-medium-t1",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 34,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 4,
+  "shell_budget": 24,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 32,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 6100,
+    "output_tokens": 440,
+    "reasoning_tokens": 71,
+    "cached_input_tokens": 3456
+  },
+  "final_text": "Root cause: `api-c` had stale `SCHEMA_MODE=legacy` configuration despite running the same image as the other Ready pods. I replaced only `api-c` to pick up the current config generation and documented the evidence and repair in `REPORT.txt`.\n\nValidation: `./ctl verify` passed 300/300, and `./ctl status` reported 0% checkout failures."
+}

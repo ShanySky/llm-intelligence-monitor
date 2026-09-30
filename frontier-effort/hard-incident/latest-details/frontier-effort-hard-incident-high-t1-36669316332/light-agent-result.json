@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-hard-incident-high-t1",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "duration_seconds": 46,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 24,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 32,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 8339,
+    "output_tokens": 602,
+    "reasoning_tokens": 180,
+    "cached_input_tokens": 4224
+  },
+  "final_text": "The rollout left api-c on `SCHEMA_MODE=legacy` while the current configmap uses `SCHEMA_MODE=current`. Its logs showed a coupon checkout schema error, explaining the failures despite all pods being Ready on the same image.\n\nI replaced only api-c from the current config generation and documented the cause and repair in `REPORT.txt`. Validation: `./ctl verify` returned `VERIFY PASS 300/300`."
+}

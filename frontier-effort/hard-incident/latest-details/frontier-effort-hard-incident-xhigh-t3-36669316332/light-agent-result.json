@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-hard-incident-xhigh-t3",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 44,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 24,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 32,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 7974,
+    "output_tokens": 591,
+    "reasoning_tokens": 196,
+    "cached_input_tokens": 4096
+  },
+  "final_text": "The failure was caused by configuration drift: api-c used `SCHEMA_MODE=legacy`, while api-a and the current ConfigMap used `SCHEMA_MODE=current`. I replaced only api-c and documented the evidence and repair in `REPORT.txt`.\n\nValidation: `./ctl verify` returned `VERIFY PASS 300/300`. Eight ctl actions were used; no restart or scale was performed."
+}

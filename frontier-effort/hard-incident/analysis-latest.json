@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-09-30T04:35:43.921Z",
+  "task": "hard-incident",
+  "model": "gpt-6-sol",
+  "trial_count": 3,
+  "by_effort": {
+    "medium": {
+      "effort": "medium",
+      "trials": 3,
+      "expected_trials": 3,
+      "score": 96.66666666666667,
+      "score_stddev": 4.714045207910316,
+      "duration_seconds": 39.333333333333336,
+      "shell_commands": 4.333333333333333,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "total_tokens": 7012,
+      "reasoning_tokens": 122.66666666666667,
+      "saturated": false,
+      "data_complete": true
+    },
+    "high": {
+      "effort": "high",
+      "trials": 3,
+      "expected_trials": 3,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 49.666666666666664,
+      "shell_commands": 5.666666666666667,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "total_tokens": 9644,
+      "reasoning_tokens": 207.33333333333334,
+      "saturated": false,
+      "data_complete": true
+    },
+    "xhigh": {
+      "effort": "xhigh",
+      "trials": 3,
+      "expected_trials": 3,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 40.333333333333336,
+      "shell_commands": 4.666666666666667,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "total_tokens": 8213,
+      "reasoning_tokens": 224,
+      "saturated": false,
+      "data_complete": true
+    }
+  },
+  "effort_spread_points": 3.3333333333333286,
+  "medium_to_xhigh": {
+    "medium_to_xhigh_quality_gain_points": 3.3333333333333286,
+    "improvements_percent": {
+      "duration_seconds": -2.542372881355932,
+      "shell_commands": -7.692307692307707,
+      "probe_calls": null,
+      "total_tokens": -17.12778094694809
+    },
+    "improved_metrics": [],
+    "common_trials": 3,
+    "positive_quality_trial_rate": 0.3333333333333333,
+    "efficiency_signal_trial_rate": 0,
+    "classification": "quality-ceiling-no-m-to-xh-signal",
+    "repeated_confirmation_required": true,
+    "paired_trials": [
+      {
+        "trial": 1,
+        "medium_score": 100,
+        "xhigh_score": 100,
+        "quality_gain": 0,
+        "efficiency_improved_metrics": [],
+        "efficiency_signal": false
+      },
+      {
+        "trial": 2,
+        "medium_score": 90,
+        "xhigh_score": 100,
+        "quality_gain": 10,
+        "efficiency_improved_metrics": [
+          "duration_seconds",
+          "shell_commands"
+        ],
+        "efficiency_signal": false
+      },
+      {
+        "trial": 3,
+        "medium_score": 100,
+        "xhigh_score": 100,
+        "quality_gain": 0,
+        "efficiency_improved_metrics": [],
+        "efficiency_signal": false
+      }
+    ]
+  },
+  "effort_sensitivity": null,
+  "nonmonotonic": null
+}
