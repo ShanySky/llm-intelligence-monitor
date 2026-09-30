@@ -1944,6 +1944,85 @@ elif task == "frontier-runtime-diagnosis-v2":
     add("collected_pod_specific_config_evidence",5,config_evidence)
     add("isolated_retry_failure_on_healthy_pod",10,retry_evidence)
 
+elif task == "frontier-dynamic-diagnosis":
+    validator=Path(__file__).resolve().parent/"validators"/"frontier-dynamic-diagnosis.py"
+    result={}
+    try:
+        vr=subprocess.run(
+            ["python",str(validator),str(root),"--json"],
+            capture_output=True,text=True,timeout=30
+        )
+        result=json.loads(vr.stdout)
+    except Exception:
+        result={}
+
+    diagnosis={}
+    try:
+        diagnosis=json.loads((root/"DIAGNOSIS.json").read_text())
+    except Exception:
+        diagnosis={}
+    roots=set(x for x in diagnosis.get("root_causes",[]) if isinstance(x,str))
+    actions=set(x for x in diagnosis.get("actions",[]) if isinstance(x,str))
+    variant=int(result.get("variant",1))
+
+    expected={
+        1:{
+            "roots":["api_config_drift","retry_idempotency_scope"],
+            "actions":["replace_drifted_api","fix_business_idempotency"],
+        },
+        2:{
+            "roots":["capacity_shortage","stale_consumer_contract"],
+            "actions":["scale_checkout_api","replace_incompatible_consumer"],
+        },
+        3:{
+            "roots":["cache_invalidator_gap","replica_read_lag"],
+            "actions":["repair_dual_invalidation","route_strict_reads_primary"],
+        },
+    }[variant]
+
+    runner={}
+    try:
+        runner=json.loads((root/"light-agent-result.json").read_text())
+    except Exception:
+        runner={}
+    queries=[str(x).strip().lower() for x in runner.get("probe_executed_queries",runner.get("probe_queries",[]))]
+
+    evidence={
+        1:[
+            ("http_config_causality",
+             "slice http-errors by pod" in queries and
+             ("component api-b" in queries or "experiment retry api-b" in queries)),
+            ("provider_retry_causality",
+             "slice duplicate-effects by boundary" in queries and
+             "experiment retry api-a" in queries),
+        ],
+        2:[
+            ("capacity_causality",
+             "slice http-errors by pod" in queries and "capacity" in queries),
+            ("consumer_replay_causality",
+             "slice duplicate-effects by boundary" in queries and
+             ("component consumer-2" in queries or "queue" in queries)),
+        ],
+        3:[
+            ("cache_alias_causality",
+             "slice stale-reads by path" in queries and
+             ("component invalidator-b" in queries or "cache" in queries)),
+            ("replica_lag_causality",
+             "experiment strict-read primary" in queries and
+             "experiment strict-read replica" in queries),
+        ],
+    }[variant]
+
+    add("valid_diagnosis_json",5,bool(result.get("syntax")))
+    add("known_unique_ids",5,bool(result.get("known_unique")))
+    add("root_cause_a",15,expected["roots"][0] in roots)
+    add("root_cause_b",15,expected["roots"][1] in roots)
+    add("repair_action_a",15,expected["actions"][0] in actions)
+    add("repair_action_b",15,expected["actions"][1] in actions)
+    add("minimal_no_false_positive_repairs",10,bool(result.get("minimal")))
+    add("causal_evidence_a",10,bool(evidence[0][1]))
+    add("causal_evidence_b",10,bool(evidence[1][1]))
+
 else:
     raise SystemExit(f"unknown task {task}")
 
