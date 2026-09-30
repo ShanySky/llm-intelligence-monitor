@@ -1,8 +1,9 @@
 {
-  "task": "frontier-deep-fix",
+  "task": "frontier-runtime-diagnosis",
   "model": "gpt-6-luna",
   "effort": "high",
-  "max_turns": 32,
-  "shell_budget": 32,
-  "validation_budget": 4
+  "max_turns": 24,
+  "shell_budget": 12,
+  "probe_budget": 7,
+  "validation_budget": 2
 }
