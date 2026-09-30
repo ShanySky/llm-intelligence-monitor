@@ -22,7 +22,8 @@
       "hard": 1,
       "extreme": 2,
       "ultra": 2
-    }
+    },
+    "anchorCoreCount": 4
   },
   "deepTest": {
     "enabled": false,
