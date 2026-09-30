@@ -46,3 +46,4 @@ External Terminal-Bench Sol calibration rerun after model wiring fix.
 Staged incident recovery Luna screen.
 Frontier outbox recovery Luna screen.
 Staged incident time-first Luna rescreen.
+Frontier incident cascade Sol Medium High X High calibration.
