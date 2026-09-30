@@ -10,7 +10,7 @@ current evidence until the built-in verification passes.
 Constraints:
 - Use `./ctl help` to discover the available operations.
 - Do not edit `.state`, `.actions`, or `ctl` directly.
-- You have at most 16 recorded `./ctl` actions (help is free).
+- You have at most 30 recorded `./ctl` actions (help is free).
 - Avoid broad restart, scaling, or destructive queue actions unless evidence
   proves they are necessary.
 - Finish with a successful `./ctl verify`.
