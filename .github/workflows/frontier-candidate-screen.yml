@@ -17,8 +17,8 @@ jobs:
     env:
       BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
-      AGENT_MAX_TURNS: "12"
-      AGENT_SHELL_BUDGET: "12"
+      AGENT_MAX_TURNS: ${{ steps.target.outputs.max_turns }}
+      AGENT_SHELL_BUDGET: ${{ steps.target.outputs.shell_budget }}
 
     steps:
       - uses: actions/checkout@v4
@@ -37,9 +37,13 @@ jobs:
           task="$(node -e "const x=require('./benchmarks/frontier-screen-target.json');process.stdout.write(x.task)")"
           model="$(node -e "const x=require('./benchmarks/frontier-screen-target.json');process.stdout.write(x.model)")"
           effort="$(node -e "const x=require('./benchmarks/frontier-screen-target.json');process.stdout.write(x.effort)")"
+          max_turns="$(node -e "const x=require('./benchmarks/frontier-screen-target.json');process.stdout.write(String(x.max_turns ?? 12))")"
+          shell_budget="$(node -e "const x=require('./benchmarks/frontier-screen-target.json');process.stdout.write(String(x.shell_budget ?? 12))")"
           echo "task=$task" >> "$GITHUB_OUTPUT"
           echo "model=$model" >> "$GITHUB_OUTPUT"
           echo "effort=$effort" >> "$GITHUB_OUTPUT"
+          echo "max_turns=$max_turns" >> "$GITHUB_OUTPUT"
+          echo "shell_budget=$shell_budget" >> "$GITHUB_OUTPUT"
 
       - name: Prepare
         shell: bash
