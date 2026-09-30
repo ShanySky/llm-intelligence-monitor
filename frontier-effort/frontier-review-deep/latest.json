@@ -1,58 +1,225 @@
 {
-  "generated_at": "2026-09-30T01:49:20.849Z",
+  "generated_at": "2026-09-30T01:59:41.396Z",
   "rows": [
     {
       "task": "frontier-review-deep",
       "model": "gpt-6-sol",
       "effort": "high",
-      "score": 85,
+      "trial": 1,
+      "score": 80,
       "checks": {
-        "optimistic_write_result_must_gate_followup": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
           "points": 15,
           "passed": true
         },
-        "cache_invalidation_transaction_boundary": {
+        "finding_PriceService.java_transaction_visibility": {
           "points": 15,
           "passed": true
         },
-        "audit_payload_must_snapshot_accepted_version": {
+        "finding_AuditWorker.java_payload_snapshot": {
           "points": 10,
           "passed": true
         },
-        "audit_delivery_needs_stable_business_key": {
+        "finding_AuditWorker.java_retry_idempotency": {
           "points": 10,
           "passed": true
         },
-        "fulfillment_identity_is_order_version_not_event_id": {
+        "finding_WebhookService.java_business_identity_scope": {
           "points": 20,
           "passed": true
         },
-        "external_side_effect_crash_recovery": {
-          "points": 15,
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
           "passed": false
         },
-        "canonical_pair_lock_order": {
+        "finding_ReservationMover.java_lock_order": {
           "points": 10,
           "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -10,
+          "passed": false,
+          "reported": [
+            {
+              "file": "PriceService.java",
+              "failure_class": "external_effect_recovery"
+            },
+            {
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
+            }
+          ]
         },
         "requests_changes": {
           "points": 5,
           "passed": true
         }
       },
-      "duration_seconds": 113,
-      "responses": 6,
+      "duration_seconds": 110,
+      "responses": 4,
       "max_turns": 40,
-      "shell_commands": 5,
+      "shell_commands": 3,
       "shell_budget": 40,
       "turn_limit_reached": false,
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 20686,
-        "output_tokens": 2846,
-        "reasoning_tokens": 1652,
-        "cached_input_tokens": 7424
+        "input_tokens": 11661,
+        "output_tokens": 3550,
+        "reasoning_tokens": 2237,
+        "cached_input_tokens": 2944
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-deep",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "trial": 2,
+      "score": 95,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -5,
+          "passed": false,
+          "reported": [
+            {
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 102,
+      "responses": 4,
+      "max_turns": 40,
+      "shell_commands": 3,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 11097,
+        "output_tokens": 2982,
+        "reasoning_tokens": 1687,
+        "cached_input_tokens": 2944
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-deep",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "trial": 3,
+      "score": 95,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -5,
+          "passed": false,
+          "reported": [
+            {
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 121,
+      "responses": 4,
+      "max_turns": 40,
+      "shell_commands": 3,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 12037,
+        "output_tokens": 4025,
+        "reasoning_tokens": 2630,
+        "cached_input_tokens": 1280
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -64,54 +231,225 @@
       "task": "frontier-review-deep",
       "model": "gpt-6-sol",
       "effort": "medium",
-      "score": 100,
+      "trial": 1,
+      "score": 80,
       "checks": {
-        "optimistic_write_result_must_gate_followup": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
           "points": 15,
           "passed": true
         },
-        "cache_invalidation_transaction_boundary": {
+        "finding_PriceService.java_transaction_visibility": {
           "points": 15,
           "passed": true
         },
-        "audit_payload_must_snapshot_accepted_version": {
+        "finding_AuditWorker.java_payload_snapshot": {
           "points": 10,
           "passed": true
         },
-        "audit_delivery_needs_stable_business_key": {
+        "finding_AuditWorker.java_retry_idempotency": {
           "points": 10,
           "passed": true
         },
-        "fulfillment_identity_is_order_version_not_event_id": {
+        "finding_WebhookService.java_business_identity_scope": {
           "points": 20,
           "passed": true
         },
-        "external_side_effect_crash_recovery": {
-          "points": 15,
-          "passed": true
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": false
         },
-        "canonical_pair_lock_order": {
+        "finding_ReservationMover.java_lock_order": {
           "points": 10,
           "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -10,
+          "passed": false,
+          "reported": [
+            {
+              "file": "PriceService.java",
+              "failure_class": "external_effect_recovery"
+            },
+            {
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
+            }
+          ]
         },
         "requests_changes": {
           "points": 5,
           "passed": true
         }
       },
-      "duration_seconds": 65,
-      "responses": 5,
+      "duration_seconds": 86,
+      "responses": 4,
       "max_turns": 40,
-      "shell_commands": 4,
+      "shell_commands": 3,
       "shell_budget": 40,
       "turn_limit_reached": false,
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 14203,
-        "output_tokens": 1518,
-        "reasoning_tokens": 523,
-        "cached_input_tokens": 4480
+        "input_tokens": 10616,
+        "output_tokens": 2573,
+        "reasoning_tokens": 1356,
+        "cached_input_tokens": 2944
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-deep",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "trial": 2,
+      "score": 95,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -5,
+          "passed": false,
+          "reported": [
+            {
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 100,
+      "responses": 4,
+      "max_turns": 40,
+      "shell_commands": 3,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 10886,
+        "output_tokens": 2777,
+        "reasoning_tokens": 1558,
+        "cached_input_tokens": 1280
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-deep",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "trial": 3,
+      "score": 80,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": false
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -10,
+          "passed": false,
+          "reported": [
+            {
+              "file": "PriceService.java",
+              "failure_class": "external_effect_recovery"
+            },
+            {
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 82,
+      "responses": 4,
+      "max_turns": 40,
+      "shell_commands": 3,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 10379,
+        "output_tokens": 2141,
+        "reasoning_tokens": 882,
+        "cached_input_tokens": 2944
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -123,54 +461,221 @@
       "task": "frontier-review-deep",
       "model": "gpt-6-sol",
       "effort": "xhigh",
-      "score": 100,
+      "trial": 1,
+      "score": 95,
       "checks": {
-        "optimistic_write_result_must_gate_followup": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
           "points": 15,
           "passed": true
         },
-        "cache_invalidation_transaction_boundary": {
+        "finding_PriceService.java_transaction_visibility": {
           "points": 15,
           "passed": true
         },
-        "audit_payload_must_snapshot_accepted_version": {
+        "finding_AuditWorker.java_payload_snapshot": {
           "points": 10,
           "passed": true
         },
-        "audit_delivery_needs_stable_business_key": {
+        "finding_AuditWorker.java_retry_idempotency": {
           "points": 10,
           "passed": true
         },
-        "fulfillment_identity_is_order_version_not_event_id": {
+        "finding_WebhookService.java_business_identity_scope": {
           "points": 20,
           "passed": true
         },
-        "external_side_effect_crash_recovery": {
-          "points": 15,
-          "passed": true
-        },
-        "canonical_pair_lock_order": {
+        "finding_WebhookService.java_external_effect_recovery": {
           "points": 10,
           "passed": true
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -5,
+          "passed": false,
+          "reported": [
+            {
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
+            }
+          ]
         },
         "requests_changes": {
           "points": 5,
           "passed": true
         }
       },
-      "duration_seconds": 138,
-      "responses": 6,
+      "duration_seconds": 184,
+      "responses": 5,
       "max_turns": 40,
-      "shell_commands": 5,
+      "shell_commands": 4,
       "shell_budget": 40,
       "turn_limit_reached": false,
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 24242,
-        "output_tokens": 4037,
-        "reasoning_tokens": 2795,
-        "cached_input_tokens": 8320
+        "input_tokens": 18622,
+        "output_tokens": 5588,
+        "reasoning_tokens": 4032,
+        "cached_input_tokens": 7552
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-deep",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "trial": 2,
+      "score": 95,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -5,
+          "passed": false,
+          "reported": [
+            {
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 132,
+      "responses": 4,
+      "max_turns": 40,
+      "shell_commands": 3,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 12609,
+        "output_tokens": 4650,
+        "reasoning_tokens": 3287,
+        "cached_input_tokens": 2944
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-deep",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "trial": 3,
+      "score": 80,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": false
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -10,
+          "passed": false,
+          "reported": [
+            {
+              "file": "PriceService.java",
+              "failure_class": "external_effect_recovery"
+            },
+            {
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 149,
+      "responses": 4,
+      "max_turns": 40,
+      "shell_commands": 3,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 12988,
+        "output_tokens": 4997,
+        "reasoning_tokens": 3551,
+        "cached_input_tokens": 4224
       },
       "api_retries": 0,
       "infrastructure_error": null,

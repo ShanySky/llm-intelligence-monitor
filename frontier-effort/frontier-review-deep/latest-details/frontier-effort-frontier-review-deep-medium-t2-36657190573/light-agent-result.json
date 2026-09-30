@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-deep-medium-t2",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 100,
+  "responses": 4,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 10886,
+    "output_tokens": 2777,
+    "reasoning_tokens": 1558,
+    "cached_input_tokens": 1280
+  },
+  "final_text": "Wrote `REVIEW.md` with blocking reliability findings and `FINDINGS.json` with the corresponding taxonomy entries.\n\nValidation: ran a Python check of the JSON, failure classes, referenced files, and matching verdict."
+}

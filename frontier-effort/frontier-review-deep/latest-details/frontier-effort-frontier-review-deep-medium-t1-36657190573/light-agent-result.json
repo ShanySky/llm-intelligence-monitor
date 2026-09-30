@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-deep-medium-t1",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 86,
+  "responses": 4,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 10616,
+    "output_tokens": 2573,
+    "reasoning_tokens": 1356,
+    "cached_input_tokens": 2944
+  },
+  "final_text": "Wrote `REVIEW.md` with eight blocking findings and `FINDINGS.json` with matching taxonomy entries. The verdict is **REQUEST_CHANGES**.\n\nValidation: ran a Python check of the JSON, taxonomy values, finding count, and matching verdict."
+}
