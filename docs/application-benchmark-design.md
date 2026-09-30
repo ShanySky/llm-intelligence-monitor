@@ -214,3 +214,10 @@ Effort Core therefore prioritizes **real repository replay**:
 
 The replay family intentionally uses small real changes so individual tasks normally
 fit the 3–5 minute target and remain below the 10 minute hard limit.
+
+
+### Real-repo replay 主集与后备集
+
+Real-repo replay 的正式 Effort Core 校准使用经过 reference self-check 的 **required cases**。每个 required case 的历史目标提交必须在隐藏行为 verifier 上自检为 100 分，否则整轮正式校准停止。
+
+Backup replay cases 仅用于主集区分力不足时扩展样本。它们可以提前保存在仓库中并记录自检状态，但 **backup 自检失败不得阻断 required cases 的正式运行**；只有 backup 自身通过 reference self-check 后，才允许加入 Effort Core 证据。
