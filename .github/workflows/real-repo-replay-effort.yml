@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths:
+      - ".github/triggers/replay-effort.txt"
 
 permissions:
   contents: write
@@ -90,6 +92,9 @@ jobs:
             git commit -m "Record real-repo replay reference self-check"
             git push origin HEAD:real-repo-replay-results
           fi
+          # Publishing switched the working tree to the results branch. Restore
+          # the triggering main commit before loading benchmark config/matrix.
+          git switch --detach "$GITHUB_SHA"
 
       - name: Enforce reference self-check
         if: steps.selfcheck.outputs.status != '0'

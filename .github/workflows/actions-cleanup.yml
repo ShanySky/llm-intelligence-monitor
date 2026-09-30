@@ -1,0 +1,77 @@
+name: Cleanup workflow run noise
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_skipped:
+        description: Maximum skipped runs to delete in this pass
+        required: false
+        default: "1500"
+      max_cancelled:
+        description: Maximum cancelled runs to delete in this pass
+        required: false
+        default: "500"
+  push:
+    branches: [main]
+    paths:
+      - ".github/triggers/actions-cleanup.txt"
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: workflow-run-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      MAX_SKIPPED: ${{ github.event.inputs.max_skipped || '1500' }}
+      MAX_CANCELLED: ${{ github.event.inputs.max_cancelled || '500' }}
+    steps:
+      - name: Delete skipped and cancelled workflow runs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          delete_status() {
+            status="$1"
+            limit="$2"
+            deleted=0
+
+            while [ "$deleted" -lt "$limit" ]; do
+              remaining=$((limit-deleted))
+              batch=100
+              if [ "$remaining" -lt "$batch" ]; then batch="$remaining"; fi
+
+              mapfile -t ids < <(
+                gh api "/repos/$GITHUB_REPOSITORY/actions/runs?status=$status&per_page=100"                   --jq '.workflow_runs[].id' | head -n "$batch"
+              )
+
+              if [ "${#ids[@]}" -eq 0 ]; then
+                break
+              fi
+
+              printf '%s\n' "${ids[@]}" |                 xargs -r -n1 -P4 -I{} sh -c                   'gh api --method DELETE "/repos/'"$GITHUB_REPOSITORY"'/actions/runs/{}" >/dev/null'
+
+              deleted=$((deleted+${#ids[@]}))
+              echo "$status deleted: $deleted / $limit"
+              sleep 1
+            done
+
+            echo "$status=$deleted" >> "$GITHUB_OUTPUT"
+          }
+
+          delete_status skipped "$MAX_SKIPPED"
+          delete_status cancelled "$MAX_CANCELLED"
+
+      - name: Summarize cleanup
+        if: always()
+        shell: bash
+        run: |
+          echo "Cleanup intentionally preserves successful and failed runs." >> "$GITHUB_STEP_SUMMARY"
+          echo "Run again if skipped history still remains." >> "$GITHUB_STEP_SUMMARY"

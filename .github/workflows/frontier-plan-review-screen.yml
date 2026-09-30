@@ -2,10 +2,6 @@ name: Frontier plan-review Luna screen
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-
 permissions:
   contents: read
 

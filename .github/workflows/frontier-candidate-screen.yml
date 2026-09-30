@@ -2,10 +2,6 @@ name: Generic frontier candidate screen
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-
 permissions:
   contents: write
 

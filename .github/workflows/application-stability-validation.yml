@@ -2,10 +2,6 @@ name: Application discriminator stability validation
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-
 permissions:
   contents: read
 

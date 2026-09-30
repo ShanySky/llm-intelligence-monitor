@@ -2,10 +2,6 @@ name: Light agent benchmark smoke
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-
 permissions:
   contents: read
 
