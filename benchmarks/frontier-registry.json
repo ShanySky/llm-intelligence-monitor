@@ -396,6 +396,22 @@
         "validation_calls": 2
       },
       "note": "Local-contract-only variant still saturated on Luna High; do not continue this family into Sol effort calibration."
+    },
+    {
+      "id": "frontier-causal-diagnosis",
+      "family": "agent_counterfactual_causal_investigation",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high_scores": [
+          100,
+          100,
+          100
+        ],
+        "mean": 100,
+        "trials": 3
+      },
+      "note": "Even explicit counterfactual/intervention evidence saturated on Luna High; retain only as Agent causal-investigation coverage."
     }
   ]
 }
