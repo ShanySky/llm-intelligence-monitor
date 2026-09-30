@@ -1600,6 +1600,165 @@ elif task == "frontier-key-rotation":
     add("same_kid_replacement_observes_registry_revision",15,"REPLACE_PASS" in hidden_out)
     add("active_signing_path_regression",10,"ACTIVE_PASS" in hidden_out)
 
+
+elif task == "staged-identity-evolution":
+    hidden = r'''import java.util.*;
+import java.util.concurrent.*;
+
+public final class StagedIdentityEvolutionHiddenTest {
+  public static void main(String[] args) {
+    run("LEGACY_STABLE", StagedIdentityEvolutionHiddenTest::legacyStable);
+    run("CONCURRENT", StagedIdentityEvolutionHiddenTest::concurrentAssignment);
+    run("NO_ROTATE", StagedIdentityEvolutionHiddenTest::assignedKeyDoesNotRotate);
+    run("V1_PRESERVE", StagedIdentityEvolutionHiddenTest::v1PreservesKey);
+    run("REST", StagedIdentityEvolutionHiddenTest::restContract);
+    run("JWT", StagedIdentityEvolutionHiddenTest::jwtContract);
+    run("KAFKA", StagedIdentityEvolutionHiddenTest::kafkaContract);
+    run("CACHE_FALLBACK", StagedIdentityEvolutionHiddenTest::cacheFallback);
+    run("CACHE_PREFER", StagedIdentityEvolutionHiddenTest::cachePreference);
+    run("CACHE_INVALIDATE", StagedIdentityEvolutionHiddenTest::cacheInvalidation);
+  }
+
+  interface Case { void run() throws Exception; }
+
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name + "_PASS"); }
+    catch(Throwable t) { System.out.println(name + "_FAIL:" + t); }
+  }
+
+  static void legacyStable() {
+    CustomerStore s=new CustomerStore();
+    V1CustomerService v1=new V1CustomerService(s);
+    IdentityService ids=new IdentityService(s);
+    Customer c=v1.write(41L,"Legacy");
+    String a=ids.customerKey(41L), b=ids.customerKey(41L);
+    check(a!=null && !a.isBlank());
+    check(a.equals(b));
+    check(a.equals(c.customerKey));
+  }
+
+  static void concurrentAssignment() throws Exception {
+    CustomerStore s=new CustomerStore();
+    new V1CustomerService(s).write(42L,"Concurrent");
+    IdentityService ids=new IdentityService(s);
+    int n=10;
+    CountDownLatch ready=new CountDownLatch(n), go=new CountDownLatch(1);
+    Set<String> seen=Collections.synchronizedSet(new HashSet<>());
+    List<Thread> threads=new ArrayList<>();
+    for(int i=0;i<n;i++){
+      Thread t=new Thread(()->{
+        try { ready.countDown(); go.await(); seen.add(ids.customerKey(42L)); }
+        catch(InterruptedException e){ throw new RuntimeException(e); }
+      });
+      threads.add(t); t.start();
+    }
+    ready.await(); go.countDown();
+    for(Thread t:threads)t.join();
+    check(seen.size()==1);
+    check(seen.iterator().next().equals(s.get(42L).customerKey));
+  }
+
+  static void assignedKeyDoesNotRotate() {
+    CustomerStore s=new CustomerStore();
+    IdentityService ids=new IdentityService(s);
+    V2CustomerService v2=new V2CustomerService(s,ids);
+    Customer a=v2.write(7L,"ck-original","A");
+    Customer b=v2.write(7L,"ck-other","B");
+    check("ck-original".equals(a.customerKey));
+    check("ck-original".equals(b.customerKey));
+  }
+
+  static void v1PreservesKey() {
+    CustomerStore s=new CustomerStore();
+    IdentityService ids=new IdentityService(s);
+    V1CustomerService v1=new V1CustomerService(s);
+    V2CustomerService v2=new V2CustomerService(s,ids);
+    Customer c=v2.write(8L,"ck-8","A");
+    v1.write(8L,"B");
+    check("ck-8".equals(c.customerKey));
+    check("B".equals(c.name));
+  }
+
+  static Customer contractCustomer() {
+    Customer c=new Customer(9L,"Contract");
+    c.customerKey="ck-9";
+    return c;
+  }
+
+  static void restContract() {
+    Customer c=contractCustomer();
+    String x=new RestContract().encode(c);
+    check(x.contains("customer_id") && x.contains("9"));
+    check(x.contains("customer_key") && x.contains("ck-9"));
+  }
+
+  static void jwtContract() {
+    Customer c=contractCustomer();
+    String x=new JwtContract().claims(c);
+    check(x.contains("customer_id") && x.contains("9"));
+    check(x.contains("customer_key") && x.contains("ck-9"));
+  }
+
+  static void kafkaContract() {
+    Customer c=contractCustomer();
+    String x=new KafkaContract().event(c);
+    check(x.contains("customer_id") && x.contains("9"));
+    check(x.contains("customer_key") && x.contains("ck-9"));
+  }
+
+  static void cacheFallback() {
+    CustomerCache c=new CustomerCache();
+    c.putLegacy(12L,"old");
+    check("old".equals(c.getCompatible(12L,"ck-12")));
+  }
+
+  static void cachePreference() {
+    CustomerCache c=new CustomerCache();
+    c.putLegacy(12L,"old");
+    c.putV2("ck-12","new");
+    check("new".equals(c.getCompatible(12L,"ck-12")));
+  }
+
+  static void cacheInvalidation() {
+    CustomerCache c=new CustomerCache();
+    c.putLegacy(12L,"old");
+    c.putV2("ck-12","new");
+    c.invalidateLegacy(12L,"ck-12");
+    check(c.getCompatible(12L,"ck-12")==null);
+    check(c.size()==0);
+  }
+
+  static void check(boolean x) {
+    if(!x) throw new AssertionError();
+  }
+}'''
+    (root/"StagedIdentityEvolutionHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run([
+        "javac","-d",str(outdir),
+        *map(str,(root/"src").glob("*.java")),
+        str(root/"StagedIdentityEvolutionHiddenTest.java")
+    ],capture_output=True,text=True)
+    add("compiles",5,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True)
+        visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"StagedIdentityEvolutionHiddenTest"],capture_output=True,text=True)
+        hidden_out=hr.stdout+hr.stderr
+
+    add("visible_regression",5,visible)
+    add("stage1_legacy_key_stable_and_persisted",15,"LEGACY_STABLE_PASS" in hidden_out)
+    add("stage1_concurrent_assignment_single_key",10,"CONCURRENT_PASS" in hidden_out)
+    add("stage1_assigned_key_never_rotates",10,"NO_ROTATE_PASS" in hidden_out)
+    add("stage1_v1_update_preserves_key",5,"V1_PRESERVE_PASS" in hidden_out)
+    add("stage2_rest_additive_contract",8,"REST_PASS" in hidden_out)
+    add("stage2_jwt_additive_contract",7,"JWT_PASS" in hidden_out)
+    add("stage2_kafka_additive_contract",10,"KAFKA_PASS" in hidden_out)
+    add("stage3_cache_legacy_fallback",10,"CACHE_FALLBACK_PASS" in hidden_out)
+    add("stage3_cache_v2_preference",5,"CACHE_PREFER_PASS" in hidden_out)
+    add("stage3_dual_namespace_invalidation",10,"CACHE_INVALIDATE_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
