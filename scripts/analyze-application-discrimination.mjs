@@ -13,6 +13,7 @@ if (fs.existsSync(registryPath)) {
   try { frontierRegistry = JSON.parse(fs.readFileSync(registryPath, 'utf8')); } catch {}
 }
 const registryByTask = new Map((frontierRegistry.tasks ?? []).map((x) => [x.id, x]));
+const residentSolModel = frontierRegistry.resident_model_epoch?.resident_sol_model ?? null;
 const rows = Array.isArray(data.rows) ? data.rows : [];
 const families = data.manifest?.families ?? [];
 if (!rows.length) throw new Error('No result rows found');
