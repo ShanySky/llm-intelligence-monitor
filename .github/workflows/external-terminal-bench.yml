@@ -78,12 +78,33 @@ jobs:
         run: |
           start="$(date +%s)"
           set +e
-          timeout "${{ steps.meta.outputs.timeout }}s" node scripts/light-agent-runner.mjs             "$TASK_DIR"             "gpt-6-luna"             "high"             "$TASK_DIR/light-agent-result.json"
+          timeout "${{ steps.meta.outputs.timeout }}s" node scripts/light-agent-runner.mjs \
+            "$TASK_DIR" \
+            "${{ matrix.model }}" \
+            "${{ matrix.effort }}" \
+            "$TASK_DIR/light-agent-result.json"
           status=$?
           set -e
           end="$(date +%s)"
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
           echo "wall_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+
+      - name: Validate actual model configuration
+        if: always()
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const p=process.env.TASK_DIR + '/light-agent-result.json';
+          if (!fs.existsSync(p)) throw new Error('missing light-agent-result.json');
+          const r=JSON.parse(fs.readFileSync(p,'utf8'));
+          const expectedModel='${{ matrix.model }}';
+          const expectedEffort='${{ matrix.effort }}';
+          if (r.model !== expectedModel || r.effort !== expectedEffort) {
+            throw new Error(`actual config mismatch: got ${r.model}/${r.effort}, expected ${expectedModel}/${expectedEffort}`);
+          }
+          console.log('MODEL_CONFIG_OK',r.model,r.effort);
+          NODE
 
       - name: Run upstream verifier
         id: verify
@@ -112,6 +133,9 @@ jobs:
           from pathlib import Path
           p=Path(os.environ["TASK_DIR"])/"light-agent-result.json"
           runner=json.loads(p.read_text()) if p.exists() else {}
+          expected_model="${{ matrix.model }}"
+          expected_effort="${{ matrix.effort }}"
+          identity_ok=(runner.get("model")==expected_model and runner.get("effort")==expected_effort)
           result={
             "source":"terminal-bench-2.1",
             "source_commit":"${{ steps.meta.outputs.commit }}",
@@ -125,7 +149,10 @@ jobs:
             "usage":runner.get("usage",{}),
             "agent_exit_code":int("${{ steps.agent.outputs.exit_code || '999' }}"),
             "verifier_status":int("${{ steps.verify.outputs.status || '999' }}"),
-            "infrastructure_error":runner.get("infrastructure_error")
+            "infrastructure_error":runner.get("infrastructure_error"),
+            "identity_ok":identity_ok,
+            "actual_model":runner.get("model"),
+            "actual_effort":runner.get("effort")
           }
           Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
           print(json.dumps(result,indent=2))
