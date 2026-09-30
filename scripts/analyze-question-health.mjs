@@ -6,8 +6,13 @@ const currentPath = process.argv[3] ?? 'results/summary.json';
 const metadataPath = process.argv[4] ?? 'tests/question-metadata.json';
 const outJson = process.argv[5] ?? 'results/question-health.json';
 const outMd = process.argv[6] ?? 'results/question-health.md';
+const configPath = process.argv[7] ?? 'monitor-config.json';
 
 const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+const anchorPool = new Set(config?.daily?.anchorPool ?? []);
+const activeAnchorCount = Number(config?.daily?.anchorCount ?? 0);
+const activeAnchors = new Set((config?.daily?.anchorPool ?? []).slice(0, activeAnchorCount));
 const current = JSON.parse(fs.readFileSync(currentPath, 'utf8'));
 const minDays = 3;
 
@@ -116,13 +121,25 @@ for (const pairId of Object.keys(metadata)) {
     languageDisagreementRate,
     classification,
     selectionWeight,
+    inAnchorPool: anchorPool.has(pairId),
+    activeAnchor: activeAnchors.has(pairId),
+    anchorRecommendation:
+      activeAnchors.has(pairId) && classification === 'stable-ceiling'
+        ? 'retire-at-next-anchor-epoch'
+        : 'keep',
   };
 }
+
+const recommendedAnchorRetirements = Object.values(questions)
+  .filter((q) => q.anchorRecommendation === 'retire-at-next-anchor-epoch')
+  .map((q) => q.pairId);
 
 const output = {
   generatedAt: new Date().toISOString(),
   minDaysForClassification: minDays,
   sourceDays: [...new Set([...observations.values()].flat().map((x) => x.day))].sort(),
+  activeAnchors: [...activeAnchors],
+  recommendedAnchorRetirements,
   questions,
 };
 fs.mkdirSync(path.dirname(outJson), { recursive: true });
@@ -138,15 +155,24 @@ const rows = Object.values(questions).sort((a,b) =>
 const lines = [
   '# 快速题目健康度',
   '',
-  '| 题目 | 能力 | 样本天数 | 平均正确率 | 最大模型差 | 中英分歧 | 分类 | 轮换权重 |',
-  '|---|---|---:|---:|---:|---:|---|---:|',
+  '| 题目 | 能力 | 样本天数 | 平均正确率 | 最大模型差 | 中英分歧 | 分类 | 轮换权重 | Anchor |',
+  '|---|---|---:|---:|---:|---:|---|---:|---|',
 ];
 for (const q of rows) {
-  lines.push(`| ${q.pairId} | ${q.ability} | ${q.sampledDays} | ${pct(q.averagePassRate)} | ${pct(q.maxDailyModelSpread)} | ${pct(q.languageDisagreementRate)} | ${q.classification} | ${f1(q.selectionWeight)} |`);
+  const anchor = q.activeAnchor
+    ? (q.anchorRecommendation === 'retire-at-next-anchor-epoch' ? '退役候选' : '固定')
+    : '-';
+  lines.push(`| ${q.pairId} | ${q.ability} | ${q.sampledDays} | ${pct(q.averagePassRate)} | ${pct(q.maxDailyModelSpread)} | ${pct(q.languageDisagreementRate)} | ${q.classification} | ${f1(q.selectionWeight)} | ${anchor} |`);
 }
 lines.push(
   '',
-  '> 只有至少 3 个正式日测样本日后才自动分类。stable-ceiling 会在轮换抽题中降权，但不会影响固定锚点，避免破坏长期基线连续性。',
+  '## 固定锚点退役建议',
+  '',
+  recommendedAnchorRetirements.length
+    ? `建议在下一次 anchor 版本切换时替换：${recommendedAnchorRetirements.join(', ')}`
+    : '当前没有达到退役条件的固定锚点。',
+  '',
+  '> 只有至少 3 个正式日测样本日后才自动分类。stable-ceiling 会立即在轮换抽题中降权；固定锚点不会日常自动变更，而是在明确的 anchor 版本切换时按退役建议替换，以保留历史可比性。',
   ''
 );
 fs.writeFileSync(outMd, lines.join('\n') + '\n');
