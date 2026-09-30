@@ -458,35 +458,29 @@
       "status": "effort-sensitivity-candidate",
       "promoted_to_final": false,
       "evidence": {
-        "luna_high_variant_scores": [
-          70,
-          65,
-          100
-        ],
-        "sol_variant_means": {
-          "medium": 88.3,
-          "high": 85,
-          "xhigh": 93.3
-        },
-        "medium_to_xhigh_gain_points": 5,
-        "paired_positive_rate": 0.333,
+        "semantic_scoring_normalized": true,
         "variants": 3,
-        "budget_saturated": false
+        "fair_recalculated_sol_means": {
+          "medium": 98.3,
+          "high": 95,
+          "xhigh": 98.3
+        },
+        "medium_to_xhigh_gain_points": 0,
+        "formal_effort_signal": "none"
       },
-      "note": "One of three variants showed +15 points Medium→XHigh, but family mean gain is only +5 and paired consistency is 1/3. Keep as research evidence; not Effort Core."
+      "note": "Initial family spread was inflated by semantically equivalent taxonomy labels and a double-counted lease recovery domain. Fair rescoring removes the directional signal."
     },
     {
       "id": "staged-fulfillment-evolution",
-      "family": "compressed_long_horizon_fulfillment_identity",
+      "family": "compressed_long_horizon_hypothesis_revision",
       "status": "coverage-only-ceiling",
       "promoted_to_final": false,
       "evidence": {
         "luna_high": 100,
         "duration_seconds": 108,
-        "stages": 3,
-        "shell_commands": 15
+        "stages": 3
       },
-      "note": "Three progressive stages still saturated on Luna High. Retain only as long-horizon coverage; do not spend Sol effort calibration."
+      "note": "The model selected the correct business identity in Stage 1, so later evidence did not force a hypothesis reversal. Retain as long-horizon coverage only."
     },
     {
       "id": "frontier-compat-review-family",
