@@ -1090,6 +1090,139 @@ public final class FrontierOutboxRecoveryHiddenTest {
     add("different_versions_have_distinct_delivery_identity",10,"VERSIONS_PASS" in hidden_out)
     add("sent_outbox_rows_are_not_republished",5,"REDRAIN_PASS" in hidden_out)
 
+elif task == "frontier-lease-fencing":
+    hidden = r'''public final class FrontierLeaseFencingHiddenTest {
+  public static void main(String[] args) {
+    run("TOKEN", FrontierLeaseFencingHiddenTest::takeoverTokenIncreases);
+    run("RENEW", FrontierLeaseFencingHiddenTest::staleRenewRejected);
+    run("STALE", FrontierLeaseFencingHiddenTest::staleWorkerCannotCommit);
+    run("CRASH_SAME", FrontierLeaseFencingHiddenTest::sameGenerationCrashRetry);
+    run("CRASH_TAKEOVER", FrontierLeaseFencingHiddenTest::takeoverRetryReusesBusinessIdentity);
+    run("CANCEL", FrontierLeaseFencingHiddenTest::cancelDuringEffectStaysAuthoritative);
+  }
+
+  interface Case { void run(); }
+
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name + "_PASS"); }
+    catch (Throwable t) { System.out.println(name + "_FAIL:" + t); }
+  }
+
+  static JobRunner runner(LeaseStore l, ResultStore r, CancellationStore c, BillingAdapter b) {
+    return new JobRunner(l, r, c, b);
+  }
+
+  static void takeoverTokenIncreases() {
+    LeaseStore l = new LeaseStore();
+    Lease a = l.acquire("j", "a", 0, 10);
+    Lease b = l.acquire("j", "b", 20, 10);
+    check(b.token > a.token);
+    check("b".equals(b.owner));
+    check(l.currentToken("j") == b.token);
+  }
+
+  static void staleRenewRejected() {
+    LeaseStore l = new LeaseStore();
+    Lease a = l.acquire("j", "a", 0, 10);
+    Lease b = l.acquire("j", "b", 20, 10);
+    check(!l.renew("j", "a", a.token, 21, 10));
+    check(!l.renew("j", "b", a.token, 21, 10));
+    check(l.renew("j", "b", b.token, 21, 10));
+  }
+
+  static void staleWorkerCannotCommit() {
+    LeaseStore l = new LeaseStore(); ResultStore r = new ResultStore();
+    CancellationStore c = new CancellationStore(); BillingAdapter b = new BillingAdapter();
+    JobRunner x = runner(l,r,c,b);
+    Lease old = x.begin("j", "a", 0, 10);
+    Lease fresh = x.begin("j", "b", 20, 10);
+    x.finish("j", old, "OLD", FailureInjector.none());
+    check(r.get("j") == null);
+    check(b.effectCount() == 0);
+    x.finish("j", fresh, "NEW", FailureInjector.none());
+    check("NEW".equals(r.get("j")));
+    check(r.token("j") == fresh.token);
+    check(b.effectCount() == 1);
+  }
+
+  static void sameGenerationCrashRetry() {
+    LeaseStore l = new LeaseStore(); ResultStore r = new ResultStore();
+    CancellationStore c = new CancellationStore(); BillingAdapter b = new BillingAdapter();
+    JobRunner x = runner(l,r,c,b);
+    Lease lease = x.begin("j", "a", 0, 10);
+    FailureInjector fail = new FailureInjector() {
+      boolean once = true;
+      @Override public void afterExternalEffect(String jobId, long token) {
+        if (once) { once = false; throw new RuntimeException("crash"); }
+      }
+    };
+    try { x.finish("j", lease, "DONE", fail); } catch (RuntimeException expected) {}
+    check(b.effectCount() == 1);
+    x.finish("j", lease, "DONE", FailureInjector.none());
+    check(b.effectCount() == 1);
+    check("DONE".equals(r.get("j")));
+  }
+
+  static void takeoverRetryReusesBusinessIdentity() {
+    LeaseStore l = new LeaseStore(); ResultStore r = new ResultStore();
+    CancellationStore c = new CancellationStore(); BillingAdapter b = new BillingAdapter();
+    JobRunner x = runner(l,r,c,b);
+    Lease first = x.begin("j", "a", 0, 10);
+    try {
+      x.finish("j", first, "DONE", new FailureInjector() {
+        @Override public void afterExternalEffect(String jobId, long token) {
+          throw new RuntimeException("crash");
+        }
+      });
+    } catch (RuntimeException expected) {}
+    check(b.effectCount() == 1);
+    Lease second = x.begin("j", "b", 20, 10);
+    x.finish("j", second, "DONE", FailureInjector.none());
+    check(b.effectCount() == 1);
+    check("DONE".equals(r.get("j")));
+    check(r.token("j") == second.token);
+  }
+
+  static void cancelDuringEffectStaysAuthoritative() {
+    LeaseStore l = new LeaseStore(); ResultStore r = new ResultStore();
+    CancellationStore c = new CancellationStore(); BillingAdapter b = new BillingAdapter();
+    JobRunner x = runner(l,r,c,b);
+    Lease lease = x.begin("j", "a", 0, 10);
+    x.finish("j", lease, "DONE", new FailureInjector() {
+      @Override public void afterExternalEffect(String jobId, long token) {
+        x.cancel(jobId);
+      }
+    });
+    check("CANCELLED".equals(r.get("j")));
+    check(r.token("j") == lease.token);
+  }
+
+  static void check(boolean x) {
+    if (!x) throw new AssertionError();
+  }
+}'''
+    (root/"FrontierLeaseFencingHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run([
+        "javac","-d",str(outdir),
+        *map(str,(root/"src").glob("*.java")),
+        str(root/"FrontierLeaseFencingHiddenTest.java")
+    ],capture_output=True,text=True)
+    add("compiles",5,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True)
+        visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierLeaseFencingHiddenTest"],capture_output=True,text=True)
+        hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",5,visible)
+    add("takeover_uses_monotonic_fencing_token",15,"TOKEN_PASS" in hidden_out)
+    add("stale_or_wrong_generation_renew_is_rejected",10,"RENEW_PASS" in hidden_out)
+    add("stale_worker_cannot_commit_or_emit_effect",20,"STALE_PASS" in hidden_out)
+    add("same_generation_crash_retry_is_idempotent",15,"CRASH_SAME_PASS" in hidden_out)
+    add("takeover_retry_reuses_business_idempotency_identity",15,"CRASH_TAKEOVER_PASS" in hidden_out)
+    add("cancellation_wins_race_with_completion",15,"CANCEL_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
