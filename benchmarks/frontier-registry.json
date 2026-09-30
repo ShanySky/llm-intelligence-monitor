@@ -281,6 +281,19 @@
         "model_spread_points": 5
       },
       "note": "Retained for solution-design coverage, but repeated cross-model spread is below the 10-point discriminator threshold."
+    },
+    {
+      "id": "frontier-runtime-diagnosis-v2",
+      "family": "agent_runtime_investigation_hypothesis_driven",
+      "status": "effort-calibration",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high_score": 90,
+        "duration_seconds": 80,
+        "probe_calls": 17,
+        "missed_check": "isolated_retry_failure_on_healthy_pod"
+      },
+      "note": "Natural-language opaque probes removed the help catalog. Luna found the final causal repair but skipped the key healthy-pod timeout isolation experiment; Sol M/H/XH repeat calibration is running."
     }
   ]
 }
