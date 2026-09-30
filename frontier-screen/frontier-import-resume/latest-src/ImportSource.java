@@ -15,20 +15,27 @@ public final class ImportSource {
     }
 
     public synchronized List<ImportRow> pageByOffset(int offset, int limit) {
-        return pageByOffset(offset, limit, ingestSeq);
+        return orderedRows().stream().skip(offset).limit(limit).toList();
     }
 
-    /** Pages the immutable prefix identified by the job's ingest watermark. */
-    public synchronized List<ImportRow> pageByOffset(int offset, int limit, long snapshot) {
+    synchronized List<ImportRow> pageAfter(long snapshot, long beforeCreatedAt,
+                                            long beforeId, long beforeIngestSeq, int limit) {
+        Comparator<ImportRow> order = order();
         return rows.stream()
             .filter(r -> r.ingestSeq <= snapshot)
-            .sorted(
-                Comparator.comparingLong((ImportRow r) -> r.createdAt).reversed()
-                    .thenComparing(Comparator.comparingLong((ImportRow r) -> r.id).reversed())
-                    .thenComparingLong(r -> r.ingestSeq)
-            )
-            .skip(offset)
+            .filter(r -> order.compare(r, new ImportRow(beforeId, beforeCreatedAt, beforeIngestSeq, "")) > 0)
+            .sorted(order)
             .limit(limit)
             .toList();
+    }
+
+    private List<ImportRow> orderedRows() {
+        return rows.stream().sorted(order()).toList();
+    }
+
+    private static Comparator<ImportRow> order() {
+        return Comparator.comparingLong((ImportRow r) -> r.createdAt).reversed()
+            .thenComparing(Comparator.comparingLong((ImportRow r) -> r.id).reversed())
+            .thenComparing(Comparator.comparingLong((ImportRow r) -> r.ingestSeq).reversed());
     }
 }
