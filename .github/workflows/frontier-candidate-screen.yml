@@ -119,6 +119,9 @@ jobs:
             exit 0
           fi
           cp result/result.json /tmp/frontier-screen-result.json
+          rm -rf /tmp/frontier-screen-final-src
+          if [ -d result/final-src ]; then cp -R result/final-src /tmp/frontier-screen-final-src; fi
+          if [ -f result/light-agent-result.json ]; then cp result/light-agent-result.json /tmp/frontier-screen-agent.json; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin frontier-screen-results || true
@@ -133,6 +136,9 @@ jobs:
           cp /tmp/frontier-screen-result.json latest.json
           cp /tmp/frontier-screen-result.json "frontier-screen/$TASK/latest.json"
           cp /tmp/frontier-screen-result.json "frontier-screen/$TASK/runs/${GITHUB_RUN_ID}.json"
+          rm -rf "frontier-screen/$TASK/latest-src"
+          if [ -d /tmp/frontier-screen-final-src ]; then cp -R /tmp/frontier-screen-final-src "frontier-screen/$TASK/latest-src"; fi
+          if [ -f /tmp/frontier-screen-agent.json ]; then cp /tmp/frontier-screen-agent.json "frontier-screen/$TASK/latest-agent.json"; fi
           git add latest.json frontier-screen
           if ! git diff --cached --quiet; then
             git commit -m "Record frontier screen $TASK ${GITHUB_RUN_ID}"
