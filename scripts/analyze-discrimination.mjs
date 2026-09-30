@@ -14,7 +14,7 @@ const effortOrder = ['medium', 'high', 'xhigh'];
 const effortLabel = { medium: 'Medium', high: 'High', xhigh: 'X High' };
 const minRepeatSamples = 3;
 const strongGain = 0.6;
-const candidateGain = 0.25;
+const candidateGain = 0.10;
 
 function parseEffort(provider) {
   const text = String(provider ?? '');
@@ -51,6 +51,7 @@ function fresh() {
   return {
     total: 0, passed: 0, wrong: 0, timeouts: 0, apiErrors: 0,
     reasoningTokens: 0, totalTokens: 0, latencyMs: 0, validLatencyCount: 0,
+    scoreSum: 0, scoreSqSum: 0, validScoreCount: 0,
   };
 }
 
@@ -60,6 +61,16 @@ function add(s, row) {
   else if (isTimeout(row)) s.timeouts += 1;
   else if (isApiError(row)) s.apiErrors += 1;
   else s.wrong += 1;
+
+  const rawScore = Number.isFinite(Number(row?.score))
+    ? Number(row.score)
+    : (Number.isFinite(Number(row?.gradingResult?.score)) ? Number(row.gradingResult.score) : null);
+  if (rawScore != null && !isApiError(row) && !isTimeout(row)) {
+    const score = Math.max(0, Math.min(1, rawScore));
+    s.scoreSum += score;
+    s.scoreSqSum += score * score;
+    s.validScoreCount += 1;
+  }
 
   const u = row?.tokenUsage ?? row?.response?.tokenUsage ?? {};
   s.reasoningTokens += num(u?.completionDetails?.reasoning);
@@ -72,6 +83,10 @@ function add(s, row) {
 }
 
 function finish(s) {
+  const averageScore = s.validScoreCount ? s.scoreSum / s.validScoreCount : null;
+  const scoreVariance = s.validScoreCount
+    ? Math.max(0, s.scoreSqSum / s.validScoreCount - averageScore * averageScore)
+    : null;
   return {
     total: s.total,
     passed: s.passed,
@@ -79,6 +94,9 @@ function finish(s) {
     timeouts: s.timeouts,
     apiErrors: s.apiErrors,
     passRate: s.total ? s.passed / s.total : null,
+    averageScore,
+    scoreStddev: scoreVariance == null ? null : Math.sqrt(scoreVariance),
+    scoreSamples: s.validScoreCount,
     averageReasoningTokens: s.total ? s.reasoningTokens / s.total : null,
     averageTotalTokens: s.total ? s.totalTokens / s.total : null,
     averageLatencyMs: s.validLatencyCount ? s.latencyMs / s.validLatencyCount : null,
@@ -114,11 +132,16 @@ const results = [...pairs.values()].map((p) => {
     availableEfforts.map((e) => [e, finish(p.efforts[e])])
   );
 
-  const medium = efforts.medium?.passRate ?? null;
-  const high = efforts.high?.passRate ?? null;
-  const xhigh = efforts.xhigh?.passRate ?? null;
+  const metricFor = (effort) => {
+    const x = efforts[effort];
+    if (!x) return null;
+    return x.averageScore ?? x.passRate ?? null;
+  };
+  const medium = metricFor('medium');
+  const high = metricFor('high');
+  const xhigh = metricFor('xhigh');
   const rates = availableEfforts
-    .map((e) => efforts[e]?.passRate)
+    .map(metricFor)
     .filter((v) => v != null);
 
   let classification = 'needs-more-data';
@@ -173,9 +196,12 @@ const results = [...pairs.values()].map((p) => {
     ability: p.ability,
     difficulty: p.difficulty,
     efforts,
-    mediumPassRate: medium,
-    highPassRate: high,
-    xhighPassRate: xhigh,
+    mediumPassRate: efforts.medium?.passRate ?? null,
+    highPassRate: efforts.high?.passRate ?? null,
+    xhighPassRate: efforts.xhigh?.passRate ?? null,
+    mediumScore: medium,
+    highScore: high,
+    xhighScore: xhigh,
     effortGain,
     span,
     repeatedEnough,
@@ -224,18 +250,18 @@ const latency = (v) => v == null ? '-' : `${(v / 1000).toFixed(1)}s`;
 const lines = [
   '# GPT-6 Sol 思考档位低成本校准',
   '',
-  `> 这是探索性筛选，不是最终定级。正式 effort 候选至少需要 ${minRepeatSamples} 个重复样本；单次分差只记为 one-shot candidate。Medium / High / X High 同时存在时会额外检查方向形状。`,
+  `> 这是探索性筛选，不是最终定级。优先使用 Promptfoo 客观 assertion score（0–1），没有部分分数时才退回 pass/fail。正式 effort 候选至少需要 ${minRepeatSamples} 个重复样本且 Medium→X High 平均客观分提升至少 10pp；单次分差只记为 one-shot candidate。`,
   '',
   '## 总体',
   '',
-  '| 档位 | 正确率 | 平均 Reasoning Token | 平均总 Token | 平均响应时间 |',
-  '|---|---:|---:|---:|---:|',
+  '| 档位 | 正确率 | 平均客观分 | 平均 Reasoning Token | 平均总 Token | 平均响应时间 |',
+  '|---|---:|---:|---:|---:|---:|',
 ];
 
 for (const effort of availableEfforts) {
   const s = output.overall[effort];
   lines.push(
-    `| ${effortLabel[effort]} | ${s.passed}/${s.total}（${pct(s.passRate)}） | ${fmt(s.averageReasoningTokens, 1)} | ${fmt(s.averageTotalTokens, 1)} | ${latency(s.averageLatencyMs)} |`
+    `| ${effortLabel[effort]} | ${s.passed}/${s.total}（${pct(s.passRate)}） | ${pct(s.averageScore)} | ${fmt(s.averageReasoningTokens, 1)} | ${fmt(s.averageTotalTokens, 1)} | ${latency(s.averageLatencyMs)} |`
   );
 }
 
@@ -243,13 +269,13 @@ lines.push(
   '',
   '## 逐题',
   '',
-  '| 题目 | 能力 | 难度 | Medium | High | X High | XH-M | 重复充分 | 形状 | 分类 | 下一步 |',
-  '|---|---|---|---:|---:|---:|---:|:---:|---|---|---|',
+  '| 题目 | 能力 | 难度 | Medium 分 | High 分 | X High 分 | XH-M | M/H/XH 通过率 | 重复充分 | 形状 | 分类 | 下一步 |',
+  '|---|---|---|---:|---:|---:|---:|---|:---:|---|---|---|',
 );
 
 for (const r of results) {
   lines.push(
-    `| ${r.pairId} | ${r.ability} | ${r.difficulty} | ${pct(r.mediumPassRate)} | ${pct(r.highPassRate)} | ${pct(r.xhighPassRate)} | ${r.effortGain == null ? '-' : (r.effortGain * 100).toFixed(0) + 'pp'} | ${r.repeatedEnough ? '是' : '否'} | ${r.monotonic ?? '-'} | ${r.classification} | ${r.recommendation} |`
+    `| ${r.pairId} | ${r.ability} | ${r.difficulty} | ${pct(r.mediumScore)} | ${pct(r.highScore)} | ${pct(r.xhighScore)} | ${r.effortGain == null ? '-' : (r.effortGain * 100).toFixed(0) + 'pp'} | ${pct(r.mediumPassRate)}/${pct(r.highPassRate)}/${pct(r.xhighPassRate)} | ${r.repeatedEnough ? '是' : '否'} | ${r.monotonic ?? '-'} | ${r.classification} | ${r.recommendation} |`
   );
 }
 
