@@ -2266,6 +2266,66 @@ elif task == "frontier-deep-fix-v3":
     add("post_side_effect_crash_retry_converges",20,bool(cases.get("CRASH_RETRY")))
     add("canonical_pair_lock_order",10,bool(cases.get("LOCK_ORDER")))
 
+
+elif task == "frontier-runtime-diagnosis-capacity":
+    validator=Path(__file__).resolve().parent/"validators"/"frontier-runtime-diagnosis-capacity.py"
+    result={}
+    try:
+        vr=subprocess.run(
+            ["python",str(validator),str(root),"--json"],
+            capture_output=True,text=True,timeout=30
+        )
+        result=json.loads(vr.stdout)
+    except Exception:
+        result={}
+    runner={}
+    try:
+        runner=json.loads((root/"light-agent-result.json").read_text())
+    except Exception:
+        runner={}
+    queries=[str(x).strip().lower() for x in runner.get("probe_executed_queries", runner.get("probe_queries",[]))]
+    evidence_a=any(any(k in q for k in ("capacity","cpu","load","burst","replica")) for q in queries)
+    evidence_b=any((("consumer" in q or "fulfillment" in q) and any(k in q for k in ("retry","replay","duplicate","dedup","experiment"))) for q in queries)
+
+    add("valid_repair_json",5,bool(result.get("syntax")))
+    add("identified_capacity_shortage",15,bool(result.get("root_a")))
+    add("identified_stale_consumer_retry_semantics",20,bool(result.get("root_b")))
+    add("evidence_backed_api_scale",15,bool(result.get("action_a")))
+    add("upgrade_incompatible_consumers",20,bool(result.get("action_b")))
+    add("minimal_no_unrelated_repairs",10,bool(result.get("minimal")))
+    add("collected_capacity_causal_evidence",5,evidence_a)
+    add("ran_consumer_retry_isolation",10,evidence_b)
+
+
+elif task == "frontier-runtime-diagnosis-cache-db":
+    validator=Path(__file__).resolve().parent/"validators"/"frontier-runtime-diagnosis-cache-db.py"
+    result={}
+    try:
+        vr=subprocess.run(
+            ["python",str(validator),str(root),"--json"],
+            capture_output=True,text=True,timeout=30
+        )
+        result=json.loads(vr.stdout)
+    except Exception:
+        result={}
+    runner={}
+    try:
+        runner=json.loads((root/"light-agent-result.json").read_text())
+    except Exception:
+        runner={}
+    queries=[str(x).strip().lower() for x in runner.get("probe_executed_queries", runner.get("probe_queries",[]))]
+    evidence_a=any(any(k in q for k in ("cache","stale","invalidation","invalidator","read-after-write")) for q in queries)
+    evidence_b=any(any(k in q for k in ("database","db","pool","connection","waiter","timeout")) for q in queries)
+
+    add("valid_repair_json",5,bool(result.get("syntax")))
+    add("identified_cache_invalidator_mismatch",15,bool(result.get("root_a")))
+    add("identified_database_pool_exhaustion",20,bool(result.get("root_b")))
+    add("repair_cache_invalidator_compatibility",15,bool(result.get("action_a")))
+    add("increase_database_pool_capacity",20,bool(result.get("action_b")))
+    add("minimal_no_unrelated_repairs",10,bool(result.get("minimal")))
+    add("collected_cache_causal_evidence",5,evidence_a)
+    add("collected_database_pool_causal_evidence",10,evidence_b)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
