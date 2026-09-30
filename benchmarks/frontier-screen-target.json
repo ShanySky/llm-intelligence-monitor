@@ -1,8 +1,8 @@
 {
-  "task": "frontier-plan-runtime",
+  "task": "frontier-deep-fix",
   "model": "gpt-6-luna",
   "effort": "high",
-  "max_turns": 24,
-  "shell_budget": 24,
-  "validation_budget": 3
+  "max_turns": 32,
+  "shell_budget": 32,
+  "validation_budget": 4
 }
