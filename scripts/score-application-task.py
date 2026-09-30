@@ -2492,6 +2492,96 @@ elif task == "frontier-review-family":
     verdict=str(data.get("verdict","")).strip().upper() if valid else ""
     add("requests_changes",5,verdict=="REQUEST_CHANGES")
 
+
+elif task == "staged-fulfillment-evolution":
+    hidden = r'''import java.util.concurrent.atomic.AtomicBoolean;
+
+public final class StagedFulfillmentEvolutionHiddenTest {
+  public static void main(String[] args) {
+    run("RETRY", StagedFulfillmentEvolutionHiddenTest::crashRetry);
+    run("MULTI", StagedFulfillmentEvolutionHiddenTest::multiItem);
+    run("REDELIVERY", StagedFulfillmentEvolutionHiddenTest::redelivery);
+    run("VERSIONS", StagedFulfillmentEvolutionHiddenTest::versions);
+  }
+
+  interface Case { void run() throws Exception; }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+
+  static void crashRetry() {
+    FulfillmentRepository repo=new FulfillmentRepository();
+    InventoryClient inventory=new InventoryClient();
+    FulfillmentService service=new FulfillmentService(repo,inventory);
+    AtomicBoolean once=new AtomicBoolean(true);
+    FailureInjector fail=new FailureInjector(){
+      @Override public void afterReserve(String orderId){
+        if(once.getAndSet(false)) throw new RuntimeException("crash-after-reserve");
+      }
+    };
+    try { service.paid("evt-r","order-r",3,"line-a",fail); }
+    catch(RuntimeException expected) {}
+    Fulfillment f=service.paid("evt-r","order-r",3,"line-a",FailureInjector.none());
+    check(f.completed);
+    check(inventory.effectCount()==1);
+    check(repo.size()==1);
+  }
+
+  static void multiItem() {
+    FulfillmentRepository repo=new FulfillmentRepository();
+    InventoryClient inventory=new InventoryClient();
+    FulfillmentService service=new FulfillmentService(repo,inventory);
+    service.paid("evt-a","order-m",4,"line-a",FailureInjector.none());
+    service.paid("evt-b","order-m",4,"line-b",FailureInjector.none());
+    check(inventory.effectCount()==2);
+    check(repo.size()==2);
+  }
+
+  static void redelivery() {
+    FulfillmentRepository repo=new FulfillmentRepository();
+    InventoryClient inventory=new InventoryClient();
+    FulfillmentService service=new FulfillmentService(repo,inventory);
+    service.paid("evt-1","order-d",7,"line-a",FailureInjector.none());
+    service.paid("evt-2","order-d",7,"line-a",FailureInjector.none());
+    check(inventory.effectCount()==1);
+    check(repo.size()==1);
+  }
+
+  static void versions() {
+    FulfillmentRepository repo=new FulfillmentRepository();
+    InventoryClient inventory=new InventoryClient();
+    FulfillmentService service=new FulfillmentService(repo,inventory);
+    service.paid("evt-1","order-v",7,"line-a",FailureInjector.none());
+    service.paid("evt-2","order-v",8,"line-a",FailureInjector.none());
+    check(inventory.effectCount()==2);
+    check(repo.size()==2);
+  }
+
+  static void check(boolean ok) {
+    if(!ok) throw new AssertionError();
+  }
+}'''
+    (root/"StagedFulfillmentEvolutionHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run([
+        "javac","-d",str(outdir),
+        *map(str,(root/"src").glob("*.java")),
+        str(root/"StagedFulfillmentEvolutionHiddenTest.java")
+    ],capture_output=True,text=True)
+    add("compiles",5,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True)
+        visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"StagedFulfillmentEvolutionHiddenTest"],capture_output=True,text=True)
+        hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",5,visible)
+    add("crash_retry_converges",30,"RETRY_PASS" in hidden_out)
+    add("line_items_remain_distinct",20,"MULTI_PASS" in hidden_out)
+    add("delivery_redelivery_uses_business_identity",25,"REDELIVERY_PASS" in hidden_out)
+    add("different_versions_remain_distinct",15,"VERSIONS_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
