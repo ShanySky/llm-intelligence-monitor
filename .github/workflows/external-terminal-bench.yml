@@ -10,7 +10,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: external-terminal-bench-calibration
+  # Scope concurrency to the triggering commit. Unrelated pushes still create
+  # skipped workflow runs, but can no longer evict a pending calibration run.
+  group: external-terminal-bench-calibration-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
