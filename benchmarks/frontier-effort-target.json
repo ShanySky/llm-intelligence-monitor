@@ -1,11 +1,7 @@
 {
   "task": "frontier-deep-fix-v3",
   "model": "gpt-6.1-sol",
-  "efforts": [
-    "medium",
-    "high",
-    "xhigh"
-  ],
+  "efforts": ["medium", "high", "xhigh"],
   "trials": 3,
   "trial_mode": "repeats",
   "max_turns": 36,
