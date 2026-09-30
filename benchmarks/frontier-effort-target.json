@@ -1,12 +1,9 @@
 {
-  "task": "frontier-review-deep",
+  "task": "frontier-runtime-diagnosis",
   "model": "gpt-6-sol",
-  "efforts": [
-    "medium",
-    "high",
-    "xhigh"
-  ],
-  "max_turns": 40,
-  "shell_budget": 40,
-  "trials": 3
+  "efforts": ["medium", "high", "xhigh"],
+  "trials": 2,
+  "max_turns": 30,
+  "shell_budget": 20,
+  "probe_budget": 20
 }
