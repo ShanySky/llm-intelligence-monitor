@@ -1,10 +1,10 @@
 {
-  "task": "frontier-deep-fix-v3",
-  "model": "gpt-6.1-sol",
-  "efforts": ["medium", "high", "xhigh"],
+  "task": "frontier-runtime-repair-family",
+  "model": "gpt-6-luna",
+  "efforts": ["high"],
   "trials": 3,
-  "trial_mode": "repeats",
-  "max_turns": 36,
-  "shell_budget": 36,
-  "probe_budget": 0
+  "trial_mode": "variants",
+  "max_turns": 30,
+  "shell_budget": 24,
+  "probe_budget": 12
 }
