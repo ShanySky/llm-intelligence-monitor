@@ -1,8 +1,8 @@
 {
-  "task": "frontier-runtime-diagnosis-v2",
+  "task": "hard-incident",
   "trials": 2,
   "max_turns": 32,
-  "shell_budget": 18,
+  "shell_budget": 24,
   "configs": [
     {
       "key": "gpt-6-astra-xhigh",
