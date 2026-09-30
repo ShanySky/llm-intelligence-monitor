@@ -20,6 +20,36 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Reference commit self-check
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const {execFileSync}=require('child_process');
+          const c=require('./benchmarks/real-repo-replay/config.json');
+          for(const item of c.cases){
+            const dir='/tmp/replay-reference-'+item.id;
+            fs.rmSync(dir,{recursive:true,force:true});
+            fs.mkdirSync(dir,{recursive:true});
+            execFileSync('bash',['-lc',`git archive ${item.target_sha} | tar -x -C "${dir}"`],{stdio:'inherit'});
+            fs.copyFileSync(`benchmarks/real-repo-replay/${item.id}/TASK.md`,dir+'/TASK.md');
+            fs.writeFileSync(dir+'/light-agent-result.json',JSON.stringify({patch_metrics:{changed_files:0,changed_lines:0,added_files:0,deleted_files:0,files:[]}}));
+            const out=dir+'/reference-score.json';
+            execFileSync('node',['scripts/score-real-repo-replay.mjs',item.id,dir,out,'benchmarks/real-repo-replay/config.json'],{stdio:'inherit'});
+            const score=JSON.parse(fs.readFileSync(out,'utf8'));
+            if(Number(score.behavior_score)!==100){
+              throw new Error(item.id+' target reference failed hidden behavior: '+score.behavior_score);
+            }
+          }
+          console.log('All replay target commits pass hidden behavior self-check.');
+          NODE
+
       - id: matrix
         shell: bash
         run: |
