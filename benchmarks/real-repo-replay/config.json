@@ -1,12 +1,14 @@
 {
   "version": 1,
   "purpose": "Replay real historical maintenance fixes from this repository without exposing target commits to the agent.",
-  "model": "gpt-6-luna",
+  "model": "gpt-6.1-sol",
   "efforts": [
-    "high"
+    "medium",
+    "high",
+    "xhigh"
   ],
-  "max_turns": 28,
-  "shell_budget": 20,
+  "max_turns": 36,
+  "shell_budget": 36,
   "cases": [
     {
       "trial": 1,
