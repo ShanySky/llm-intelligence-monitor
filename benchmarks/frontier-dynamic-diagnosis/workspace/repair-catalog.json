@@ -1,0 +1,22 @@
+{
+  "root_causes": [
+    {"id":"api_config_drift","description":"One API pod has behavior-changing rendered configuration drift."},
+    {"id":"retry_idempotency_scope","description":"Retries do not reuse the correct business operation identity."},
+    {"id":"stale_consumer_contract","description":"One consumer revision violates the current fulfillment compatibility contract."},
+    {"id":"cache_invalidator_gap","description":"Mixed-version invalidation leaves one cache namespace stale."},
+    {"id":"capacity_shortage","description":"Request failures are caused by exhausted API serving capacity."},
+    {"id":"replica_read_lag","description":"A strict read-after-write path is incorrectly served from a lagging replica."}
+  ],
+  "actions": [
+    {"id":"replace_drifted_api","description":"Replace only the API pod whose rendered config is proven behaviorally wrong."},
+    {"id":"fix_business_idempotency","description":"Reuse a stable business-scoped provider idempotency identity across retries."},
+    {"id":"replace_incompatible_consumer","description":"Replace only the consumer proven incompatible with current event semantics."},
+    {"id":"repair_dual_invalidation","description":"Invalidate both cache identity aliases during the mixed-version window."},
+    {"id":"scale_checkout_api","description":"Increase API serving capacity when saturation is proven causal."},
+    {"id":"route_strict_reads_primary","description":"Serve the strict read-after-write path from the primary until replica lag is safe."},
+    {"id":"restart_everything","description":"Restart all services."},
+    {"id":"flush_all_cache","description":"Flush the entire shared cache."},
+    {"id":"reset_queue","description":"Reset fulfillment offsets."},
+    {"id":"disable_retries","description":"Disable provider retries."}
+  ]
+}
