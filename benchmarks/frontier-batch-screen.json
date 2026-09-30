@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "tasks": [
+    {"task":"frontier-webhook","max_turns":30,"shell_budget":30},
+    {"task":"frontier-migration","max_turns":30,"shell_budget":30},
+    {"task":"frontier-scheduler","max_turns":30,"shell_budget":30},
+    {"task":"frontier-plan","max_turns":30,"shell_budget":30},
+    {"task":"frontier-review","max_turns":30,"shell_budget":30}
+  ]
+}
