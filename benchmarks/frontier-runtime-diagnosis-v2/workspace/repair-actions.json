@@ -1,0 +1,23 @@
+{
+  "root_causes": [
+    {"id":"api_config_drift","description":"A serving API pod has rendered configuration inconsistent with the desired release."},
+    {"id":"retry_idempotency_scope","description":"Retries for one logical payment do not preserve the correct business idempotency identity."},
+    {"id":"stale_consumer","description":"A consumer revision is incompatible with the currently emitted event contract."},
+    {"id":"cache_invalidator_mismatch","description":"Mixed invalidator revisions leave stale cache entries."},
+    {"id":"capacity_shortage","description":"Insufficient request-processing capacity causes the incident."},
+    {"id":"database_pool_exhaustion","description":"Database connection starvation causes the observed failures."},
+    {"id":"network_instability","description":"Network/DNS instability explains the user-visible failures."}
+  ],
+  "actions": [
+    {"id":"replace_drifted_api_from_desired","description":"Replace only a pod proven to have rendered-config drift."},
+    {"id":"use_order_version_idempotency","description":"Reuse one stable provider idempotency key for the same logical order version across retries."},
+    {"id":"upgrade_all_consumers","description":"Upgrade all fulfillment consumers."},
+    {"id":"replace_all_invalidators","description":"Replace all cache invalidators."},
+    {"id":"restart_all_services","description":"Restart the entire checkout stack."},
+    {"id":"scale_api","description":"Increase API replica count."},
+    {"id":"reset_consumer_offset","description":"Reset the fulfillment consumer offset."},
+    {"id":"flush_entire_cache","description":"Flush all shared cache entries."},
+    {"id":"disable_retries","description":"Disable provider retries."},
+    {"id":"increase_db_pool","description":"Increase database pool capacity."}
+  ]
+}
