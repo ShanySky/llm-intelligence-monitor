@@ -93,3 +93,4 @@ Runtime diagnosis Sol effort calibration x2 with nonbinding probe budget.
 Hard plan repeated cross-model validation x2.
 Hard incident repeated cross-model validation x2.
 Deep coding v2 hidden-contract Luna rescreen.
+Runtime diagnosis effort rerun after probe metric fix.
