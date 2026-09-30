@@ -1,0 +1,49 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-xhigh-t5",
+  "model": "gpt-6.1-sol",
+  "effort": "xhigh",
+  "duration_seconds": 197,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 56,
+    "added_files": 2,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "FINDINGS.json",
+        "kind": "added",
+        "changed_lines": 20
+      },
+      {
+        "path": "REVIEW.md",
+        "kind": "added",
+        "changed_lines": 36
+      }
+    ]
+  },
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 12964,
+    "output_tokens": 3211,
+    "reasoning_tokens": 1780,
+    "cached_input_tokens": 4608
+  },
+  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with verdict **REQUEST_CHANGES** for three blocking defects:\n\n- Callback retries can change the remote deduplication key.\n- Legacy heartbeats bypass lease epoch fencing.\n- `detach` can deadlock with `attach` by reversing lock order.\n\nValidation passed:\n- `python3 -m json.tool FINDINGS.json >/dev/null`\n- Inline Python checks for taxonomy membership, unique failure domains, source symbols, and consistency between both review files."
+}

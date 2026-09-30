@@ -1,0 +1,49 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-xhigh-t4",
+  "model": "gpt-6.1-sol",
+  "effort": "xhigh",
+  "duration_seconds": 376,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 91,
+    "added_files": 2,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "FINDINGS.json",
+        "kind": "added",
+        "changed_lines": 20
+      },
+      {
+        "path": "REVIEW.md",
+        "kind": "added",
+        "changed_lines": 71
+      }
+    ]
+  },
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 21927,
+    "output_tokens": 6772,
+    "reasoning_tokens": 3538,
+    "cached_input_tokens": 11392
+  },
+  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with verdict **REQUEST_CHANGES** and three blocking findings:\n\n- `CallbackDispatcher.send`: retry idempotency is not generation-scoped.\n- `LegacyRenewalPath.heartbeat`: owner-only renewal bypasses epoch fencing.\n- `PairCoordinator.detach`: reversed lock ordering permits deadlock.\n\nValidation completed:\n- `javac \"$check_dir/ReviewChecks.java\"` and `java -cp \"$check_dir\" ReviewChecks` using a temporary fixture harness.\n- `python3 -m json.tool FINDINGS.json`\n- Python checks for taxonomy membership, unique failure domains, source symbols, and review coverage.\n\nImplementation files were not changed."
+}

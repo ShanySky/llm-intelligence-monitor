@@ -1,0 +1,49 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-medium-t2",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "duration_seconds": 85,
+  "responses": 4,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 36,
+    "added_files": 2,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "FINDINGS.json",
+        "kind": "added",
+        "changed_lines": 8
+      },
+      {
+        "path": "REVIEW.md",
+        "kind": "added",
+        "changed_lines": 28
+      }
+    ]
+  },
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 5796,
+    "output_tokens": 1169,
+    "reasoning_tokens": 163,
+    "cached_input_tokens": 2816
+  },
+  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with three blocking findings:\n\n- Callback deduplication keys are delivery-scoped rather than stable across retries.\n- Legacy heartbeats bypass lease epoch fencing.\n- `detach` violates lock ordering and can deadlock with `attach`.\n\nVerdict: **REQUEST_CHANGES**.\n\nValidation: ran a `python3` check for valid JSON, allowed taxonomy values, unique failure domains, and existing source files and symbols."
+}

@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-09-30T08:48:05.879Z",
-  "trial_mode": "variants",
+  "generated_at": "2026-09-30T08:56:21.643Z",
+  "trial_mode": "repeats",
   "rows": [
     {
       "task": "frontier-review-precision-family",
       "model": "gpt-6.1-sol",
       "effort": "high",
       "trial": 1,
-      "score": 100,
+      "score": 0,
       "checks": {
         "valid_findings_json": {
           "points": 5,
@@ -15,157 +15,29 @@
         },
         "finding_ConfirmationService.java_business_identity_scope": {
           "points": 40,
-          "passed": true
+          "passed": false
         },
         "finding_RefundService.java_external_effect_recovery": {
           "points": 50,
-          "passed": true
+          "passed": false
         },
-        "requests_changes": {
-          "points": 5,
-          "passed": true
-        }
-      },
-      "duration_seconds": 88,
-      "responses": 4,
-      "max_turns": 28,
-      "shell_commands": 3,
-      "shell_budget": 18,
-      "validation_calls": 0,
-      "validation_budget": 0,
-      "validation_enabled": false,
-      "probe_calls": 0,
-      "probe_attempts": 0,
-      "probe_budget": 0,
-      "probe_enabled": false,
-      "patch_metrics": {
-        "changed_files": 2,
-        "changed_lines": 38,
-        "added_files": 2,
-        "deleted_files": 0,
-        "files": [
-          {
-            "path": "FINDINGS.json",
-            "kind": "added",
-            "changed_lines": 15
-          },
-          {
-            "path": "REVIEW.md",
-            "kind": "added",
-            "changed_lines": 23
-          }
-        ]
-      },
-      "turn_limit_reached": false,
-      "shell_budget_reached": false,
-      "finished_with_message": true,
-      "usage": {
-        "input_tokens": 5916,
-        "output_tokens": 1200,
-        "reasoning_tokens": 202,
-        "cached_input_tokens": 1536
-      },
-      "api_retries": 0,
-      "infrastructure_error": null,
-      "agent_exit_code": 0,
-      "outcome": "completed",
-      "data_complete": true
-    },
-    {
-      "task": "frontier-review-precision-family",
-      "model": "gpt-6.1-sol",
-      "effort": "high",
-      "trial": 2,
-      "score": 100,
-      "checks": {
-        "valid_findings_json": {
-          "points": 5,
-          "passed": true
-        },
-        "finding_LegacyRenewalPath.java_stale_lease_fencing": {
-          "points": 35,
-          "passed": true
-        },
-        "finding_CallbackDispatcher.java_retry_idempotency": {
-          "points": 30,
-          "passed": true
-        },
-        "finding_PairCoordinator.java_lock_order": {
-          "points": 25,
-          "passed": true
-        },
-        "requests_changes": {
-          "points": 5,
-          "passed": true
-        }
-      },
-      "duration_seconds": 113,
-      "responses": 5,
-      "max_turns": 28,
-      "shell_commands": 4,
-      "shell_budget": 18,
-      "validation_calls": 0,
-      "validation_budget": 0,
-      "validation_enabled": false,
-      "probe_calls": 0,
-      "probe_attempts": 0,
-      "probe_budget": 0,
-      "probe_enabled": false,
-      "patch_metrics": {
-        "changed_files": 2,
-        "changed_lines": 50,
-        "added_files": 2,
-        "deleted_files": 0,
-        "files": [
-          {
-            "path": "FINDINGS.json",
-            "kind": "added",
-            "changed_lines": 20
-          },
-          {
-            "path": "REVIEW.md",
-            "kind": "added",
-            "changed_lines": 30
-          }
-        ]
-      },
-      "turn_limit_reached": false,
-      "shell_budget_reached": false,
-      "finished_with_message": true,
-      "usage": {
-        "input_tokens": 7897,
-        "output_tokens": 1608,
-        "reasoning_tokens": 423,
-        "cached_input_tokens": 1536
-      },
-      "api_retries": 0,
-      "infrastructure_error": null,
-      "agent_exit_code": 0,
-      "outcome": "completed",
-      "data_complete": true
-    },
-    {
-      "task": "frontier-review-precision-family",
-      "model": "gpt-6.1-sol",
-      "effort": "high",
-      "trial": 3,
-      "score": 100,
-      "checks": {
-        "valid_findings_json": {
-          "points": 5,
-          "passed": true
-        },
-        "finding_FeedService.java_pagination_snapshot": {
-          "points": 30,
-          "passed": true
-        },
-        "finding_VerifierCache.java_cache_generation_staleness": {
-          "points": 30,
-          "passed": true
-        },
-        "finding_StrictCustomerReader.java_strict_read_consistency": {
-          "points": 30,
-          "passed": true
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
         },
         "requests_changes": {
           "points": 5,
@@ -186,7 +58,7 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 51,
+        "changed_lines": 69,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
@@ -198,7 +70,7 @@
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 31
+            "changed_lines": 49
           }
         ]
       },
@@ -206,10 +78,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 8147,
-        "output_tokens": 1473,
-        "reasoning_tokens": 171,
-        "cached_input_tokens": 1664
+        "input_tokens": 9290,
+        "output_tokens": 1560,
+        "reasoning_tokens": 376,
+        "cached_input_tokens": 4352
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -220,20 +92,24 @@
     {
       "task": "frontier-review-precision-family",
       "model": "gpt-6.1-sol",
-      "effort": "medium",
-      "trial": 1,
+      "effort": "high",
+      "trial": 2,
       "score": 100,
       "checks": {
         "valid_findings_json": {
           "points": 5,
           "passed": true
         },
-        "finding_ConfirmationService.java_business_identity_scope": {
-          "points": 40,
+        "finding_LegacyRenewalPath.java_stale_lease_fencing": {
+          "points": 35,
           "passed": true
         },
-        "finding_RefundService.java_external_effect_recovery": {
-          "points": 50,
+        "finding_CallbackDispatcher.java_retry_idempotency": {
+          "points": 30,
+          "passed": true
+        },
+        "finding_PairCoordinator.java_lock_order": {
+          "points": 25,
           "passed": true
         },
         "requests_changes": {
@@ -241,7 +117,7 @@
           "passed": true
         }
       },
-      "duration_seconds": 76,
+      "duration_seconds": 93,
       "responses": 4,
       "max_turns": 28,
       "shell_commands": 3,
@@ -255,90 +131,7 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 38,
-        "added_files": 2,
-        "deleted_files": 0,
-        "files": [
-          {
-            "path": "FINDINGS.json",
-            "kind": "added",
-            "changed_lines": 15
-          },
-          {
-            "path": "REVIEW.md",
-            "kind": "added",
-            "changed_lines": 23
-          }
-        ]
-      },
-      "turn_limit_reached": false,
-      "shell_budget_reached": false,
-      "finished_with_message": true,
-      "usage": {
-        "input_tokens": 5558,
-        "output_tokens": 968,
-        "reasoning_tokens": 56,
-        "cached_input_tokens": 0
-      },
-      "api_retries": 0,
-      "infrastructure_error": null,
-      "agent_exit_code": 0,
-      "outcome": "completed",
-      "data_complete": true
-    },
-    {
-      "task": "frontier-review-precision-family",
-      "model": "gpt-6.1-sol",
-      "effort": "medium",
-      "trial": 2,
-      "score": 60,
-      "checks": {
-        "valid_findings_json": {
-          "points": 5,
-          "passed": true
-        },
-        "finding_LegacyRenewalPath.java_stale_lease_fencing": {
-          "points": 35,
-          "passed": true
-        },
-        "finding_CallbackDispatcher.java_retry_idempotency": {
-          "points": 30,
-          "passed": false
-        },
-        "finding_PairCoordinator.java_lock_order": {
-          "points": 25,
-          "passed": true
-        },
-        "false_positive_penalty": {
-          "points": -10,
-          "passed": false,
-          "reported": [
-            {
-              "file": "CallbackDispatcher.java",
-              "failure_class": "business_identity_scope"
-            }
-          ]
-        },
-        "requests_changes": {
-          "points": 5,
-          "passed": true
-        }
-      },
-      "duration_seconds": 252,
-      "responses": 11,
-      "max_turns": 28,
-      "shell_commands": 10,
-      "shell_budget": 18,
-      "validation_calls": 0,
-      "validation_budget": 0,
-      "validation_enabled": false,
-      "probe_calls": 0,
-      "probe_attempts": 0,
-      "probe_budget": 0,
-      "probe_enabled": false,
-      "patch_metrics": {
-        "changed_files": 2,
-        "changed_lines": 39,
+        "changed_lines": 67,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
@@ -350,7 +143,7 @@
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 19
+            "changed_lines": 47
           }
         ]
       },
@@ -358,10 +151,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 36236,
-        "output_tokens": 3576,
-        "reasoning_tokens": 397,
-        "cached_input_tokens": 25856
+        "input_tokens": 6025,
+        "output_tokens": 1337,
+        "reasoning_tokens": 209,
+        "cached_input_tokens": 1536
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -372,9 +165,9 @@
     {
       "task": "frontier-review-precision-family",
       "model": "gpt-6.1-sol",
-      "effort": "medium",
+      "effort": "high",
       "trial": 3,
-      "score": 100,
+      "score": 0,
       "checks": {
         "valid_findings_json": {
           "points": 5,
@@ -382,25 +175,130 @@
         },
         "finding_FeedService.java_pagination_snapshot": {
           "points": 30,
-          "passed": true
+          "passed": false
         },
         "finding_VerifierCache.java_cache_generation_staleness": {
           "points": 30,
-          "passed": true
+          "passed": false
         },
         "finding_StrictCustomerReader.java_strict_read_consistency": {
           "points": 30,
-          "passed": true
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
         },
         "requests_changes": {
           "points": 5,
           "passed": true
         }
       },
-      "duration_seconds": 99,
-      "responses": 5,
+      "duration_seconds": 104,
+      "responses": 4,
       "max_turns": 28,
-      "shell_commands": 4,
+      "shell_commands": 3,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 52,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 20
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 32
+          }
+        ]
+      },
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 6159,
+        "output_tokens": 1564,
+        "reasoning_tokens": 403,
+        "cached_input_tokens": 0
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-precision-family",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "trial": 4,
+      "score": 0,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_ConfirmationService.java_business_identity_scope": {
+          "points": 40,
+          "passed": false
+        },
+        "finding_RefundService.java_external_effect_recovery": {
+          "points": 50,
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "business_identity_scope"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 114,
+      "responses": 6,
+      "max_turns": 28,
+      "shell_commands": 5,
       "shell_budget": 18,
       "validation_calls": 0,
       "validation_budget": 0,
@@ -431,10 +329,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 7580,
-        "output_tokens": 1144,
-        "reasoning_tokens": 49,
-        "cached_input_tokens": 1408
+        "input_tokens": 10369,
+        "output_tokens": 1523,
+        "reasoning_tokens": 290,
+        "cached_input_tokens": 1536
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -445,9 +343,9 @@
     {
       "task": "frontier-review-precision-family",
       "model": "gpt-6.1-sol",
-      "effort": "xhigh",
-      "trial": 1,
-      "score": 100,
+      "effort": "high",
+      "trial": 5,
+      "score": 0,
       "checks": {
         "valid_findings_json": {
           "points": 5,
@@ -455,18 +353,36 @@
         },
         "finding_ConfirmationService.java_business_identity_scope": {
           "points": 40,
-          "passed": true
+          "passed": false
         },
         "finding_RefundService.java_external_effect_recovery": {
           "points": 50,
-          "passed": true
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
         },
         "requests_changes": {
           "points": 5,
           "passed": true
         }
       },
-      "duration_seconds": 145,
+      "duration_seconds": 102,
       "responses": 5,
       "max_turns": 28,
       "shell_commands": 4,
@@ -480,19 +396,19 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 55,
+        "changed_lines": 47,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
           {
             "path": "FINDINGS.json",
             "kind": "added",
-            "changed_lines": 15
+            "changed_lines": 20
           },
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 40
+            "changed_lines": 27
           }
         ]
       },
@@ -500,10 +416,522 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 11362,
-        "output_tokens": 2274,
-        "reasoning_tokens": 725,
-        "cached_input_tokens": 3328
+        "input_tokens": 8741,
+        "output_tokens": 1455,
+        "reasoning_tokens": 153,
+        "cached_input_tokens": 2048
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-precision-family",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "trial": 1,
+      "score": 0,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_ConfirmationService.java_business_identity_scope": {
+          "points": 40,
+          "passed": false
+        },
+        "finding_RefundService.java_external_effect_recovery": {
+          "points": 50,
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 77,
+      "responses": 4,
+      "max_turns": 28,
+      "shell_commands": 3,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 36,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 8
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 28
+          }
+        ]
+      },
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 5691,
+        "output_tokens": 1057,
+        "reasoning_tokens": 69,
+        "cached_input_tokens": 0
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-precision-family",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "trial": 2,
+      "score": 100,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_LegacyRenewalPath.java_stale_lease_fencing": {
+          "points": 35,
+          "passed": true
+        },
+        "finding_CallbackDispatcher.java_retry_idempotency": {
+          "points": 30,
+          "passed": true
+        },
+        "finding_PairCoordinator.java_lock_order": {
+          "points": 25,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 85,
+      "responses": 4,
+      "max_turns": 28,
+      "shell_commands": 3,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 36,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 8
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 28
+          }
+        ]
+      },
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 5796,
+        "output_tokens": 1169,
+        "reasoning_tokens": 163,
+        "cached_input_tokens": 2816
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-precision-family",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "trial": 3,
+      "score": 0,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_FeedService.java_pagination_snapshot": {
+          "points": 30,
+          "passed": false
+        },
+        "finding_VerifierCache.java_cache_generation_staleness": {
+          "points": 30,
+          "passed": false
+        },
+        "finding_StrictCustomerReader.java_strict_read_consistency": {
+          "points": 30,
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 86,
+      "responses": 4,
+      "max_turns": 28,
+      "shell_commands": 3,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 40,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 8
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 32
+          }
+        ]
+      },
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 5790,
+        "output_tokens": 1174,
+        "reasoning_tokens": 139,
+        "cached_input_tokens": 1408
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-precision-family",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "trial": 4,
+      "score": 0,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_ConfirmationService.java_business_identity_scope": {
+          "points": 40,
+          "passed": false
+        },
+        "finding_RefundService.java_external_effect_recovery": {
+          "points": 50,
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 82,
+      "responses": 4,
+      "max_turns": 28,
+      "shell_commands": 3,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 36,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 8
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 28
+          }
+        ]
+      },
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 5744,
+        "output_tokens": 1111,
+        "reasoning_tokens": 118,
+        "cached_input_tokens": 0
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-precision-family",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "trial": 5,
+      "score": 0,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_ConfirmationService.java_business_identity_scope": {
+          "points": 40,
+          "passed": false
+        },
+        "finding_RefundService.java_external_effect_recovery": {
+          "points": 50,
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 87,
+      "responses": 4,
+      "max_turns": 28,
+      "shell_commands": 3,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 31,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 8
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 23
+          }
+        ]
+      },
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 5754,
+        "output_tokens": 1143,
+        "reasoning_tokens": 183,
+        "cached_input_tokens": 1408
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-precision-family",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "trial": 1,
+      "score": 0,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_ConfirmationService.java_business_identity_scope": {
+          "points": 40,
+          "passed": false
+        },
+        "finding_RefundService.java_external_effect_recovery": {
+          "points": 50,
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 214,
+      "responses": 6,
+      "max_turns": 28,
+      "shell_commands": 5,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 50,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 20
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 30
+          }
+        ]
+      },
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 14067,
+        "output_tokens": 3561,
+        "reasoning_tokens": 2028,
+        "cached_input_tokens": 1536
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -539,10 +967,10 @@
           "passed": true
         }
       },
-      "duration_seconds": 130,
-      "responses": 4,
+      "duration_seconds": 155,
+      "responses": 6,
       "max_turns": 28,
-      "shell_commands": 3,
+      "shell_commands": 5,
       "shell_budget": 18,
       "validation_calls": 0,
       "validation_budget": 0,
@@ -573,10 +1001,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 6717,
-        "output_tokens": 2036,
-        "reasoning_tokens": 728,
-        "cached_input_tokens": 0
+        "input_tokens": 12616,
+        "output_tokens": 2197,
+        "reasoning_tokens": 741,
+        "cached_input_tokens": 5248
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -589,7 +1017,7 @@
       "model": "gpt-6.1-sol",
       "effort": "xhigh",
       "trial": 3,
-      "score": 100,
+      "score": 0,
       "checks": {
         "valid_findings_json": {
           "points": 5,
@@ -597,22 +1025,40 @@
         },
         "finding_FeedService.java_pagination_snapshot": {
           "points": 30,
-          "passed": true
+          "passed": false
         },
         "finding_VerifierCache.java_cache_generation_staleness": {
           "points": 30,
-          "passed": true
+          "passed": false
         },
         "finding_StrictCustomerReader.java_strict_read_consistency": {
           "points": 30,
-          "passed": true
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "business_identity_scope"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
         },
         "requests_changes": {
           "points": 5,
           "passed": true
         }
       },
-      "duration_seconds": 162,
+      "duration_seconds": 152,
       "responses": 5,
       "max_turns": 28,
       "shell_commands": 4,
@@ -626,7 +1072,7 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 81,
+        "changed_lines": 47,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
@@ -638,7 +1084,7 @@
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 61
+            "changed_lines": 27
           }
         ]
       },
@@ -646,10 +1092,184 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 11008,
-        "output_tokens": 2548,
-        "reasoning_tokens": 1140,
-        "cached_input_tokens": 4480
+        "input_tokens": 9493,
+        "output_tokens": 2498,
+        "reasoning_tokens": 1162,
+        "cached_input_tokens": 3328
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-precision-family",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "trial": 4,
+      "score": 0,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_ConfirmationService.java_business_identity_scope": {
+          "points": 40,
+          "passed": false
+        },
+        "finding_RefundService.java_external_effect_recovery": {
+          "points": 50,
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 376,
+      "responses": 6,
+      "max_turns": 28,
+      "shell_commands": 5,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 91,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 20
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 71
+          }
+        ]
+      },
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 21927,
+        "output_tokens": 6772,
+        "reasoning_tokens": 3538,
+        "cached_input_tokens": 11392
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-precision-family",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "trial": 5,
+      "score": 0,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_ConfirmationService.java_business_identity_scope": {
+          "points": 40,
+          "passed": false
+        },
+        "finding_RefundService.java_external_effect_recovery": {
+          "points": 50,
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 197,
+      "responses": 6,
+      "max_turns": 28,
+      "shell_commands": 5,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 56,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 20
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 36
+          }
+        ]
+      },
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 12964,
+        "output_tokens": 3211,
+        "reasoning_tokens": 1780,
+        "cached_input_tokens": 4608
       },
       "api_retries": 0,
       "infrastructure_error": null,

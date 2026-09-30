@@ -1,0 +1,49 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-medium-t5",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "duration_seconds": 87,
+  "responses": 4,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 31,
+    "added_files": 2,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "FINDINGS.json",
+        "kind": "added",
+        "changed_lines": 8
+      },
+      {
+        "path": "REVIEW.md",
+        "kind": "added",
+        "changed_lines": 23
+      }
+    ]
+  },
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 5754,
+    "output_tokens": 1143,
+    "reasoning_tokens": 183,
+    "cached_input_tokens": 1408
+  },
+  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with three blocking findings:\n\n- `CallbackDispatcher.send`: retry deduplication uses delivery identity rather than stable job-generation identity.\n- `LegacyRenewalPath.heartbeat`: renewal lacks epoch fencing.\n- `PairCoordinator.detach`: reversed lock acquisition can deadlock with `attach`.\n\n**Verdict:** `REQUEST_CHANGES`.\n\nValidation: ran a `python3` script checking JSON validity, allowed taxonomy values, unique failure domains, referenced files and symbols, and nonempty review output. All checks passed."
+}
