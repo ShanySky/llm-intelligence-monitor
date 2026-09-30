@@ -1,0 +1,19 @@
+status 
+pods 
+queue 
+logs api-b
+config api-b
+config api-a
+replace-config api-b
+status 
+pods 
+queue 
+logs api-b
+queue 
+verify 
+logs consumer-1
+logs consumer-2
+queue 
+pods 
+replace-consumer consumer-2
+verify 

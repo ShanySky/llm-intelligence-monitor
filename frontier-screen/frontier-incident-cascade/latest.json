@@ -2,7 +2,8 @@
   "task": "frontier-incident-cascade",
   "model": "gpt-6-luna",
   "effort": "high",
-  "score": 40,
+  "score": 95,
+  "classification": "coverage-only-ceiling",
   "checks": {
     "targeted_config_repair": {
       "points": 20,
@@ -10,11 +11,11 @@
     },
     "post_fix_verification_exposed_second_failure": {
       "points": 15,
-      "passed": false
+      "passed": true
     },
     "targeted_consumer_repair": {
       "points": 20,
-      "passed": false
+      "passed": true
     },
     "config_evidence_before_mutation": {
       "points": 10,
@@ -22,7 +23,7 @@
     },
     "second_stage_evidence_before_mutation": {
       "points": 10,
-      "passed": false
+      "passed": true
     },
     "avoided_broad_or_destructive_actions": {
       "points": 10,
@@ -30,7 +31,7 @@
     },
     "final_end_to_end_verification": {
       "points": 10,
-      "passed": false
+      "passed": true
     },
     "reported_both_failure_domains": {
       "points": 5,
@@ -38,12 +39,18 @@
     }
   },
   "duration_seconds": 92,
-  "shell_commands": 11,
+  "responses": 11,
+  "max_turns": 20,
+  "shell_commands": 24,
+  "shell_budget": 20,
+  "turn_limit_reached": false,
+  "shell_budget_reached": true,
+  "finished_with_message": true,
   "usage": {
-    "input_tokens": 9818,
-    "output_tokens": 1463,
-    "reasoning_tokens": 801,
-    "cached_input_tokens": 0
+    "input_tokens": 17539,
+    "output_tokens": 1599,
+    "reasoning_tokens": 616,
+    "cached_input_tokens": 4608
   },
   "api_retries": 0,
   "infrastructure_error": null,
