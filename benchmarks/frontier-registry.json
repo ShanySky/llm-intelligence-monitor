@@ -371,6 +371,18 @@
         "max_score_stddev": 5
       },
       "note": "Promoted from candidate to core after two-trial cross-model validation."
+    },
+    {
+      "id": "frontier-deep-fix-v3",
+      "family": "coding_debug_cross_file_local_contracts",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100,
+        "duration_seconds": 90,
+        "validation_calls": 2
+      },
+      "note": "Local-contract-only variant still saturated on Luna High; do not continue this family into Sol effort calibration."
     }
   ]
 }
