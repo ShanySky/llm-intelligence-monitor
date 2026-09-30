@@ -933,6 +933,163 @@ public final class FrontierIdentityHiddenTest {
     add("kafka_additive_contract",7,"KAFKA_PASS" in hidden_out)
     add("cache_legacy_fallback_and_v2_preference",8,"CACHE_PASS" in hidden_out)
 
+
+elif task == "frontier-outbox-recovery":
+    hidden = r'''import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public final class FrontierOutboxRecoveryHiddenTest {
+  public static void main(String[] args) {
+    run("ROLLBACK", FrontierOutboxRecoveryHiddenTest::rollbackIsAtomic);
+    run("CONCURRENT", FrontierOutboxRecoveryHiddenTest::sameVersionIsOneLogicalEvent);
+    run("CRASH_RETRY", FrontierOutboxRecoveryHiddenTest::crashAfterPublishDoesNotDuplicate);
+    run("LEGACY", FrontierOutboxRecoveryHiddenTest::eventIsAdditiveForLegacyConsumer);
+    run("VERSIONS", FrontierOutboxRecoveryHiddenTest::differentVersionsRemainDistinct);
+    run("REDRAIN", FrontierOutboxRecoveryHiddenTest::sentRowsAreNotRepublished);
+  }
+
+  interface Case { void run() throws Exception; }
+
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name + "_PASS"); }
+    catch (Throwable t) { System.out.println(name + "_FAIL:" + t); }
+  }
+
+  static Database db(String id) {
+    Database db = new Database();
+    db.createOrder(id, "key-" + id);
+    return db;
+  }
+
+  static void rollbackIsAtomic() {
+    Database db = db("o-rb");
+    OrderService service = new OrderService(db, new EventEncoder());
+    FailureInjector fail = new FailureInjector() {
+      @Override public void beforeOutbox(String orderId) {
+        throw new RuntimeException("rollback");
+      }
+    };
+    boolean threw = false;
+    try { service.confirm("o-rb", 1, fail); }
+    catch (RuntimeException expected) { threw = true; }
+    check(threw);
+    Order row = db.getOrder("o-rb");
+    check(row != null);
+    check("PENDING".equals(row.status));
+    check(row.version == 0);
+    check(db.outboxSize() == 0);
+  }
+
+  static void sameVersionIsOneLogicalEvent() throws Exception {
+    Database db = db("o-con");
+    OrderService service = new OrderService(db, new EventEncoder());
+    CountDownLatch ready = new CountDownLatch(2);
+    CountDownLatch go = new CountDownLatch(1);
+    List<Throwable> errors = Collections.synchronizedList(new ArrayList<>());
+    Runnable task = () -> {
+      try {
+        ready.countDown();
+        go.await();
+        service.confirm("o-con", 4, FailureInjector.none());
+      } catch (Throwable t) {
+        errors.add(t);
+      }
+    };
+    Thread a = new Thread(task), b = new Thread(task);
+    a.start(); b.start();
+    ready.await(); go.countDown();
+    a.join(); b.join();
+    check(errors.isEmpty());
+    check(db.outboxSize() == 1);
+    Order row = db.getOrder("o-con");
+    check(row != null && row.version == 4 && "CONFIRMED".equals(row.status));
+  }
+
+  static void crashAfterPublishDoesNotDuplicate() {
+    Database db = db("o-crash");
+    OrderService service = new OrderService(db, new EventEncoder());
+    EventBroker broker = new EventBroker();
+    OutboxWorker worker = new OutboxWorker(db, broker);
+    service.confirm("o-crash", 2, FailureInjector.none());
+
+    AtomicBoolean once = new AtomicBoolean(true);
+    FailureInjector crash = new FailureInjector() {
+      @Override public void afterPublish(String eventId) {
+        if (once.getAndSet(false)) throw new RuntimeException("crash-after-publish");
+      }
+    };
+    try { worker.drain(crash); }
+    catch (RuntimeException expected) {}
+    check(broker.deliveredCount() == 1);
+
+    worker.drain(FailureInjector.none());
+    check(broker.deliveredCount() == 1);
+    check(db.pendingOutbox().isEmpty());
+  }
+
+  static void eventIsAdditiveForLegacyConsumer() {
+    Database db = db("o-legacy");
+    OrderService service = new OrderService(db, new EventEncoder());
+    service.confirm("o-legacy", 3, FailureInjector.none());
+    List<OutboxRecord> rows = db.pendingOutbox();
+    check(rows.size() == 1);
+    String payload = rows.get(0).payload;
+    check(new LegacyOrderConsumer().accepts(payload));
+    check(payload.contains("order_key:key-o-legacy"));
+    check(payload.contains("version:3"));
+  }
+
+  static void differentVersionsRemainDistinct() {
+    Database db = db("o-vers");
+    OrderService service = new OrderService(db, new EventEncoder());
+    EventBroker broker = new EventBroker();
+    OutboxWorker worker = new OutboxWorker(db, broker);
+    service.confirm("o-vers", 1, FailureInjector.none());
+    service.confirm("o-vers", 2, FailureInjector.none());
+    check(db.outboxSize() == 2);
+    worker.drain(FailureInjector.none());
+    check(broker.deliveredCount() == 2);
+  }
+
+  static void sentRowsAreNotRepublished() {
+    Database db = db("o-redrain");
+    OrderService service = new OrderService(db, new EventEncoder());
+    EventBroker broker = new EventBroker();
+    OutboxWorker worker = new OutboxWorker(db, broker);
+    service.confirm("o-redrain", 1, FailureInjector.none());
+    worker.drain(FailureInjector.none());
+    worker.drain(FailureInjector.none());
+    check(broker.deliveredCount() == 1);
+    check(db.pendingOutbox().isEmpty());
+  }
+
+  static void check(boolean x) {
+    if (!x) throw new AssertionError();
+  }
+}'''
+    (root/"FrontierOutboxRecoveryHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run([
+        "javac","-d",str(outdir),
+        *map(str,(root/"src").glob("*.java")),
+        str(root/"FrontierOutboxRecoveryHiddenTest.java")
+    ],capture_output=True,text=True)
+    add("compiles",5,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True)
+        visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierOutboxRecoveryHiddenTest"],capture_output=True,text=True)
+        hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",5,visible)
+    add("transaction_rollback_keeps_order_and_outbox_atomic",20,"ROLLBACK_PASS" in hidden_out)
+    add("concurrent_same_version_is_one_logical_event",15,"CONCURRENT_PASS" in hidden_out)
+    add("crash_after_publish_retry_is_idempotent",25,"CRASH_RETRY_PASS" in hidden_out)
+    add("event_contract_is_additive_for_legacy_consumer",15,"LEGACY_PASS" in hidden_out)
+    add("different_versions_have_distinct_delivery_identity",10,"VERSIONS_PASS" in hidden_out)
+    add("sent_outbox_rows_are_not_republished",5,"REDRAIN_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
