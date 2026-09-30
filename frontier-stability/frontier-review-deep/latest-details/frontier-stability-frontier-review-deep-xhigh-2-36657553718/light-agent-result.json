@@ -1,0 +1,24 @@
+{
+  "task_dir": "/tmp/frontier-stability-frontier-review-deep-xhigh-2",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 197,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 40,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 33395,
+    "output_tokens": 6324,
+    "reasoning_tokens": 4297,
+    "cached_input_tokens": 21632
+  },
+  "final_text": "Wrote `REVIEW.md` with eight blocking reliability findings and `FINDINGS.json` with the corresponding taxonomy entries. The verdict is **REQUEST_CHANGES**.\n\nValidation: ran a Python check of the JSON, taxonomy values, file locations, and verdict."
+}

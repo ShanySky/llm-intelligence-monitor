@@ -1,0 +1,19 @@
+# Blocking findings
+
+1. **`PriceService.changePrice` — ignored optimistic-write result.** `updateIfVersion` can return `false`, but the method still evicts the cache and enqueues an audit for `expectedVersion + 1`. A rejected write can therefore produce an audit for a price/version this request never accepted (or duplicate another writer's version). Check the boolean and stop without publishing any effects when the update fails.
+
+2. **`PriceService.changePrice` — effects run before commit.** Evicting inside the transaction lets a concurrent cache miss reload the old committed price and repopulate the shared cache; after this transaction commits, that stale entry survives. Enqueuing inside the transaction can likewise expose an uncommitted/rolled-back price change, and does not guarantee an audit survives a commit/crash boundary. Invalidate the cache after successful commit; persist the exact-version audit work atomically with the accepted update (a transactional outbox) and dispatch it after commit.
+
+3. **`AuditWorker.deliver` — audit payload is not a version snapshot.** The worker reads the *current* product price but sends it labeled with `work.version()`. If another price change commits before delivery, the older accepted version is audited with the newer price. Store the accepted price alongside its version in the durable audit work and send that immutable snapshot, rather than reading the mutable product row at delivery time.
+
+4. **`AuditWorker.deliver` — retries have new sink identities.** `UUID.randomUUID()` changes on each attempt. If the sink accepts a send and the worker crashes before acknowledging the work, redelivery creates a second logical audit record because sink deduplication requires the same key. Derive and reuse a stable business key from the product ID and accepted version for every delivery attempt.
+
+5. **`WebhookService.paid` — fulfillment is keyed by provider event, not business operation.** Two different event IDs for the same order version create different fulfillment rows and use different inventory idempotency keys, so both can make real reservations. Key the fulfillment and external reservation by the canonical `(orderId, version)` operation, enforce its uniqueness atomically, and reuse its key on all duplicate-event/retry paths.
+
+6. **`WebhookService.paid` — external acceptance can be orphaned by rollback and supersession.** Inventory can accept a reservation before `afterReserve` throws and rolls back the database transaction. If a newer order version then commits before this event is retried, the old retry exits at `version < state.version`, leaving that accepted reservation unrecorded and unreconciled. Persist a recoverable reservation intent/operation before the external call, and reconcile or compensate accepted operations when a version is superseded, including on retry of an older event; a transaction around the external call alone cannot ensure recovery.
+
+7. **`WebhookService.paid` — order version check/update is not atomic across deliveries.** Two transactions can read the same `OrderState`, process different versions, and commit the older version last, regressing `state.version` and `status` and allowing outdated work to proceed. Serialize processing per order or use a conditional version update/lock checked under the transaction, with only the winning state transition proceeding to fulfillment.
+
+8. **`ReservationMover` — opposing account-lock acquisition orders.** `move` locks from then to, while `cancelPair` locks second then first. Concurrent operations on the same two accounts can each hold one lock and wait indefinitely for the other (even two moves with reversed arguments can do this). Acquire distinct account locks in ascending account-ID order on every path, regardless of operation or argument order.
+
+VERDICT: REQUEST_CHANGES

@@ -1,0 +1,72 @@
+{
+  "task": "frontier-review-deep",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "trial": 1,
+  "score": 95,
+  "checks": {
+    "valid_findings_json": {
+      "points": 5,
+      "passed": true
+    },
+    "finding_PriceService.java_ignored_write_result": {
+      "points": 15,
+      "passed": true
+    },
+    "finding_PriceService.java_transaction_visibility": {
+      "points": 15,
+      "passed": true
+    },
+    "finding_AuditWorker.java_payload_snapshot": {
+      "points": 10,
+      "passed": true
+    },
+    "finding_AuditWorker.java_retry_idempotency": {
+      "points": 10,
+      "passed": true
+    },
+    "finding_WebhookService.java_business_identity_scope": {
+      "points": 20,
+      "passed": true
+    },
+    "finding_WebhookService.java_external_effect_recovery": {
+      "points": 10,
+      "passed": true
+    },
+    "finding_ReservationMover.java_lock_order": {
+      "points": 10,
+      "passed": true
+    },
+    "false_positive_penalty": {
+      "points": -5,
+      "passed": false,
+      "reported": [
+        {
+          "file": "PriceService.java",
+          "failure_class": "external_effect_recovery"
+        }
+      ]
+    },
+    "requests_changes": {
+      "points": 5,
+      "passed": true
+    }
+  },
+  "duration_seconds": 144,
+  "responses": 4,
+  "shell_commands": 3,
+  "max_turns": 40,
+  "shell_budget": 40,
+  "saturated": false,
+  "usage": {
+    "input_tokens": 12406,
+    "output_tokens": 4976,
+    "reasoning_tokens": 3516,
+    "cached_input_tokens": 2944
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}

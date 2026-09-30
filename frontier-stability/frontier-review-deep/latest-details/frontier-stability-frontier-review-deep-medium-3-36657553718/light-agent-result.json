@@ -1,0 +1,24 @@
+{
+  "task_dir": "/tmp/frontier-stability-frontier-review-deep-medium-3",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 102,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 4,
+  "shell_budget": 40,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 16659,
+    "output_tokens": 2938,
+    "reasoning_tokens": 1262,
+    "cached_input_tokens": 6656
+  },
+  "final_text": "Wrote `REVIEW.md` with blocking reliability findings and `FINDINGS.json` with the matching taxonomy entries. The verdict is **REQUEST_CHANGES**.\n\nValidation: checked the JSON with `python3 -m json.tool`, verified the failure classes against `review-taxonomy.json`, and checked the required final verdict line."
+}

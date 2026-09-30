@@ -1,0 +1,12 @@
+{
+  "findings": [
+    {"file": "PriceService.java", "symbol": "changePrice", "failure_class": "transaction_visibility"},
+    {"file": "PriceService.java", "symbol": "changePrice", "failure_class": "ignored_write_result"},
+    {"file": "AuditWorker.java", "symbol": "deliver", "failure_class": "payload_snapshot"},
+    {"file": "AuditWorker.java", "symbol": "deliver", "failure_class": "retry_idempotency"},
+    {"file": "WebhookService.java", "symbol": "paid", "failure_class": "business_identity_scope"},
+    {"file": "WebhookService.java", "symbol": "paid", "failure_class": "lost_update"},
+    {"file": "ReservationMover.java", "symbol": "move", "failure_class": "lock_order"}
+  ],
+  "verdict": "REQUEST_CHANGES"
+}

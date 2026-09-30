@@ -1,0 +1,21 @@
+# Blocking findings
+
+1. **`PriceService.changePrice` — ignored write result (`ignored_write_result`).** `updateIfVersion` can return `false` when a competing write wins, but the method still queues an audit for `expectedVersion + 1`. This can audit a price version this call did not write (or one that does not exist). Check the result and publish work only for a successful conditional update; reject/report a version conflict otherwise.
+
+2. **`PriceService.changePrice` — stale cache (`transaction_visibility`).** Evicting inside the transaction allows a cache miss to read the old committed price and repopulate the shared cache before the new price commits. Even moving eviction after commit alone is insufficient if an in-flight reader read the old value before commit but fills the cache after eviction. Coordinate invalidation with commit and fence/version-check concurrent cache fills so an older snapshot cannot overwrite the accepted price.
+
+3. **`PriceService.changePrice` — audit publication is not atomic with the write (`external_effect_recovery`).** `audits.enqueue` runs before the database commit. A consumer can see the work even if the price transaction later rolls back; publishing only after commit instead leaves a crash window in which a committed version has no audit work. Record the immutable audit intent in a transactional outbox with the price update, and deliver it asynchronously after commit.
+
+4. **`AuditWorker.deliver` — wrong historical audit price (`payload_snapshot`).** Work contains a version but delivery reads the *current* product price. If another price change commits before this work is processed, the sink receives the old version paired with the new price. Capture the accepted version's price in the durable work item and send that snapshot, not a later repository read.
+
+5. **`AuditWorker.deliver` — duplicate logical audit records (`retry_idempotency`).** A new random idempotency key is generated on every delivery attempt. If the sink accepts a send but its acknowledgment is lost, retrying creates another record because the sink only deduplicates a reused key. Derive and reuse a stable key from product ID and accepted version (or persist one with the work).
+
+6. **`WebhookService.paid` — wrong fulfillment identity (`business_identity_scope`).** Different provider event IDs for the same order version create different fulfillments and distinct inventory idempotency keys. Both events can therefore reserve inventory for one logical operation. Key the fulfillment and reservation by the stable `(orderId, version)` business identity, with an atomic uniqueness constraint/claim for concurrent deliveries.
+
+7. **`WebhookService.paid` — non-atomic version transition (`lost_update`).** Checking `version < state.version` and then mutating the state does not protect against simultaneous older and newer events: both can observe the old version, and the older transaction can commit last, regressing the stored order version and status. Make the monotonic version check and update atomic in the database (or serialize per order), and only proceed to fulfillment for a transition that actually wins.
+
+8. **`WebhookService.paid` — untracked external reservation (`external_effect_recovery`).** Inventory may accept a reservation before `afterReserve` fails or the database transaction aborts. The local fulfillment and event insert then roll back, leaving no durable record of that external effect; a newer event can supersede the failed version before its retry, so the old delivery returns as stale without ever recording or reconciling the reservation. Persist a durable per-business-operation reservation intent before calling inventory, reuse its stable key on retries, and reconcile accepted reservations, including superseded attempts, independently of webhook transaction success.
+
+9. **`ReservationMover` — inconsistent pair locking (`lock_order`).** `move` locks in caller-supplied order and `cancelPair` locks in reverse caller-supplied order. Opposing requests can each hold one account lock and wait forever for the other. Acquire both locks in ascending account-ID order on every path (and acquire only once when IDs coincide).
+
+VERDICT: REQUEST_CHANGES

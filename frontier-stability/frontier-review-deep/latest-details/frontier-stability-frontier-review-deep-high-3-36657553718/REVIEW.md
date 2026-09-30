@@ -1,0 +1,19 @@
+# Blocking findings
+
+1. **PriceService.java — `changePrice` (ignored write result).** `updateIfVersion` can return `false` for a stale expected version, but this method still evicts the cache and publishes an audit for `expectedVersion + 1`. A rejected price can therefore generate a false or conflicting audit record. Check the boolean and do not emit any downstream effects unless the versioned update succeeded.
+
+2. **PriceService.java — `changePrice` (cache/transaction ordering).** Eviction happens while the new price is uncommitted. A cache miss can read the old committed price and repopulate it after eviction, leaving stale reads even after the price commits. Simply moving eviction to after commit does not cover a cache fill that started before commit and finishes after that eviction. Coordinate committed-version invalidation with cache-aside fills (for example, a version fence or serialization of fills and writes), so an older snapshot cannot remain cached after the successful commit.
+
+3. **PriceService.java — `changePrice` (audit delivery is not atomic with the write).** `audits.enqueue` runs inside the database transaction, but the queue has no transactional coupling to the product write. A worker can receive a record before commit, or the database can roll back after enqueue, producing an audit for an unaccepted version; there is also no durable, atomic recovery boundary guaranteeing publication for every accepted write. Write a versioned audit/outbox record in the same transaction as the successful update, and publish it after commit with recoverable retries.
+
+4. **AuditWorker.java — `deliver` (wrong audit payload).** Work for version N fetches the *current* product price. If version N+1 has committed before delivery, the sink receives version N paired with N+1's price. Carry the exact accepted price alongside its version in immutable, durable audit work (or read an immutable versioned history record) and send that snapshot, not the latest product row.
+
+5. **AuditWorker.java — `deliver` (unstable retry identity).** Every attempt creates a new UUID. If a sink accepts an audit but the worker retries after a timeout or crash, the sink cannot deduplicate it, so one accepted version can produce multiple logical audit records. Derive a stable business idempotency key from product ID and accepted version and reuse it on all retries.
+
+6. **WebhookService.java — `paid` (event identity is not fulfillment identity).** Two different provider event IDs can represent the same order version. Both pass event deduplication, create separate fulfillment entries, and call inventory with different `event:` keys, producing two external reservations for one logical fulfillment. Key fulfillment and the inventory idempotency request by the same stable order/version business identity; retain event ID only for transport deduplication. This must remain stable on retries after a reservation succeeds but the local transaction fails.
+
+7. **WebhookService.java — `paid` (unguarded version transition).** Reading `state.version`, comparing it, and assigning a new value are not atomic across service instances. Concurrent versions can both read the old state and commit in reverse order, so an older PAID event overwrites a newer version and can proceed to reserve inventory. Serialize transitions per order or use an atomic conditional version update with a concurrency-safe fulfillment workflow that prevents a losing/stale transition from issuing an external effect.
+
+8. **ReservationMover.java — `move` / `cancelPair` (inconsistent lock order).** `move(1, 2)` locks 1 then 2 while `cancelPair(1, 2)` locks 2 then 1; concurrent calls can deadlock across instances. Sort the two account IDs and acquire locks in ascending order in both paths, independent of the operation's argument order.
+
+VERDICT: REQUEST_CHANGES
