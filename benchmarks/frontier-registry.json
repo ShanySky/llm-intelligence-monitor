@@ -298,6 +298,19 @@
         "missed_luna_check": "isolated_retry_failure_on_healthy_pod"
       },
       "note": "No stable Sol effort quality/efficiency gain. Promoted to repeated cross-model validation because Luna missed a causal isolation check while Sol generally completed it."
+    },
+    {
+      "id": "frontier-fullstack-autosave",
+      "family": "coding_cross_layer_autosave_recovery",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 95,
+        "duration_seconds": 66,
+        "probe_calls": 1,
+        "all_behavioral_checks_passed": true
+      },
+      "note": "Cross-layer code repair was fully correct; only runtime-investigation evidence was omitted, so it is not promoted as a discriminator."
     }
   ]
 }
