@@ -1,5 +1,5 @@
 {
-  "task": "frontier-pagination",
+  "task": "frontier-migration",
   "model": "gpt-6-luna",
   "effort": "high",
   "max_turns": 30,
