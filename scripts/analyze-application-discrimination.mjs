@@ -7,6 +7,12 @@ const outMd = process.argv[5] ?? 'results/application-discrimination.md';
 
 const data = JSON.parse(fs.readFileSync(input, 'utf8'));
 const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
+const registryPath = 'benchmarks/frontier-registry.json';
+let frontierRegistry = { tasks: [] };
+if (fs.existsSync(registryPath)) {
+  try { frontierRegistry = JSON.parse(fs.readFileSync(registryPath, 'utf8')); } catch {}
+}
+const registryByTask = new Map((frontierRegistry.tasks ?? []).map((x) => [x.id, x]));
 const rows = Array.isArray(data.rows) ? data.rows : [];
 const families = data.manifest?.families ?? [];
 if (!rows.length) throw new Error('No result rows found');
@@ -86,14 +92,27 @@ for (const family of families) {
 
   const stable = maxStd == null || maxStd <= Number(q.max_repeat_stddev_points ?? 12);
   const withinBudget = maxDuration == null || maxDuration <= Number(runtime.hard_limit_seconds ?? 600);
-  const modelDiscriminator = modelSpread != null && modelSpread >= Number(q.min_model_spread_points ?? 10);
+  const registryEvidence = registryByTask.get(family.id) ?? null;
+  const registryModelConfirmed = Boolean(
+    registryEvidence?.promoted_to_final &&
+    ['model-discriminator-confirmed','model+effort-discriminator-confirmed'].includes(registryEvidence?.status)
+  );
+  const registryEffortConfirmed = Boolean(
+    ['effort-discriminator-confirmed','model+effort-discriminator-confirmed'].includes(registryEvidence?.status)
+  );
+  const repeatedModelEvidence = configStats.length > 0 && configStats.every((x) => x.trials >= 2);
+  const modelDiscriminatorCurrent =
+    modelSpread != null &&
+    modelSpread >= Number(q.min_model_spread_points ?? 10) &&
+    repeatedModelEvidence;
+  const modelDiscriminator = registryModelConfirmed || modelDiscriminatorCurrent;
   const effortCandidate =
     directionalEffortGain != null &&
     directionalEffortGain >= Number(q.min_effort_directional_gain_points ?? q.min_effort_spread_points ?? 10);
   const repeatEnough =
     Number.isFinite(minEffortTrials) &&
     minEffortTrials >= Number(q.min_trials_for_effort_confirmation ?? 2);
-  const effortDiscriminator = effortCandidate && repeatEnough && stable;
+  const effortDiscriminator = registryEffortConfirmed || (effortCandidate && repeatEnough && stable);
 
   const efficiencyFloor = Number(efficiency.min_quality_floor ?? 95);
   const minEfficiencyImprovement = Number(efficiency.min_improvement_percent ?? 15) / 100;
@@ -141,6 +160,10 @@ for (const family of families) {
     weight: family.weight,
     classification,
     model_spread_points: modelSpread,
+    model_signal_confirmed: modelDiscriminator,
+    model_signal_source: registryModelConfirmed ? 'registry-repeat-validation' : (modelDiscriminatorCurrent ? 'current-repeated-run' : 'unconfirmed'),
+    effort_signal_confirmed: effortDiscriminator,
+    effort_signal_source: registryEffortConfirmed ? 'registry-repeat-validation' : (effortDiscriminator ? 'current-repeated-run' : 'unconfirmed'),
     sol_effort_spread_points: effortSpread,
     sol_directional_effort_gain_points: directionalEffortGain,
     min_sol_effort_trials: Number.isFinite(minEffortTrials) ? minEffortTrials : null,
@@ -157,9 +180,7 @@ for (const family of families) {
 
 const coreTasks = tasks.filter((x) => x.role === 'core');
 const confirmedCoreTasks = coreTasks.filter((x) =>
-  x.classification === 'model-discriminator' ||
-  x.classification === 'effort-discriminator' ||
-  x.classification === 'model+effort-discriminator'
+  x.model_signal_confirmed || x.effort_signal_confirmed
 );
 const minCoreFamilies = Number(data.manifest?.core_min_families_for_mature_score ?? 1);
 
@@ -185,20 +206,20 @@ const pct = (v) => v == null ? '-' : (v*100).toFixed(0)+'%';
 const lines = [
   '# Application Task Discrimination Analysis',
   '',
-  '| Task | Family | Role | Class | XHigh model spread | Sol M→XH gain | Efficiency signal | Min effort trials | Repeat stddev | Ceiling rate | Max avg runtime |',
-  '|---|---|---|---|---:|---:|---|---:|---:|---:|---:|',
+  '| Task | Family | Role | Class | Model signal | XHigh model spread | Sol M→XH gain | Effort signal | Efficiency signal | Min effort trials | Repeat stddev | Ceiling rate | Max avg runtime |',
+  '|---|---|---|---|---|---:|---:|---|---|---:|---:|---:|---:|',
 ];
 for (const x of tasks) {
   const eff = x.efficiency_candidate
     ? x.efficiency_improved_metrics.map(m=>`${m.metric} ${m.improvement_percent.toFixed(0)}%`).join(', ')
     : '-';
-  lines.push(`| ${x.task} | ${x.family} | ${x.role} | ${x.classification} | ${f1(x.model_spread_points)} | ${f1(x.sol_directional_effort_gain_points)} | ${eff} | ${x.min_sol_effort_trials ?? '-'} | ${f1(x.max_repeat_stddev_points)} | ${pct(x.ceiling_rate)} | ${x.max_average_duration_seconds == null ? '-' : Math.round(x.max_average_duration_seconds)+'s'} |`);
+  lines.push(`| ${x.task} | ${x.family} | ${x.role} | ${x.classification} | ${x.model_signal_confirmed ? 'confirmed' : 'unconfirmed'} | ${f1(x.model_spread_points)} | ${f1(x.sol_directional_effort_gain_points)} | ${x.effort_signal_confirmed ? 'confirmed' : 'unconfirmed'} | ${eff} | ${x.min_sol_effort_trials ?? '-'} | ${f1(x.max_repeat_stddev_points)} | ${pct(x.ceiling_rate)} | ${x.max_average_duration_seconds == null ? '-' : Math.round(x.max_average_duration_seconds)+'s'} |`);
 }
 lines.push(
   '',
   `**Core signal maturity:** ${output.core_signal.confirmed_core_families}/${output.core_signal.minimum_core_families} confirmed families → ${output.core_signal.mature ? 'mature' : 'not yet mature'}.`,
   '',
-  '> Selection rule: quality discrimination and execution efficiency are separate signals. Effort discrimination requires a repeated positive Medium→X High quality gain. A ceiling task may additionally show an efficiency candidate when X High uses materially less runtime/tool work/token cost at the same quality, but that does not count as a quality win and still requires repeated validation.',
+  '> Selection rule: formal model/effort promotion requires repeated evidence. A one-shot spread in the final suite is diagnostic only; previously repeated frontier validation recorded in the registry remains the authoritative promotion evidence. Quality discrimination and execution efficiency are separate signals. Effort discrimination requires a repeated positive Medium→X High quality gain. A ceiling task may additionally show an efficiency candidate when X High uses materially less runtime/tool work/token cost at the same quality, but that does not count as a quality win and still requires repeated validation.',
   ''
 );
 fs.writeFileSync(outMd, lines.join('\n'));
