@@ -1,9 +1,9 @@
 {
   "task": "frontier-dynamic-diagnosis",
-  "model": "gpt-6-luna",
-  "effort": "high",
-  "trial": 1,
-  "score": 80,
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "trial": 2,
+  "score": 100,
   "checks": {
     "valid_diagnosis_json": {
       "points": 5,
@@ -35,33 +35,33 @@
     },
     "causal_evidence_a": {
       "points": 10,
-      "passed": false
+      "passed": true
     },
     "causal_evidence_b": {
       "points": 10,
-      "passed": false
+      "passed": true
     }
   },
-  "duration_seconds": 68,
+  "duration_seconds": 49,
   "responses": 7,
-  "max_turns": 24,
+  "max_turns": 30,
   "shell_commands": 2,
-  "shell_budget": 12,
+  "shell_budget": 18,
   "validation_calls": 1,
   "validation_budget": 8,
   "validation_enabled": true,
-  "probe_calls": 9,
-  "probe_attempts": 16,
-  "probe_budget": 9,
+  "probe_calls": 14,
+  "probe_attempts": 14,
+  "probe_budget": 20,
   "probe_enabled": true,
   "turn_limit_reached": false,
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 14189,
-    "output_tokens": 1027,
-    "reasoning_tokens": 543,
-    "cached_input_tokens": 5632
+    "input_tokens": 12659,
+    "output_tokens": 566,
+    "reasoning_tokens": 74,
+    "cached_input_tokens": 8832
   },
   "api_retries": 0,
   "infrastructure_error": null,
