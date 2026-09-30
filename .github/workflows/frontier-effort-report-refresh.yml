@@ -40,18 +40,40 @@ jobs:
           node scripts/analyze-effort-efficiency.mjs             results-frontier-effort-summary.json             benchmarks/application-selection-policy.json             frontier-effort-analysis.json             frontier-effort-analysis.md
           cat frontier-effort-analysis.md >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Analyze patch quality when configured
+        shell: bash
+        run: |
+          TASK="${{ steps.target.outputs.task }}"
+          MANIFEST="benchmarks/$TASK/patch-quality.json"
+          if [ -f "$MANIFEST" ]; then
+            node scripts/analyze-patch-quality.mjs               results-frontier-effort-summary.json               "$MANIFEST"               patch-quality-analysis.json               patch-quality-analysis.md
+            printf "\n\n" >> "$GITHUB_STEP_SUMMARY"
+            cat patch-quality-analysis.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Publish refreshed analysis
         shell: bash
         run: |
           TASK="${{ steps.target.outputs.task }}"
           cp frontier-effort-analysis.json /tmp/frontier-effort-analysis.json
           cp frontier-effort-analysis.md /tmp/frontier-effort-analysis.md
+          if [ -f patch-quality-analysis.json ]; then
+            cp patch-quality-analysis.json /tmp/patch-quality-analysis.json
+            cp patch-quality-analysis.md /tmp/patch-quality-analysis.md
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -C frontier-effort-results origin/frontier-effort-results
           cp /tmp/frontier-effort-analysis.json "frontier-effort/$TASK/analysis-latest.json"
           cp /tmp/frontier-effort-analysis.md "frontier-effort/$TASK/analysis-latest.md"
+          if [ -f /tmp/patch-quality-analysis.json ]; then
+            cp /tmp/patch-quality-analysis.json "frontier-effort/$TASK/patch-quality-latest.json"
+            cp /tmp/patch-quality-analysis.md "frontier-effort/$TASK/patch-quality-latest.md"
+          fi
           git add "frontier-effort/$TASK/analysis-latest.json" "frontier-effort/$TASK/analysis-latest.md"
+          if [ -f "frontier-effort/$TASK/patch-quality-latest.json" ]; then
+            git add "frontier-effort/$TASK/patch-quality-latest.json" "frontier-effort/$TASK/patch-quality-latest.md"
+          fi
           if ! git diff --cached --quiet; then
             git commit -m "Refresh frontier effort analysis $TASK"
             git push origin HEAD:frontier-effort-results
