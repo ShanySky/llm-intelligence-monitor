@@ -117,7 +117,7 @@ GitHub Actions 每天 **中国时间 08:30（Asia/Shanghai）** 自动运行。
 当前日测同时运行四个模型：
 
 - GPT-6 Astra X High
-- GPT-6 Sol X High
+- GPT-6.1 Sol X High
 - GPT-6 Luna X High
 - GPT-5.6 Sol X High
 
@@ -169,7 +169,7 @@ In **Actions → LLM intelligence daily monitor → Run workflow**, set `models`
 
 - `all` — run every configured model;
 - `gpt-6-luna` — run only GPT-6 Luna X High;
-- `gpt-6-sol,gpt-6-luna` — run multiple selected models.
+- `gpt-6-1-sol,gpt-6-luna` — run multiple selected models.
 
 Manual runs do not write formal history and do not participate in degradation or routing-anomaly judgments.
 
@@ -241,7 +241,7 @@ A controlled manual run can execute all configured models at reasoning effort `h
 
 - **日常快速监控**：继续使用 Promptfoo 低成本题库，适合每天运行；
 - **应用型校准**：使用轻量 Agent Harness，小规模筛选候选任务；
-- **最终应用验收**：`Final application benchmark validation` 工作流，对多个模型以及 GPT-6 Sol Medium / High / X High 做完整对照；
+- **最终应用验收**：`Final application benchmark validation` 工作流，对多个模型以及 GPT-6.1 Sol Medium / High / X High 做完整对照；
 - **稳定性复测**：只重复真正有区分信号的任务，不整套重跑。
 
 应用型任务默认不加入每天的全量定时运行，避免 Agent 工具调用和长上下文显著放大 Token 成本。需要模型版本验收、疑似降智、题库校准时再运行完整套件。
