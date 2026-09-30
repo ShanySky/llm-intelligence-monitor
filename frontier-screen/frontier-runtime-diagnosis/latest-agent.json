@@ -1,0 +1,41 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-runtime-diagnosis",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 53,
+  "responses": 8,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 2,
+  "shell_budget": 12,
+  "validation_calls": 1,
+  "validation_budget": 2,
+  "validation_enabled": true,
+  "probe_calls": 12,
+  "probe_budget": 7,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Inspect current checkout health and relevant live diagnostics: API pod revisions/config render versus desired, error correlation, provider idempotency behavior/key scope, retry traces, and other component revision differences. Return concrete evidence.",
+    "help",
+    "status",
+    "pods",
+    "config api-a",
+    "config api-b",
+    "logs api-a",
+    "logs api-b",
+    "consumers",
+    "invalidators",
+    "capacity",
+    "experiment timeout api-a"
+  ],
+  "max_turns": 24,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 14404,
+    "output_tokens": 771,
+    "reasoning_tokens": 316,
+    "cached_input_tokens": 4608
+  },
+  "final_text": "Wrote `REPAIR.json` with the API config drift and retry idempotency causes, and only their targeted repairs. Validation passed: both causal domains are repaired without unrelated rollout changes."
+}
