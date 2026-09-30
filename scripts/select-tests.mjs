@@ -137,15 +137,30 @@ const rotatingCount = intOverride('ROTATING_COUNT_OVERRIDE', daily.rotatingCount
 const repeat = intOverride('REPEAT_OVERRIDE', daily.repeat ?? 1);
 const runDate = getRunDate();
 const anchorPool = daily.anchorPool ?? [];
+const configuredCore = Number(daily.anchorCoreCount ?? anchorCount);
+const anchorCoreCount = Math.max(0, Math.min(anchorCount, configuredCore));
 
 if (anchorCount > anchorPool.length) {
   throw new Error(`anchorCount=${anchorCount} exceeds anchorPool size=${anchorPool.length}`);
 }
+if (!Number.isInteger(configuredCore) || configuredCore < 0) {
+  throw new Error('daily.anchorCoreCount must be a non-negative integer');
+}
 
-const anchorIds = anchorPool.slice(0, anchorCount);
+const coreAnchorIds = anchorPool.slice(0, anchorCoreCount);
+const adaptiveAnchorCount = anchorCount - anchorCoreCount;
+const adaptiveCandidates = anchorPool.slice(anchorCoreCount);
+adaptiveCandidates.sort((a, b) => {
+  const aw = weightedStableScore(`${runDate}|anchor`, a);
+  const bw = weightedStableScore(`${runDate}|anchor`, b);
+  if (aw !== bw) return aw - bw;
+  return a.localeCompare(b);
+});
+const adaptiveAnchorIds = adaptiveCandidates.slice(0, adaptiveAnchorCount);
+const anchorIds = [...coreAnchorIds, ...adaptiveAnchorIds];
 
 if (new Set(anchorIds).size !== anchorIds.length) {
-  throw new Error('anchorPool contains duplicate IDs within the active anchor range');
+  throw new Error('anchorPool contains duplicate IDs within the selected anchor set');
 }
 
 for (const id of anchorIds) {
@@ -229,6 +244,9 @@ const selection = {
   canonicalQuestionsSelected: selectedIds.length,
   bilingualTestsSelected: selectedIds.length * 2,
   anchors: anchorIds,
+  coreAnchors: coreAnchorIds,
+  adaptiveAnchors: adaptiveAnchorIds,
+  anchorCoreCount,
   rotating: rotatingIds,
   selected: selectedIds.map((id) => ({
     pairId: id,
@@ -247,7 +265,7 @@ const selection = {
 fs.writeFileSync(outSelection, JSON.stringify(selection, null, 2) + '\n');
 
 console.log(`Daily selection for ${runDate}: ${anchorCount} anchors + ${rotatingCount} rotating = ${selectedIds.length} canonical questions / ${selectedIds.length * 2} bilingual tests`);
-console.log(`Anchors: ${anchorIds.join(', ')}`);
+console.log(`Anchors: ${anchorIds.join(', ')} (core: ${coreAnchorIds.join(', ')}; adaptive: ${adaptiveAnchorIds.join(', ')})`);
 console.log(`Rotating: ${rotatingIds.join(', ')}`);
 console.log(`Difficulty: ${JSON.stringify(difficultyCounts)}`);
 console.log(`Ability: ${JSON.stringify(abilityCounts)}`);
