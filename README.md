@@ -320,3 +320,17 @@ Medium / High / X High 的前置筛选不再只使用整题 pass/fail。对于�
 
 Frontier 任务允许使用受限黑盒 validator 作为运行时证据，也支持 staged Harness 在后续阶段动态揭示新的仓库文件和验证证据。未来阶段内容在揭示前不可被 Agent 读取，避免把长程任务退化成“一次读完全部 checklist”。
 
+### Real-repo replay
+
+Reasoning-effort validation now includes a real-history replay lane. Each replay task
+starts from the parent of a real maintenance commit in this repository, extracted
+without `.git`; the model cannot inspect the target commit or reference diff.
+
+Hidden fixtures first score behavioral equivalence. Once the correctness gate passes,
+objective Patch Quality measures whether the implementation stayed inside the intended
+repair surface without test edits or unnecessary footprint. Target commits must pass
+the same hidden fixture at 100% before a replay task is accepted.
+
+This lane is the preferred Effort Core source when synthetic micro-repositories
+saturate at Medium/High/X High. Synthetic tasks remain valuable as coverage and Model
+Core tests.
