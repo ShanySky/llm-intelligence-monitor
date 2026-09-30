@@ -1014,6 +1014,167 @@ public final class FrontierCacheHiddenTest {
     add("invalidate_during_inflight_load",20,"INVALIDATE_PASS" in hidden_out)
     add("failure_fanout_and_retry",20,"FAILURE_PASS" in hidden_out)
 
+
+elif task == "frontier-workflow-resume":
+    hidden = r'''import java.util.*;
+import java.util.concurrent.atomic.*;
+
+public final class FrontierWorkflowHiddenTest {
+  public static void main(String[] args) {
+    run("ORDER", FrontierWorkflowHiddenTest::dependencyOrder);
+    run("RESUME", FrontierWorkflowHiddenTest::resumeSkipsCompleted);
+    run("CRASH", FrontierWorkflowHiddenTest::crashUsesStableKey);
+    run("RETRY", FrontierWorkflowHiddenTest::transientRetryAndLimit);
+    run("CANCEL", FrontierWorkflowHiddenTest::cancelStopsNewSteps);
+    run("VALIDATE", FrontierWorkflowHiddenTest::validation);
+  }
+
+  interface Case { void run() throws Exception; }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+
+  static Workflow abcUnordered() {
+    return new Workflow(List.of(
+      new Step("C",List.of("B")),
+      new Step("A",List.of()),
+      new Step("B",List.of("A"))
+    ));
+  }
+
+  static void dependencyOrder() {
+    JobStore s=new JobStore(); WorkflowEngine e=new WorkflowEngine(s,FailureInjector.none());
+    List<String> ran=new ArrayList<>();
+    e.execute("order",abcUnordered(),(step,key)->ran.add(step));
+    check(ran.equals(List.of("A","B","C")));
+  }
+
+  static void resumeSkipsCompleted() {
+    JobStore s=new JobStore(); WorkflowEngine e=new WorkflowEngine(s,FailureInjector.none());
+    Map<String,Integer> calls=new HashMap<>();
+    Workflow wf=new Workflow(List.of(new Step("A",List.of()),new Step("B",List.of("A"))));
+    StepRunner r=(step,key)->calls.merge(step,1,Integer::sum);
+    e.execute("resume",wf,r);
+    e.execute("resume",wf,r);
+    check(calls.getOrDefault("A",0)==1);
+    check(calls.getOrDefault("B",0)==1);
+  }
+
+  static void crashUsesStableKey() {
+    JobStore s=new JobStore();
+    AtomicBoolean crashOnce=new AtomicBoolean(true);
+    WorkflowEngine first=new WorkflowEngine(s,(job,step)->{
+      if(step.equals("A") && crashOnce.getAndSet(false)) throw new RuntimeException("simulated crash");
+    });
+    Workflow wf=new Workflow(List.of(new Step("A",List.of()),new Step("B",List.of("A"))));
+
+    Map<String,Set<String>> seenKeys=new HashMap<>();
+    AtomicInteger sideEffectsA=new AtomicInteger();
+    StepRunner runner=(step,key)->{
+      Set<String> keys=seenKeys.computeIfAbsent(step,k->new HashSet<>());
+      if(keys.add(key) && step.equals("A")) sideEffectsA.incrementAndGet();
+    };
+
+    boolean crashed=false;
+    try { first.execute("crash",wf,runner); }
+    catch(RuntimeException expected) { crashed=true; }
+    check(crashed);
+    check(!s.get("crash").isCompleted("A"));
+    check(sideEffectsA.get()==1);
+
+    WorkflowEngine resumed=new WorkflowEngine(s,FailureInjector.none());
+    resumed.execute("crash",wf,runner);
+    check(s.get("crash").isCompleted("A"));
+    check(s.get("crash").isCompleted("B"));
+    check(sideEffectsA.get()==1);
+    check(seenKeys.get("A").size()==1);
+  }
+
+  static void transientRetryAndLimit() {
+    JobStore s=new JobStore(); WorkflowEngine e=new WorkflowEngine(s,FailureInjector.none());
+    AtomicInteger bCalls=new AtomicInteger(); List<String> ran=new ArrayList<>();
+    Workflow wf=new Workflow(List.of(
+      new Step("A",List.of()),
+      new Step("B",List.of("A")),
+      new Step("C",List.of("B"))
+    ));
+    e.execute("retry-ok",wf,(step,key)->{
+      if(step.equals("B") && bCalls.incrementAndGet()==1) throw new IllegalStateException("transient");
+      ran.add(step);
+    });
+    check(bCalls.get()==2);
+    check(ran.equals(List.of("A","B","C")));
+
+    JobStore s2=new JobStore(); WorkflowEngine e2=new WorkflowEngine(s2,FailureInjector.none());
+    AtomicInteger calls=new AtomicInteger(); AtomicBoolean cRan=new AtomicBoolean(false);
+    boolean failed=false;
+    try {
+      e2.execute("retry-fail",wf,(step,key)->{
+        if(step.equals("B")) { calls.incrementAndGet(); throw new IllegalStateException("permanent"); }
+        if(step.equals("C")) cRan.set(true);
+      });
+    } catch(RuntimeException expected) { failed=true; }
+    check(failed);
+    check(calls.get()==2);
+    check(!cRan.get());
+    check(!s2.get("retry-fail").isCompleted("B"));
+  }
+
+  static void cancelStopsNewSteps() {
+    JobStore s=new JobStore(); final WorkflowEngine[] holder=new WorkflowEngine[1];
+    holder[0]=new WorkflowEngine(s,FailureInjector.none());
+    Workflow wf=new Workflow(List.of(
+      new Step("A",List.of()),
+      new Step("B",List.of("A"))
+    ));
+    List<String> ran=new ArrayList<>();
+    holder[0].execute("cancel",wf,(step,key)->{
+      ran.add(step);
+      if(step.equals("A")) holder[0].requestCancel("cancel");
+    });
+    check(ran.equals(List.of("A")));
+    check(s.get("cancel").isCompleted("A"));
+    check(!s.get("cancel").isCompleted("B"));
+  }
+
+  static void validation() {
+    JobStore s=new JobStore(); WorkflowEngine e=new WorkflowEngine(s,FailureInjector.none());
+
+    boolean missing=false;
+    try {
+      e.execute("missing",new Workflow(List.of(new Step("A",List.of("NOPE")))),(step,key)->{});
+    } catch(IllegalArgumentException expected) { missing=true; }
+    check(missing);
+
+    boolean cycle=false;
+    try {
+      e.execute("cycle",new Workflow(List.of(
+        new Step("A",List.of("B")),
+        new Step("B",List.of("A"))
+      )),(step,key)->{});
+    } catch(IllegalArgumentException expected) { cycle=true; }
+    check(cycle);
+  }
+
+  static void check(boolean x){if(!x)throw new AssertionError();}
+}'''
+    (root/"FrontierWorkflowHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run(["javac","-d",str(outdir),*map(str,(root/"src").glob("*.java")),str(root/"FrontierWorkflowHiddenTest.java")],capture_output=True,text=True)
+    add("compiles",5,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True); visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierWorkflowHiddenTest"],capture_output=True,text=True,timeout=15); hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",5,visible)
+    add("dependency_order_from_unordered_input",20,"ORDER_PASS" in hidden_out)
+    add("resume_skips_completed_steps",15,"RESUME_PASS" in hidden_out)
+    add("crash_resume_stable_idempotency_key",25,"CRASH_PASS" in hidden_out)
+    add("bounded_retry_and_downstream_blocking",15,"RETRY_PASS" in hidden_out)
+    add("midflight_cancel_stops_new_steps",10,"CANCEL_PASS" in hidden_out)
+    add("cycle_and_missing_dependency_validation",10,"VALIDATE_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
