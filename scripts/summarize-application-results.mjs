@@ -9,6 +9,10 @@ const priorPath = process.argv[6] ?? '';
 
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 const weights = Object.fromEntries(manifest.families.map((x) => [x.id, Number(x.weight)]));
+const roles = Object.fromEntries(manifest.families.map((x) => [x.id, String(x.role ?? 'coverage')]));
+const coreFamilies = manifest.families.filter((x) => (x.role ?? 'coverage') === 'core');
+const coreWeight = coreFamilies.reduce((sum, x) => sum + Number(x.weight), 0);
+const minCoreFamilies = Number(manifest.core_min_families_for_mature_score ?? 1);
 
 const currentRows = [];
 function walk(p) {
@@ -71,6 +75,10 @@ for (const cfg of configs) {
   let qualityWeighted = 0;
   let practicalWeighted = 0;
   let validWeight = 0;
+  let coreQualityWeighted = 0;
+  let corePracticalWeighted = 0;
+  let coreValidWeight = 0;
+  let coreValidTasks = 0;
   for (const r of valid) {
     const w = weights[r.task] ?? 0;
     const quality = Number(r.score ?? 0);
@@ -79,6 +87,12 @@ for (const cfg of configs) {
     qualityWeighted += quality * w;
     practicalWeighted += practical * w;
     validWeight += w;
+    if (roles[r.task] === 'core') {
+      coreQualityWeighted += quality * w;
+      corePracticalWeighted += practical * w;
+      coreValidWeight += w;
+      coreValidTasks += 1;
+    }
   }
 
   const durationSeconds = valid.reduce((s, r) => s + Number(r.duration_seconds ?? 0), 0);
@@ -96,6 +110,14 @@ for (const cfg of configs) {
     task_count: taskCount,
     quality_score: validWeight ? qualityWeighted / validWeight : null,
     practical_score: validWeight ? practicalWeighted / validWeight : null,
+    core_quality_score: coreValidWeight ? coreQualityWeighted / coreValidWeight : null,
+    core_practical_score: coreValidWeight ? corePracticalWeighted / coreValidWeight : null,
+    core_valid_weight: coreValidWeight,
+    core_total_weight: coreWeight,
+    core_task_count: coreValidTasks,
+    core_family_count: coreFamilies.length,
+    core_data_complete: coreWeight > 0 && coreValidWeight === coreWeight,
+    core_mature: coreFamilies.length >= minCoreFamilies && coreWeight > 0 && coreValidWeight === coreWeight,
     budget_completion_rate: valid.length ? completeTasks.length / valid.length : null,
     duration_seconds: durationSeconds,
     average_duration_seconds: taskCount ? durationSeconds / taskCount : null,
@@ -141,19 +163,19 @@ function cellFor(family, cfg) {
 const lines = [
   '# Application Benchmark',
   '',
-  '| Task | Family | Weight | ' + configs.map(cfgLabel).join(' | ') + ' |',
-  '|---|---|---:|' + configs.map(() => '---').join('|') + '|',
+  '| Task | Family | Role | Weight | ' + configs.map(cfgLabel).join(' | ') + ' |',
+  '|---|---|---|---:|' + configs.map(() => '---').join('|') + '|',
 ];
 for (const family of manifest.families) {
-  lines.push(`| ${family.id} | ${family.family} | ${family.weight} | ${configs.map((c) => cellFor(family, c)).join(' | ')} |`);
+  lines.push(`| ${family.id} | ${family.family} | ${family.role ?? 'coverage'} | ${family.weight} | ${configs.map((c) => cellFor(family, c)).join(' | ')} |`);
 }
 
 lines.push(
   '',
   '## Overall',
   '',
-  '| Model | Effort | Quality | Budget completion | Practical | Runtime | Avg/task | Input tokens | Reasoning tokens | Data |',
-  '|---|---|---:|---:|---:|---:|---:|---:|---:|---|',
+  '| Model | Effort | Overall quality | Core signal | Core mature | Budget completion | Practical | Runtime | Avg/task | Input tokens | Reasoning tokens | Data |',
+  '|---|---|---:|---:|:---:|---:|---:|---:|---:|---:|---:|---|',
 );
 for (const cfg of configs) {
   const s = byConfig[cfg.key];
@@ -164,7 +186,7 @@ for (const cfg of configs) {
 
 lines.push(
   '',
-  '> Quality = hidden-checkpoint score. Practical = 85% quality + 15% budget-completion reliability. Runtime and token usage are reported separately and are not silently folded into intelligence quality. Infrastructure/API failures are marked incomplete instead of being scored as model failures.',
+  `> Overall quality includes all application coverage. Core signal uses only confirmed high-information tasks. Core is considered mature only when at least ${minCoreFamilies} core families are present and complete. Practical = 85% quality + 15% budget-completion reliability. Runtime and token usage remain separate.`,
   ''
 );
 
