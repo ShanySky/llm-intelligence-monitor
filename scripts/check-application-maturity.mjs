@@ -64,7 +64,7 @@ const confirmedModelTasks=(registry.tasks??[]).filter(x=>
   ['model-discriminator-confirmed','model+effort-discriminator-confirmed'].includes(x.status)
 ).map(x=>x.id);
 const confirmedEffortTasks=(registry.tasks??[]).filter(x=>
-  ['effort-discriminator-confirmed','model+effort-discriminator-confirmed'].includes(x.status)
+  ['effort-discriminator-confirmed','model+effort-discriminator-confirmed','effort-sensitivity-confirmed'].includes(x.status)
 ).map(x=>x.id);
 
 const checks={
