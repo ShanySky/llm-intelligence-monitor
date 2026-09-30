@@ -1,0 +1,178 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-dynamic-diagnosis-v2-xhigh-t3",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 94,
+  "responses": 11,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 18,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 20,
+  "probe_attempts": 24,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Summarize current incident customer-visible failures by endpoint, error type and time, with representative trace IDs and affected vs unaffected cohorts; do not infer causes.",
+    "Compare checkout request error rates and latency between api-a and api-b during the current incident, holding endpoint and traffic type constant.",
+    "Inspect provider payment retry traces for one failing logical order version: compare idempotency keys, attempts, and actual provider charges.",
+    "Compare strict read-after-write responses served by primary versus replica for the same recently written order during the incident.",
+    "Inspect API pod rendered configuration differences between api-a and api-b, specifically any behavior-changing checkout setting, and compare behavior when replaying identical request to each.",
+    "Inspect fulfillment event contract compatibility for rolling consumer revisions: replay same event to old and new revision, comparing expected state transitions.",
+    "Inspect cache invalidation of an order for legacy numeric identity and stable cache key during mixed-version rollout; compare stale key to primary.",
+    "Inspect API saturation during incident: compare serving capacity versus traffic, queueing, and errors with load held constant and increased capacity.",
+    "Compare strict read-after-write path through replica versus primary for same order immediately after a committed update, including routing and returned order versions.",
+    "What is rendered configuration diff on api-a vs api-b for checkout behavior?",
+    "Does an identical checkout request to api-a and api-b produce different behavior after controlling for order state and traffic?",
+    "For one logical order version, is the payment provider idempotency key stable on retry? Does it create duplicate charge?",
+    "Does the old fulfillment consumer incorrectly process a new event? Inspect a failing event replay by each revision.",
+    "Is the stable-key cache entry stale after legacy numeric-key writer update because invalidator-b fails to evict both aliases?",
+    "Do strict read-after-write requests route to a lagging replica? Compare observed stale reads versus strict primary.",
+    "Inspect rendered config fingerprint and strict customer read routing setting on api-a and api-b relative to desired config.",
+    "Trace a strict customer read following order write: was it served by replica, what were primary and replica versions, and is it stale?",
+    "Control experiment route strict customer read to primary vs replica immediately after same write; does stale result disappear?",
+    "For stale cache reads, test before and after dual-alias invalidation of legacy numeric and stable-key identities for same order.",
+    "api-a rendered config version and desired version; strict customer read routing setting?",
+    "api-b rendered config version and desired version; strict customer read routing setting?",
+    "Is replica behind primary at the moment of a stale strict customer read?",
+    "Compare observed strict customer read age through replica against primary for an order updated moments ago.",
+    "Observe production stale responses: which exact endpoint and source (cache, replica)?"
+  ],
+  "probe_executed_queries": [
+    "Summarize current incident customer-visible failures by endpoint, error type and time, with representative trace IDs and affected vs unaffected cohorts; do not infer causes.",
+    "Compare checkout request error rates and latency between api-a and api-b during the current incident, holding endpoint and traffic type constant.",
+    "Inspect provider payment retry traces for one failing logical order version: compare idempotency keys, attempts, and actual provider charges.",
+    "Compare strict read-after-write responses served by primary versus replica for the same recently written order during the incident.",
+    "Inspect API pod rendered configuration differences between api-a and api-b, specifically any behavior-changing checkout setting, and compare behavior when replaying identical request to each.",
+    "Inspect fulfillment event contract compatibility for rolling consumer revisions: replay same event to old and new revision, comparing expected state transitions.",
+    "Inspect cache invalidation of an order for legacy numeric identity and stable cache key during mixed-version rollout; compare stale key to primary.",
+    "Inspect API saturation during incident: compare serving capacity versus traffic, queueing, and errors with load held constant and increased capacity.",
+    "Compare strict read-after-write path through replica versus primary for same order immediately after a committed update, including routing and returned order versions.",
+    "What is rendered configuration diff on api-a vs api-b for checkout behavior?",
+    "Does an identical checkout request to api-a and api-b produce different behavior after controlling for order state and traffic?",
+    "For one logical order version, is the payment provider idempotency key stable on retry? Does it create duplicate charge?",
+    "Does the old fulfillment consumer incorrectly process a new event? Inspect a failing event replay by each revision.",
+    "Is the stable-key cache entry stale after legacy numeric-key writer update because invalidator-b fails to evict both aliases?",
+    "Do strict read-after-write requests route to a lagging replica? Compare observed stale reads versus strict primary.",
+    "Inspect rendered config fingerprint and strict customer read routing setting on api-a and api-b relative to desired config.",
+    "Trace a strict customer read following order write: was it served by replica, what were primary and replica versions, and is it stale?",
+    "Control experiment route strict customer read to primary vs replica immediately after same write; does stale result disappear?",
+    "For stale cache reads, test before and after dual-alias invalidation of legacy numeric and stable-key identities for same order.",
+    "api-a rendered config version and desired version; strict customer read routing setting?"
+  ],
+  "probe_observations": [
+    {
+      "query": "Summarize current incident customer-visible failures by endpoint, error type and time, with representative trace IDs and affected vs unaffected cohorts; do not infer causes.",
+      "output": "STDOUT:\nNO_MATCH: request is too broad or does not isolate one observable. Ask a focused comparison, component inspection, or controlled experiment.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare checkout request error rates and latency between api-a and api-b during the current incident, holding endpoint and traffic type constant.",
+      "output": "STDOUT:\napi-a=0 failures; api-b=0 failures\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect provider payment retry traces for one failing logical order version: compare idempotency keys, attempts, and actual provider charges.",
+      "output": "STDOUT:\nprovider=0 duplicate effects; fulfillment=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare strict read-after-write responses served by primary versus replica for the same recently written order during the incident.",
+      "output": "STDOUT:\nstrict primary read is fresh immediately after write\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect API pod rendered configuration differences between api-a and api-b, specifically any behavior-changing checkout setting, and compare behavior when replaying identical request to each.",
+      "output": "STDOUT:\nprovider logical effects=1\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect fulfillment event contract compatibility for rolling consumer revisions: replay same event to old and new revision, comparing expected state transitions.",
+      "output": "STDOUT:\nconsumer compatibility and replay pass\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect cache invalidation of an order for legacy numeric identity and stable cache key during mixed-version rollout; compare stale key to primary.",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect API saturation during incident: compare serving capacity versus traffic, queueing, and errors with load held constant and increased capacity.",
+      "output": "STDOUT:\ncpu max=36%; queues and pools healthy\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare strict read-after-write path through replica versus primary for same order immediately after a committed update, including routing and returned order versions.",
+      "output": "STDOUT:\nstrict primary read is fresh immediately after write\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What is rendered configuration diff on api-a vs api-b for checkout behavior?",
+      "output": "STDOUT:\napi-b config=24 desired=24; strict customer read route points to replica\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Does an identical checkout request to api-a and api-b produce different behavior after controlling for order state and traffic?",
+      "output": "STDOUT:\napi-b config=24 desired=24; strict customer read route points to replica\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For one logical order version, is the payment provider idempotency key stable on retry? Does it create duplicate charge?",
+      "output": "STDOUT:\nprovider=0 duplicate effects; fulfillment=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Does the old fulfillment consumer incorrectly process a new event? Inspect a failing event replay by each revision.",
+      "output": "STDOUT:\nconsumer compatibility and replay pass\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Is the stable-key cache entry stale after legacy numeric-key writer update because invalidator-b fails to evict both aliases?",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Do strict read-after-write requests route to a lagging replica? Compare observed stale reads versus strict primary.",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect rendered config fingerprint and strict customer read routing setting on api-a and api-b relative to desired config.",
+      "output": "STDOUT:\napi-b config=24 desired=24; strict customer read route points to replica\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Trace a strict customer read following order write: was it served by replica, what were primary and replica versions, and is it stale?",
+      "output": "STDOUT:\nstrict primary read is fresh immediately after write\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Control experiment route strict customer read to primary vs replica immediately after same write; does stale result disappear?",
+      "output": "STDOUT:\nstrict primary read is fresh immediately after write\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For stale cache reads, test before and after dual-alias invalidation of legacy numeric and stable-key identities for same order.",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "api-a rendered config version and desired version; strict customer read routing setting?",
+      "output": "STDOUT:\napi-a config=24 desired=24; strict customer read route points to replica\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 27454,
+    "output_tokens": 1602,
+    "reasoning_tokens": 408,
+    "cached_input_tokens": 15744
+  },
+  "final_text": "Wrote `DIAGNOSIS.json` with the two supported causes—`cache_invalidator_gap` and `replica_read_lag`—and their minimal repairs.\n\nValidation: `functions.validate` passed."
+}

@@ -1,0 +1,118 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-dynamic-diagnosis-v2-xhigh-t2",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 61,
+  "responses": 7,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 2,
+  "shell_budget": 18,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 12,
+  "probe_attempts": 12,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Summarize current checkout incident user-visible failures, affected operations and time window, and relevant runtime signals across services. Distinguish anomalous failures from ordinary rolling-release behavior.",
+    "Compare checkout API rendered configuration and behavior of api-a versus api-b for identical checkout requests during the incident. Is there behavior-changing pod drift?",
+    "Inspect failed checkout payment attempts with provider retries: for the same logical order version, are the business-scoped provider idempotency keys reused across attempts? Compare provider outcomes.",
+    "Compare fulfillment event handling across consumer revisions during the incident for the same event payload; identify contract violations and resulting failed user outcomes.",
+    "Compare mixed-version cache invalidation of legacy numeric identity and stable key namespace for updated checkout orders. Is either namespace left stale for a user-visible read?",
+    "For strict checkout read-after-write requests, inspect primary versus replica routes and returned order version immediately after a committed write. Is replica lag causing stale strict results?",
+    "Inspect API serving capacity during observed checkout failures: utilization, queueing, saturation and whether increased capacity would eliminate failures.",
+    "Inspect api-a rendered configuration and behavior relative to desired configuration and api-b for identical checkout operations. Is an active setting drifted?",
+    "For api-a only: report rendered checkout configuration revision and active setting difference from desired, if any.",
+    "In a controlled fulfillment replay of one order-version event under legal at-least-once redelivery, compare consumer-1 and consumer-2 number of fulfillment side effects.",
+    "In controlled API capacity test, compare request 503 rates before and after adding one replica with other services and traffic unchanged.",
+    "For same logical order version with provider retries, report idempotency key across attempts and count of payment provider logical effects."
+  ],
+  "probe_executed_queries": [
+    "Summarize current checkout incident user-visible failures, affected operations and time window, and relevant runtime signals across services. Distinguish anomalous failures from ordinary rolling-release behavior.",
+    "Compare checkout API rendered configuration and behavior of api-a versus api-b for identical checkout requests during the incident. Is there behavior-changing pod drift?",
+    "Inspect failed checkout payment attempts with provider retries: for the same logical order version, are the business-scoped provider idempotency keys reused across attempts? Compare provider outcomes.",
+    "Compare fulfillment event handling across consumer revisions during the incident for the same event payload; identify contract violations and resulting failed user outcomes.",
+    "Compare mixed-version cache invalidation of legacy numeric identity and stable key namespace for updated checkout orders. Is either namespace left stale for a user-visible read?",
+    "For strict checkout read-after-write requests, inspect primary versus replica routes and returned order version immediately after a committed write. Is replica lag causing stale strict results?",
+    "Inspect API serving capacity during observed checkout failures: utilization, queueing, saturation and whether increased capacity would eliminate failures.",
+    "Inspect api-a rendered configuration and behavior relative to desired configuration and api-b for identical checkout operations. Is an active setting drifted?",
+    "For api-a only: report rendered checkout configuration revision and active setting difference from desired, if any.",
+    "In a controlled fulfillment replay of one order-version event under legal at-least-once redelivery, compare consumer-1 and consumer-2 number of fulfillment side effects.",
+    "In controlled API capacity test, compare request 503 rates before and after adding one replica with other services and traffic unchanged.",
+    "For same logical order version with provider retries, report idempotency key across attempts and count of payment provider logical effects."
+  ],
+  "probe_observations": [
+    {
+      "query": "Summarize current checkout incident user-visible failures, affected operations and time window, and relevant runtime signals across services. Distinguish anomalous failures from ordinary rolling-release behavior.",
+      "output": "STDOUT:\nNO_MATCH: request is too broad or does not isolate one observable. Ask a focused comparison, component inspection, or controlled experiment.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare checkout API rendered configuration and behavior of api-a versus api-b for identical checkout requests during the incident. Is there behavior-changing pod drift?",
+      "output": "STDOUT:\napi-b config=23-equivalent; semantic active-key diff versus desired=none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect failed checkout payment attempts with provider retries: for the same logical order version, are the business-scoped provider idempotency keys reused across attempts? Compare provider outcomes.",
+      "output": "STDOUT:\nprovider logical effects=1; duplicates first appear in fulfillment on consumer-2 during legal redelivery\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare fulfillment event handling across consumer revisions during the incident for the same event payload; identify contract violations and resulting failed user outcomes.",
+      "output": "STDOUT:\nconsumer-1 rev=41 uses order-version dedupe; consumer-2 rev=39 uses delivery-id dedupe and can fulfill one order version twice\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare mixed-version cache invalidation of legacy numeric identity and stable key namespace for updated checkout orders. Is either namespace left stale for a user-visible read?",
+      "output": "STDOUT:\nmixed invalidators pass compatibility checks; stale read-after-write=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For strict checkout read-after-write requests, inspect primary versus replica routes and returned order version immediately after a committed write. Is replica lag causing stale strict results?",
+      "output": "STDOUT:\nfresh\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect API serving capacity during observed checkout failures: utilization, queueing, saturation and whether increased capacity would eliminate failures.",
+      "output": "STDOUT:\napi cpu=98-100%; request queue peaks at 61; saturation aligns with 503 windows; adding one replica removes test 503s\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect api-a rendered configuration and behavior relative to desired configuration and api-b for identical checkout operations. Is an active setting drifted?",
+      "output": "STDOUT:\napi-b config=23-equivalent; semantic active-key diff versus desired=none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For api-a only: report rendered checkout configuration revision and active setting difference from desired, if any.",
+      "output": "STDOUT:\napi-a config=24 desired=24; no behavior delta\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "In a controlled fulfillment replay of one order-version event under legal at-least-once redelivery, compare consumer-1 and consumer-2 number of fulfillment side effects.",
+      "output": "STDOUT:\nprovider logical effects=1; duplicates first appear in fulfillment on consumer-2 during legal redelivery\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "In controlled API capacity test, compare request 503 rates before and after adding one replica with other services and traffic unchanged.",
+      "output": "STDOUT:\napi cpu=98-100%; request queue peaks at 61; saturation aligns with 503 windows; adding one replica removes test 503s\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For same logical order version with provider retries, report idempotency key across attempts and count of payment provider logical effects.",
+      "output": "STDOUT:\nprovider logical effects=1; duplicates first appear in fulfillment on consumer-2 during legal redelivery\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 13115,
+    "output_tokens": 871,
+    "reasoning_tokens": 119,
+    "cached_input_tokens": 6656
+  },
+  "final_text": "Wrote `DIAGNOSIS.json` with two evidence-supported causes: an incompatible fulfillment consumer and API capacity shortage. The selected repairs replace that consumer and scale the checkout API.\n\nValidation: `functions.validate` passed."
+}

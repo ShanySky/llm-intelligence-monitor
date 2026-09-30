@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-30T04:15:23.599Z",
+  "generated_at": "2026-09-30T04:17:59.438Z",
   "rows": [
     {
       "task": "frontier-dynamic-diagnosis-v2",
@@ -45,26 +45,26 @@
           "passed": true
         }
       },
-      "duration_seconds": 101,
-      "responses": 13,
+      "duration_seconds": 66,
+      "responses": 8,
       "max_turns": 30,
-      "shell_commands": 3,
+      "shell_commands": 2,
       "shell_budget": 18,
       "validation_calls": 1,
       "validation_budget": 8,
       "validation_enabled": true,
-      "probe_calls": 20,
-      "probe_attempts": 23,
+      "probe_calls": 17,
+      "probe_attempts": 17,
       "probe_budget": 20,
       "probe_enabled": true,
       "turn_limit_reached": false,
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 30127,
-        "output_tokens": 1536,
-        "reasoning_tokens": 267,
-        "cached_input_tokens": 20992
+        "input_tokens": 17646,
+        "output_tokens": 1280,
+        "reasoning_tokens": 138,
+        "cached_input_tokens": 10112
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -77,7 +77,7 @@
       "model": "gpt-6-sol",
       "effort": "high",
       "trial": 2,
-      "score": 100,
+      "score": 90,
       "checks": {
         "valid_diagnosis_json": {
           "points": 5,
@@ -113,29 +113,29 @@
         },
         "causal_evidence_b": {
           "points": 10,
-          "passed": true
+          "passed": false
         }
       },
-      "duration_seconds": 69,
-      "responses": 9,
+      "duration_seconds": 101,
+      "responses": 15,
       "max_turns": 30,
-      "shell_commands": 2,
+      "shell_commands": 3,
       "shell_budget": 18,
       "validation_calls": 1,
       "validation_budget": 8,
       "validation_enabled": true,
-      "probe_calls": 13,
-      "probe_attempts": 13,
+      "probe_calls": 11,
+      "probe_attempts": 11,
       "probe_budget": 20,
       "probe_enabled": true,
       "turn_limit_reached": false,
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 19345,
-        "output_tokens": 1192,
-        "reasoning_tokens": 221,
-        "cached_input_tokens": 11904
+        "input_tokens": 28867,
+        "output_tokens": 1007,
+        "reasoning_tokens": 172,
+        "cached_input_tokens": 22144
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -148,7 +148,7 @@
       "model": "gpt-6-sol",
       "effort": "high",
       "trial": 3,
-      "score": 100,
+      "score": 90,
       "checks": {
         "valid_diagnosis_json": {
           "points": 5,
@@ -184,31 +184,31 @@
         },
         "causal_evidence_b": {
           "points": 10,
-          "passed": true
+          "passed": false
         }
       },
-      "duration_seconds": 94,
-      "responses": 12,
+      "duration_seconds": 169,
+      "responses": 24,
       "max_turns": 30,
-      "shell_commands": 3,
+      "shell_commands": 4,
       "shell_budget": 18,
       "validation_calls": 2,
       "validation_budget": 8,
       "validation_enabled": true,
-      "probe_calls": 20,
-      "probe_attempts": 23,
+      "probe_calls": 18,
+      "probe_attempts": 18,
       "probe_budget": 20,
       "probe_enabled": true,
       "turn_limit_reached": false,
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 33023,
-        "output_tokens": 1794,
-        "reasoning_tokens": 244,
-        "cached_input_tokens": 21888
+        "input_tokens": 57773,
+        "output_tokens": 1697,
+        "reasoning_tokens": 430,
+        "cached_input_tokens": 48384
       },
-      "api_retries": 0,
+      "api_retries": 1,
       "infrastructure_error": null,
       "agent_exit_code": 0,
       "outcome": "completed",
@@ -219,7 +219,7 @@
       "model": "gpt-6-sol",
       "effort": "medium",
       "trial": 1,
-      "score": 100,
+      "score": 90,
       "checks": {
         "valid_diagnosis_json": {
           "points": 5,
@@ -255,11 +255,11 @@
         },
         "causal_evidence_b": {
           "points": 10,
-          "passed": true
+          "passed": false
         }
       },
-      "duration_seconds": 109,
-      "responses": 16,
+      "duration_seconds": 129,
+      "responses": 18,
       "max_turns": 30,
       "shell_commands": 2,
       "shell_budget": 18,
@@ -274,10 +274,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 40781,
-        "output_tokens": 1396,
-        "reasoning_tokens": 195,
-        "cached_input_tokens": 31872
+        "input_tokens": 44630,
+        "output_tokens": 1388,
+        "reasoning_tokens": 193,
+        "cached_input_tokens": 32768
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -289,6 +289,219 @@
       "task": "frontier-dynamic-diagnosis-v2",
       "model": "gpt-6-sol",
       "effort": "medium",
+      "trial": 2,
+      "score": 90,
+      "checks": {
+        "valid_diagnosis_json": {
+          "points": 5,
+          "passed": true
+        },
+        "known_unique_ids": {
+          "points": 5,
+          "passed": true
+        },
+        "root_cause_a": {
+          "points": 15,
+          "passed": true
+        },
+        "root_cause_b": {
+          "points": 15,
+          "passed": true
+        },
+        "repair_action_a": {
+          "points": 15,
+          "passed": true
+        },
+        "repair_action_b": {
+          "points": 15,
+          "passed": true
+        },
+        "minimal_no_false_positive_repairs": {
+          "points": 10,
+          "passed": true
+        },
+        "causal_evidence_a": {
+          "points": 10,
+          "passed": true
+        },
+        "causal_evidence_b": {
+          "points": 10,
+          "passed": false
+        }
+      },
+      "duration_seconds": 46,
+      "responses": 7,
+      "max_turns": 30,
+      "shell_commands": 2,
+      "shell_budget": 18,
+      "validation_calls": 1,
+      "validation_budget": 8,
+      "validation_enabled": true,
+      "probe_calls": 8,
+      "probe_attempts": 8,
+      "probe_budget": 20,
+      "probe_enabled": true,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 12460,
+        "output_tokens": 755,
+        "reasoning_tokens": 81,
+        "cached_input_tokens": 6656
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-dynamic-diagnosis-v2",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "trial": 3,
+      "score": 90,
+      "checks": {
+        "valid_diagnosis_json": {
+          "points": 5,
+          "passed": true
+        },
+        "known_unique_ids": {
+          "points": 5,
+          "passed": true
+        },
+        "root_cause_a": {
+          "points": 15,
+          "passed": true
+        },
+        "root_cause_b": {
+          "points": 15,
+          "passed": true
+        },
+        "repair_action_a": {
+          "points": 15,
+          "passed": true
+        },
+        "repair_action_b": {
+          "points": 15,
+          "passed": true
+        },
+        "minimal_no_false_positive_repairs": {
+          "points": 10,
+          "passed": true
+        },
+        "causal_evidence_a": {
+          "points": 10,
+          "passed": false
+        },
+        "causal_evidence_b": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 52,
+      "responses": 7,
+      "max_turns": 30,
+      "shell_commands": 2,
+      "shell_budget": 18,
+      "validation_calls": 1,
+      "validation_budget": 8,
+      "validation_enabled": true,
+      "probe_calls": 14,
+      "probe_attempts": 14,
+      "probe_budget": 20,
+      "probe_enabled": true,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 13486,
+        "output_tokens": 906,
+        "reasoning_tokens": 110,
+        "cached_input_tokens": 7552
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-dynamic-diagnosis-v2",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "trial": 1,
+      "score": 80,
+      "checks": {
+        "valid_diagnosis_json": {
+          "points": 5,
+          "passed": true
+        },
+        "known_unique_ids": {
+          "points": 5,
+          "passed": true
+        },
+        "root_cause_a": {
+          "points": 15,
+          "passed": true
+        },
+        "root_cause_b": {
+          "points": 15,
+          "passed": true
+        },
+        "repair_action_a": {
+          "points": 15,
+          "passed": true
+        },
+        "repair_action_b": {
+          "points": 15,
+          "passed": true
+        },
+        "minimal_no_false_positive_repairs": {
+          "points": 10,
+          "passed": true
+        },
+        "causal_evidence_a": {
+          "points": 10,
+          "passed": false
+        },
+        "causal_evidence_b": {
+          "points": 10,
+          "passed": false
+        }
+      },
+      "duration_seconds": 85,
+      "responses": 10,
+      "max_turns": 30,
+      "shell_commands": 3,
+      "shell_budget": 18,
+      "validation_calls": 1,
+      "validation_budget": 8,
+      "validation_enabled": true,
+      "probe_calls": 20,
+      "probe_attempts": 23,
+      "probe_budget": 20,
+      "probe_enabled": true,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 25677,
+        "output_tokens": 1657,
+        "reasoning_tokens": 330,
+        "cached_input_tokens": 16256
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-dynamic-diagnosis-v2",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
       "trial": 2,
       "score": 100,
       "checks": {
@@ -329,8 +542,8 @@
           "passed": true
         }
       },
-      "duration_seconds": 81,
-      "responses": 11,
+      "duration_seconds": 61,
+      "responses": 7,
       "max_turns": 30,
       "shell_commands": 2,
       "shell_budget": 18,
@@ -345,10 +558,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 21712,
-        "output_tokens": 910,
-        "reasoning_tokens": 125,
-        "cached_input_tokens": 11392
+        "input_tokens": 13115,
+        "output_tokens": 871,
+        "reasoning_tokens": 119,
+        "cached_input_tokens": 6656
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -359,9 +572,9 @@
     {
       "task": "frontier-dynamic-diagnosis-v2",
       "model": "gpt-6-sol",
-      "effort": "medium",
+      "effort": "xhigh",
       "trial": 3,
-      "score": 100,
+      "score": 80,
       "checks": {
         "valid_diagnosis_json": {
           "points": 5,
@@ -393,246 +606,33 @@
         },
         "causal_evidence_a": {
           "points": 10,
-          "passed": true
+          "passed": false
         },
         "causal_evidence_b": {
           "points": 10,
-          "passed": true
+          "passed": false
         }
       },
-      "duration_seconds": 77,
+      "duration_seconds": 94,
       "responses": 11,
-      "max_turns": 30,
-      "shell_commands": 3,
-      "shell_budget": 18,
-      "validation_calls": 2,
-      "validation_budget": 8,
-      "validation_enabled": true,
-      "probe_calls": 18,
-      "probe_attempts": 18,
-      "probe_budget": 20,
-      "probe_enabled": true,
-      "turn_limit_reached": false,
-      "shell_budget_reached": false,
-      "finished_with_message": true,
-      "usage": {
-        "input_tokens": 24427,
-        "output_tokens": 1260,
-        "reasoning_tokens": 137,
-        "cached_input_tokens": 16128
-      },
-      "api_retries": 0,
-      "infrastructure_error": null,
-      "agent_exit_code": 0,
-      "outcome": "completed",
-      "data_complete": true
-    },
-    {
-      "task": "frontier-dynamic-diagnosis-v2",
-      "model": "gpt-6-sol",
-      "effort": "xhigh",
-      "trial": 1,
-      "score": 100,
-      "checks": {
-        "valid_diagnosis_json": {
-          "points": 5,
-          "passed": true
-        },
-        "known_unique_ids": {
-          "points": 5,
-          "passed": true
-        },
-        "root_cause_a": {
-          "points": 15,
-          "passed": true
-        },
-        "root_cause_b": {
-          "points": 15,
-          "passed": true
-        },
-        "repair_action_a": {
-          "points": 15,
-          "passed": true
-        },
-        "repair_action_b": {
-          "points": 15,
-          "passed": true
-        },
-        "minimal_no_false_positive_repairs": {
-          "points": 10,
-          "passed": true
-        },
-        "causal_evidence_a": {
-          "points": 10,
-          "passed": true
-        },
-        "causal_evidence_b": {
-          "points": 10,
-          "passed": true
-        }
-      },
-      "duration_seconds": 126,
-      "responses": 19,
-      "max_turns": 30,
-      "shell_commands": 3,
-      "shell_budget": 18,
-      "validation_calls": 1,
-      "validation_budget": 8,
-      "validation_enabled": true,
-      "probe_calls": 15,
-      "probe_attempts": 15,
-      "probe_budget": 20,
-      "probe_enabled": true,
-      "turn_limit_reached": false,
-      "shell_budget_reached": false,
-      "finished_with_message": true,
-      "usage": {
-        "input_tokens": 41375,
-        "output_tokens": 1358,
-        "reasoning_tokens": 232,
-        "cached_input_tokens": 29440
-      },
-      "api_retries": 0,
-      "infrastructure_error": null,
-      "agent_exit_code": 0,
-      "outcome": "completed",
-      "data_complete": true
-    },
-    {
-      "task": "frontier-dynamic-diagnosis-v2",
-      "model": "gpt-6-sol",
-      "effort": "xhigh",
-      "trial": 2,
-      "score": 100,
-      "checks": {
-        "valid_diagnosis_json": {
-          "points": 5,
-          "passed": true
-        },
-        "known_unique_ids": {
-          "points": 5,
-          "passed": true
-        },
-        "root_cause_a": {
-          "points": 15,
-          "passed": true
-        },
-        "root_cause_b": {
-          "points": 15,
-          "passed": true
-        },
-        "repair_action_a": {
-          "points": 15,
-          "passed": true
-        },
-        "repair_action_b": {
-          "points": 15,
-          "passed": true
-        },
-        "minimal_no_false_positive_repairs": {
-          "points": 10,
-          "passed": true
-        },
-        "causal_evidence_a": {
-          "points": 10,
-          "passed": true
-        },
-        "causal_evidence_b": {
-          "points": 10,
-          "passed": true
-        }
-      },
-      "duration_seconds": 125,
-      "responses": 18,
-      "max_turns": 30,
-      "shell_commands": 4,
-      "shell_budget": 18,
-      "validation_calls": 1,
-      "validation_budget": 8,
-      "validation_enabled": true,
-      "probe_calls": 14,
-      "probe_attempts": 14,
-      "probe_budget": 20,
-      "probe_enabled": true,
-      "turn_limit_reached": false,
-      "shell_budget_reached": false,
-      "finished_with_message": true,
-      "usage": {
-        "input_tokens": 40667,
-        "output_tokens": 1326,
-        "reasoning_tokens": 396,
-        "cached_input_tokens": 29440
-      },
-      "api_retries": 0,
-      "infrastructure_error": null,
-      "agent_exit_code": 0,
-      "outcome": "completed",
-      "data_complete": true
-    },
-    {
-      "task": "frontier-dynamic-diagnosis-v2",
-      "model": "gpt-6-sol",
-      "effort": "xhigh",
-      "trial": 3,
-      "score": 100,
-      "checks": {
-        "valid_diagnosis_json": {
-          "points": 5,
-          "passed": true
-        },
-        "known_unique_ids": {
-          "points": 5,
-          "passed": true
-        },
-        "root_cause_a": {
-          "points": 15,
-          "passed": true
-        },
-        "root_cause_b": {
-          "points": 15,
-          "passed": true
-        },
-        "repair_action_a": {
-          "points": 15,
-          "passed": true
-        },
-        "repair_action_b": {
-          "points": 15,
-          "passed": true
-        },
-        "minimal_no_false_positive_repairs": {
-          "points": 10,
-          "passed": true
-        },
-        "causal_evidence_a": {
-          "points": 10,
-          "passed": true
-        },
-        "causal_evidence_b": {
-          "points": 10,
-          "passed": true
-        }
-      },
-      "duration_seconds": 179,
-      "responses": 27,
       "max_turns": 30,
       "shell_commands": 5,
       "shell_budget": 18,
-      "validation_calls": 3,
+      "validation_calls": 1,
       "validation_budget": 8,
       "validation_enabled": true,
-      "probe_calls": 19,
-      "probe_attempts": 19,
+      "probe_calls": 20,
+      "probe_attempts": 24,
       "probe_budget": 20,
       "probe_enabled": true,
       "turn_limit_reached": false,
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 68812,
-        "output_tokens": 1800,
-        "reasoning_tokens": 421,
-        "cached_input_tokens": 54016
+        "input_tokens": 27454,
+        "output_tokens": 1602,
+        "reasoning_tokens": 408,
+        "cached_input_tokens": 15744
       },
       "api_retries": 0,
       "infrastructure_error": null,

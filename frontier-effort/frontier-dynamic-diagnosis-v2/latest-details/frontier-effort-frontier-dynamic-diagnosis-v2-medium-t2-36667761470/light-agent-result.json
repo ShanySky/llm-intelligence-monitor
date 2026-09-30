@@ -1,0 +1,90 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-dynamic-diagnosis-v2-medium-t2",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 46,
+  "responses": 7,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 2,
+  "shell_budget": 18,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 8,
+  "probe_attempts": 8,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Summarize current checkout incident symptoms, timeline, affected request paths, errors and latency by dependency, with direct evidence rather than inferred causes.",
+    "For the 42/200 checkout HTTP failures, break down by api-a vs api-b, error type, queueing/concurrency and pod resource saturation. Compare failure rates for identical requests routed to each pod at controlled low load and peak load.",
+    "For fulfillment duplicates, determine whether they are duplicate deliveries or duplicate business side effects, broken down by consumer revision; replay same event against each consumer revision and compare resulting durable fulfillment state.",
+    "Compare API pods rendered configuration and behavior for the same checkout requests, including behavior-changing drift vs expected rollout differences. Is any failure pod-specific when load is equal?",
+    "Controlled experiment: hold checkout request mix and all software revisions/config constant, increase API serving capacity only. Measure HTTP failure rate and queue depth before and after. Are capacity limits causal?",
+    "Controlled fulfillment experiment: same legal event redelivered twice to consumer-1 versus consumer-2, inspect durable fulfillment business effects and contract compatibility. Does consumer-2 produce duplicate fulfillment side effects that consumer-1 avoids?",
+    "Trace checkout provider retry attempts: for same logical order version compare idempotency key across attempts and provider committed effects; also inspect strict read-after-write source and freshness and cache invalidation of both aliases across versions.",
+    "With identical fulfillment payload/event ID and legally at-least-once redelivery, compare consumer-1 and consumer-2 persisted side effects; hold event stream and traffic constant and replace only consumer-2 with compatible revision. Does duplicate fulfillment disappear? Describe contract violation."
+  ],
+  "probe_executed_queries": [
+    "Summarize current checkout incident symptoms, timeline, affected request paths, errors and latency by dependency, with direct evidence rather than inferred causes.",
+    "For the 42/200 checkout HTTP failures, break down by api-a vs api-b, error type, queueing/concurrency and pod resource saturation. Compare failure rates for identical requests routed to each pod at controlled low load and peak load.",
+    "For fulfillment duplicates, determine whether they are duplicate deliveries or duplicate business side effects, broken down by consumer revision; replay same event against each consumer revision and compare resulting durable fulfillment state.",
+    "Compare API pods rendered configuration and behavior for the same checkout requests, including behavior-changing drift vs expected rollout differences. Is any failure pod-specific when load is equal?",
+    "Controlled experiment: hold checkout request mix and all software revisions/config constant, increase API serving capacity only. Measure HTTP failure rate and queue depth before and after. Are capacity limits causal?",
+    "Controlled fulfillment experiment: same legal event redelivered twice to consumer-1 versus consumer-2, inspect durable fulfillment business effects and contract compatibility. Does consumer-2 produce duplicate fulfillment side effects that consumer-1 avoids?",
+    "Trace checkout provider retry attempts: for same logical order version compare idempotency key across attempts and provider committed effects; also inspect strict read-after-write source and freshness and cache invalidation of both aliases across versions.",
+    "With identical fulfillment payload/event ID and legally at-least-once redelivery, compare consumer-1 and consumer-2 persisted side effects; hold event stream and traffic constant and replace only consumer-2 with compatible revision. Does duplicate fulfillment disappear? Describe contract violation."
+  ],
+  "probe_observations": [
+    {
+      "query": "Summarize current checkout incident symptoms, timeline, affected request paths, errors and latency by dependency, with direct evidence rather than inferred causes.",
+      "output": "STDOUT:\nhttp failures=42/200 during peaks; provider duplicates=0; fulfillment duplicates=6/200 retries; stale reads=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For the 42/200 checkout HTTP failures, break down by api-a vs api-b, error type, queueing/concurrency and pod resource saturation. Compare failure rates for identical requests routed to each pod at controlled low load and peak load.",
+      "output": "STDOUT:\napi-a=20/100; api-b=22/100; errors correlate with queue depth rather than pod identity\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For fulfillment duplicates, determine whether they are duplicate deliveries or duplicate business side effects, broken down by consumer revision; replay same event against each consumer revision and compare resulting durable fulfillment state.",
+      "output": "STDOUT:\nprovider logical effects=1; duplicates first appear in fulfillment on consumer-2 during legal redelivery\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare API pods rendered configuration and behavior for the same checkout requests, including behavior-changing drift vs expected rollout differences. Is any failure pod-specific when load is equal?",
+      "output": "STDOUT:\napi-a=20/100; api-b=22/100; errors correlate with queue depth rather than pod identity\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled experiment: hold checkout request mix and all software revisions/config constant, increase API serving capacity only. Measure HTTP failure rate and queue depth before and after. Are capacity limits causal?",
+      "output": "STDOUT:\napi cpu=98-100%; request queue peaks at 61; saturation aligns with 503 windows; adding one replica removes test 503s\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled fulfillment experiment: same legal event redelivered twice to consumer-1 versus consumer-2, inspect durable fulfillment business effects and contract compatibility. Does consumer-2 produce duplicate fulfillment side effects that consumer-1 avoids?",
+      "output": "STDOUT:\nprovider logical effects=1; duplicates first appear in fulfillment on consumer-2 during legal redelivery\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Trace checkout provider retry attempts: for same logical order version compare idempotency key across attempts and provider committed effects; also inspect strict read-after-write source and freshness and cache invalidation of both aliases across versions.",
+      "output": "STDOUT:\nprovider logical effects=1; duplicates first appear in fulfillment on consumer-2 during legal redelivery\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "With identical fulfillment payload/event ID and legally at-least-once redelivery, compare consumer-1 and consumer-2 persisted side effects; hold event stream and traffic constant and replace only consumer-2 with compatible revision. Does duplicate fulfillment disappear? Describe contract violation.",
+      "output": "STDOUT:\nprovider logical effects=1; duplicates first appear in fulfillment on consumer-2 during legal redelivery\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 12460,
+    "output_tokens": 755,
+    "reasoning_tokens": 81,
+    "cached_input_tokens": 6656
+  },
+  "final_text": "Wrote `DIAGNOSIS.json` with two supported causes: API capacity shortage and an incompatible fulfillment consumer. The selected repairs are to scale the checkout API and replace only that consumer.\n\nValidation: `functions.validate` — passed."
+}

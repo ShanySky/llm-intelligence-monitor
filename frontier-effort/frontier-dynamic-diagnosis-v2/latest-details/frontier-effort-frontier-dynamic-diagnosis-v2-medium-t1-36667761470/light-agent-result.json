@@ -1,0 +1,175 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-dynamic-diagnosis-v2-medium-t1",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 129,
+  "responses": 18,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 2,
+  "shell_budget": 18,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 20,
+  "probe_attempts": 21,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Summarize current checkout incident symptoms by customer-visible failure type, rates, and affected request cohorts, including time-correlated rollout and backend metrics; distinguish errors vs stale reads vs duplicate payments vs fulfillment.",
+    "Compare api-a and api-b checkout HTTP failure rates with equal request mixes, and inspect rendered config vs expected effective configuration. If differences, perform controlled replay rerouted to the other API pod to test causality.",
+    "For the four duplicate provider business effects in 200 retry scenarios, trace logical order id+version, idempotency keys across retry attempts and provider effects; controlled replay with stable business key vs current key. Are retries actually causing duplicate charge?",
+    "Check serving capacity causality for 49/200 HTTP failures: CPU, memory, thread/connection pool, queue, saturation, throttling, load dependence and controlled replay with added API capacity at same request mix.",
+    "Inspect api-b and api-a rendered configuration for behavior-changing drift, including values and expected value. Controlled request replay swapping only api-b config with api-a config (same traffic, capacity, revision): does 49/100 pre-provider failure disappear?",
+    "Trace one duplicate payment at provider boundary: show business operation order version, per-attempt retry identity, and provider result. Controlled retry replay while holding everything else constant using stable order-version idempotency key vs present implementation; compare duplicate effects.",
+    "For HTTP errors on api-b, break down response status, upstream dependency and timestamps, latency, config revision and failed stage; compare equal requests sent to api-a and api-b. Does pod swap eliminate failures?",
+    "What are the rendered configuration differences between api-a and api-b?",
+    "What happens to checkout HTTP failure rate if api-b is replaced with a pod on the desired rendered configuration while keeping revision and traffic the same?",
+    "For duplicate provider effects, what idempotency identities are submitted on first call and retry of the same order version?",
+    "Are payment provider idempotency keys stable across retry attempts for the same logical order version?",
+    "Controlled experiment: force payment provider timeout after accepting charge, then retry exact same logical order version with stable business-scoped idempotency key vs current keys. Compare provider business effects.",
+    "Inspect idempotency key derivation for two provider calls on the same order version after timeout; show raw key values.",
+    "Show payment provider retry idempotency key trace.",
+    "Does replaying affected checkout requests after repairing api-b rendered config payment_mode fix HTTP failures?",
+    "Does replacing consumer revision change duplicate provider payments in controlled replay?",
+    "Is there any strict read-after-write stale data from replica in this incident?",
+    "Do legacy and stable cache-key namespaces remain stale after checkout writes during mixed-version invalidation?",
+    "Provider retry identity in current failed scenario: does the same order version reuse the same business-scoped idempotency key?",
+    "Run counterfactual provider retry with stable idempotency identity keyed by order ID and order version; report duplicate business effects compared with current.",
+    "Compare idempotency key values on initial charge and retry for a duplicate payment."
+  ],
+  "probe_executed_queries": [
+    "Summarize current checkout incident symptoms by customer-visible failure type, rates, and affected request cohorts, including time-correlated rollout and backend metrics; distinguish errors vs stale reads vs duplicate payments vs fulfillment.",
+    "Compare api-a and api-b checkout HTTP failure rates with equal request mixes, and inspect rendered config vs expected effective configuration. If differences, perform controlled replay rerouted to the other API pod to test causality.",
+    "For the four duplicate provider business effects in 200 retry scenarios, trace logical order id+version, idempotency keys across retry attempts and provider effects; controlled replay with stable business key vs current key. Are retries actually causing duplicate charge?",
+    "Check serving capacity causality for 49/200 HTTP failures: CPU, memory, thread/connection pool, queue, saturation, throttling, load dependence and controlled replay with added API capacity at same request mix.",
+    "Inspect api-b and api-a rendered configuration for behavior-changing drift, including values and expected value. Controlled request replay swapping only api-b config with api-a config (same traffic, capacity, revision): does 49/100 pre-provider failure disappear?",
+    "Trace one duplicate payment at provider boundary: show business operation order version, per-attempt retry identity, and provider result. Controlled retry replay while holding everything else constant using stable order-version idempotency key vs present implementation; compare duplicate effects.",
+    "For HTTP errors on api-b, break down response status, upstream dependency and timestamps, latency, config revision and failed stage; compare equal requests sent to api-a and api-b. Does pod swap eliminate failures?",
+    "What are the rendered configuration differences between api-a and api-b?",
+    "What happens to checkout HTTP failure rate if api-b is replaced with a pod on the desired rendered configuration while keeping revision and traffic the same?",
+    "For duplicate provider effects, what idempotency identities are submitted on first call and retry of the same order version?",
+    "Are payment provider idempotency keys stable across retry attempts for the same logical order version?",
+    "Controlled experiment: force payment provider timeout after accepting charge, then retry exact same logical order version with stable business-scoped idempotency key vs current keys. Compare provider business effects.",
+    "Inspect idempotency key derivation for two provider calls on the same order version after timeout; show raw key values.",
+    "Show payment provider retry idempotency key trace.",
+    "Does replaying affected checkout requests after repairing api-b rendered config payment_mode fix HTTP failures?",
+    "Does replacing consumer revision change duplicate provider payments in controlled replay?",
+    "Is there any strict read-after-write stale data from replica in this incident?",
+    "Do legacy and stable cache-key namespaces remain stale after checkout writes during mixed-version invalidation?",
+    "Provider retry identity in current failed scenario: does the same order version reuse the same business-scoped idempotency key?",
+    "Run counterfactual provider retry with stable idempotency identity keyed by order ID and order version; report duplicate business effects compared with current."
+  ],
+  "probe_observations": [
+    {
+      "query": "Summarize current checkout incident symptoms by customer-visible failure type, rates, and affected request cohorts, including time-correlated rollout and backend metrics; distinguish errors vs stale reads vs duplicate payments vs fulfillment.",
+      "output": "STDOUT:\nhttp failures=49/200; duplicate provider business effects=4/200 retry scenarios; stale reads=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare api-a and api-b checkout HTTP failure rates with equal request mixes, and inspect rendered config vs expected effective configuration. If differences, perform controlled replay rerouted to the other API pod to test causality.",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For the four duplicate provider business effects in 200 retry scenarios, trace logical order id+version, idempotency keys across retry attempts and provider effects; controlled replay with stable business key vs current key. Are retries actually causing duplicate charge?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Check serving capacity causality for 49/200 HTTP failures: CPU, memory, thread/connection pool, queue, saturation, throttling, load dependence and controlled replay with added API capacity at same request mix.",
+      "output": "STDOUT:\napi cpu max=33%; queue=0; db pool=44%; no saturation correlation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect api-b and api-a rendered configuration for behavior-changing drift, including values and expected value. Controlled request replay swapping only api-b config with api-a config (same traffic, capacity, revision): does 49/100 pre-provider failure disappear?",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Trace one duplicate payment at provider boundary: show business operation order version, per-attempt retry identity, and provider result. Controlled retry replay while holding everything else constant using stable order-version idempotency key vs present implementation; compare duplicate effects.",
+      "output": "STDOUT:\nPROBE_GUIDANCE: ask one focused diagnostic question or controlled experiment.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For HTTP errors on api-b, break down response status, upstream dependency and timestamps, latency, config revision and failed stage; compare equal requests sent to api-a and api-b. Does pod swap eliminate failures?",
+      "output": "STDOUT:\nhttp failures=49/200; duplicate provider business effects=4/200 retry scenarios; stale reads=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What are the rendered configuration differences between api-a and api-b?",
+      "output": "STDOUT:\napi-b app=52 rendered-config=23 desired=24 payment_mode=<missing>; affected requests reject before provider call\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What happens to checkout HTTP failure rate if api-b is replaced with a pod on the desired rendered configuration while keeping revision and traffic the same?",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For duplicate provider effects, what idempotency identities are submitted on first call and retry of the same order version?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Are payment provider idempotency keys stable across retry attempts for the same logical order version?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled experiment: force payment provider timeout after accepting charge, then retry exact same logical order version with stable business-scoped idempotency key vs current keys. Compare provider business effects.",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect idempotency key derivation for two provider calls on the same order version after timeout; show raw key values.",
+      "output": "STDOUT:\nPROBE_GUIDANCE: ask one focused diagnostic question or controlled experiment.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Show payment provider retry idempotency key trace.",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Does replaying affected checkout requests after repairing api-b rendered config payment_mode fix HTTP failures?",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Does replacing consumer revision change duplicate provider payments in controlled replay?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Is there any strict read-after-write stale data from replica in this incident?",
+      "output": "STDOUT:\nstrict replica read is fresh\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Do legacy and stable cache-key namespaces remain stale after checkout writes during mixed-version invalidation?",
+      "output": "STDOUT:\nmixed invalidators pass compatibility bridge checks; stale read-after-write=0/10000\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Provider retry identity in current failed scenario: does the same order version reuse the same business-scoped idempotency key?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run counterfactual provider retry with stable idempotency identity keyed by order ID and order version; report duplicate business effects compared with current.",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 44630,
+    "output_tokens": 1388,
+    "reasoning_tokens": 193,
+    "cached_input_tokens": 32768
+  },
+  "final_text": "Wrote `DIAGNOSIS.json` with two causal domains: API configuration drift and incorrect retry idempotency scope. The selected repairs replace the drifted API pod and fix business-scoped idempotency.\n\nValidation: `functions.validate` passed."
+}

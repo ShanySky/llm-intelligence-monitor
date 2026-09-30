@@ -1,0 +1,132 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-dynamic-diagnosis-v2-medium-t3",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 52,
+  "responses": 7,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 2,
+  "shell_budget": 18,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 14,
+  "probe_attempts": 14,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Summarize current checkout incident: failing requests, error signatures, timing, affected routes/instances, and salient trace evidence. Distinguish observed errors from background normal traffic.",
+    "Compare checkout API failure rates, error codes, and latency by api-a vs api-b during current incident.",
+    "Inspect payment provider charges for duplicate business order versions: compare idempotency keys across retried attempts and resulting provider charges.",
+    "Inspect fulfillment consumer failures by revision and event schema during current incident.",
+    "Inspect cache invalidation traces for checkout orders across stable and legacy numeric key namespaces during current incident.",
+    "Inspect API capacity saturation: CPU, in-flight requests, queue waits, and rejected requests during incident.",
+    "Inspect strict read-after-write checkout paths: primary vs replica routing, replica lag, and stale response occurrence.",
+    "For stale cache observations in legacy-writer scenario, compare stable-key cached value before/after event through invalidator-a vs invalidator-b and request effect.",
+    "Inspect rendered API configuration for api-a and api-b and compare behavior on identical checkout requests.",
+    "In a controlled replay of the same order version with provider timeout and retry, compare business idempotency identities, provider effect count.",
+    "In controlled strict read-after-write replay, inspect which database endpoint serves the strict request and whether response is fresh under induced replica lag.",
+    "Compare strict customer read-after-write responses when routed to replica vs primary during incident, including commit time and observed staleness.",
+    "Does the checkout stale stable-key cache issue occur after invalidator-b rev=10 processes legacy-writer event, and does dual alias invalidation remove it?",
+    "Inspect current incident request-level stale checkout read traces: distinguish stale responses caused by cached stable-key alias vs strict customer replica routing."
+  ],
+  "probe_executed_queries": [
+    "Summarize current checkout incident: failing requests, error signatures, timing, affected routes/instances, and salient trace evidence. Distinguish observed errors from background normal traffic.",
+    "Compare checkout API failure rates, error codes, and latency by api-a vs api-b during current incident.",
+    "Inspect payment provider charges for duplicate business order versions: compare idempotency keys across retried attempts and resulting provider charges.",
+    "Inspect fulfillment consumer failures by revision and event schema during current incident.",
+    "Inspect cache invalidation traces for checkout orders across stable and legacy numeric key namespaces during current incident.",
+    "Inspect API capacity saturation: CPU, in-flight requests, queue waits, and rejected requests during incident.",
+    "Inspect strict read-after-write checkout paths: primary vs replica routing, replica lag, and stale response occurrence.",
+    "For stale cache observations in legacy-writer scenario, compare stable-key cached value before/after event through invalidator-a vs invalidator-b and request effect.",
+    "Inspect rendered API configuration for api-a and api-b and compare behavior on identical checkout requests.",
+    "In a controlled replay of the same order version with provider timeout and retry, compare business idempotency identities, provider effect count.",
+    "In controlled strict read-after-write replay, inspect which database endpoint serves the strict request and whether response is fresh under induced replica lag.",
+    "Compare strict customer read-after-write responses when routed to replica vs primary during incident, including commit time and observed staleness.",
+    "Does the checkout stale stable-key cache issue occur after invalidator-b rev=10 processes legacy-writer event, and does dual alias invalidation remove it?",
+    "Inspect current incident request-level stale checkout read traces: distinguish stale responses caused by cached stable-key alias vs strict customer replica routing."
+  ],
+  "probe_observations": [
+    {
+      "query": "Summarize current checkout incident: failing requests, error signatures, timing, affected routes/instances, and salient trace evidence. Distinguish observed errors from background normal traffic.",
+      "output": "STDOUT:\nNO_MATCH: request is too broad or does not isolate one observable. Ask a focused comparison, component inspection, or controlled experiment.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare checkout API failure rates, error codes, and latency by api-a vs api-b during current incident.",
+      "output": "STDOUT:\napi-a=0 failures; api-b=0 failures\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect payment provider charges for duplicate business order versions: compare idempotency keys across retried attempts and resulting provider charges.",
+      "output": "STDOUT:\nprovider=0 duplicate effects; fulfillment=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect fulfillment consumer failures by revision and event schema during current incident.",
+      "output": "STDOUT:\nconsumer compatibility and replay pass\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect cache invalidation traces for checkout orders across stable and legacy numeric key namespaces during current incident.",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect API capacity saturation: CPU, in-flight requests, queue waits, and rejected requests during incident.",
+      "output": "STDOUT:\ncpu max=36%; queues and pools healthy\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect strict read-after-write checkout paths: primary vs replica routing, replica lag, and stale response occurrence.",
+      "output": "STDOUT:\nstrict primary read is fresh immediately after write\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For stale cache observations in legacy-writer scenario, compare stable-key cached value before/after event through invalidator-a vs invalidator-b and request effect.",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect rendered API configuration for api-a and api-b and compare behavior on identical checkout requests.",
+      "output": "STDOUT:\napi-b config=24 desired=24; strict customer read route points to replica\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "In a controlled replay of the same order version with provider timeout and retry, compare business idempotency identities, provider effect count.",
+      "output": "STDOUT:\nprovider=0 duplicate effects; fulfillment=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "In controlled strict read-after-write replay, inspect which database endpoint serves the strict request and whether response is fresh under induced replica lag.",
+      "output": "STDOUT:\nstrict replica read can remain stale 300-900ms after commit\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare strict customer read-after-write responses when routed to replica vs primary during incident, including commit time and observed staleness.",
+      "output": "STDOUT:\nstrict primary read is fresh immediately after write\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Does the checkout stale stable-key cache issue occur after invalidator-b rev=10 processes legacy-writer event, and does dual alias invalidation remove it?",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect current incident request-level stale checkout read traces: distinguish stale responses caused by cached stable-key alias vs strict customer replica routing.",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 13486,
+    "output_tokens": 906,
+    "reasoning_tokens": 110,
+    "cached_input_tokens": 7552
+  },
+  "final_text": "Wrote `DIAGNOSIS.json` with two evidence-supported causes: a mixed-version cache invalidation gap and replica lag on strict read-after-write traffic. The selected repairs are dual-alias invalidation and routing strict reads to the primary.\n\nValidation: `functions.validate` — passed."
+}

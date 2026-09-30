@@ -1,0 +1,153 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-dynamic-diagnosis-v2-high-t1",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "duration_seconds": 66,
+  "responses": 8,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 2,
+  "shell_budget": 18,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 17,
+  "probe_attempts": 17,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Summarize current checkout reliability incident symptoms, timeline, failing request paths, and correlated runtime errors with counts, without inferring cause.",
+    "For the 49/200 HTTP failures, break down by status, API pod, request route, error/trace signature, resource pressure and onset time. Which layer rejects or fails requests?",
+    "For the 4/200 duplicate provider business effects on retry scenarios, inspect per logical order/version original and retried provider requests, business idempotency keys, attempt metadata, entry API pod, and provider outcome. Are keys stable across retries?",
+    "Give observed fulfillment event processing behavior across consumer revisions in incident: event versions, acknowledgements, failed deliveries, missing or duplicate fulfillment and direct error traces.",
+    "Inspect recent operational telemetry for cache invalidation and strict read-after-write paths: cache alias invalidation, stale keys, primary/replica routing, lag and stale read incidence.",
+    "Run controlled 200-request synthetic checkout load routed exclusively to api-a and exclusively to api-b at the same offered rate. Compare HTTP failures, per-pod configurations and bottlenecks.",
+    "Inspect rendered checkout API config on api-a and api-b: compare behavior-changing feature flags, secrets, payment settings, traffic controls. Verify if any drift produces failed checkouts.",
+    "Run capacity experiment: compare 200-request checkout tests baseline vs +1 API serving replica at same offered load; report failed HTTP request counts, concurrency queueing, CPU and saturation.",
+    "Run controlled provider retry test for one order and version on api-a and api-b, force payment provider timeout after commit then retry; inspect original and retry idempotency identity and number of charges.",
+    "Why do checkout requests fail on api-b before payment provider invocation, while api-a succeeds? Inspect api-b traces vs api-a and the exact behavior-changing rendered configuration value. Controlled reroute or fix and compare.",
+    "Experiment: drain api-b and replay same failed checkout requests through api-a under equal load. Does this remove HTTP failures? Can we link api-b behavior to config drift, deployment or consumer contract?",
+    "Compare rendered configuration hashes and values for checkout api-a vs api-b, and run checkout canaries after replacing only drifted api-b pod. Do HTTP failures disappear?",
+    "Test idempotency repair by reusing order-version business-scoped idempotency key rather than per-delivery key for timeout retries on healthy pod: do duplicate provider effects disappear, without disabling retries?",
+    "Is older fulfillment consumer revision incompatible with current events? Replay current fulfillment events through all revisions, compare ack, side effects and failures. Is it causing duplicate provider effects or HTTP checkout errors?",
+    "Compare payment provider idempotency keys over repeated attempts for same business operation order ID + order version; are they delivery-scoped or stable? What are duplicate counts if retry is forced on healthy api-a?",
+    "Check whether mixed-version cache invalidators fail to invalidate any numeric or stable key aliases; run compatibility bridge probes, then count stale checkout reads.",
+    "What happens to checkout HTTP failure counts in a controlled test if only the incorrectly configured api-b is replaced with desired config revision 24 while keeping API capacity the same?"
+  ],
+  "probe_executed_queries": [
+    "Summarize current checkout reliability incident symptoms, timeline, failing request paths, and correlated runtime errors with counts, without inferring cause.",
+    "For the 49/200 HTTP failures, break down by status, API pod, request route, error/trace signature, resource pressure and onset time. Which layer rejects or fails requests?",
+    "For the 4/200 duplicate provider business effects on retry scenarios, inspect per logical order/version original and retried provider requests, business idempotency keys, attempt metadata, entry API pod, and provider outcome. Are keys stable across retries?",
+    "Give observed fulfillment event processing behavior across consumer revisions in incident: event versions, acknowledgements, failed deliveries, missing or duplicate fulfillment and direct error traces.",
+    "Inspect recent operational telemetry for cache invalidation and strict read-after-write paths: cache alias invalidation, stale keys, primary/replica routing, lag and stale read incidence.",
+    "Run controlled 200-request synthetic checkout load routed exclusively to api-a and exclusively to api-b at the same offered rate. Compare HTTP failures, per-pod configurations and bottlenecks.",
+    "Inspect rendered checkout API config on api-a and api-b: compare behavior-changing feature flags, secrets, payment settings, traffic controls. Verify if any drift produces failed checkouts.",
+    "Run capacity experiment: compare 200-request checkout tests baseline vs +1 API serving replica at same offered load; report failed HTTP request counts, concurrency queueing, CPU and saturation.",
+    "Run controlled provider retry test for one order and version on api-a and api-b, force payment provider timeout after commit then retry; inspect original and retry idempotency identity and number of charges.",
+    "Why do checkout requests fail on api-b before payment provider invocation, while api-a succeeds? Inspect api-b traces vs api-a and the exact behavior-changing rendered configuration value. Controlled reroute or fix and compare.",
+    "Experiment: drain api-b and replay same failed checkout requests through api-a under equal load. Does this remove HTTP failures? Can we link api-b behavior to config drift, deployment or consumer contract?",
+    "Compare rendered configuration hashes and values for checkout api-a vs api-b, and run checkout canaries after replacing only drifted api-b pod. Do HTTP failures disappear?",
+    "Test idempotency repair by reusing order-version business-scoped idempotency key rather than per-delivery key for timeout retries on healthy pod: do duplicate provider effects disappear, without disabling retries?",
+    "Is older fulfillment consumer revision incompatible with current events? Replay current fulfillment events through all revisions, compare ack, side effects and failures. Is it causing duplicate provider effects or HTTP checkout errors?",
+    "Compare payment provider idempotency keys over repeated attempts for same business operation order ID + order version; are they delivery-scoped or stable? What are duplicate counts if retry is forced on healthy api-a?",
+    "Check whether mixed-version cache invalidators fail to invalidate any numeric or stable key aliases; run compatibility bridge probes, then count stale checkout reads.",
+    "What happens to checkout HTTP failure counts in a controlled test if only the incorrectly configured api-b is replaced with desired config revision 24 while keeping API capacity the same?"
+  ],
+  "probe_observations": [
+    {
+      "query": "Summarize current checkout reliability incident symptoms, timeline, failing request paths, and correlated runtime errors with counts, without inferring cause.",
+      "output": "STDOUT:\nhttp failures=49/200; duplicate provider business effects=4/200 retry scenarios; stale reads=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For the 49/200 HTTP failures, break down by status, API pod, request route, error/trace signature, resource pressure and onset time. Which layer rejects or fails requests?",
+      "output": "STDOUT:\nhttp failures=49/200; duplicate provider business effects=4/200 retry scenarios; stale reads=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For the 4/200 duplicate provider business effects on retry scenarios, inspect per logical order/version original and retried provider requests, business idempotency keys, attempt metadata, entry API pod, and provider outcome. Are keys stable across retries?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Give observed fulfillment event processing behavior across consumer revisions in incident: event versions, acknowledgements, failed deliveries, missing or duplicate fulfillment and direct error traces.",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect recent operational telemetry for cache invalidation and strict read-after-write paths: cache alias invalidation, stale keys, primary/replica routing, lag and stale read incidence.",
+      "output": "STDOUT:\nmixed invalidators pass compatibility bridge checks; stale read-after-write=0/10000\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run controlled 200-request synthetic checkout load routed exclusively to api-a and exclusively to api-b at the same offered rate. Compare HTTP failures, per-pod configurations and bottlenecks.",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect rendered checkout API config on api-a and api-b: compare behavior-changing feature flags, secrets, payment settings, traffic controls. Verify if any drift produces failed checkouts.",
+      "output": "STDOUT:\nstrict replica read is fresh\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run capacity experiment: compare 200-request checkout tests baseline vs +1 API serving replica at same offered load; report failed HTTP request counts, concurrency queueing, CPU and saturation.",
+      "output": "STDOUT:\napi cpu max=33%; queue=0; db pool=44%; no saturation correlation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run controlled provider retry test for one order and version on api-a and api-b, force payment provider timeout after commit then retry; inspect original and retry idempotency identity and number of charges.",
+      "output": "STDOUT:\nhealthy-pod timeout experiment: provider accepted first attempt, response timed out, retry used a different delivery-scoped key; provider recorded 2 logical effects for one order version\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Why do checkout requests fail on api-b before payment provider invocation, while api-a succeeds? Inspect api-b traces vs api-a and the exact behavior-changing rendered configuration value. Controlled reroute or fix and compare.",
+      "output": "STDOUT:\napi-b app=52 rendered-config=23 desired=24 payment_mode=<missing>; affected requests reject before provider call\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Experiment: drain api-b and replay same failed checkout requests through api-a under equal load. Does this remove HTTP failures? Can we link api-b behavior to config drift, deployment or consumer contract?",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare rendered configuration hashes and values for checkout api-a vs api-b, and run checkout canaries after replacing only drifted api-b pod. Do HTTP failures disappear?",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Test idempotency repair by reusing order-version business-scoped idempotency key rather than per-delivery key for timeout retries on healthy pod: do duplicate provider effects disappear, without disabling retries?",
+      "output": "STDOUT:\nhttp failures=49/200; duplicate provider business effects=4/200 retry scenarios; stale reads=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Is older fulfillment consumer revision incompatible with current events? Replay current fulfillment events through all revisions, compare ack, side effects and failures. Is it causing duplicate provider effects or HTTP checkout errors?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare payment provider idempotency keys over repeated attempts for same business operation order ID + order version; are they delivery-scoped or stable? What are duplicate counts if retry is forced on healthy api-a?",
+      "output": "STDOUT:\nhttp failures=49/200; duplicate provider business effects=4/200 retry scenarios; stale reads=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Check whether mixed-version cache invalidators fail to invalidate any numeric or stable key aliases; run compatibility bridge probes, then count stale checkout reads.",
+      "output": "STDOUT:\nmixed invalidators pass compatibility bridge checks; stale read-after-write=0/10000\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What happens to checkout HTTP failure counts in a controlled test if only the incorrectly configured api-b is replaced with desired config revision 24 while keeping API capacity the same?",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 17646,
+    "output_tokens": 1280,
+    "reasoning_tokens": 138,
+    "cached_input_tokens": 10112
+  },
+  "final_text": "Wrote `DIAGNOSIS.json` with two evidence-supported causes: api-b’s behavior-changing configuration drift and retry keys scoped to delivery rather than the business operation. The selected repairs replace only the drifted API pod and fix business idempotency.\n\nValidation: `functions.validate` — passed."
+}

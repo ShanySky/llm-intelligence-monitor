@@ -1,0 +1,160 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-dynamic-diagnosis-v2-high-t3",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "duration_seconds": 169,
+  "responses": 24,
+  "api_retries": 1,
+  "infrastructure_error": null,
+  "shell_commands": 4,
+  "shell_budget": 18,
+  "validation_calls": 2,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 18,
+  "probe_attempts": 18,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Current incident overview: quantify customer-visible failures by symptom, entry API pod, request path and time; show representative correlated request/order traces and downstream outcomes, without inferring causes from revision skew.",
+    "For the 17 stale read-after-write responses out of 500, trace reads to their data source (cache key namespace / cache hit or database primary/replica), compare primary's committed version and returned version, and correlate with API pod and consumer/invalidation revisions.",
+    "Compare checkout strict read-after-write behavior with reads forced to primary versus replica, holding cache and API pod fixed. How many stale reads in each?",
+    "Controlled cache invalidation test: create a legacy numeric-key writer update with stable-key cache alias populated, then process same invalidation through invalidator-a and invalidator-b separately. Compare both cache aliases and strict read-after-write stale results.",
+    "Controlled isolation: bypass cache for strict read-after-write transactions immediately after committed checkout update. Compare primary and replica results (fresh/stale counts), specifically on the incident strict read path. Does routing strict reads primary eliminate any observed stale results independently of invalidator?",
+    "Is database replica_read_lag a causal failure domain for current incident? Evidence from cache bypass, read source routing and primary vs replica observations for stale strict reads.",
+    "Measure provider duplicate charges from repeated retry of identical logical order and order version across api-a/api-b. Compare idempotency keys per retry, provider business-operation identities and recorded charge count.",
+    "Check fulfillment event processing on current independently rolling consumer revisions: replay same event and mixed old/new payloads. Compare terminal fulfillment state, dead letters, errors, and side effects by consumer revision.",
+    "Inspect current API pods api-a and api-b rendered configuration behavioral differences, and compare identical checkout requests on both with pinned downstream dependencies. Are response errors specific to one pod?",
+    "Is checkout API serving capacity exhausted? Observe concurrent load, saturation, request queue timeouts, CPU and memory, failure by load, and test capacity increase impact at equal traffic.",
+    "Quantify database replication lag during incident and trace whether strict read-after-write operations are routed to primary or replica.",
+    "Trace strict checkout read-after-write operations in incident: where are they routed at database layer, and do any incident stale responses come from a replica read with cache bypassed?",
+    "Run counterfactual: after correcting invalidator-b to invalidate both aliases, does the incident's 17/500 stale strict reads drop to zero? If not, characterize remaining stale reads and read data source.",
+    "For each of the 17/500 stale responses observed right now, give the observed read path and namespace, whether it was legacy-writer, which invalidator version handled it, whether cache miss/hit, and whether response came from DB replica.",
+    "Measure stale read-after-write frequency when database routing is primary versus replica, under current production traffic.",
+    "What is observed when replica is paused or delayed relative to primary, and strict reads are sent to replica?",
+    "Which DB instance handles synchronous post-write order lookups? Provide replica identifier, WAL delay and queried version compared with primary.",
+    "After dual-namespace invalidation is fixed, test strict read-after-write with unmodified routing versus forced primary (cache bypassed): is the lagging replica independently causing staleness?"
+  ],
+  "probe_executed_queries": [
+    "Current incident overview: quantify customer-visible failures by symptom, entry API pod, request path and time; show representative correlated request/order traces and downstream outcomes, without inferring causes from revision skew.",
+    "For the 17 stale read-after-write responses out of 500, trace reads to their data source (cache key namespace / cache hit or database primary/replica), compare primary's committed version and returned version, and correlate with API pod and consumer/invalidation revisions.",
+    "Compare checkout strict read-after-write behavior with reads forced to primary versus replica, holding cache and API pod fixed. How many stale reads in each?",
+    "Controlled cache invalidation test: create a legacy numeric-key writer update with stable-key cache alias populated, then process same invalidation through invalidator-a and invalidator-b separately. Compare both cache aliases and strict read-after-write stale results.",
+    "Controlled isolation: bypass cache for strict read-after-write transactions immediately after committed checkout update. Compare primary and replica results (fresh/stale counts), specifically on the incident strict read path. Does routing strict reads primary eliminate any observed stale results independently of invalidator?",
+    "Is database replica_read_lag a causal failure domain for current incident? Evidence from cache bypass, read source routing and primary vs replica observations for stale strict reads.",
+    "Measure provider duplicate charges from repeated retry of identical logical order and order version across api-a/api-b. Compare idempotency keys per retry, provider business-operation identities and recorded charge count.",
+    "Check fulfillment event processing on current independently rolling consumer revisions: replay same event and mixed old/new payloads. Compare terminal fulfillment state, dead letters, errors, and side effects by consumer revision.",
+    "Inspect current API pods api-a and api-b rendered configuration behavioral differences, and compare identical checkout requests on both with pinned downstream dependencies. Are response errors specific to one pod?",
+    "Is checkout API serving capacity exhausted? Observe concurrent load, saturation, request queue timeouts, CPU and memory, failure by load, and test capacity increase impact at equal traffic.",
+    "Quantify database replication lag during incident and trace whether strict read-after-write operations are routed to primary or replica.",
+    "Trace strict checkout read-after-write operations in incident: where are they routed at database layer, and do any incident stale responses come from a replica read with cache bypassed?",
+    "Run counterfactual: after correcting invalidator-b to invalidate both aliases, does the incident's 17/500 stale strict reads drop to zero? If not, characterize remaining stale reads and read data source.",
+    "For each of the 17/500 stale responses observed right now, give the observed read path and namespace, whether it was legacy-writer, which invalidator version handled it, whether cache miss/hit, and whether response came from DB replica.",
+    "Measure stale read-after-write frequency when database routing is primary versus replica, under current production traffic.",
+    "What is observed when replica is paused or delayed relative to primary, and strict reads are sent to replica?",
+    "Which DB instance handles synchronous post-write order lookups? Provide replica identifier, WAL delay and queried version compared with primary.",
+    "After dual-namespace invalidation is fixed, test strict read-after-write with unmodified routing versus forced primary (cache bypassed): is the lagging replica independently causing staleness?"
+  ],
+  "probe_observations": [
+    {
+      "query": "Current incident overview: quantify customer-visible failures by symptom, entry API pod, request path and time; show representative correlated request/order traces and downstream outcomes, without inferring causes from revision skew.",
+      "output": "STDOUT:\nhttp success=200/200; duplicate effects=0; read-after-write stale responses=17/500\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For the 17 stale read-after-write responses out of 500, trace reads to their data source (cache key namespace / cache hit or database primary/replica), compare primary's committed version and returned version, and correlate with API pod and consumer/invalidation revisions.",
+      "output": "STDOUT:\napi-a=0 failures; api-b=0 failures\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare checkout strict read-after-write behavior with reads forced to primary versus replica, holding cache and API pod fixed. How many stale reads in each?",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled cache invalidation test: create a legacy numeric-key writer update with stable-key cache alias populated, then process same invalidation through invalidator-a and invalidator-b separately. Compare both cache aliases and strict read-after-write stale results.",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled isolation: bypass cache for strict read-after-write transactions immediately after committed checkout update. Compare primary and replica results (fresh/stale counts), specifically on the incident strict read path. Does routing strict reads primary eliminate any observed stale results independently of invalidator?",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Is database replica_read_lag a causal failure domain for current incident? Evidence from cache bypass, read source routing and primary vs replica observations for stale strict reads.",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Measure provider duplicate charges from repeated retry of identical logical order and order version across api-a/api-b. Compare idempotency keys per retry, provider business-operation identities and recorded charge count.",
+      "output": "STDOUT:\nprovider logical effects=1\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Check fulfillment event processing on current independently rolling consumer revisions: replay same event and mixed old/new payloads. Compare terminal fulfillment state, dead letters, errors, and side effects by consumer revision.",
+      "output": "STDOUT:\nprovider=0 duplicate effects; fulfillment=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect current API pods api-a and api-b rendered configuration behavioral differences, and compare identical checkout requests on both with pinned downstream dependencies. Are response errors specific to one pod?",
+      "output": "STDOUT:\napi-a=0 failures; api-b=0 failures\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Is checkout API serving capacity exhausted? Observe concurrent load, saturation, request queue timeouts, CPU and memory, failure by load, and test capacity increase impact at equal traffic.",
+      "output": "STDOUT:\ncpu max=36%; queues and pools healthy\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Quantify database replication lag during incident and trace whether strict read-after-write operations are routed to primary or replica.",
+      "output": "STDOUT:\nstrict primary read is fresh immediately after write\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Trace strict checkout read-after-write operations in incident: where are they routed at database layer, and do any incident stale responses come from a replica read with cache bypassed?",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run counterfactual: after correcting invalidator-b to invalidate both aliases, does the incident's 17/500 stale strict reads drop to zero? If not, characterize remaining stale reads and read data source.",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For each of the 17/500 stale responses observed right now, give the observed read path and namespace, whether it was legacy-writer, which invalidator version handled it, whether cache miss/hit, and whether response came from DB replica.",
+      "output": "STDOUT:\napi-a=0 failures; api-b=0 failures\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Measure stale read-after-write frequency when database routing is primary versus replica, under current production traffic.",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What is observed when replica is paused or delayed relative to primary, and strict reads are sent to replica?",
+      "output": "STDOUT:\nstrict primary read is fresh immediately after write\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Which DB instance handles synchronous post-write order lookups? Provide replica identifier, WAL delay and queried version compared with primary.",
+      "output": "STDOUT:\nstrict primary read is fresh immediately after write\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "After dual-namespace invalidation is fixed, test strict read-after-write with unmodified routing versus forced primary (cache bypassed): is the lagging replica independently causing staleness?",
+      "output": "STDOUT:\nlegacy-writer scenario leaves stable-key alias stale only through invalidator-b rev=10; invalidator-a dual namespace passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 57773,
+    "output_tokens": 1697,
+    "reasoning_tokens": 430,
+    "cached_input_tokens": 48384
+  },
+  "final_text": "Wrote `DIAGNOSIS.json` with two causal domains: a cache invalidation gap and replica lag affecting strict read-after-write traffic. The selected repairs are dual-namespace invalidation and routing strict reads to primary.\n\nValidation: `functions.validate` — passed."
+}

@@ -1,0 +1,177 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-dynamic-diagnosis-v2-xhigh-t1",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 85,
+  "responses": 10,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 18,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 20,
+  "probe_attempts": 23,
+  "probe_budget": 20,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Summarize the current checkout incident symptoms and timing: customer-facing failure modes, affected request cohorts, and correlated runtime errors across services. Provide concrete observations, not inferred causes.",
+    "For current HTTP failures 49/200, break down failing checkout requests by API pod, status/error, and correlated capacity metrics (CPU, queue depth, latency, throttling). Do failures reproduce when routing same requests only to api-a vs only api-b?",
+    "For the four duplicate provider business effects in 200 retry scenarios, inspect the logical order version, API pod, provider request attempts and idempotency keys: do duplicate charges reflect distinct keys for same business operation or provider misuse of a stable key? Run a controlled repeat of same order version through each API pod.",
+    "Check other candidate failure domains independently: fulfillment consumer contract incompatibility, cache invalidation gaps, and strict read-after-write replica lag. Give counts and controlled probes for each if possible.",
+    "Inspect rendered API configuration on api-a and api-b. Compare behavior-changing settings and test side-by-side checkout requests for config-specific errors.",
+    "Inspect API serving capacity saturation. Compare pre-failure traffic vs current traffic, worker utilization, queueing, admission errors, and test adding capacity under same load.",
+    "Trace provider idempotency keys across timeout/retry attempts for identical order version. Are keys stable across API revisions and attempts?",
+    "Controlled cache alias invalidation test: modify an order and read via legacy numeric identity and stable key before and after invalidation from each revision.",
+    "Controlled strict read-after-write test: write order then read immediately from primary vs replica; quantify any staleness.",
+    "What rendered setting differs between api-a and api-b? Is api-b config drift behavior-changing? Do switching api-b to api-a's config and replaying failed requests remove failures?",
+    "Trace one duplicate provider effect end-to-end. Show provider idempotency identities used for two retry attempts on the same order and version and the component that generated them. Does replay with stable business-scoped key remove duplicates?",
+    "Investigate api-b failures before provider invocation: classify failed endpoint/status and errors; compare api-a vs api-b request routing with same inputs and config revision.",
+    "Investigate provider effects with forced timeout and retry: compare idempotency identity by business order version, API pod, attempt number and ingress request id; can retries create distinct identities?",
+    "Compare rendered configuration hashes per API pod and confirm drift vs intended rolling revision skew.",
+    "Perform controlled experiment: swap api-a and api-b rendered configuration while preserving code and traffic then compare failure rates.",
+    "Perform controlled experiment: replay same checkout inputs on api-b with known-good rendered configuration from api-a and report HTTP error counts.",
+    "Perform controlled experiment: pin a business-scoped idempotency identity across provider retry attempts and report duplicate charge counts.",
+    "Are provider retries passing same or different idempotency tokens for one order version?",
+    "Inspect rendered config on api-b: is it identical to api-a? Report the exact mismatched field and whether correcting it fixes failures.",
+    "Compare api-b's code/revision to api-a's, holding rendered configuration constant; does failure follow config or revision?",
+    "Check provider logs for same business order version: compare the two idempotency keys on the request and retry. Did client generate different keys?",
+    "Compare forced-timeout replays with and without stable order-version-based idempotency identity; do duplicate provider effects disappear?",
+    "What explains api-b failures before provider invocation? Show request-specific error plus pod configuration field."
+  ],
+  "probe_executed_queries": [
+    "Summarize the current checkout incident symptoms and timing: customer-facing failure modes, affected request cohorts, and correlated runtime errors across services. Provide concrete observations, not inferred causes.",
+    "For current HTTP failures 49/200, break down failing checkout requests by API pod, status/error, and correlated capacity metrics (CPU, queue depth, latency, throttling). Do failures reproduce when routing same requests only to api-a vs only api-b?",
+    "For the four duplicate provider business effects in 200 retry scenarios, inspect the logical order version, API pod, provider request attempts and idempotency keys: do duplicate charges reflect distinct keys for same business operation or provider misuse of a stable key? Run a controlled repeat of same order version through each API pod.",
+    "Check other candidate failure domains independently: fulfillment consumer contract incompatibility, cache invalidation gaps, and strict read-after-write replica lag. Give counts and controlled probes for each if possible.",
+    "Inspect rendered API configuration on api-a and api-b. Compare behavior-changing settings and test side-by-side checkout requests for config-specific errors.",
+    "Inspect API serving capacity saturation. Compare pre-failure traffic vs current traffic, worker utilization, queueing, admission errors, and test adding capacity under same load.",
+    "Trace provider idempotency keys across timeout/retry attempts for identical order version. Are keys stable across API revisions and attempts?",
+    "Controlled cache alias invalidation test: modify an order and read via legacy numeric identity and stable key before and after invalidation from each revision.",
+    "Controlled strict read-after-write test: write order then read immediately from primary vs replica; quantify any staleness.",
+    "What rendered setting differs between api-a and api-b? Is api-b config drift behavior-changing? Do switching api-b to api-a's config and replaying failed requests remove failures?",
+    "Trace one duplicate provider effect end-to-end. Show provider idempotency identities used for two retry attempts on the same order and version and the component that generated them. Does replay with stable business-scoped key remove duplicates?",
+    "Investigate api-b failures before provider invocation: classify failed endpoint/status and errors; compare api-a vs api-b request routing with same inputs and config revision.",
+    "Investigate provider effects with forced timeout and retry: compare idempotency identity by business order version, API pod, attempt number and ingress request id; can retries create distinct identities?",
+    "Compare rendered configuration hashes per API pod and confirm drift vs intended rolling revision skew.",
+    "Perform controlled experiment: swap api-a and api-b rendered configuration while preserving code and traffic then compare failure rates.",
+    "Perform controlled experiment: replay same checkout inputs on api-b with known-good rendered configuration from api-a and report HTTP error counts.",
+    "Perform controlled experiment: pin a business-scoped idempotency identity across provider retry attempts and report duplicate charge counts.",
+    "Are provider retries passing same or different idempotency tokens for one order version?",
+    "Inspect rendered config on api-b: is it identical to api-a? Report the exact mismatched field and whether correcting it fixes failures.",
+    "Compare api-b's code/revision to api-a's, holding rendered configuration constant; does failure follow config or revision?"
+  ],
+  "probe_observations": [
+    {
+      "query": "Summarize the current checkout incident symptoms and timing: customer-facing failure modes, affected request cohorts, and correlated runtime errors across services. Provide concrete observations, not inferred causes.",
+      "output": "STDOUT:\nhttp failures=49/200; duplicate provider business effects=4/200 retry scenarios; stale reads=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For current HTTP failures 49/200, break down failing checkout requests by API pod, status/error, and correlated capacity metrics (CPU, queue depth, latency, throttling). Do failures reproduce when routing same requests only to api-a vs only api-b?",
+      "output": "STDOUT:\nhttp failures=49/200; duplicate provider business effects=4/200 retry scenarios; stale reads=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For the four duplicate provider business effects in 200 retry scenarios, inspect the logical order version, API pod, provider request attempts and idempotency keys: do duplicate charges reflect distinct keys for same business operation or provider misuse of a stable key? Run a controlled repeat of same order version through each API pod.",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Check other candidate failure domains independently: fulfillment consumer contract incompatibility, cache invalidation gaps, and strict read-after-write replica lag. Give counts and controlled probes for each if possible.",
+      "output": "STDOUT:\nboth consumer revisions accept current additive event schema; replay compatibility passes\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect rendered API configuration on api-a and api-b. Compare behavior-changing settings and test side-by-side checkout requests for config-specific errors.",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect API serving capacity saturation. Compare pre-failure traffic vs current traffic, worker utilization, queueing, admission errors, and test adding capacity under same load.",
+      "output": "STDOUT:\napi cpu max=33%; queue=0; db pool=44%; no saturation correlation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Trace provider idempotency keys across timeout/retry attempts for identical order version. Are keys stable across API revisions and attempts?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled cache alias invalidation test: modify an order and read via legacy numeric identity and stable key before and after invalidation from each revision.",
+      "output": "STDOUT:\nmixed invalidators pass compatibility bridge checks; stale read-after-write=0/10000\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Controlled strict read-after-write test: write order then read immediately from primary vs replica; quantify any staleness.",
+      "output": "STDOUT:\nstrict primary read is fresh\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What rendered setting differs between api-a and api-b? Is api-b config drift behavior-changing? Do switching api-b to api-a's config and replaying failed requests remove failures?",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Trace one duplicate provider effect end-to-end. Show provider idempotency identities used for two retry attempts on the same order and version and the component that generated them. Does replay with stable business-scoped key remove duplicates?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Investigate api-b failures before provider invocation: classify failed endpoint/status and errors; compare api-a vs api-b request routing with same inputs and config revision.",
+      "output": "STDOUT:\nhttp failures=49/200; duplicate provider business effects=4/200 retry scenarios; stale reads=0\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Investigate provider effects with forced timeout and retry: compare idempotency identity by business order version, API pod, attempt number and ingress request id; can retries create distinct identities?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare rendered configuration hashes per API pod and confirm drift vs intended rolling revision skew.",
+      "output": "STDOUT:\nNO_MATCH: request is too broad or does not isolate one observable. Ask a focused comparison, component inspection, or controlled experiment.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Perform controlled experiment: swap api-a and api-b rendered configuration while preserving code and traffic then compare failure rates.",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Perform controlled experiment: replay same checkout inputs on api-b with known-good rendered configuration from api-a and report HTTP error counts.",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Perform controlled experiment: pin a business-scoped idempotency identity across provider retry attempts and report duplicate charge counts.",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Are provider retries passing same or different idempotency tokens for one order version?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary in timeout/retry scenarios; fulfillment adds none\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect rendered config on api-b: is it identical to api-a? Report the exact mismatched field and whether correcting it fixes failures.",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Compare api-b's code/revision to api-a's, holding rendered configuration constant; does failure follow config or revision?",
+      "output": "STDOUT:\napi-a=0/100; api-b=49/100; failures occur before provider invocation\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 25677,
+    "output_tokens": 1657,
+    "reasoning_tokens": 330,
+    "cached_input_tokens": 16256
+  },
+  "final_text": "Wrote `DIAGNOSIS.json` with the two supported causes—API configuration drift and incorrect retry idempotency scope—and their corresponding minimal repairs.\n\nValidation: `functions.validate` passed."
+}
