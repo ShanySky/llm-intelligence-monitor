@@ -289,7 +289,7 @@ Agent 调查题支持 opaque `probe` 工具。模型只能看到 probe 返回的
 
 - **Coverage**：保证方案、Coding、Review、Agent、长程任务等真实场景都有行为回归覆盖；
 - **Model Core**：只包含经过重复横向验证、能够稳定区分模型的题型族；当前成熟门槛为至少 2 个独立题型族；
-- **Effort Core**：只包含跨多个实例重复验证后，能够稳定体现 GPT-6 Sol Medium → X High 正向质量提升的题型族；当前成熟门槛为至少 1 个。
+- **Effort Core**：只包含跨多个实例重复验证后，能够稳定体现 reasoning effort 质量差异的题型族；可以是 Medium → X High 正向提升，也可以是稳定的非单调/反向敏感，但必须达到配置的质量 spread 阈值并明确标注方向；当前成熟门槛为至少 1 个。
 
 只有 Model Core 和 Effort Core 都达到门槛，应用评测才标记为整体 mature。单次 Final Suite 的分差只能作为诊断信号，不能自动晋级。
 
