@@ -70,7 +70,7 @@ for (const family of families) {
   const xhighModels = configStats.filter((x) => x.effort === 'xhigh');
   const xhighScores = xhighModels.map((x) => x.average_score).filter(Number.isFinite);
   const solEfforts = configStats
-    .filter((x) => x.model === 'gpt-6-sol')
+    .filter((x) => x.model === 'gpt-6.1-sol' || x.model === 'gpt-6-sol')
     .sort((a,b)=>(effortRank[a.effort]??99)-(effortRank[b.effort]??99));
   const solScores = solEfforts.map((x) => x.average_score).filter(Number.isFinite);
 
