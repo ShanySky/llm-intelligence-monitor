@@ -1,1 +1,2 @@
 application report refresh trigger
+validate stabilized application report refresh
