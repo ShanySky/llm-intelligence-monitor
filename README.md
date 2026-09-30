@@ -259,6 +259,18 @@ A controlled manual run can execute all configured models at reasoning effort `h
 
 当前应用型评测的详细设计见 `docs/application-benchmark-design.md`。
 
+### Frontier 题目注册表
+
+`benchmarks/frontier-registry.json` 记录每道应用候选题的当前成熟度和实测证据，包括：
+
+- `screening`：仍在 Luna / 低成本筛选；
+- `model-discriminator-confirmed`：已通过重复跨模型验证，可进入正式应用套件；
+- `coverage-only-ceiling`：对当前前沿模型已封顶，只保留覆盖/回归价值；
+- `needs-opaque-rescreen`：旧证据受 Harness/validator 隔离问题影响，需要重新验证；
+- effort 信号单独记录，不能用单次分差或预算触顶冒充。
+
+核心漏斗只继续消耗尚未定性的候选；已封顶题不反复进入昂贵校准。固定 coverage 题仍可保留用于回归，但不占 reasoning-effort 区分题权重。
+
 ### Frontier 候选漏斗
 
 新应用题不直接进入完整多模型套件，而按成本漏斗推进：
