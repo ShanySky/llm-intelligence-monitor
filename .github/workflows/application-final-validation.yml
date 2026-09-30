@@ -79,10 +79,19 @@ jobs:
       - name: Prepare isolated task
         shell: bash
         run: |
-          TASK_DIR="/tmp/final-${{ matrix.task }}-${{ matrix.config.key }}"
+          TASK="${{ matrix.task }}"
+          TASK_DIR="/tmp/final-$TASK-${{ matrix.config.key }}"
           rm -rf "$TASK_DIR"
           mkdir -p "$TASK_DIR"
-          cp -R "benchmarks/${{ matrix.task }}/workspace/." "$TASK_DIR/"
+          cp -R "benchmarks/$TASK/workspace/." "$TASK_DIR/"
+          MAX_TURNS="$(node -e "const x=require('./benchmarks/application-final-suite.json');const f=x.families.find(v=>v.id===process.argv[1])||{};process.stdout.write(String(f.max_turns??40))" "$TASK")"
+          SHELL_BUDGET="$(node -e "const x=require('./benchmarks/application-final-suite.json');const f=x.families.find(v=>v.id===process.argv[1])||{};process.stdout.write(String(f.shell_budget??40))" "$TASK")"
+          VALIDATION_BUDGET="$(node -e "const x=require('./benchmarks/application-final-suite.json');const f=x.families.find(v=>v.id===process.argv[1])||{};process.stdout.write(String(f.validation_budget??8))" "$TASK")"
+          PROBE_BUDGET="$(node -e "const x=require('./benchmarks/application-final-suite.json');const f=x.families.find(v=>v.id===process.argv[1])||{};process.stdout.write(String(f.probe_budget??20))" "$TASK")"
+          echo "AGENT_MAX_TURNS=$MAX_TURNS" >> "$GITHUB_ENV"
+          echo "AGENT_SHELL_BUDGET=$SHELL_BUDGET" >> "$GITHUB_ENV"
+          echo "FINAL_VALIDATION_BUDGET=$VALIDATION_BUDGET" >> "$GITHUB_ENV"
+          echo "FINAL_PROBE_BUDGET=$PROBE_BUDGET" >> "$GITHUB_ENV"
           [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
           if [ -f "$TASK_DIR/run_visible_tests.sh" ]; then
             chmod +x "$TASK_DIR/run_visible_tests.sh"
@@ -94,6 +103,22 @@ jobs:
         id: agent
         shell: bash
         run: |
+          TASK="${{ matrix.task }}"
+          VALIDATOR=""
+          if [ -f "$GITHUB_WORKSPACE/benchmarks/$TASK/blackbox_validate.py" ]; then
+            VALIDATOR="$GITHUB_WORKSPACE/benchmarks/$TASK/blackbox_validate.py"
+          elif [ -f "$GITHUB_WORKSPACE/scripts/validators/$TASK.py" ]; then
+            VALIDATOR="$GITHUB_WORKSPACE/scripts/validators/$TASK.py"
+          fi
+          if [ -n "$VALIDATOR" ]; then
+            export AGENT_VALIDATION_COMMAND="python '$VALIDATOR' '$TASK_DIR'"
+            export AGENT_VALIDATION_BUDGET="$FINAL_VALIDATION_BUDGET"
+          fi
+          PROBE="$GITHUB_WORKSPACE/scripts/probes/$TASK.py"
+          if [ -f "$PROBE" ]; then
+            export AGENT_PROBE_SCRIPT="$PROBE"
+            export AGENT_PROBE_BUDGET="$FINAL_PROBE_BUDGET"
+          fi
           start="$(date +%s)"
           set +e
           timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ matrix.config.model }}"             "${{ matrix.config.effort }}"             "$TASK_DIR/light-agent-result.json"
@@ -136,7 +161,16 @@ jobs:
             "score":score["score"],
             "checks":score["checks"],
             "duration_seconds":runner.get("duration_seconds", int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
+            "responses":runner.get("responses",0),
             "shell_commands":runner.get("shell_commands",0),
+            "shell_budget":runner.get("shell_budget"),
+            "validation_calls":runner.get("validation_calls",0),
+            "validation_budget":runner.get("validation_budget",0),
+            "validation_enabled":runner.get("validation_enabled",False),
+            "probe_calls":runner.get("probe_calls",0),
+            "probe_attempts":runner.get("probe_attempts",0),
+            "probe_budget":runner.get("probe_budget",0),
+            "probe_enabled":runner.get("probe_enabled",False),
             "usage":runner.get("usage",{}),
             "api_retries":runner.get("api_retries",0),
             "infrastructure_error":infra,
