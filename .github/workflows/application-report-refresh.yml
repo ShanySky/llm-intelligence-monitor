@@ -40,20 +40,33 @@ jobs:
             benchmarks/application-selection-policy.json \
             results/application-discrimination.json \
             results/application-discrimination.md
+          node scripts/check-application-maturity.mjs \
+            results/application-final-summary.json \
+            results/application-discrimination.json \
+            benchmarks/frontier-registry.json \
+            benchmarks/application-final-suite.json \
+            results/application-maturity.json \
+            results/application-maturity.md
           cat results/application-discrimination.md >> "$GITHUB_STEP_SUMMARY"
+          printf "\n\n" >> "$GITHUB_STEP_SUMMARY"
+          cat results/application-maturity.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Publish refreshed report
         shell: bash
         run: |
           cp results/application-discrimination.json /tmp/application-discrimination.json
           cp results/application-discrimination.md /tmp/application-discrimination.md
+          cp results/application-maturity.json /tmp/application-maturity.json
+          cp results/application-maturity.md /tmp/application-maturity.md
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -C application-final-results origin/application-final-results
           cp /tmp/application-discrimination.json application-final/discrimination-latest.json
           cp /tmp/application-discrimination.md application-final/discrimination-latest.md
-          git add application-final/discrimination-latest.json application-final/discrimination-latest.md
+          cp /tmp/application-maturity.json application-final/maturity-latest.json
+          cp /tmp/application-maturity.md application-final/maturity-latest.md
+          git add application-final/discrimination-latest.json application-final/discrimination-latest.md application-final/maturity-latest.json application-final/maturity-latest.md
           if ! git diff --cached --quiet; then
             git commit -m "Refresh application discrimination report"
             git push origin HEAD:application-final-results
