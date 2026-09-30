@@ -13,6 +13,7 @@ if (!rows.length) throw new Error('No result rows found');
 
 const q = policy.quality ?? {};
 const runtime = policy.runtime ?? {};
+const efficiency = policy.efficiency ?? {};
 const effortRank = { low: 0, medium: 1, high: 2, xhigh: 3 };
 
 const mean = (xs) => xs.length ? xs.reduce((a,b)=>a+b,0)/xs.length : null;
@@ -50,7 +51,13 @@ for (const family of families) {
     average_score: mean(xs.map(x=>Number(x.score ?? 0))),
     stddev_score: stdev(xs.map(x=>Number(x.score ?? 0))),
     average_duration_seconds: mean(xs.map(x=>Number(x.duration_seconds ?? 0))),
+    average_shell_commands: mean(xs.map(x=>Number(x.shell_commands ?? 0))),
     average_input_tokens: mean(xs.map(x=>Number(x.usage?.input_tokens ?? 0))),
+    average_output_tokens: mean(xs.map(x=>Number(x.usage?.output_tokens ?? 0))),
+    average_total_tokens: mean(xs.map(x=>Number(
+      x.usage?.total_tokens ??
+      (Number(x.usage?.input_tokens ?? 0) + Number(x.usage?.output_tokens ?? 0))
+    ))),
     average_reasoning_tokens: mean(xs.map(x=>Number(x.usage?.reasoning_tokens ?? 0))),
   }));
 
@@ -88,6 +95,34 @@ for (const family of families) {
     minEffortTrials >= Number(q.min_trials_for_effort_confirmation ?? 2);
   const effortDiscriminator = effortCandidate && repeatEnough && stable;
 
+  const efficiencyFloor = Number(efficiency.min_quality_floor ?? 95);
+  const minEfficiencyImprovement = Number(efficiency.min_improvement_percent ?? 15) / 100;
+  const minImprovedMetrics = Number(efficiency.min_improved_metrics ?? 2);
+  const efficiencyMetrics = [];
+  if (solMedium && solXhigh &&
+      solMedium.average_score >= efficiencyFloor &&
+      solXhigh.average_score >= efficiencyFloor) {
+    const candidates = [
+      ['duration_seconds', solMedium.average_duration_seconds, solXhigh.average_duration_seconds],
+      ['shell_commands', solMedium.average_shell_commands, solXhigh.average_shell_commands],
+      ['total_tokens', solMedium.average_total_tokens, solXhigh.average_total_tokens],
+    ];
+    for (const [metric, mediumValue, xhighValue] of candidates) {
+      if (Number.isFinite(mediumValue) && mediumValue > 0 && Number.isFinite(xhighValue)) {
+        const improvement = (mediumValue - xhighValue) / mediumValue;
+        if (improvement >= minEfficiencyImprovement) {
+          efficiencyMetrics.push({
+            metric,
+            medium: mediumValue,
+            xhigh: xhighValue,
+            improvement_percent: improvement * 100,
+          });
+        }
+      }
+    }
+  }
+  const efficiencyCandidate = efficiencyMetrics.length >= minImprovedMetrics;
+
   let classification;
   if (!withinBudget) classification = 'too-slow';
   else if (!stable) classification = 'noisy';
@@ -111,6 +146,8 @@ for (const family of families) {
     max_repeat_stddev_points: maxStd,
     ceiling_rate: ceilingRate,
     max_average_duration_seconds: maxDuration,
+    efficiency_candidate: efficiencyCandidate,
+    efficiency_improved_metrics: efficiencyMetrics,
     stable,
     within_budget: withinBudget,
     config_stats: configStats,
@@ -132,15 +169,18 @@ const pct = (v) => v == null ? '-' : (v*100).toFixed(0)+'%';
 const lines = [
   '# Application Task Discrimination Analysis',
   '',
-  '| Task | Family | Class | XHigh model spread | Sol M→XH gain | Min effort trials | Repeat stddev | Ceiling rate | Max avg runtime |',
-  '|---|---|---|---:|---:|---:|---:|---:|---:|',
+  '| Task | Family | Class | XHigh model spread | Sol M→XH gain | Efficiency signal | Min effort trials | Repeat stddev | Ceiling rate | Max avg runtime |',
+  '|---|---|---|---:|---:|---|---:|---:|---:|---:|',
 ];
 for (const x of tasks) {
-  lines.push(`| ${x.task} | ${x.family} | ${x.classification} | ${f1(x.model_spread_points)} | ${f1(x.sol_directional_effort_gain_points)} | ${x.min_sol_effort_trials ?? '-'} | ${f1(x.max_repeat_stddev_points)} | ${pct(x.ceiling_rate)} | ${x.max_average_duration_seconds == null ? '-' : Math.round(x.max_average_duration_seconds)+'s'} |`);
+  const eff = x.efficiency_candidate
+    ? x.efficiency_improved_metrics.map(m=>`${m.metric} ${m.improvement_percent.toFixed(0)}%`).join(', ')
+    : '-';
+  lines.push(`| ${x.task} | ${x.family} | ${x.classification} | ${f1(x.model_spread_points)} | ${f1(x.sol_directional_effort_gain_points)} | ${eff} | ${x.min_sol_effort_trials ?? '-'} | ${f1(x.max_repeat_stddev_points)} | ${pct(x.ceiling_rate)} | ${x.max_average_duration_seconds == null ? '-' : Math.round(x.max_average_duration_seconds)+'s'} |`);
 }
 lines.push(
   '',
-  '> Selection rule: model spread may be identified from a complete cross-model run. Effort discrimination requires a positive Medium→X High quality gain and repeated trials; a one-shot gap is only an effort candidate. Application-critical saturated tasks may remain as coverage checks.',
+  '> Selection rule: quality discrimination and execution efficiency are separate signals. Effort discrimination requires a repeated positive Medium→X High quality gain. A ceiling task may additionally show an efficiency candidate when X High uses materially less runtime/tool work/token cost at the same quality, but that does not count as a quality win and still requires repeated validation.',
   ''
 );
 fs.writeFileSync(outMd, lines.join('\n'));
