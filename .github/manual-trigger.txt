@@ -138,3 +138,4 @@ Refresh application maturity for GPT-6.1 Sol resident epoch.
 GPT-6.1 Sol precision review rerun after publish serialization.
 Real repo replay rerun with reference self-check.
 GPT-6.1 Sol deep-fix rerun after publish serialization.
+Real repo replay diagnostic rerun with persisted self-check.
