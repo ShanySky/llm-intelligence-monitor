@@ -1,0 +1,58 @@
+name: Refresh frontier effort analysis
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[refresh-frontier-effort]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Load current target
+        id: target
+        shell: bash
+        run: |
+          TASK="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(x.task)")"
+          echo "task=$TASK" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch persisted raw effort summary
+        shell: bash
+        run: |
+          TASK="${{ steps.target.outputs.task }}"
+          git fetch origin frontier-effort-results
+          git show "origin/frontier-effort-results:frontier-effort/$TASK/latest.json" > results-frontier-effort-summary.json
+
+      - name: Reanalyze with current policy
+        shell: bash
+        run: |
+          node scripts/analyze-effort-efficiency.mjs             results-frontier-effort-summary.json             benchmarks/application-selection-policy.json             frontier-effort-analysis.json             frontier-effort-analysis.md
+          cat frontier-effort-analysis.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish refreshed analysis
+        shell: bash
+        run: |
+          TASK="${{ steps.target.outputs.task }}"
+          cp frontier-effort-analysis.json /tmp/frontier-effort-analysis.json
+          cp frontier-effort-analysis.md /tmp/frontier-effort-analysis.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C frontier-effort-results origin/frontier-effort-results
+          cp /tmp/frontier-effort-analysis.json "frontier-effort/$TASK/analysis-latest.json"
+          cp /tmp/frontier-effort-analysis.md "frontier-effort/$TASK/analysis-latest.md"
+          git add "frontier-effort/$TASK/analysis-latest.json" "frontier-effort/$TASK/analysis-latest.md"
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh frontier effort analysis $TASK"
+            git push origin HEAD:frontier-effort-results
+          fi
