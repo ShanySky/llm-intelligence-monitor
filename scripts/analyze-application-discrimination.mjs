@@ -137,6 +137,7 @@ for (const family of families) {
   tasks.push({
     task: family.id,
     family: family.family,
+    role: family.role ?? 'coverage',
     weight: family.weight,
     classification,
     model_spread_points: modelSpread,
@@ -154,9 +155,24 @@ for (const family of families) {
   });
 }
 
+const coreTasks = tasks.filter((x) => x.role === 'core');
+const confirmedCoreTasks = coreTasks.filter((x) =>
+  x.classification === 'model-discriminator' ||
+  x.classification === 'effort-discriminator' ||
+  x.classification === 'model+effort-discriminator'
+);
+const minCoreFamilies = Number(data.manifest?.core_min_families_for_mature_score ?? 1);
+
 const output = {
   generated_at: new Date().toISOString(),
   policy,
+  core_signal: {
+    configured_core_families: coreTasks.length,
+    confirmed_core_families: confirmedCoreTasks.length,
+    minimum_core_families: minCoreFamilies,
+    mature: confirmedCoreTasks.length >= minCoreFamilies,
+    confirmed_tasks: confirmedCoreTasks.map((x) => x.task),
+  },
   tasks,
   counts: Object.fromEntries(
     [...new Set(tasks.map(x=>x.classification))].map(k=>[k,tasks.filter(x=>x.classification===k).length])
@@ -169,16 +185,18 @@ const pct = (v) => v == null ? '-' : (v*100).toFixed(0)+'%';
 const lines = [
   '# Application Task Discrimination Analysis',
   '',
-  '| Task | Family | Class | XHigh model spread | Sol M→XH gain | Efficiency signal | Min effort trials | Repeat stddev | Ceiling rate | Max avg runtime |',
-  '|---|---|---|---:|---:|---|---:|---:|---:|---:|',
+  '| Task | Family | Role | Class | XHigh model spread | Sol M→XH gain | Efficiency signal | Min effort trials | Repeat stddev | Ceiling rate | Max avg runtime |',
+  '|---|---|---|---|---:|---:|---|---:|---:|---:|---:|',
 ];
 for (const x of tasks) {
   const eff = x.efficiency_candidate
     ? x.efficiency_improved_metrics.map(m=>`${m.metric} ${m.improvement_percent.toFixed(0)}%`).join(', ')
     : '-';
-  lines.push(`| ${x.task} | ${x.family} | ${x.classification} | ${f1(x.model_spread_points)} | ${f1(x.sol_directional_effort_gain_points)} | ${eff} | ${x.min_sol_effort_trials ?? '-'} | ${f1(x.max_repeat_stddev_points)} | ${pct(x.ceiling_rate)} | ${x.max_average_duration_seconds == null ? '-' : Math.round(x.max_average_duration_seconds)+'s'} |`);
+  lines.push(`| ${x.task} | ${x.family} | ${x.role} | ${x.classification} | ${f1(x.model_spread_points)} | ${f1(x.sol_directional_effort_gain_points)} | ${eff} | ${x.min_sol_effort_trials ?? '-'} | ${f1(x.max_repeat_stddev_points)} | ${pct(x.ceiling_rate)} | ${x.max_average_duration_seconds == null ? '-' : Math.round(x.max_average_duration_seconds)+'s'} |`);
 }
 lines.push(
+  '',
+  `**Core signal maturity:** ${output.core_signal.confirmed_core_families}/${output.core_signal.minimum_core_families} confirmed families → ${output.core_signal.mature ? 'mature' : 'not yet mature'}.`,
   '',
   '> Selection rule: quality discrimination and execution efficiency are separate signals. Effort discrimination requires a repeated positive Medium→X High quality gain. A ceiling task may additionally show an efficiency candidate when X High uses materially less runtime/tool work/token cost at the same quality, but that does not count as a quality win and still requires repeated validation.',
   ''
