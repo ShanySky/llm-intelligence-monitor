@@ -84,6 +84,7 @@ jobs:
           TASK_DIR="/tmp/frontier-stability-$TASK-${{ matrix.effort }}-${{ matrix.trial }}"
           rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
           cp -R "benchmarks/$TASK/workspace/." "$TASK_DIR/"
+          node scripts/install-blackbox-validator.mjs "$TASK" "$TASK_DIR"
           [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
           [ ! -f "$TASK_DIR/run_visible_tests.sh" ] || chmod +x "$TASK_DIR/run_visible_tests.sh"
           [ ! -f "$TASK_DIR/check_generated.sh" ] || chmod +x "$TASK_DIR/check_generated.sh"
