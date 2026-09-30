@@ -2436,8 +2436,7 @@ elif task == "frontier-review-family":
       },
       2:{
         ("LeaseStore.java","stale_lease_fencing"):20,
-        ("LeaseWorker.java","retry_idempotency"):15,
-        ("LeaseWorker.java","external_effect_recovery"):15,
+        ("LeaseWorker.java","retry_idempotency"):30,
         ("ProfileService.java","ignored_write_result"):15,
         ("ProfileService.java","transaction_visibility"):15,
         ("PairCoordinator.java","lock_order"):10,
@@ -2469,6 +2468,7 @@ elif task == "frontier-review-family":
     alias_pairs={
         ("PriceService.java","cache_staleness"):("PriceService.java","transaction_visibility"),
         ("ProfileService.java","cache_staleness"):("ProfileService.java","transaction_visibility"),
+        ("LeaseWorker.java","external_effect_recovery"):("LeaseWorker.java","retry_idempotency"),
     }
     alias_reported=set()
     for alias,canonical in alias_pairs.items():
