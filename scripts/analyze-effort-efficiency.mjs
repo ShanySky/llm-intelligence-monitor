@@ -70,6 +70,9 @@ const minQualityGain = Number(quality.min_effort_directional_gain_points ?? 10);
 const minTrials = Number(quality.min_trials_for_effort_confirmation ?? 2);
 const maxStd = Number(quality.max_repeat_stddev_points ?? 12);
 const consistencyThreshold = Number(quality.min_directional_consistency_rate ?? 0.67);
+const familyMinVariants = Number(quality.effort_family_min_variants ?? 3);
+const familyMinPositiveVariants = Number(quality.effort_family_min_positive_variants ?? 2);
+const familyVariantGain = Number(quality.effort_family_variant_gain_points ?? minQualityGain);
 const qualityFloor = Number(eff.min_quality_floor ?? 95);
 const efficiencyThreshold = Number(eff.min_improvement_percent ?? 15);
 const minEfficiencyMetrics = Number(eff.min_improved_metrics ?? 2);
@@ -112,12 +115,17 @@ if (medium && xhigh) {
     };
   });
 
+  const positiveQualityCount = paired.filter((p) =>
+    p.quality_gain >= (trialMode === 'variants' ? familyVariantGain : minQualityGain)
+  ).length;
   const positiveQualityRate = paired.length
-    ? paired.filter(p=>p.quality_gain>=minQualityGain).length/paired.length : 0;
+    ? positiveQualityCount / paired.length : 0;
   const efficiencyRate = paired.length
     ? paired.filter(p=>p.efficiency_signal).length/paired.length : 0;
 
-  const enoughRepeats = commonTrials.length >= minTrials;
+  const enoughRepeats = trialMode === 'variants'
+    ? commonTrials.length >= familyMinVariants
+    : commonTrials.length >= minTrials;
   const stable = trialMode === 'variants'
     ? true
     : (
@@ -130,7 +138,9 @@ if (medium && xhigh) {
   const qualityCandidate = qualityGain >= minQualityGain;
   const qualityConfirmed =
     qualityCandidate && enoughRepeats && stable &&
-    positiveQualityRate >= consistencyThreshold;
+    (trialMode === 'variants'
+      ? positiveQualityCount >= familyMinPositiveVariants
+      : positiveQualityRate >= consistencyThreshold);
 
   const efficiencyCandidate =
     medium.score >= qualityFloor &&
@@ -158,6 +168,8 @@ if (medium && xhigh) {
     improved_metrics: improvedMetrics,
     common_trials: commonTrials.length,
     positive_quality_trial_rate: positiveQualityRate,
+    positive_quality_trial_count: positiveQualityCount,
+    required_positive_trial_count: trialMode === 'variants' ? familyMinPositiveVariants : null,
     efficiency_signal_trial_rate: efficiencyRate,
     classification,
     repeated_confirmation_required: !(
