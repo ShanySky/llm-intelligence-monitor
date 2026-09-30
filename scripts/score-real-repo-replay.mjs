@@ -167,6 +167,100 @@ try{
       data?.core_signal?.effort_core?.mature===true);
     add('overall_requires_both',20,data?.core_signal?.mature===true);
   }
+
+  else if(caseId==='core-signal-summary'){
+    const summarizer=path.join(root,'scripts/summarize-application-results.mjs');
+    const manifest={
+      target_seconds:300,
+      hard_timeout_seconds:600,
+      core_min_families_for_mature_score:2,
+      families:[
+        {id:'coreA',family:'code_review',weight:20,role:'core'},
+        {id:'coreB',family:'agent',weight:30,role:'core'},
+        {id:'coverageA',family:'coding',weight:50,role:'coverage'}
+      ]
+    };
+    const rows=[
+      {task:'coreA',model:'m',effort:'xhigh',score:80,duration_seconds:10,data_complete:true,outcome:'completed',usage:{}},
+      {task:'coreB',model:'m',effort:'xhigh',score:100,duration_seconds:10,data_complete:true,outcome:'completed',usage:{}},
+      {task:'coverageA',model:'m',effort:'xhigh',score:100,duration_seconds:10,data_complete:true,outcome:'completed',usage:{}}
+    ];
+    const manifestPath=path.join(hiddenDir,'manifest.json');
+    const rowsDir=path.join(hiddenDir,'rows');
+    fs.mkdirSync(rowsDir,{recursive:true});
+    writeJson(manifestPath,manifest);
+    rows.forEach((row,i)=>writeJson(path.join(rowsDir,'r'+i+'.json'),row));
+    const out=path.join(hiddenDir,'summary.json');
+    const md=path.join(hiddenDir,'summary.md');
+    const p=runNode(summarizer,[rowsDir,manifestPath,out,md]);
+    const data=readJson(out);
+    const cfg=Object.values(data?.by_config??data?.byConfig??{})[0] ?? data?.configs?.[0] ?? null;
+    const summaryRows=Array.isArray(data?.summary)?data.summary:[];
+    const found=cfg ?? summaryRows[0] ?? null;
+    const mdText=fs.existsSync(md)?fs.readFileSync(md,'utf8'):'';
+
+    add('summarizer_runs',10,p.status===0 && Boolean(data));
+    add('overall_quality_preserved',15,Math.abs(Number(found?.quality_score??NaN)-96)<0.01);
+    add('core_quality_separate',25,Math.abs(Number(found?.core_quality_score??NaN)-92)<0.01);
+    add('core_weight_auditable',15,Number(found?.core_valid_weight)===50 && Number(found?.core_total_weight)===50);
+    add('core_completeness_exposed',15,found?.core_data_complete===true && found?.core_mature===true);
+    add('markdown_exposes_role_and_core',20,/Role/.test(mdText) && /Core signal/i.test(mdText));
+  }
+
+  else if(caseId==='repeat-sample-policy'){
+    const analyzer=path.join(root,'scripts/analyze-discrimination.mjs');
+    const meta=path.join(hiddenDir,'metadata.json');
+    writeJson(meta,{
+      Q1:{ability:'tool_use_planning',difficulty:'research_hard'},
+      Q2:{ability:'tool_use_planning',difficulty:'research_hard'},
+      Q3:{ability:'tool_use_planning',difficulty:'research_hard'}
+    });
+
+    function row(pair,effort,success){
+      return {
+        provider:{label:'GPT test '+effort},
+        vars:{pair_id:pair,ability:'tool_use_planning',difficulty:'research_hard'},
+        success,
+        failureReason:success?0:1,
+        latencyMs:10,
+        tokenUsage:{total:10,completionDetails:{reasoning:1}}
+      };
+    }
+    function evaluate(label,rows){
+      const input=path.join(hiddenDir,label+'-input.json');
+      const out=path.join(hiddenDir,label+'-out.json');
+      const md=path.join(hiddenDir,label+'-out.md');
+      writeJson(input,{results:rows});
+      const p=runNode(analyzer,[input,out,md,meta]);
+      return {proc:p,data:readJson(out),md:fs.existsSync(md)?fs.readFileSync(md,'utf8'):''};
+    }
+
+    const one=evaluate('one',[
+      row('Q1','medium',false),row('Q1','xhigh',true)
+    ]);
+    const repeated=evaluate('repeat',[
+      ...Array.from({length:3},()=>row('Q2','medium',false)),
+      ...Array.from({length:3},()=>row('Q2','high',true)),
+      ...Array.from({length:3},()=>row('Q2','xhigh',true))
+    ]);
+    const ceiling=evaluate('ceiling',[
+      ...Array.from({length:3},()=>row('Q3','medium',true)),
+      ...Array.from({length:3},()=>row('Q3','xhigh',true))
+    ]);
+
+    const q1=one.data?.questions?.find(x=>x.pairId==='Q1');
+    const q2=repeated.data?.questions?.find(x=>x.pairId==='Q2');
+    const q3=ceiling.data?.questions?.find(x=>x.pairId==='Q3');
+
+    add('analyzer_runs',10,one.proc.status===0&&repeated.proc.status===0&&ceiling.proc.status===0);
+    add('one_shot_stays_provisional',25,
+      q1?.classification==='one-shot-effort-candidate' && q1?.repeatedEnough===false);
+    add('repeated_positive_signal_promotes',30,
+      ['strong-effort-signal','effort-candidate'].includes(q2?.classification) && q2?.repeatedEnough===true);
+    add('three_effort_shape_exposed',20,q2?.monotonic==='nondecreasing');
+    add('ceiling_remains_ceiling',15,q3?.classification==='ceiling');
+  }
+
 } finally {
   restoreRegistry();
   fs.rmSync(hiddenDir,{recursive:true,force:true});
