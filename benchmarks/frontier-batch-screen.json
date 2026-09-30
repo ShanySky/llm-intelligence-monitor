@@ -1,9 +1,20 @@
 {
-  "version": 3,
-  "purpose": "Luna-first screening for unscreened frontier candidates only. Confirmed ceiling tasks are retained as coverage but excluded; promoted candidates are validated by dedicated stability/model workflows.",
+  "version": 4,
+  "purpose": "Luna-first screening for unresolved frontier candidates. Runtime-diagnosis family variants are screened together before any Sol effort-family calibration.",
   "model": "gpt-6-luna",
   "effort": "high",
-  "tasks": [],
+  "tasks": [
+    {
+      "task": "frontier-runtime-diagnosis-capacity",
+      "max_turns": 28,
+      "shell_budget": 16
+    },
+    {
+      "task": "frontier-runtime-diagnosis-cache-db",
+      "max_turns": 28,
+      "shell_budget": 16
+    }
+  ],
   "excluded_coverage_only": [
     "frontier-webhook",
     "frontier-webhook-hidden",
