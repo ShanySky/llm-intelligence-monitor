@@ -171,6 +171,7 @@ jobs:
             "probe_attempts":runner.get("probe_attempts",0),
             "probe_budget":runner.get("probe_budget",0),
             "probe_enabled":runner.get("probe_enabled",False),
+            "patch_metrics":runner.get("patch_metrics",{}),
             "usage":runner.get("usage",{}),
             "api_retries":runner.get("api_retries",0),
             "infrastructure_error":infra,
