@@ -1485,6 +1485,130 @@ elif task == "frontier-review-deep":
 
     add("requests_changes",5,"verdict: request_changes" in review)
 
+
+elif task == "frontier-key-rotation":
+    hidden = r'''public final class FrontierKeyRotationHiddenTest {
+  public static void main(String[] args) {
+    run("LEGACY", FrontierKeyRotationHiddenTest::legacyOverlap);
+    run("KEYED_OLD", FrontierKeyRotationHiddenTest::keyedPreviousStillValid);
+    run("UNKNOWN", FrontierKeyRotationHiddenTest::unknownKidRejected);
+    run("ISSUER", FrontierKeyRotationHiddenTest::issuerScopedSameKid);
+    run("REMOVED", FrontierKeyRotationHiddenTest::removedKeyInvalidatesCache);
+    run("REPLACE", FrontierKeyRotationHiddenTest::sameKidReplacementInvalidatesCache);
+    run("ACTIVE", FrontierKeyRotationHiddenTest::activeIssueAndVerify);
+  }
+
+  interface Case { void run(); }
+
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name + "_PASS"); }
+    catch (Throwable t) { System.out.println(name + "_FAIL:" + t); }
+  }
+
+  static void legacyOverlap() {
+    KeyRegistry r=new KeyRegistry();
+    r.addKey("a","old","s-old",false);
+    r.addKey("a","new","s-new",true);
+    TokenCodec c=new TokenCodec();
+    TokenVerifier v=new TokenVerifier(r,new KeyCache(),c);
+    check(v.verify(c.encode("a",null,"u","s-old")));
+    check(v.verify(c.encode("a",null,"u","s-new")));
+  }
+
+  static void keyedPreviousStillValid() {
+    KeyRegistry r=new KeyRegistry();
+    r.addKey("a","old","s-old",false);
+    r.addKey("a","new","s-new",true);
+    TokenCodec c=new TokenCodec();
+    TokenVerifier v=new TokenVerifier(r,new KeyCache(),c);
+    check(v.verify(c.encode("a","old","u","s-old")));
+  }
+
+  static void unknownKidRejected() {
+    KeyRegistry r=new KeyRegistry();
+    r.addKey("a","new","s-new",true);
+    TokenCodec c=new TokenCodec();
+    TokenVerifier v=new TokenVerifier(r,new KeyCache(),c);
+    check(!v.verify(c.encode("a","missing","u","s-new")));
+  }
+
+  static void issuerScopedSameKid() {
+    KeyRegistry r=new KeyRegistry();
+    r.addKey("a","shared","sa",true);
+    r.addKey("b","shared","sb",true);
+    TokenCodec c=new TokenCodec(); KeyCache cache=new KeyCache();
+    TokenVerifier v=new TokenVerifier(r,cache,c);
+    check(v.verify(c.encode("a","shared","alice","sa")));
+    check(v.verify(c.encode("b","shared","bob","sb")));
+    check(!v.verify(c.encode("b","shared","bob","sa")));
+  }
+
+  static void removedKeyInvalidatesCache() {
+    KeyRegistry r=new KeyRegistry();
+    r.addKey("a","old","s-old",false);
+    r.addKey("a","new","s-new",true);
+    TokenCodec c=new TokenCodec(); KeyCache cache=new KeyCache();
+    TokenVerifier v=new TokenVerifier(r,cache,c);
+    String old=c.encode("a","old","u","s-old");
+    check(v.verify(old));
+    r.removeKey("a","old");
+    check(!v.verify(old));
+    check(!v.verify(c.encode("a",null,"u","s-old")));
+  }
+
+  static void sameKidReplacementInvalidatesCache() {
+    KeyRegistry r=new KeyRegistry();
+    r.addKey("a","rotating","s1",true);
+    TokenCodec c=new TokenCodec(); KeyCache cache=new KeyCache();
+    TokenVerifier v=new TokenVerifier(r,cache,c);
+    check(v.verify(c.encode("a","rotating","u","s1")));
+    r.addKey("a","rotating","s2",true);
+    check(!v.verify(c.encode("a","rotating","u","s1")));
+    check(v.verify(c.encode("a","rotating","u","s2")));
+  }
+
+  static void activeIssueAndVerify() {
+    KeyRegistry r=new KeyRegistry();
+    r.addKey("a","old","s-old",false);
+    r.addKey("a","new","s-new",true);
+    TokenCodec c=new TokenCodec();
+    TokenSigner signer=new TokenSigner(r,c);
+    TokenVerifier v=new TokenVerifier(r,new KeyCache(),c);
+    String token=signer.issue("a","u");
+    check(token.contains(";new;"));
+    check(v.verify(token));
+  }
+
+  static void check(boolean x) {
+    if(!x) throw new AssertionError();
+  }
+}'''
+    (root/"FrontierKeyRotationHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run([
+        "javac","-d",str(outdir),
+        *map(str,(root/"src").glob("*.java")),
+        str(root/"FrontierKeyRotationHiddenTest.java")
+    ],capture_output=True,text=True)
+    add("compiles",5,cp.returncode==0)
+    visible=False; rollout=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True)
+        visible=vr.returncode==0
+        rr=subprocess.run(["bash","run_rollout_checks.sh"],cwd=root,capture_output=True,text=True,timeout=30)
+        rollout=rr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierKeyRotationHiddenTest"],capture_output=True,text=True)
+        hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",5,visible)
+    add("repository_rollout_probe",10,rollout)
+    add("legacy_no_kid_uses_retained_overlap_keys",15,"LEGACY_PASS" in hidden_out)
+    add("previous_keyed_session_remains_valid_during_overlap",10,"KEYED_OLD_PASS" in hidden_out)
+    add("unknown_kid_is_rejected_without_fallback",15,"UNKNOWN_PASS" in hidden_out)
+    add("key_cache_is_scoped_by_issuer",15,"ISSUER_PASS" in hidden_out)
+    add("removed_key_invalidates_cached_verification",15,"REMOVED_PASS" in hidden_out)
+    add("same_kid_replacement_observes_registry_revision",15,"REPLACE_PASS" in hidden_out)
+    add("active_signing_path_regression",10,"ACTIVE_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
