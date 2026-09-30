@@ -179,20 +179,33 @@ for (const family of families) {
 }
 
 const coreTasks = tasks.filter((x) => x.role === 'core');
-const confirmedCoreTasks = coreTasks.filter((x) =>
-  x.model_signal_confirmed || x.effort_signal_confirmed
+const confirmedModelCoreTasks = coreTasks.filter((x) => x.model_signal_confirmed);
+const confirmedEffortRegistryTasks = (frontierRegistry.tasks ?? []).filter((x) =>
+  ['effort-discriminator-confirmed','model+effort-discriminator-confirmed'].includes(x?.status)
 );
-const minCoreFamilies = Number(data.manifest?.core_min_families_for_mature_score ?? 1);
+const minModelCoreFamilies = Number(policy.selection?.model_core_min_families ?? data.manifest?.core_min_families_for_mature_score ?? 2);
+const minEffortCoreFamilies = Number(policy.selection?.effort_core_min_families ?? 1);
+const modelCoreMature = confirmedModelCoreTasks.length >= minModelCoreFamilies;
+const effortCoreMature = confirmedEffortRegistryTasks.length >= minEffortCoreFamilies;
 
 const output = {
   generated_at: new Date().toISOString(),
   policy,
   core_signal: {
-    configured_core_families: coreTasks.length,
-    confirmed_core_families: confirmedCoreTasks.length,
-    minimum_core_families: minCoreFamilies,
-    mature: confirmedCoreTasks.length >= minCoreFamilies,
-    confirmed_tasks: confirmedCoreTasks.map((x) => x.task),
+    model_core: {
+      configured_families: coreTasks.length,
+      confirmed_families: confirmedModelCoreTasks.length,
+      minimum_families: minModelCoreFamilies,
+      mature: modelCoreMature,
+      confirmed_tasks: confirmedModelCoreTasks.map((x) => x.task),
+    },
+    effort_core: {
+      confirmed_families: confirmedEffortRegistryTasks.length,
+      minimum_families: minEffortCoreFamilies,
+      mature: effortCoreMature,
+      confirmed_tasks: confirmedEffortRegistryTasks.map((x) => x.id),
+    },
+    mature: modelCoreMature && effortCoreMature,
   },
   tasks,
   counts: Object.fromEntries(
@@ -217,7 +230,7 @@ for (const x of tasks) {
 }
 lines.push(
   '',
-  `**Core signal maturity:** ${output.core_signal.confirmed_core_families}/${output.core_signal.minimum_core_families} confirmed families → ${output.core_signal.mature ? 'mature' : 'not yet mature'}.`,
+  `**Model Core:** ${output.core_signal.model_core.confirmed_families}/${output.core_signal.model_core.minimum_families} → ${output.core_signal.model_core.mature ? 'mature' : 'not yet mature'}; **Effort Core:** ${output.core_signal.effort_core.confirmed_families}/${output.core_signal.effort_core.minimum_families} → ${output.core_signal.effort_core.mature ? 'mature' : 'not yet mature'}; **Overall application maturity:** ${output.core_signal.mature ? 'mature' : 'not yet mature'}.`,
   '',
   '> Selection rule: formal model/effort promotion requires repeated evidence. A one-shot spread in the final suite is diagnostic only; previously repeated frontier validation recorded in the registry remains the authoritative promotion evidence. Quality discrimination and execution efficiency are separate signals. Effort discrimination requires a repeated positive Medium→X High quality gain. A ceiling task may additionally show an efficiency candidate when X High uses materially less runtime/tool work/token cost at the same quality, but that does not count as a quality win and still requires repeated validation.',
   ''
