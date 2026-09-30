@@ -295,6 +295,19 @@ Agent 调查题支持 opaque `probe` 工具。模型只能看到 probe 返回的
 
 题目研发状态统一记录在 `benchmarks/frontier-registry.json`。已经确认封顶的任务可以继续作为 coverage，但不会重复进入昂贵的 effort / cross-model 漏斗。
 
+### Reasoning Effort 低成本筛选
+
+Medium / High / X High 的前置筛选不再只使用整题 pass/fail。对于可拆分的方案、Review、Agent 和长程决策题，Promptfoo assertion 可返回 0～1 的**客观部分分数**，分别反映关键约束召回、错误决策、必要顺序等可验证子目标。
+
+报告同时保留：
+
+- 完全通过率；
+- 平均客观分；
+- Medium → X High 分差；
+- 重复样本数与方向形状。
+
+正式 Effort Core 仍要求跨实例、重复、非预算混淆的稳定质量差异；部分分数只是提高测量分辨率，不降低晋级门槛，也不使用 LLM Judge。
+
 ### Frontier 候选漏斗
 
 新应用题不直接进入完整多模型套件，而按成本漏斗推进：
