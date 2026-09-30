@@ -34,6 +34,12 @@ jobs:
           git fetch origin frontier-effort-results
           git show "origin/frontier-effort-results:frontier-effort/$TASK/latest.json" > results-frontier-effort-summary.json
 
+      - name: Validate effort analysis scripts
+        shell: bash
+        run: |
+          node --check scripts/analyze-effort-efficiency.mjs
+          node --check scripts/analyze-patch-quality.mjs
+
       - name: Reanalyze with current policy
         shell: bash
         run: |
