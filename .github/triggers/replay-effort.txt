@@ -1,1 +1,2 @@
 real repo replay trigger
+run stabilized GPT-6.1 replay
