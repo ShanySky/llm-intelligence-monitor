@@ -1,9 +1,8 @@
 {
-  "task": "frontier-runtime-diagnosis",
+  "task": "frontier-build-cache",
   "model": "gpt-6-luna",
   "effort": "high",
-  "max_turns": 24,
-  "shell_budget": 12,
-  "probe_budget": 7,
-  "validation_budget": 2
+  "max_turns": 30,
+  "shell_budget": 30,
+  "validation_budget": 6
 }
