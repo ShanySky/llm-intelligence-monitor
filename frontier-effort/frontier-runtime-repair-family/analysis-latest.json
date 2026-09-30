@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-09-30T08:26:57.005Z",
+  "task": "frontier-runtime-repair-family",
+  "model": "gpt-6-luna",
+  "trial_count": 3,
+  "trial_mode": "variants",
+  "by_effort": {
+    "high": {
+      "effort": "high",
+      "trials": 3,
+      "expected_trials": 3,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 93,
+      "shell_commands": 4.666666666666667,
+      "probe_calls": 5.666666666666667,
+      "probe_attempts": 5.666666666666667,
+      "changed_files": 2,
+      "changed_lines": 15.666666666666666,
+      "total_tokens": 21559.333333333332,
+      "reasoning_tokens": 623.3333333333334,
+      "saturated": false,
+      "data_complete": true
+    }
+  },
+  "effort_spread_points": 0,
+  "medium_to_xhigh": null,
+  "effort_sensitivity": null,
+  "nonmonotonic": null,
+  "promotion_recommendation": "do-not-promote",
+  "promotion_evidence": {
+    "trial_mode": "variants",
+    "paired_variants": 0,
+    "medium_to_xhigh_gain_points": null,
+    "positive_variant_count": null,
+    "required_positive_variant_count": null,
+    "effort_spread_points": 0,
+    "budget_confounded": false
+  }
+}

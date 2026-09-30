@@ -1,0 +1,101 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-runtime-repair-family-high-t2",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 96,
+  "responses": 10,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 6,
+  "shell_budget": 24,
+  "validation_calls": 2,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 7,
+  "probe_attempts": 7,
+  "probe_budget": 12,
+  "probe_enabled": true,
+  "probe_queries": [
+    "What runtime failure is currently active in production, and what focused evidence identifies its trigger and affected behavior?",
+    "Inspect runtime state for recent retry, idempotency, cache, or state-management failures. Which specific behavior is failing and under what conditions?",
+    "Explain the cache alias behavior for the legacy writer incident: which keys are cached for the same customer, what invalidation occurs, and what strict reader observes?",
+    "What is the smallest reproduction sequence involving legacy write and read by stable key, and what should happen instead?",
+    "Run a strict-read experiment: after write changes primary from v1 to v2 but before replication, what does strictRead return and what should strict read-after-write return?",
+    "For legacy update, what exact cache key aliases map to customer id 1, and which keys must be invalidated when its name changes?",
+    "The repository has primary=v2 and replica=v1 after a write before replication. What does strictRead return? Should strictRead use primary while ordinaryRead uses replica?"
+  ],
+  "probe_executed_queries": [
+    "What runtime failure is currently active in production, and what focused evidence identifies its trigger and affected behavior?",
+    "Inspect runtime state for recent retry, idempotency, cache, or state-management failures. Which specific behavior is failing and under what conditions?",
+    "Explain the cache alias behavior for the legacy writer incident: which keys are cached for the same customer, what invalidation occurs, and what strict reader observes?",
+    "What is the smallest reproduction sequence involving legacy write and read by stable key, and what should happen instead?",
+    "Run a strict-read experiment: after write changes primary from v1 to v2 but before replication, what does strictRead return and what should strict read-after-write return?",
+    "For legacy update, what exact cache key aliases map to customer id 1, and which keys must be invalidated when its name changes?",
+    "The repository has primary=v2 and replica=v1 after a write before replication. What does strictRead return? Should strictRead use primary while ordinaryRead uses replica?"
+  ],
+  "probe_observations": [
+    {
+      "query": "What runtime failure is currently active in production, and what focused evidence identifies its trigger and affected behavior?",
+      "output": "STDOUT:\nNO_MATCH: ask about cache aliases, legacy writer invalidation, primary/replica, or a strict-read experiment.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Inspect runtime state for recent retry, idempotency, cache, or state-management failures. Which specific behavior is failing and under what conditions?",
+      "output": "STDOUT:\nlegacy writer updated primary row alice->bob; numeric alias was invalidated but stable:key-1 remained cached as alice; primary row is bob\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Explain the cache alias behavior for the legacy writer incident: which keys are cached for the same customer, what invalidation occurs, and what strict reader observes?",
+      "output": "STDOUT:\nlegacy writer updated primary row alice->bob; numeric alias was invalidated but stable:key-1 remained cached as alice; primary row is bob\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What is the smallest reproduction sequence involving legacy write and read by stable key, and what should happen instead?",
+      "output": "STDOUT:\nNO_MATCH: ask about cache aliases, legacy writer invalidation, primary/replica, or a strict-read experiment.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Run a strict-read experiment: after write changes primary from v1 to v2 but before replication, what does strictRead return and what should strict read-after-write return?",
+      "output": "STDOUT:\nwith cache bypassed, primary read returns bob immediately; the stable-key cache alias is the stale layer\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For legacy update, what exact cache key aliases map to customer id 1, and which keys must be invalidated when its name changes?",
+      "output": "STDOUT:\nlegacy writer updated primary row alice->bob; numeric alias was invalidated but stable:key-1 remained cached as alice; primary row is bob\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "The repository has primary=v2 and replica=v1 after a write before replication. What does strictRead return? Should strictRead use primary while ordinaryRead uses replica?",
+      "output": "STDOUT:\nwith cache bypassed, primary read returns bob immediately; the stable-key cache alias is the stale layer\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 3,
+    "added_files": 0,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "src/CustomerService.java",
+        "kind": "modified",
+        "changed_lines": 1
+      },
+      {
+        "path": "src/StrictCustomerReader.java",
+        "kind": "modified",
+        "changed_lines": 2
+      }
+    ]
+  },
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 23903,
+    "output_tokens": 1209,
+    "reasoning_tokens": 407,
+    "cached_input_tokens": 14336
+  },
+  "final_text": "Repaired both active stale-read paths:\n\n- `legacyUpdate` now invalidates the stable-key cache entry as well as the legacy key.\n- `strictRead` now reads from the primary; ordinary reads remain replica-backed.\n\nValidation passed: `./run_visible_tests.sh` and black-box validation."
+}

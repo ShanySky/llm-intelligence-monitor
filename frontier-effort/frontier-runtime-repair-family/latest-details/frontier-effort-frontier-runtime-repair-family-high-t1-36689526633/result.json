@@ -1,0 +1,72 @@
+{
+  "task": "frontier-runtime-repair-family",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "trial": 1,
+  "score": 100,
+  "checks": {
+    "compiles": {
+      "points": 5,
+      "passed": true
+    },
+    "visible_regression": {
+      "points": 5,
+      "passed": true
+    },
+    "business_scoped_retry_identity": {
+      "points": 30,
+      "passed": true
+    },
+    "post_side_effect_crash_retry_converges": {
+      "points": 35,
+      "passed": true
+    },
+    "different_order_versions_remain_distinct": {
+      "points": 15,
+      "passed": true
+    },
+    "different_orders_remain_distinct": {
+      "points": 10,
+      "passed": true
+    }
+  },
+  "duration_seconds": 78,
+  "responses": 8,
+  "max_turns": 30,
+  "shell_commands": 3,
+  "shell_budget": 24,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 3,
+  "probe_attempts": 3,
+  "probe_budget": 12,
+  "probe_enabled": true,
+  "patch_metrics": {
+    "changed_files": 1,
+    "changed_lines": 14,
+    "added_files": 0,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "src/PaymentService.java",
+        "kind": "modified",
+        "changed_lines": 14
+      }
+    ]
+  },
+  "turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "finished_with_message": true,
+  "usage": {
+    "input_tokens": 13566,
+    "output_tokens": 1158,
+    "reasoning_tokens": 578,
+    "cached_input_tokens": 7168
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}

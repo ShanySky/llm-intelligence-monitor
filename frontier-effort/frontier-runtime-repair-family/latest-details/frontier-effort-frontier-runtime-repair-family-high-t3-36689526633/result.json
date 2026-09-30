@@ -1,0 +1,82 @@
+{
+  "task": "frontier-runtime-repair-family",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "trial": 3,
+  "score": 100,
+  "checks": {
+    "compiles": {
+      "points": 5,
+      "passed": true
+    },
+    "visible_regression": {
+      "points": 5,
+      "passed": true
+    },
+    "stale_backfill_cannot_overwrite_newer_write": {
+      "points": 40,
+      "passed": true
+    },
+    "matching_version_backfill_still_applies": {
+      "points": 15,
+      "passed": true
+    },
+    "legacy_writer_preserves_stable_identity": {
+      "points": 30,
+      "passed": true
+    },
+    "v2_writer_preserves_stable_identity": {
+      "points": 5,
+      "passed": true
+    }
+  },
+  "duration_seconds": 105,
+  "responses": 10,
+  "max_turns": 30,
+  "shell_commands": 5,
+  "shell_budget": 24,
+  "validation_calls": 2,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 7,
+  "probe_attempts": 7,
+  "probe_budget": 12,
+  "probe_enabled": true,
+  "patch_metrics": {
+    "changed_files": 3,
+    "changed_lines": 30,
+    "added_files": 0,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "src/BackfillJob.java",
+        "kind": "modified",
+        "changed_lines": 10
+      },
+      {
+        "path": "src/LegacyCustomerService.java",
+        "kind": "modified",
+        "changed_lines": 10
+      },
+      {
+        "path": "src/V2CustomerService.java",
+        "kind": "modified",
+        "changed_lines": 10
+      }
+    ]
+  },
+  "turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "finished_with_message": true,
+  "usage": {
+    "input_tokens": 23092,
+    "output_tokens": 1750,
+    "reasoning_tokens": 885,
+    "cached_input_tokens": 11776
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}

@@ -1,0 +1,106 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-runtime-repair-family-high-t3",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 105,
+  "responses": 10,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 24,
+  "validation_calls": 2,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 7,
+  "probe_attempts": 7,
+  "probe_budget": 12,
+  "probe_enabled": true,
+  "probe_queries": [
+    "What production runtime failure modes are active in this service, and what concrete evidence identifies their triggering conditions?",
+    "What is the runtime evidence for delayed backfill behavior and failure conditions?",
+    "How do live-write versions interact with delayed backfill in production?",
+    "Is there a legacy writer compatibility problem? Give runtime evidence.",
+    "Is object identity stable across retries or serialization? Give concrete evidence.",
+    "What should delayed backfill do when current row version is newer than captured version? Does it affect status and version?",
+    "What are intended semantics for legacy writer preserving fields it does not own, especially stableKey and newer schema fields?"
+  ],
+  "probe_executed_queries": [
+    "What production runtime failure modes are active in this service, and what concrete evidence identifies their triggering conditions?",
+    "What is the runtime evidence for delayed backfill behavior and failure conditions?",
+    "How do live-write versions interact with delayed backfill in production?",
+    "Is there a legacy writer compatibility problem? Give runtime evidence.",
+    "Is object identity stable across retries or serialization? Give concrete evidence.",
+    "What should delayed backfill do when current row version is newer than captured version? Does it affect status and version?",
+    "What are intended semantics for legacy writer preserving fields it does not own, especially stableKey and newer schema fields?"
+  ],
+  "probe_observations": [
+    {
+      "query": "What production runtime failure modes are active in this service, and what concrete evidence identifies their triggering conditions?",
+      "output": "STDOUT:\nNO_MATCH: ask about delayed backfill, live-write versions, legacy writer compatibility, or stable identity.\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What is the runtime evidence for delayed backfill behavior and failure conditions?",
+      "output": "STDOUT:\ncaptured backfill item: id=7 status=OPEN version=5; live v2 write committed PAID version=6; delayed backfill later restored OPEN/version=5\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "How do live-write versions interact with delayed backfill in production?",
+      "output": "STDOUT:\ncaptured backfill item: id=7 status=OPEN version=5; live v2 write committed PAID version=6; delayed backfill later restored OPEN/version=5\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Is there a legacy writer compatibility problem? Give runtime evidence.",
+      "output": "STDOUT:\ncustomer id=9 had stableKey=key-9 before a legacy writer update; after the update stableKey became null while legacy status/version advanced\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Is object identity stable across retries or serialization? Give concrete evidence.",
+      "output": "STDOUT:\ncustomer id=9 had stableKey=key-9 before a legacy writer update; after the update stableKey became null while legacy status/version advanced\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What should delayed backfill do when current row version is newer than captured version? Does it affect status and version?",
+      "output": "STDOUT:\nmigration validation shows occasional status rollback after live writes and loss of stable customer identity after legacy-version updates\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What are intended semantics for legacy writer preserving fields it does not own, especially stableKey and newer schema fields?",
+      "output": "STDOUT:\ncustomer id=9 had stableKey=key-9 before a legacy writer update; after the update stableKey became null while legacy status/version advanced\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "patch_metrics": {
+    "changed_files": 3,
+    "changed_lines": 30,
+    "added_files": 0,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "src/BackfillJob.java",
+        "kind": "modified",
+        "changed_lines": 10
+      },
+      {
+        "path": "src/LegacyCustomerService.java",
+        "kind": "modified",
+        "changed_lines": 10
+      },
+      {
+        "path": "src/V2CustomerService.java",
+        "kind": "modified",
+        "changed_lines": 10
+      }
+    ]
+  },
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 23092,
+    "output_tokens": 1750,
+    "reasoning_tokens": 885,
+    "cached_input_tokens": 11776
+  },
+  "final_text": "Repaired both production failure modes: delayed backfills now leave newer committed versions untouched, and legacy updates preserve stable identity and newer-schema fields. Updates are synchronized so live writes and backfills cannot interleave unsafely.\n\nValidation passed: `./run_visible_tests.sh` and black-box validation."
+}
