@@ -18,12 +18,15 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-external-tb]')
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 3
       matrix:
         include:
           - model: gpt-6-sol
             effort: medium
             key: gpt-6-sol-medium
+          - model: gpt-6-sol
+            effort: high
+            key: gpt-6-sol-high
           - model: gpt-6-sol
             effort: xhigh
             key: gpt-6-sol-xhigh
@@ -70,8 +73,8 @@ jobs:
         env:
           AGENT_DOCKER_CONTAINER: ${{ env.TB_CONTAINER }}
           AGENT_DOCKER_WORKDIR: /app
-          AGENT_MAX_TURNS: "20"
-          AGENT_SHELL_BUDGET: "30"
+          AGENT_MAX_TURNS: "40"
+          AGENT_SHELL_BUDGET: "50"
           AGENT_SHELL_TIMEOUT_MS: "120000"
           AGENT_MAX_OUTPUT_TOKENS: "4096"
         shell: bash
@@ -145,7 +148,12 @@ jobs:
             "score":100 if "${{ steps.verify.outputs.pass }}"=="true" else 0,
             "passed":"${{ steps.verify.outputs.pass }}"=="true",
             "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '600' }}")),
+            "responses":runner.get("responses",0),
+            "max_turns":runner.get("max_turns"),
             "shell_commands":runner.get("shell_commands",0),
+            "shell_budget":runner.get("shell_budget"),
+            "turn_limit_reached":bool(runner.get("max_turns")) and runner.get("responses",0)>=runner.get("max_turns"),
+            "shell_budget_reached":bool(runner.get("shell_budget")) and runner.get("shell_commands",0)>=runner.get("shell_budget"),
             "usage":runner.get("usage",{}),
             "agent_exit_code":int("${{ steps.agent.outputs.exit_code || '999' }}"),
             "verifier_status":int("${{ steps.verify.outputs.status || '999' }}"),
@@ -169,3 +177,83 @@ jobs:
         if: always()
         shell: bash
         run: docker rm -f "$TB_CONTAINER" >/dev/null 2>&1 || true
+
+
+  aggregate:
+    needs: screen
+    if: always() && needs.screen.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: external-tb-*-${{ github.run_id }}
+          path: results/external-terminal-bench
+
+      - name: Build external calibration summary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[]
+          for p in Path("results/external-terminal-bench").rglob("result.json"):
+              rows.append(json.loads(p.read_text()))
+          order={"medium":0,"high":1,"xhigh":2}
+          rows.sort(key=lambda x: order.get(x.get("effort"),99))
+          out={"rows":rows}
+          Path("external-summary.json").write_text(json.dumps(out,indent=2)+"\n")
+          lines=[
+              "# External Terminal-Bench Calibration",
+              "",
+              "| Effort | Pass | Runtime | Turns | Shell | Saturated | Reasoning tokens |",
+              "|---|---|---:|---:|---:|---|---:|",
+          ]
+          for r in rows:
+              sat=r.get("turn_limit_reached") or r.get("shell_budget_reached")
+              lines.append(
+                  f"| {r.get('effort')} | {'yes' if r.get('passed') else 'no'} | "
+                  f"{r.get('duration_seconds',0)}s | {r.get('responses',0)} | "
+                  f"{r.get('shell_commands',0)} | {'yes' if sat else 'no'} | "
+                  f"{r.get('usage',{}).get('reasoning_tokens',0)} |"
+              )
+          Path("external-summary.md").write_text("\n".join(lines)+"\n")
+          print("\n".join(lines))
+          PY
+          cat external-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: external-terminal-bench-summary-${{ github.run_id }}
+          path: |
+            external-summary.json
+            external-summary.md
+          retention-days: 30
+
+      - name: Publish latest external calibration
+        shell: bash
+        run: |
+          cp external-summary.json /tmp/external-summary.json
+          cp external-summary.md /tmp/external-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin external-calibration-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/external-calibration-results; then
+            git switch -C external-calibration-results origin/external-calibration-results
+          else
+            git switch --orphan external-calibration-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p external-terminal-bench/runs
+          cp /tmp/external-summary.json external-terminal-bench/latest.json
+          cp /tmp/external-summary.md external-terminal-bench/latest.md
+          cp /tmp/external-summary.json "external-terminal-bench/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/external-summary.md "external-terminal-bench/runs/${GITHUB_RUN_ID}.md"
+          git add external-terminal-bench
+          if ! git diff --cached --quiet; then
+            git commit -m "Record external Terminal-Bench calibration ${GITHUB_RUN_ID}"
+            git push origin HEAD:external-calibration-results
+          fi
