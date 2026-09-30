@@ -130,9 +130,10 @@ jobs:
           fi
           TASK="${{ steps.target.outputs.task }}"
           mkdir -p "frontier-screen/$TASK/runs"
+          cp /tmp/frontier-screen-result.json latest.json
           cp /tmp/frontier-screen-result.json "frontier-screen/$TASK/latest.json"
           cp /tmp/frontier-screen-result.json "frontier-screen/$TASK/runs/${GITHUB_RUN_ID}.json"
-          git add frontier-screen
+          git add latest.json frontier-screen
           if ! git diff --cached --quiet; then
             git commit -m "Record frontier screen $TASK ${GITHUB_RUN_ID}"
             git push origin HEAD:frontier-screen-results
