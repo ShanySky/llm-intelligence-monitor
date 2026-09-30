@@ -1,12 +1,13 @@
 {
-  "generated_at": "2026-09-30T04:52:44.179Z",
+  "generated_at": "2026-09-30T05:00:34.776Z",
+  "trial_mode": "variants",
   "rows": [
     {
       "task": "frontier-review-family",
-      "model": "gpt-6-luna",
+      "model": "gpt-6-sol",
       "effort": "high",
       "trial": 1,
-      "score": 70,
+      "score": 85,
       "checks": {
         "valid_findings_json": {
           "points": 5,
@@ -18,7 +19,7 @@
         },
         "finding_PriceService.java_transaction_visibility": {
           "points": 15,
-          "passed": false
+          "passed": true
         },
         "finding_AuditWorker.java_payload_snapshot": {
           "points": 10,
@@ -45,8 +46,8 @@
           "passed": false,
           "reported": [
             {
-              "file": "PriceService.java",
-              "failure_class": "cache_staleness"
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
             }
           ]
         },
@@ -55,11 +56,11 @@
           "passed": true
         }
       },
-      "duration_seconds": 48,
+      "duration_seconds": 99,
       "responses": 4,
-      "max_turns": 24,
-      "shell_commands": 4,
-      "shell_budget": 16,
+      "max_turns": 28,
+      "shell_commands": 3,
+      "shell_budget": 18,
       "validation_calls": 0,
       "validation_budget": 0,
       "validation_enabled": false,
@@ -71,10 +72,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 6735,
-        "output_tokens": 1547,
-        "reasoning_tokens": 681,
-        "cached_input_tokens": 1536
+        "input_tokens": 8046,
+        "output_tokens": 3114,
+        "reasoning_tokens": 1960,
+        "cached_input_tokens": 0
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -84,10 +85,10 @@
     },
     {
       "task": "frontier-review-family",
-      "model": "gpt-6-luna",
+      "model": "gpt-6-sol",
       "effort": "high",
       "trial": 2,
-      "score": 65,
+      "score": 85,
       "checks": {
         "valid_findings_json": {
           "points": 5,
@@ -111,32 +112,22 @@
         },
         "finding_ProfileService.java_transaction_visibility": {
           "points": 15,
-          "passed": false
+          "passed": true
         },
         "finding_PairCoordinator.java_lock_order": {
           "points": 10,
           "passed": true
-        },
-        "false_positive_penalty": {
-          "points": -5,
-          "passed": false,
-          "reported": [
-            {
-              "file": "ProfileService.java",
-              "failure_class": "cache_staleness"
-            }
-          ]
         },
         "requests_changes": {
           "points": 5,
           "passed": true
         }
       },
-      "duration_seconds": 61,
-      "responses": 5,
-      "max_turns": 24,
-      "shell_commands": 5,
-      "shell_budget": 16,
+      "duration_seconds": 49,
+      "responses": 4,
+      "max_turns": 28,
+      "shell_commands": 3,
+      "shell_budget": 18,
       "validation_calls": 0,
       "validation_budget": 0,
       "validation_enabled": false,
@@ -148,10 +139,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 10662,
-        "output_tokens": 1705,
-        "reasoning_tokens": 726,
-        "cached_input_tokens": 4096
+        "input_tokens": 6161,
+        "output_tokens": 1301,
+        "reasoning_tokens": 415,
+        "cached_input_tokens": 1536
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -161,8 +152,458 @@
     },
     {
       "task": "frontier-review-family",
-      "model": "gpt-6-luna",
+      "model": "gpt-6-sol",
       "effort": "high",
+      "trial": 3,
+      "score": 85,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_FeedService.java_pagination_stability": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_VerifierCache.java_cache_identity_scope": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_VerifierCache.java_cache_staleness": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_BackfillJob.java_lost_update": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_LegacyCustomerService.java_business_identity_scope": {
+          "points": 10,
+          "passed": false
+        },
+        "finding_PairLockManager.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -5,
+          "passed": false,
+          "reported": [
+            {
+              "file": "LegacyCustomerService.java",
+              "failure_class": "lost_update"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 70,
+      "responses": 5,
+      "max_turns": 28,
+      "shell_commands": 4,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 10479,
+        "output_tokens": 2023,
+        "reasoning_tokens": 853,
+        "cached_input_tokens": 3200
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-family",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "trial": 1,
+      "score": 95,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -5,
+          "passed": false,
+          "reported": [
+            {
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 71,
+      "responses": 4,
+      "max_turns": 28,
+      "shell_commands": 3,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 7195,
+        "output_tokens": 2155,
+        "reasoning_tokens": 964,
+        "cached_input_tokens": 0
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-family",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "trial": 2,
+      "score": 85,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_LeaseStore.java_stale_lease_fencing": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_LeaseWorker.java_retry_idempotency": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_LeaseWorker.java_external_effect_recovery": {
+          "points": 15,
+          "passed": false
+        },
+        "finding_ProfileService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_ProfileService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PairCoordinator.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 47,
+      "responses": 4,
+      "max_turns": 28,
+      "shell_commands": 3,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 5942,
+        "output_tokens": 1117,
+        "reasoning_tokens": 288,
+        "cached_input_tokens": 0
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-family",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "trial": 3,
+      "score": 85,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_FeedService.java_pagination_stability": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_VerifierCache.java_cache_identity_scope": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_VerifierCache.java_cache_staleness": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_BackfillJob.java_lost_update": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_LegacyCustomerService.java_business_identity_scope": {
+          "points": 10,
+          "passed": false
+        },
+        "finding_PairLockManager.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -5,
+          "passed": false,
+          "reported": [
+            {
+              "file": "LegacyCustomerService.java",
+              "failure_class": "lost_update"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 52,
+      "responses": 4,
+      "max_turns": 28,
+      "shell_commands": 3,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 6256,
+        "output_tokens": 1246,
+        "reasoning_tokens": 290,
+        "cached_input_tokens": 1664
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-family",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "trial": 1,
+      "score": 95,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "false_positive_penalty": {
+          "points": -5,
+          "passed": false,
+          "reported": [
+            {
+              "file": "WebhookService.java",
+              "failure_class": "lost_update"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 249,
+      "responses": 18,
+      "max_turns": 28,
+      "shell_commands": 17,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 108670,
+        "output_tokens": 6310,
+        "reasoning_tokens": 3183,
+        "cached_input_tokens": 86528
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-family",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "trial": 2,
+      "score": 85,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_LeaseStore.java_stale_lease_fencing": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_LeaseWorker.java_retry_idempotency": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_LeaseWorker.java_external_effect_recovery": {
+          "points": 15,
+          "passed": false
+        },
+        "finding_ProfileService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_ProfileService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PairCoordinator.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 71,
+      "responses": 4,
+      "max_turns": 28,
+      "shell_commands": 3,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 6980,
+        "output_tokens": 2411,
+        "reasoning_tokens": 1491,
+        "cached_input_tokens": 0
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-family",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
       "trial": 3,
       "score": 100,
       "checks": {
@@ -199,11 +640,11 @@
           "passed": true
         }
       },
-      "duration_seconds": 50,
+      "duration_seconds": 76,
       "responses": 5,
-      "max_turns": 24,
-      "shell_commands": 5,
-      "shell_budget": 16,
+      "max_turns": 28,
+      "shell_commands": 4,
+      "shell_budget": 18,
       "validation_calls": 0,
       "validation_budget": 0,
       "validation_enabled": false,
@@ -215,10 +656,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 10174,
-        "output_tokens": 1252,
-        "reasoning_tokens": 376,
-        "cached_input_tokens": 4096
+        "input_tokens": 10777,
+        "output_tokens": 2224,
+        "reasoning_tokens": 991,
+        "cached_input_tokens": 0
       },
       "api_retries": 0,
       "infrastructure_error": null,

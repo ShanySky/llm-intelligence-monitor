@@ -1,13 +1,13 @@
 {
   "task_dir": "/tmp/frontier-effort-frontier-review-family-high-t2",
-  "model": "gpt-6-luna",
+  "model": "gpt-6-sol",
   "effort": "high",
-  "duration_seconds": 61,
-  "responses": 5,
+  "duration_seconds": 49,
+  "responses": 4,
   "api_retries": 0,
   "infrastructure_error": null,
-  "shell_commands": 5,
-  "shell_budget": 16,
+  "shell_commands": 3,
+  "shell_budget": 18,
   "validation_calls": 0,
   "validation_budget": 0,
   "validation_enabled": false,
@@ -18,14 +18,14 @@
   "probe_queries": [],
   "probe_executed_queries": [],
   "probe_observations": [],
-  "max_turns": 24,
+  "max_turns": 28,
   "container_mode": false,
   "docker_container": null,
   "usage": {
-    "input_tokens": 10662,
-    "output_tokens": 1705,
-    "reasoning_tokens": 726,
-    "cached_input_tokens": 4096
+    "input_tokens": 6161,
+    "output_tokens": 1301,
+    "reasoning_tokens": 415,
+    "cached_input_tokens": 1536
   },
-  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with five blocking reliability findings.\n\nValidation run: `python3 -m json.tool FINDINGS.json` and checked that `REVIEW.md` contains exactly one verdict line."
+  "final_text": "Wrote `REVIEW.md` and `FINDINGS.json` with five blocking findings and a `REQUEST_CHANGES` verdict.\n\nValidation: ran a Python check of the JSON, taxonomy values, file references, and final verdict line."
 }

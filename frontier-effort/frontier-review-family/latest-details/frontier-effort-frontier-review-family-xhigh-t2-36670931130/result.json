@@ -1,35 +1,35 @@
 {
   "task": "frontier-review-family",
-  "model": "gpt-6-luna",
-  "effort": "high",
-  "trial": 3,
-  "score": 100,
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "trial": 2,
+  "score": 85,
   "checks": {
     "valid_findings_json": {
       "points": 5,
       "passed": true
     },
-    "finding_FeedService.java_pagination_stability": {
+    "finding_LeaseStore.java_stale_lease_fencing": {
       "points": 20,
       "passed": true
     },
-    "finding_VerifierCache.java_cache_identity_scope": {
+    "finding_LeaseWorker.java_retry_idempotency": {
       "points": 15,
       "passed": true
     },
-    "finding_VerifierCache.java_cache_staleness": {
+    "finding_LeaseWorker.java_external_effect_recovery": {
+      "points": 15,
+      "passed": false
+    },
+    "finding_ProfileService.java_ignored_write_result": {
       "points": 15,
       "passed": true
     },
-    "finding_BackfillJob.java_lost_update": {
-      "points": 20,
+    "finding_ProfileService.java_transaction_visibility": {
+      "points": 15,
       "passed": true
     },
-    "finding_LegacyCustomerService.java_business_identity_scope": {
-      "points": 10,
-      "passed": true
-    },
-    "finding_PairLockManager.java_lock_order": {
+    "finding_PairCoordinator.java_lock_order": {
       "points": 10,
       "passed": true
     },
@@ -38,11 +38,11 @@
       "passed": true
     }
   },
-  "duration_seconds": 50,
-  "responses": 5,
-  "max_turns": 24,
-  "shell_commands": 5,
-  "shell_budget": 16,
+  "duration_seconds": 71,
+  "responses": 4,
+  "max_turns": 28,
+  "shell_commands": 3,
+  "shell_budget": 18,
   "validation_calls": 0,
   "validation_budget": 0,
   "validation_enabled": false,
@@ -54,10 +54,10 @@
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 10174,
-    "output_tokens": 1252,
-    "reasoning_tokens": 376,
-    "cached_input_tokens": 4096
+    "input_tokens": 6980,
+    "output_tokens": 2411,
+    "reasoning_tokens": 1491,
+    "cached_input_tokens": 0
   },
   "api_retries": 0,
   "infrastructure_error": null,
