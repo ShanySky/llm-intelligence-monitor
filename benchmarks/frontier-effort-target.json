@@ -1,10 +1,10 @@
 {
-  "task": "frontier-review-precision-family",
+  "task": "frontier-deep-fix-v3",
   "model": "gpt-6-sol",
   "efforts": ["medium", "high", "xhigh"],
   "trials": 3,
-  "trial_mode": "variants",
-  "max_turns": 28,
-  "shell_budget": 18,
+  "trial_mode": "repeats",
+  "max_turns": 36,
+  "shell_budget": 36,
   "probe_budget": 0
 }
