@@ -2,15 +2,6 @@ name: Cleanup workflow run noise
 
 on:
   workflow_dispatch:
-    inputs:
-      max_skipped:
-        description: Maximum skipped runs to delete in this pass
-        required: false
-        default: "10000"
-      max_cancelled:
-        description: Maximum cancelled runs to delete in this pass
-        required: false
-        default: "500"
   push:
     branches: [main]
     paths:
@@ -27,51 +18,128 @@ concurrency:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 180
     env:
       GH_TOKEN: ${{ github.token }}
-      MAX_SKIPPED: ${{ github.event.inputs.max_skipped || '10000' }}
-      MAX_CANCELLED: ${{ github.event.inputs.max_cancelled || '500' }}
     steps:
-      - name: Delete skipped and cancelled workflow runs
+      - name: Prune workflow run history
         shell: bash
         run: |
-          set -euo pipefail
+          set -u
 
-          delete_status() {
-            status="$1"
-            limit="$2"
-            deleted=0
+          API="https://api.github.com/repos/$GITHUB_REPOSITORY/actions/runs"
+          AUTH=(-H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28")
+          deleted=0
+          skipped_deleted=0
+          cancelled_deleted=0
+          success_deleted=0
+          failure_deleted=0
 
-            while [ "$deleted" -lt "$limit" ]; do
-              remaining=$((limit-deleted))
-              batch=100
-              if [ "$remaining" -lt "$batch" ]; then batch="$remaining"; fi
-
-              mapfile -t ids < <(
-                gh api "/repos/$GITHUB_REPOSITORY/actions/runs?status=$status&per_page=100"                   --jq '.workflow_runs[].id' | head -n "$batch"
-              )
-
-              if [ "${#ids[@]}" -eq 0 ]; then
-                break
+          delete_run() {
+            id="$1"
+            while true; do
+              code="$(curl -sS -o /tmp/delete-body.txt -w '%{http_code}' -X DELETE "${AUTH[@]}" "$API/$id")"
+              if [ "$code" = "204" ] || [ "$code" = "404" ]; then
+                deleted=$((deleted+1))
+                sleep 0.8
+                return 0
               fi
-
-              printf '%s\n' "${ids[@]}" |                 xargs -r -n1 -P4 -I{} sh -c                   'gh api --method DELETE "/repos/'"$GITHUB_REPOSITORY"'/actions/runs/{}" >/dev/null'
-
-              deleted=$((deleted+${#ids[@]}))
-              echo "$status deleted: $deleted / $limit"
+              if [ "$code" = "403" ] || [ "$code" = "429" ]; then
+                echo "GitHub API rate-limited while deleting $id; cooling down for 90s."
+                sleep 90
+                continue
+              fi
+              echo "Delete $id returned HTTP $code; keeping it and continuing."
+              cat /tmp/delete-body.txt || true
               sleep 1
+              return 0
             done
-
-            echo "$status=$deleted" >> "$GITHUB_OUTPUT"
           }
 
-          delete_status skipped "$MAX_SKIPPED"
-          delete_status cancelled "$MAX_CANCELLED"
+          delete_all_status() {
+            status="$1"
+            counter_name="$2"
+            local_count=0
+            while true; do
+              ids="$(curl -fsS "${AUTH[@]}" "$API?status=$status&per_page=100" | jq -r '.workflow_runs[].id')"
+              [ -n "$ids" ] || break
+              while read -r id; do
+                [ -n "$id" ] || continue
+                delete_run "$id"
+                local_count=$((local_count+1))
+              done <<< "$ids"
+              echo "$status deleted so far: $local_count"
+            done
+            printf -v "$counter_name" '%s' "$local_count"
+          }
 
-      - name: Summarize cleanup
-        if: always()
-        shell: bash
-        run: |
-          echo "Cleanup intentionally preserves successful and failed runs." >> "$GITHUB_STEP_SUMMARY"
-          echo "Run again if skipped history still remains." >> "$GITHUB_STEP_SUMMARY"
+          collect_completed() {
+            status="$1"
+            out="$2"
+            : > "$out"
+            page=1
+            while true; do
+              body="$(curl -fsS "${AUTH[@]}" "$API?status=$status&per_page=100&page=$page")"
+              count="$(jq '.workflow_runs | length' <<< "$body")"
+              [ "$count" -gt 0 ] || break
+              jq -r '.workflow_runs[] | [.id,.workflow_id,.name,.event,.created_at] | @tsv' <<< "$body" >> "$out"
+              [ "$count" -eq 100 ] || break
+              page=$((page+1))
+            done
+          }
+
+          prune_completed() {
+            status="$1"
+            file="/tmp/$status.tsv"
+            collect_completed "$status" "$file"
+
+            declare -A kept=()
+            local_count=0
+            while IFS=$'\t' read -r id workflow_id name event created_at; do
+              [ -n "$id" ] || continue
+
+              keep_limit=1
+              if [ "$status" = "success" ] && [ "$name" = "LLM intelligence daily monitor" ]; then
+                keep_limit=7
+              fi
+
+              current="${kept[$workflow_id]:-0}"
+              if [ "$current" -lt "$keep_limit" ]; then
+                kept[$workflow_id]=$((current+1))
+                continue
+              fi
+
+              delete_run "$id"
+              local_count=$((local_count+1))
+            done < "$file"
+
+            if [ "$status" = "success" ]; then
+              success_deleted="$local_count"
+            else
+              failure_deleted="$local_count"
+            fi
+          }
+
+          echo "Phase 1: remove all skipped runs"
+          delete_all_status skipped skipped_deleted
+
+          echo "Phase 2: remove all cancelled runs"
+          delete_all_status cancelled cancelled_deleted
+
+          echo "Phase 3: keep latest success per workflow; keep 7 daily-monitor successes"
+          prune_completed success
+
+          echo "Phase 4: keep latest failure per workflow"
+          prune_completed failure
+
+          {
+            echo "## Workflow run cleanup"
+            echo ""
+            echo "- skipped deleted: $skipped_deleted"
+            echo "- cancelled deleted: $cancelled_deleted"
+            echo "- old success deleted: $success_deleted"
+            echo "- old failure deleted: $failure_deleted"
+            echo "- total deleted: $deleted"
+            echo ""
+            echo "Retention: latest 1 success + latest 1 failure per workflow; daily monitor keeps latest 7 successes."
+          } >> "$GITHUB_STEP_SUMMARY"
