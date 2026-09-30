@@ -41,6 +41,20 @@ const hardLimit=Number(manifest.hard_timeout_seconds ?? 600);
 const maxDuration=rows.length?Math.max(...rows.map(r=>Number(r.duration_seconds??0))):null;
 const durationPass=maxDuration==null || maxDuration<=hardLimit;
 
+const residentEpoch=manifest.resident_model_epoch ?? {};
+const residentSolModel=residentEpoch.resident_sol_model ?? registry.resident_model_epoch?.resident_sol_model ?? null;
+const expectedCrossModels=Array.isArray(residentEpoch.cross_model_set)?residentEpoch.cross_model_set:[];
+const observedModels=new Set(rows.map((r)=>String(r.model??'')).filter(Boolean));
+const crossModelEpochPass=expectedCrossModels.length===0 || expectedCrossModels.every((m)=>observedModels.has(m));
+const residentSolEfforts=new Set(
+  rows
+    .filter((r)=>!residentSolModel || r.model===residentSolModel)
+    .map((r)=>String(r.effort??''))
+    .filter(Boolean)
+);
+const residentEffortPass=!residentSolModel || ['medium','high','xhigh'].every((e)=>residentSolEfforts.has(e));
+const finalModelEpochPass=crossModelEpochPass && residentEffortPass;
+
 const quickWorkflow='.github/workflows/intelligence-smoke.yml';
 const quickText=fs.existsSync(quickWorkflow)?fs.readFileSync(quickWorkflow,'utf8'):'';
 const quickHealthPass=
@@ -74,6 +88,7 @@ const checks={
   effort_core:effortCorePass,
   application_family_coverage:coveragePass,
   duration_hard_limit:durationPass,
+  final_model_epoch_coverage:finalModelEpochPass,
   quick_monitor_health_integration:quickHealthPass,
   final_application_workflow:finalWorkflowPass,
   report_refresh_workflow:refreshWorkflowPass,
@@ -99,6 +114,15 @@ const output={
     hard_limit_seconds:hardLimit,
     max_observed_task_seconds:maxDuration,
   },
+  final_model_epoch:{
+    resident_sol_model:residentSolModel,
+    expected_cross_models:expectedCrossModels,
+    observed_models:[...observedModels].sort(),
+    cross_model_coverage:crossModelEpochPass,
+    resident_sol_efforts:[...residentSolEfforts].sort(),
+    resident_sol_effort_coverage:residentEffortPass,
+    mature:finalModelEpochPass,
+  },
   manual_acceptance_remaining:[
     'Confirm application scores remain consistent with real day-to-day Coding/Agent experience over continued use.',
     'Confirm daily operating cost remains acceptable after several normal scheduled runs.'
@@ -116,6 +140,7 @@ const lines=[
   `| Effort Core | ${yn(checks.effort_core)} |`,
   `| Five application families | ${yn(checks.application_family_coverage)} |`,
   `| Per-task hard runtime limit | ${yn(checks.duration_hard_limit)} |`,
+  `| Current model-epoch final validation | ${yn(checks.final_model_epoch_coverage)} |`,
   `| Quick monitor health integration | ${yn(checks.quick_monitor_health_integration)} |`,
   `| Final application workflow | ${yn(checks.final_application_workflow)} |`,
   `| Cost-free report refresh | ${yn(checks.report_refresh_workflow)} |`,
@@ -125,6 +150,7 @@ const lines=[
   '',
   `Model Core: ${modelCore.confirmed_families??0}/${modelCore.minimum_families??'-'}; Effort Core: ${effortCore.confirmed_families??0}/${effortCore.minimum_families??'-'}.`,
   `Max observed task runtime: ${maxDuration??'-'}s / hard limit ${hardLimit}s.`,
+  `Current model epoch: resident=${residentSolModel??'-'}; cross-model coverage=${crossModelEpochPass?'complete':'incomplete'}; resident M/H/XH=${residentEffortPass?'complete':'incomplete'}.`,
   '',
   '> Two acceptance items remain intentionally manual: real-use alignment and sustained operating cost. They should not be faked by a static repository check.',
   ''
