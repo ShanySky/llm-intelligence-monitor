@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-outbox-recovery",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 60,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 12,
+  "max_turns": 12,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 17050,
+    "output_tokens": 1625,
+    "reasoning_tokens": 965,
+    "cached_input_tokens": 8704
+  },
+  "final_text": "Implemented the durable order-event fixes:\n\n- Order updates and outbox insertion now run in one transaction, so a failure rolls both back.\n- Confirmation event IDs are deterministic per order and version, preventing retries from creating duplicate outbox entries.\n- The worker uses the event ID as the broker idempotency key, so a retry after publishing but before marking sent won’t redeliver.\n- Encoded events include `order_id` to preserve legacy consumer compatibility.\n\nValidation: `./run_visible_tests.sh` — passed."
+}
