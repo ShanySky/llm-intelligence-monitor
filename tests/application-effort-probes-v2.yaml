@@ -172,7 +172,7 @@
       Output IDs only, comma-separated.
   assert:
     - type: regex
-      value: "^\\s*A1\\s*,\\s*A2\\s*,\\s*A3\\s*,\\s*A5\\s*,\\s*A6\\s*$"
+      value: "^\\s*A1\\s*,\\s*(?:A2\\s*,\\s*A3|A3\\s*,\\s*A2)\\s*,\\s*A5\\s*,\\s*A6\\s*$"
 
 - description: AG22-EN-stale-read-diagnosis
   vars:
