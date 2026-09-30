@@ -6,14 +6,12 @@ function nextOperationId() {
 }
 
 async function saveOrder(api, state, patch) {
-  state.version += 1;
-
-  for (let attempt = 0; attempt < 2; attempt += 1) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
     const operationId = nextOperationId();
     try {
       const result = await api.patch({
         id: state.id,
-        expectedVersion: state.version - 1,
+        expectedVersion: state.version,
         operationId,
         value: patch.value,
       });
