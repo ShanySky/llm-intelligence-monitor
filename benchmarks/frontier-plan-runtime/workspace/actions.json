@@ -1,0 +1,19 @@
+{
+  "actions": [
+    {"id":"expand_schema","effect":"Add nullable v2 identity/status columns while retaining all legacy columns."},
+    {"id":"deploy_compat_release","effect":"Deploy v2 code capable of legacy fallback reads and optional dual writes; v1 remains live."},
+    {"id":"enable_guarded_backfill","effect":"Make backfill apply only when its captured source version is still current."},
+    {"id":"run_backfill","effect":"Populate v2 representation for existing rows while live traffic continues."},
+    {"id":"upgrade_event_consumers","effect":"Roll consumers to understand both legacy and v2 event identity fields."},
+    {"id":"enable_v2_event_producer","effect":"Enable producer emission of the v2 identity field alongside the legacy field."},
+    {"id":"enable_dual_namespace_cache","effect":"Reads prefer the v2 cache key but fall back to legacy; invalidation removes both aliases."},
+    {"id":"cutover_primary_reads","effect":"Make v2 representation the primary read path while compatibility fallback remains available."},
+    {"id":"retire_v1_writers","effect":"Finish application rollout so no v1 writer remains."},
+    {"id":"close_rollback_window","effect":"Operationally declare rollback to v1 no longer supported."},
+    {"id":"cleanup_legacy_contracts","effect":"Remove legacy persistence/event/cache compatibility paths."},
+
+    {"id":"pause_all_writes","effect":"Temporarily stop production writes during migration."},
+    {"id":"flush_entire_cache","effect":"Flush all cache entries before cutover."},
+    {"id":"restart_all_services","effect":"Restart all application and consumer instances together."}
+  ]
+}
