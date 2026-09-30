@@ -116,6 +116,7 @@ let probeCalls = 0;
 let probeAttempts = 0;
 let probeQueries = [];
 let probeExecutedQueries = [];
+let probeObservations = [];
 let finalText = '';
 let responses = 0;
 let apiRetries = 0;
@@ -245,7 +246,13 @@ function runProbe(query) {
     result.stderr ? 'STDERR:\n' + result.stderr : '',
     'EXIT_CODE=' + (result.status ?? 124),
   ].filter(Boolean).join('\n');
-  return output.slice(0, 24000);
+  const clipped = output.slice(0, 24000);
+  probeObservations.push({
+    query: normalizedQuery,
+    output: clipped,
+    exit_code: result.status ?? 124,
+  });
+  return clipped;
 }
 
 try {
@@ -308,6 +315,7 @@ const result = {
   probe_enabled: Boolean(probeScript),
   probe_queries: probeQueries,
   probe_executed_queries: probeExecutedQueries,
+  probe_observations: probeObservations,
   max_turns: maxTurns,
   container_mode: containerMode,
   docker_container: containerMode ? dockerContainer : null,
