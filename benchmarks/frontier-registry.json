@@ -337,9 +337,22 @@
     {
       "id": "frontier-dynamic-diagnosis-v2",
       "family": "agent_runtime_investigation_catalog_free",
-      "status": "screening",
+      "status": "coverage-only-ceiling",
       "promoted_to_final": false,
-      "note": "Three hidden instances, natural-language opaque probes, no command catalog, nonbinding probe budget."
+      "note": "Catalog-free opaque runtime investigation still saturated across Sol M/H/XH; X High was slower and more token-expensive. Retire from effort discriminator funnel.",
+      "evidence": {
+        "sol_effort_means": {
+          "medium": 100,
+          "high": 100,
+          "xhigh": 100
+        },
+        "trials_per_effort": 3,
+        "medium_avg_seconds": 89,
+        "xhigh_avg_seconds": 143.3,
+        "medium_avg_total_tokens": 30162,
+        "xhigh_avg_total_tokens": 51779,
+        "effort_signal": "none"
+      }
     },
     {
       "id": "staged-autosave-evolution",
