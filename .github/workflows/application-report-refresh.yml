@@ -32,6 +32,12 @@ jobs:
           git show origin/application-final-results:application-final/latest.json > results/application-final-summary.json
           git show origin/application-final-results:application-final/latest.md > results/application-final-summary.md
 
+      - name: Validate report scripts
+        shell: bash
+        run: |
+          node --check scripts/analyze-application-discrimination.mjs
+          node --check scripts/check-application-maturity.mjs
+
       - name: Rebuild discrimination report
         shell: bash
         run: |
