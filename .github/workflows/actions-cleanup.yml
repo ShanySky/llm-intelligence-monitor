@@ -6,7 +6,7 @@ on:
       max_skipped:
         description: Maximum skipped runs to delete in this pass
         required: false
-        default: "1500"
+        default: "10000"
       max_cancelled:
         description: Maximum cancelled runs to delete in this pass
         required: false
@@ -30,7 +30,7 @@ jobs:
     timeout-minutes: 30
     env:
       GH_TOKEN: ${{ github.token }}
-      MAX_SKIPPED: ${{ github.event.inputs.max_skipped || '1500' }}
+      MAX_SKIPPED: ${{ github.event.inputs.max_skipped || '10000' }}
       MAX_CANCELLED: ${{ github.event.inputs.max_cancelled || '500' }}
     steps:
       - name: Delete skipped and cancelled workflow runs
