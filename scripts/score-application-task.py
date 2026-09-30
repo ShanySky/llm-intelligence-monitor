@@ -2133,6 +2133,29 @@ elif task == "frontier-dynamic-diagnosis-v2":
     add("causal_evidence_a",10,bool(evidence[0]))
     add("causal_evidence_b",10,bool(evidence[1]))
 
+
+elif task == "frontier-deep-fix-v3":
+    validator=Path(__file__).resolve().parent/"validators"/"frontier-deep-fix-v3.py"
+    result={}
+    try:
+        vr=subprocess.run(
+            ["python",str(validator),str(root),"--json"],
+            capture_output=True,text=True,timeout=30
+        )
+        result=json.loads(vr.stdout)
+    except Exception:
+        result={}
+    cases=result.get("cases",{})
+    add("compiles",5,bool(result.get("compiles")))
+    add("visible_regression",5,bool(result.get("visible")))
+    add("optimistic_conflict_blocks_followup",10,bool(cases.get("OPTIMISTIC")))
+    add("cache_and_audit_after_commit",15,bool(cases.get("TX")))
+    add("audit_payload_snapshots_accepted_version",10,bool(cases.get("AUDIT_SNAPSHOT")))
+    add("audit_retry_uses_stable_business_key",10,bool(cases.get("AUDIT_IDEMP")))
+    add("fulfillment_identity_is_business_scoped",15,bool(cases.get("BUSINESS_ID")))
+    add("post_side_effect_crash_retry_converges",20,bool(cases.get("CRASH_RETRY")))
+    add("canonical_pair_lock_order",10,bool(cases.get("LOCK_ORDER")))
+
 else:
     raise SystemExit(f"unknown task {task}")
 
