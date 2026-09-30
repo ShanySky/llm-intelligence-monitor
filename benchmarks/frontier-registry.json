@@ -543,9 +543,9 @@
         ],
         "luna_high_mean": 31.3,
         "luna_high_runtime_seconds": [
-          187,
-          214,
-          411
+          202,
+          115,
+          182
         ],
         "luna_high_shell_commands": [
           14,
@@ -567,9 +567,15 @@
         ],
         "reference_selfcheck_ok": true,
         "max_luna_duration_seconds": 411,
-        "trial_mode": "variants"
+        "trial_mode": "variants",
+        "luna_high_variant_scores_latest": [
+          10,
+          84,
+          30
+        ],
+        "luna_high_mean_latest": 41.3
       },
-      "note": "Real historical parent-commit replay produced strong non-ceiling Luna separation with valid 100/100/100 reference self-checks. GPT-6.1 Sol M/H/XH cross-instance calibration is running."
+      "note": "Repeated Luna High replay remains strongly non-ceiling (10/84/30) with 100/100/100 reference self-checks. GPT-6.1 Sol M/H/XH cross-instance calibration is the primary Effort Core candidate."
     },
     {
       "id": "frontier-runtime-repair-family",
