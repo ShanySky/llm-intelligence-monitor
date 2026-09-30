@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-incident-cascade-xhigh",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 61,
+  "responses": 9,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 8,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 10926,
+    "output_tokens": 773,
+    "reasoning_tokens": 235,
+    "cached_input_tokens": 3456
+  },
+  "final_text": "Checkout and fulfillment are recovered. I replaced api-b’s stale config after logs showed it was missing `payment_mode`, then replaced consumer-2 after verification exposed duplicate fulfillment effects tied to its older retry contract.\n\n`REPORT.txt` records the evidence and repairs. Final validation: `./ctl verify` passed with 200/200 checkout responses and 200/200 exactly-once fulfillment checks."
+}
