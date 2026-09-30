@@ -1,0 +1,73 @@
+{
+  "task": "frontier-review-precision-family",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "trial": 3,
+  "score": 100,
+  "checks": {
+    "valid_findings_json": {
+      "points": 5,
+      "passed": true
+    },
+    "finding_FeedService.java_pagination_snapshot": {
+      "points": 30,
+      "passed": true
+    },
+    "finding_VerifierCache.java_cache_generation_staleness": {
+      "points": 30,
+      "passed": true
+    },
+    "finding_StrictCustomerReader.java_strict_read_consistency": {
+      "points": 30,
+      "passed": true
+    },
+    "requests_changes": {
+      "points": 5,
+      "passed": true
+    }
+  },
+  "duration_seconds": 90,
+  "responses": 4,
+  "max_turns": 28,
+  "shell_commands": 3,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 52,
+    "added_files": 2,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "FINDINGS.json",
+        "kind": "added",
+        "changed_lines": 20
+      },
+      {
+        "path": "REVIEW.md",
+        "kind": "added",
+        "changed_lines": 32
+      }
+    ]
+  },
+  "turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "finished_with_message": true,
+  "usage": {
+    "input_tokens": 6320,
+    "output_tokens": 1353,
+    "reasoning_tokens": 145,
+    "cached_input_tokens": 1664
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}

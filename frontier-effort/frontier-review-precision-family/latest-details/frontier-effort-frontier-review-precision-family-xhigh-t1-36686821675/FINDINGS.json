@@ -1,7 +1,0 @@
-{
-  "findings": [
-    {"file":"ConfirmationService.java","symbol":"confirm","failure_class":"business_identity_scope"},
-    {"file":"RefundService.java","symbol":"refund","failure_class":"retry_idempotency"}
-  ],
-  "verdict":"REQUEST_CHANGES"
-}
