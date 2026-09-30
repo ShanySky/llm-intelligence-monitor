@@ -860,6 +860,160 @@ elif task == "frontier-identity-rollout":
     add("kafka_additive_contract",10,"KAFKA_PASS" in hidden_out)
     add("cache_legacy_fallback_and_v2_preference",10,"CACHE_PASS" in hidden_out)
 
+
+elif task == "frontier-singleflight-cache":
+    hidden = r'''import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+
+public final class FrontierCacheHiddenTest {
+  public static void main(String[] args) {
+    run("SAME", FrontierCacheHiddenTest::sameKeySingleFlight);
+    run("DIFF", FrontierCacheHiddenTest::differentKeysConcurrent);
+    run("INVALIDATE", FrontierCacheHiddenTest::invalidateDuringLoad);
+    run("FAILURE", FrontierCacheHiddenTest::failureFanoutAndRetry);
+  }
+
+  interface Case { void run() throws Exception; }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+
+  static void sameKeySingleFlight() throws Exception {
+    Cache<String,String> cache=new Cache<>();
+    AtomicInteger calls=new AtomicInteger();
+    CountDownLatch entered=new CountDownLatch(1);
+    CountDownLatch release=new CountDownLatch(1);
+    ExecutorService pool=Executors.newFixedThreadPool(6);
+    List<Future<String>> fs=new ArrayList<>();
+
+    for(int i=0;i<6;i++) {
+      fs.add(pool.submit(() -> cache.get("k", key -> {
+        calls.incrementAndGet();
+        entered.countDown();
+        if(!release.await(2,TimeUnit.SECONDS)) throw new RuntimeException("timeout");
+        return "VALUE";
+      })));
+    }
+
+    check(entered.await(1,TimeUnit.SECONDS));
+    Thread.sleep(80);
+    release.countDown();
+    for(Future<String> f:fs) check("VALUE".equals(f.get(2,TimeUnit.SECONDS)));
+    pool.shutdownNow();
+    check(calls.get()==1);
+    check(cache.size()==1);
+  }
+
+  static void differentKeysConcurrent() throws Exception {
+    Cache<String,String> cache=new Cache<>();
+    AtomicInteger active=new AtomicInteger();
+    AtomicInteger maxActive=new AtomicInteger();
+    CountDownLatch bothEntered=new CountDownLatch(2);
+
+    Loader<String,String> loader=key -> {
+      int n=active.incrementAndGet();
+      maxActive.accumulateAndGet(n,Math::max);
+      bothEntered.countDown();
+      if(!bothEntered.await(1500,TimeUnit.MILLISECONDS)) throw new RuntimeException("serialized");
+      active.decrementAndGet();
+      return key.toUpperCase();
+    };
+
+    ExecutorService pool=Executors.newFixedThreadPool(2);
+    Future<String> a=pool.submit(() -> cache.get("a",loader));
+    Future<String> b=pool.submit(() -> cache.get("b",loader));
+    check("A".equals(a.get(3,TimeUnit.SECONDS)));
+    check("B".equals(b.get(3,TimeUnit.SECONDS)));
+    pool.shutdownNow();
+    check(maxActive.get()>=2);
+  }
+
+  static void invalidateDuringLoad() throws Exception {
+    Cache<String,String> cache=new Cache<>();
+    AtomicInteger calls=new AtomicInteger();
+    CountDownLatch entered=new CountDownLatch(1);
+    CountDownLatch release=new CountDownLatch(1);
+
+    ExecutorService pool=Executors.newSingleThreadExecutor();
+    Future<String> first=pool.submit(() -> cache.get("x", key -> {
+      calls.incrementAndGet();
+      entered.countDown();
+      if(!release.await(2,TimeUnit.SECONDS)) throw new RuntimeException("timeout");
+      return "OLD";
+    }));
+
+    check(entered.await(1,TimeUnit.SECONDS));
+    cache.invalidate("x");
+    release.countDown();
+    check("OLD".equals(first.get(2,TimeUnit.SECONDS)));
+    check(cache.size()==0);
+
+    String next=cache.get("x", key -> {
+      calls.incrementAndGet();
+      return "NEW";
+    });
+    pool.shutdownNow();
+
+    check("NEW".equals(next));
+    check(calls.get()==2);
+    check(cache.size()==1);
+  }
+
+  static void failureFanoutAndRetry() throws Exception {
+    Cache<String,String> cache=new Cache<>();
+    AtomicInteger calls=new AtomicInteger();
+    CountDownLatch entered=new CountDownLatch(1);
+    CountDownLatch release=new CountDownLatch(1);
+    ExecutorService pool=Executors.newFixedThreadPool(4);
+    List<Future<String>> fs=new ArrayList<>();
+
+    for(int i=0;i<4;i++) {
+      fs.add(pool.submit(() -> cache.get("fail", key -> {
+        calls.incrementAndGet();
+        entered.countDown();
+        if(!release.await(2,TimeUnit.SECONDS)) throw new RuntimeException("timeout");
+        throw new IllegalStateException("boom");
+      })));
+    }
+
+    check(entered.await(1,TimeUnit.SECONDS));
+    Thread.sleep(80);
+    release.countDown();
+    int failures=0;
+    for(Future<String> f:fs) {
+      try { f.get(2,TimeUnit.SECONDS); }
+      catch(ExecutionException expected) { failures++; }
+    }
+    check(failures==4);
+    check(calls.get()==1);
+
+    String recovered=cache.get("fail", key -> {
+      calls.incrementAndGet();
+      return "RECOVERED";
+    });
+    pool.shutdownNow();
+    check("RECOVERED".equals(recovered));
+    check(calls.get()==2);
+  }
+
+  static void check(boolean x){if(!x)throw new AssertionError();}
+}'''
+    (root/"FrontierCacheHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run(["javac","-d",str(outdir),*map(str,(root/"src").glob("*.java")),str(root/"FrontierCacheHiddenTest.java")],capture_output=True,text=True)
+    add("compiles",10,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True); visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierCacheHiddenTest"],capture_output=True,text=True,timeout=15); hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",10,visible)
+    add("same_key_single_flight",25,"SAME_PASS" in hidden_out)
+    add("different_keys_load_concurrently",15,"DIFF_PASS" in hidden_out)
+    add("invalidate_during_inflight_load",20,"INVALIDATE_PASS" in hidden_out)
+    add("failure_fanout_and_retry",20,"FAILURE_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
