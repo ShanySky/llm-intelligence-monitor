@@ -38,7 +38,7 @@
       rollout dependencies. Output decision IDs only, comma-separated.
   assert:
     - type: javascript
-      value: file://tests/scorers/ordered-id-partial-score.js
+      value: file://../tests/scorers/ordered-id-partial-score.js
       threshold: 0.98
 
 - description: CR31-EN-price-audit-review
@@ -74,7 +74,7 @@
       Select all and only blocking findings/fix directions. IDs only.
   assert:
     - type: javascript
-      value: file://tests/scorers/ordered-id-partial-score.js
+      value: file://../tests/scorers/ordered-id-partial-score.js
       threshold: 0.98
 
 - description: CR32-EN-lease-fencing-review
@@ -110,7 +110,7 @@
       Select all and only blocking findings/fix directions. IDs only.
   assert:
     - type: javascript
-      value: file://tests/scorers/ordered-id-partial-score.js
+      value: file://../tests/scorers/ordered-id-partial-score.js
       threshold: 0.98
 
 - description: AG31-EN-two-cause-production-diagnosis
@@ -147,7 +147,7 @@
       IDs only.
   assert:
     - type: javascript
-      value: file://tests/scorers/ordered-id-partial-score.js
+      value: file://../tests/scorers/ordered-id-partial-score.js
       threshold: 0.98
 
 - description: LH31-EN-async-export-recovery
@@ -187,7 +187,7 @@
       IDs only.
   assert:
     - type: javascript
-      value: file://tests/scorers/ordered-id-partial-score.js
+      value: file://../tests/scorers/ordered-id-partial-score.js
       threshold: 0.98
 
 - description: AG32-EN-stale-read-layer-isolation
@@ -224,5 +224,5 @@
       causal prerequisites and final verification order are constrained. IDs only.
   assert:
     - type: javascript
-      value: file://tests/scorers/ordered-id-partial-score.js
+      value: file://../tests/scorers/ordered-id-partial-score.js
       threshold: 0.98
