@@ -337,21 +337,25 @@
     {
       "id": "frontier-dynamic-diagnosis-v2",
       "family": "agent_runtime_investigation_catalog_free",
-      "status": "coverage-only-ceiling",
+      "status": "effort-sensitivity-candidate",
       "promoted_to_final": false,
-      "note": "Catalog-free opaque runtime investigation still saturated across Sol M/H/XH; X High was slower and more token-expensive. Retire from effort discriminator funnel.",
+      "note": "Actual observation-based scoring removed the ceiling, but repeated spread is below the 10-point threshold and is not directionally positive. Keep only as an effort-sensitivity research candidate.",
       "evidence": {
+        "scoring": "actual-probe-observation",
         "sol_effort_means": {
-          "medium": 100,
-          "high": 100,
-          "xhigh": 100
+          "medium": 90,
+          "high": 93.3,
+          "xhigh": 86.7
         },
+        "sol_effort_stddev": {
+          "medium": 0,
+          "high": 4.7,
+          "xhigh": 9.4
+        },
+        "effort_spread_points": 6.7,
         "trials_per_effort": 3,
-        "medium_avg_seconds": 89,
-        "xhigh_avg_seconds": 143.3,
-        "medium_avg_total_tokens": 30162,
-        "xhigh_avg_total_tokens": 51779,
-        "effort_signal": "none"
+        "medium_to_xhigh_gain_points": -3.3,
+        "formal_effort_signal": "none"
       }
     },
     {
