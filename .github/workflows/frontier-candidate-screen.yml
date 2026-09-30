@@ -17,8 +17,6 @@ jobs:
     env:
       BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
-      AGENT_MAX_TURNS: ${{ steps.target.outputs.max_turns }}
-      AGENT_SHELL_BUDGET: ${{ steps.target.outputs.shell_budget }}
 
     steps:
       - uses: actions/checkout@v4
@@ -61,6 +59,9 @@ jobs:
 
       - name: Run lightweight agent
         id: agent
+        env:
+          AGENT_MAX_TURNS: ${{ steps.target.outputs.max_turns }}
+          AGENT_SHELL_BUDGET: ${{ steps.target.outputs.shell_budget }}
         shell: bash
         run: |
           start="$(date +%s)"
