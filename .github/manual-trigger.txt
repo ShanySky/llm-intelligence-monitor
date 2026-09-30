@@ -130,3 +130,4 @@ High-precision review family Luna High x3.
 High-precision review family Sol M/H/XH x3.
 Deep fix v3 patch-quality probe M/H/XH x3.
 GPT-6.1 Sol high-precision review family M/H/XH x3.
+GPT-6.1 Sol deep-fix patch quality M/H/XH x3.
