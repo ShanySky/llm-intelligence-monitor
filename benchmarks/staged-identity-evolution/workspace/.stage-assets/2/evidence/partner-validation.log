@@ -1,0 +1,5 @@
+rollout-gate=partner-compatibility status=FAILED
+rest legacy-client decode: missing required identity field
+jwt legacy-session bridge: missing required identity claim
+kafka legacy-consumer replay: missing required identity field
+note: new clients already consume customer_key successfully
