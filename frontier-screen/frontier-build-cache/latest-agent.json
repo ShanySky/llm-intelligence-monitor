@@ -1,0 +1,24 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-build-cache",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 58,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 30,
+  "validation_calls": 1,
+  "validation_budget": 6,
+  "validation_enabled": true,
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 10875,
+    "output_tokens": 1021,
+    "reasoning_tokens": 420,
+    "cached_input_tokens": 4096
+  },
+  "final_text": "Updated incremental fingerprints to include dependency fingerprints, so changes propagate to downstream modules. Cache entries are now published only after successful compilation, allowing failed builds to be retried without treating an incomplete entry as valid.\n\nValidation passed:\n- `./run_visible_tests.sh`\n- Black-box validation: `direct_change`, `transitive_change`, `retry_after_compile_failure`, `unrelated_change`, and `cycle_rejected`"
+}
