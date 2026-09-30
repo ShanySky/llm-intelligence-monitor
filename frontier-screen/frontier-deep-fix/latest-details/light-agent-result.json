@@ -1,0 +1,27 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-deep-fix",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 98,
+  "responses": 10,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 7,
+  "shell_budget": 32,
+  "validation_calls": 2,
+  "validation_budget": 4,
+  "validation_enabled": true,
+  "probe_calls": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "max_turns": 32,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 35334,
+    "output_tokens": 2336,
+    "reasoning_tokens": 984,
+    "cached_input_tokens": 21504
+  },
+  "final_text": "Implemented the reliability repairs across pricing, audit delivery, payment fulfillment, and account locking:\n\n- Cache eviction and audit enqueueing now occur only after an accepted optimistic write commits.\n- Audit work carries the accepted price snapshot, and delivery uses a stable product/version idempotency key.\n- Duplicate payment events no longer block fulfillment recovery; fulfillment is keyed per order and inventory retries use a stable idempotency key.\n- Both two-account operations acquire locks in ascending account-ID order.\n\nValidation passed: `./run_visible_tests.sh` and the black-box validator."
+}
