@@ -340,6 +340,19 @@
       "status": "screening",
       "promoted_to_final": false,
       "note": "Three hidden instances, natural-language opaque probes, no command catalog, nonbinding probe budget."
+    },
+    {
+      "id": "staged-autosave-evolution",
+      "family": "compressed_long_horizon_cross_layer",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100,
+        "duration_seconds": 136,
+        "stages": 3,
+        "shell_commands": 15
+      },
+      "note": "Three genuinely progressive stages with hidden future assets still saturated on Luna High; do not add more stages as a difficulty mechanism."
     }
   ]
 }
