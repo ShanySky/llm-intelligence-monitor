@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-30T05:03:11.027Z",
+  "generated_at": "2026-09-30T09:04:07.232Z",
   "policy": {
     "version": 1,
     "quality": {
@@ -10,7 +10,10 @@
       "max_repeat_stddev_points": 12,
       "min_effort_directional_gain_points": 10,
       "min_trials_for_effort_confirmation": 2,
-      "min_directional_consistency_rate": 0.67
+      "min_directional_consistency_rate": 0.67,
+      "effort_family_min_variants": 3,
+      "effort_family_min_positive_variants": 2,
+      "effort_family_variant_gain_points": 10
     },
     "runtime": {
       "target_seconds": 300,
@@ -19,11 +22,13 @@
     "selection": {
       "keep_coverage_if_application_critical": true,
       "require_objective_or_semantic_domain_scoring": true,
-      "do_not_require_effort_monotonicity": false,
+      "do_not_require_effort_monotonicity": true,
       "effort_confirmation": "Require repeated positive Medium-to-XHigh quality gain; single-run gaps remain candidates.",
       "model_core_min_families": 2,
       "effort_core_min_families": 1,
-      "maturity_definition": "Application evaluation is mature only when model discrimination has at least 2 confirmed task families and reasoning-effort discrimination has at least 1 confirmed cross-instance family."
+      "maturity_definition": "Application evaluation is mature when model discrimination has at least 2 confirmed task families and reasoning-effort behavior has at least 1 confirmed cross-instance family.",
+      "effort_core_definition": "Effort Core accepts either a repeated positive Medium-to-XHigh discriminator or a repeated cross-instance effort-sensitivity signal with quality spread >= the configured threshold. Sensitivity is not interpreted as higher effort always being better.",
+      "effort_family_confirmation": "Cross-instance Effort Core requires >=3 paired variants, mean Medium-to-XHigh gain >=10 points, at least 2 variants with >=10-point positive gain, and no budget saturation. Equivalent-label/format-only differences must be normalized before promotion."
     },
     "efficiency": {
       "min_quality_floor": 95,
@@ -50,6 +55,7 @@
       ]
     },
     "effort_core": {
+      "resident_sol_model": "gpt-6.1-sol",
       "confirmed_families": 0,
       "minimum_families": 1,
       "mature": false,

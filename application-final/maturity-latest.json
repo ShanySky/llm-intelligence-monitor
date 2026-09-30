@@ -1,11 +1,12 @@
 {
-  "generated_at": "2026-09-30T05:03:11.051Z",
+  "generated_at": "2026-09-30T09:04:07.256Z",
   "automatic_mature": false,
   "checks": {
     "model_core": true,
     "effort_core": false,
     "application_family_coverage": true,
     "duration_hard_limit": true,
+    "final_model_epoch_coverage": false,
     "quick_monitor_health_integration": true,
     "final_application_workflow": true,
     "report_refresh_workflow": true,
@@ -26,6 +27,7 @@
     ]
   },
   "effort_core": {
+    "resident_sol_model": "gpt-6.1-sol",
     "confirmed_families": 0,
     "minimum_families": 1,
     "mature": false,
@@ -42,6 +44,25 @@
   "runtime": {
     "hard_limit_seconds": 600,
     "max_observed_task_seconds": 413
+  },
+  "final_model_epoch": {
+    "resident_sol_model": "gpt-6.1-sol",
+    "expected_cross_models": [
+      "gpt-6-astra",
+      "gpt-6.1-sol",
+      "gpt-6-luna",
+      "gpt-5.6-sol"
+    ],
+    "observed_models": [
+      "gpt-5.6-sol",
+      "gpt-6-astra",
+      "gpt-6-luna",
+      "gpt-6-sol"
+    ],
+    "cross_model_coverage": false,
+    "resident_sol_efforts": [],
+    "resident_sol_effort_coverage": false,
+    "mature": false
   },
   "manual_acceptance_remaining": [
     "Confirm application scores remain consistent with real day-to-day Coding/Agent experience over continued use.",
