@@ -1,0 +1,75 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-runtime-repair-family-high-t1",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 85,
+  "responses": 8,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 4,
+  "shell_budget": 24,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 4,
+  "probe_attempts": 4,
+  "probe_budget": 12,
+  "probe_enabled": true,
+  "probe_queries": [
+    "What production incident symptoms are currently observable in the service runtime, and which inputs or sequences reproduce them?",
+    "Trace the payment retry path after a provider timeout or crash. Which identifiers are used for deduplication, and what provider state remains?",
+    "What is the intended stable identity for one logical payment operation across redeliveries, and does provider support key-based idempotency?",
+    "For same order/version redelivery, what provider idempotency key should be used? Are there other active failure modes besides delivery-id-based duplicate provider effects?"
+  ],
+  "probe_executed_queries": [
+    "What production incident symptoms are currently observable in the service runtime, and which inputs or sequences reproduce them?",
+    "Trace the payment retry path after a provider timeout or crash. Which identifiers are used for deduplication, and what provider state remains?",
+    "What is the intended stable identity for one logical payment operation across redeliveries, and does provider support key-based idempotency?",
+    "For same order/version redelivery, what provider idempotency key should be used? Are there other active failure modes besides delivery-id-based duplicate provider effects?"
+  ],
+  "probe_observations": [
+    {
+      "query": "What production incident symptoms are currently observable in the service runtime, and which inputs or sequences reproduce them?",
+      "output": "STDOUT:\nnormal payments succeed; duplicate provider business effects occur only after timeout/crash retry with a new delivery id\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Trace the payment retry path after a provider timeout or crash. Which identifiers are used for deduplication, and what provider state remains?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary: same order=o-17 version=7 produced keys delivery:d-81 then delivery:d-82 and two logical effects\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "What is the intended stable identity for one logical payment operation across redeliveries, and does provider support key-based idempotency?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary: same order=o-17 version=7 produced keys delivery:d-81 then delivery:d-82 and two logical effects\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "For same order/version redelivery, what provider idempotency key should be used? Are there other active failure modes besides delivery-id-based duplicate provider effects?",
+      "output": "STDOUT:\nduplicates first appear at provider boundary: same order=o-17 version=7 produced keys delivery:d-81 then delivery:d-82 and two logical effects\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "patch_metrics": {
+    "changed_files": 1,
+    "changed_lines": 14,
+    "added_files": 0,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "src/PaymentService.java",
+        "kind": "modified",
+        "changed_lines": 14
+      }
+    ]
+  },
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 13782,
+    "output_tokens": 1413,
+    "reasoning_tokens": 762,
+    "cached_input_tokens": 3072
+  },
+  "final_text": "Repaired payment idempotency to use a stable key derived from the order ID and version, rather than the delivery ID. The service’s completed-operation tracking now uses that same business-operation identity, so redeliveries reuse the provider key while different versions remain distinct.\n\nValidation: `./run_visible_tests.sh` and black-box validation both passed."
+}

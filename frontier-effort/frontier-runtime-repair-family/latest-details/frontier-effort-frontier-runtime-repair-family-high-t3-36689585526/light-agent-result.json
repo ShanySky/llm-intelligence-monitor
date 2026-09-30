@@ -1,0 +1,83 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-runtime-repair-family-high-t3",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 71,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 4,
+  "shell_budget": 24,
+  "validation_calls": 1,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 3,
+  "probe_attempts": 3,
+  "probe_budget": 12,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Inspect runtime behavior and identify production-only incident symptom and its cause; report diagnostic evidence and affected code paths.",
+    "Diagnose the migration rollback and customer identity loss. What precise sequence and code-level behavior causes these production symptoms? Provide evidence without changing state.",
+    "Exercise or inspect migration semantics: compare behavior of concurrent/backfill status writes and legacy update identity. Which writes overwrite newer fields, and what is the intended invariant?"
+  ],
+  "probe_executed_queries": [
+    "Inspect runtime behavior and identify production-only incident symptom and its cause; report diagnostic evidence and affected code paths.",
+    "Diagnose the migration rollback and customer identity loss. What precise sequence and code-level behavior causes these production symptoms? Provide evidence without changing state.",
+    "Exercise or inspect migration semantics: compare behavior of concurrent/backfill status writes and legacy update identity. Which writes overwrite newer fields, and what is the intended invariant?"
+  ],
+  "probe_observations": [
+    {
+      "query": "Inspect runtime behavior and identify production-only incident symptom and its cause; report diagnostic evidence and affected code paths.",
+      "output": "STDOUT:\nmigration validation shows occasional status rollback after live writes and loss of stable customer identity after legacy-version updates\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Diagnose the migration rollback and customer identity loss. What precise sequence and code-level behavior causes these production symptoms? Provide evidence without changing state.",
+      "output": "STDOUT:\nmigration validation shows occasional status rollback after live writes and loss of stable customer identity after legacy-version updates\n\nEXIT_CODE=0",
+      "exit_code": 0
+    },
+    {
+      "query": "Exercise or inspect migration semantics: compare behavior of concurrent/backfill status writes and legacy update identity. Which writes overwrite newer fields, and what is the intended invariant?",
+      "output": "STDOUT:\nmigration validation shows occasional status rollback after live writes and loss of stable customer identity after legacy-version updates\n\nEXIT_CODE=0",
+      "exit_code": 0
+    }
+  ],
+  "patch_metrics": {
+    "changed_files": 4,
+    "changed_lines": 38,
+    "added_files": 0,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "src/BackfillJob.java",
+        "kind": "modified",
+        "changed_lines": 4
+      },
+      {
+        "path": "src/CustomerStore.java",
+        "kind": "modified",
+        "changed_lines": 25
+      },
+      {
+        "path": "src/LegacyCustomerService.java",
+        "kind": "modified",
+        "changed_lines": 4
+      },
+      {
+        "path": "src/V2CustomerService.java",
+        "kind": "modified",
+        "changed_lines": 5
+      }
+    ]
+  },
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 11020,
+    "output_tokens": 1442,
+    "reasoning_tokens": 618,
+    "cached_input_tokens": 4096
+  },
+  "final_text": "Repaired both production failure modes:\n\n- Backfill now applies atomically with live updates and skips captured work older than the current customer version.\n- Legacy updates preserve the customer’s stable key.\n\nValidation passed: `./run_visible_tests.sh` and black-box validation."
+}

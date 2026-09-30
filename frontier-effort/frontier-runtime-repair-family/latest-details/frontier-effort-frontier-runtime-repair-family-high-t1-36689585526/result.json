@@ -2,7 +2,7 @@
   "task": "frontier-runtime-repair-family",
   "model": "gpt-6-luna",
   "effort": "high",
-  "trial": 2,
+  "trial": 1,
   "score": 100,
   "checks": {
     "compiles": {
@@ -13,50 +13,45 @@
       "points": 5,
       "passed": true
     },
-    "legacy_writer_invalidates_v2_alias": {
+    "business_scoped_retry_identity": {
+      "points": 30,
+      "passed": true
+    },
+    "post_side_effect_crash_retry_converges": {
       "points": 35,
       "passed": true
     },
-    "strict_reads_route_to_fresh_primary": {
-      "points": 35,
+    "different_order_versions_remain_distinct": {
+      "points": 15,
       "passed": true
     },
-    "ordinary_reads_may_remain_eventual": {
-      "points": 10,
-      "passed": true
-    },
-    "v2_writer_invalidation_regression": {
+    "different_orders_remain_distinct": {
       "points": 10,
       "passed": true
     }
   },
-  "duration_seconds": 96,
-  "responses": 10,
+  "duration_seconds": 85,
+  "responses": 8,
   "max_turns": 30,
-  "shell_commands": 6,
+  "shell_commands": 4,
   "shell_budget": 24,
-  "validation_calls": 2,
+  "validation_calls": 1,
   "validation_budget": 8,
   "validation_enabled": true,
-  "probe_calls": 7,
-  "probe_attempts": 7,
+  "probe_calls": 4,
+  "probe_attempts": 4,
   "probe_budget": 12,
   "probe_enabled": true,
   "patch_metrics": {
-    "changed_files": 2,
-    "changed_lines": 3,
+    "changed_files": 1,
+    "changed_lines": 14,
     "added_files": 0,
     "deleted_files": 0,
     "files": [
       {
-        "path": "src/CustomerService.java",
+        "path": "src/PaymentService.java",
         "kind": "modified",
-        "changed_lines": 1
-      },
-      {
-        "path": "src/StrictCustomerReader.java",
-        "kind": "modified",
-        "changed_lines": 2
+        "changed_lines": 14
       }
     ]
   },
@@ -64,10 +59,10 @@
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 23903,
-    "output_tokens": 1209,
-    "reasoning_tokens": 407,
-    "cached_input_tokens": 14336
+    "input_tokens": 13782,
+    "output_tokens": 1413,
+    "reasoning_tokens": 762,
+    "cached_input_tokens": 3072
   },
   "api_retries": 0,
   "infrastructure_error": null,

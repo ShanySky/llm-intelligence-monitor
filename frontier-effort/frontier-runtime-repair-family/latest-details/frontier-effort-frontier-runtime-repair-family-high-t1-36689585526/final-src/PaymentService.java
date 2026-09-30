@@ -19,9 +19,9 @@ public final class PaymentService {
     }
 
     private static String operationKey(String orderId, long version) {
-        // Length-prefix the order identifier so arbitrary IDs cannot collide with
-        // the version separator or with another identifier.
-        if (orderId == null) return "order:null:version:" + version;
-        return "order:" + orderId.length() + ":" + orderId + ":version:" + version;
+        // Delivery IDs identify transport attempts. The provider key must instead
+        // identify the business operation, consistently across redeliveries.
+        String orderPart = orderId == null ? "-1:" : orderId.length() + ":" + orderId;
+        return "payment:v1:" + orderPart + ":" + version;
     }
 }
