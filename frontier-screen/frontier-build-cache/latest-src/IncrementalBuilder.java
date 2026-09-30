@@ -30,19 +30,17 @@ public final class IncrementalBuilder {
             }
 
             StringBuilder inputs = new StringBuilder();
-            appendPart(inputs, module.source);
+            appendInput(inputs, module.source);
             for (Artifact dependency : deps) {
-                appendPart(inputs, dependency.fingerprint());
+                appendInput(inputs, dependency.module());
+                appendInput(inputs, dependency.fingerprint());
             }
             String fingerprint = hash(inputs.toString());
             BuildCache.Entry cached = cache.get(name);
-            if (cached != null && cached.artifact() != null
-                    && cached.fingerprint().equals(fingerprint)) {
+            if (cached != null && cached.fingerprint().equals(fingerprint)) {
                 return cached.artifact();
             }
 
-            // Publish only successful results. A failed compile must leave the
-            // prior usable cache entry intact (or leave the module uncached).
             Artifact artifact = compiler.compile(module, deps, fingerprint);
             cache.put(name, fingerprint, artifact);
             return artifact;
@@ -51,8 +49,8 @@ public final class IncrementalBuilder {
         }
     }
 
-    private static void appendPart(StringBuilder out, String part) {
-        out.append(part.length()).append(':').append(part);
+    private static void appendInput(StringBuilder inputs, String value) {
+        inputs.append(value.length()).append(':').append(value);
     }
 
     private static String hash(String text) {
