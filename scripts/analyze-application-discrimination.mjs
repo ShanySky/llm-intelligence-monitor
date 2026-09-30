@@ -200,6 +200,7 @@ const output = {
       confirmed_tasks: confirmedModelCoreTasks.map((x) => x.task),
     },
     effort_core: {
+      resident_sol_model: residentSolModel,
       confirmed_families: confirmedEffortRegistryTasks.length,
       minimum_families: minEffortCoreFamilies,
       mature: effortCoreMature,
