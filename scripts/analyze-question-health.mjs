@@ -22,12 +22,17 @@ if (fs.existsSync(historyDir)) {
     }
   }
 }
-docs.push(current);
+const currentDay = current?.selection?.runDate ?? String(current?.generatedAt ?? '').slice(0, 10);
+const uniqueDocs = docs.filter((doc) => {
+  const day = doc?.selection?.runDate ?? String(doc?.generatedAt ?? '').slice(0, 10);
+  return !currentDay || day !== currentDay;
+});
+uniqueDocs.push(current);
 
 const observations = new Map();
 const daySpreads = new Map();
 
-for (const doc of docs) {
+for (const doc of uniqueDocs) {
   const day = doc?.selection?.runDate ?? String(doc?.generatedAt ?? '').slice(0, 10);
   if (!day) continue;
   for (const provider of doc?.providers ?? []) {
