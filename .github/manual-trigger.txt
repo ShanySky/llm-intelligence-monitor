@@ -124,3 +124,4 @@ Refresh application discrimination report from latest completed suite.
 Refresh split Model Core / Effort Core maturity.
 Staged fulfillment identity evolution Luna screen.
 Publish automatic maturity after checker integration.
+Compatibility review family Luna High x3.
