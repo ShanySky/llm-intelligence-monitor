@@ -1,8 +1,8 @@
 {
   "task": "frontier-runtime-diagnosis",
   "model": "gpt-6-sol",
-  "effort": "xhigh",
-  "trial": 1,
+  "effort": "medium",
+  "trial": 2,
   "score": 100,
   "checks": {
     "valid_repair_json": {
@@ -38,26 +38,26 @@
       "passed": true
     }
   },
-  "duration_seconds": 69,
+  "duration_seconds": 59,
   "responses": 8,
   "max_turns": 30,
-  "shell_commands": 4,
+  "shell_commands": 2,
   "shell_budget": 20,
   "validation_calls": 1,
   "validation_budget": 8,
   "validation_enabled": true,
   "probe_calls": 17,
-  "probe_attempts": 0,
+  "probe_attempts": 17,
   "probe_budget": 20,
   "probe_enabled": true,
   "turn_limit_reached": false,
   "shell_budget_reached": false,
   "finished_with_message": true,
   "usage": {
-    "input_tokens": 14983,
-    "output_tokens": 651,
-    "reasoning_tokens": 78,
-    "cached_input_tokens": 8192
+    "input_tokens": 14542,
+    "output_tokens": 594,
+    "reasoning_tokens": 33,
+    "cached_input_tokens": 9088
   },
   "api_retries": 0,
   "infrastructure_error": null,
