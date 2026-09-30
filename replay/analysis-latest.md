@@ -4,7 +4,7 @@ Trial mode: variants
 
 | Effort | Trials | Quality mean | Quality stddev | Runtime avg | Shell avg | Probes avg | Patch files | Patch lines | Total tokens avg | Reasoning avg | Saturated |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| high | 3 | 31.3 | 37.5 | 271s | 18.3 | 0.0 | 1.0 | 26.3 | 215117 | 1205 | no |
+| high | 3 | 41.3 | 31.3 | 166s | 12.7 | 0.0 | 1.0 | 39.3 | 96070 | 938 | no |
 
 **Promotion recommendation:** `do-not-promote`.
 
