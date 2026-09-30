@@ -1,0 +1,228 @@
+name: Frontier batch candidate screen
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontier-batch-candidate-screen
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-batch]')
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      model: ${{ steps.matrix.outputs.model }}
+      effort: ${{ steps.matrix.outputs.effort }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - id: matrix
+        shell: bash
+        run: |
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const x=require('./benchmarks/frontier-batch-screen.json');
+          console.log('matrix='+JSON.stringify({include:x.tasks}));
+          console.log('model='+x.model);
+          console.log('effort='+x.effort);
+          NODE
+
+  screen:
+    needs: prepare
+    if: needs.prepare.result == 'success'
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Prepare isolated task
+        shell: bash
+        run: |
+          TASK="${{ matrix.task }}"
+          TASK_DIR="/tmp/frontier-batch-$TASK"
+          rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
+          cp -R "benchmarks/$TASK/workspace/." "$TASK_DIR/"
+          [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
+          [ ! -f "$TASK_DIR/run_visible_tests.sh" ] || chmod +x "$TASK_DIR/run_visible_tests.sh"
+          [ ! -f "$TASK_DIR/check_generated.sh" ] || chmod +x "$TASK_DIR/check_generated.sh"
+          if [ -f "$TASK_DIR/run_visible_tests.sh" ]; then
+            (cd "$TASK_DIR" && ./run_visible_tests.sh)
+          fi
+          echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
+
+      - name: Run Luna screen
+        id: agent
+        env:
+          AGENT_MAX_TURNS: ${{ matrix.max_turns }}
+          AGENT_SHELL_BUDGET: ${{ matrix.shell_budget }}
+        shell: bash
+        run: |
+          start="$(date +%s)"
+          set +e
+          timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ needs.prepare.outputs.model }}"             "${{ needs.prepare.outputs.effort }}"             "$TASK_DIR/light-agent-result.json"
+          status=$?
+          set -e
+          end="$(date +%s)"
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          echo "wall_seconds=$((end-start))" >> "$GITHUB_OUTPUT"
+
+      - name: Score candidate
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p result
+          python scripts/score-application-task.py             "${{ matrix.task }}"             "$TASK_DIR"             "$TASK_DIR/score.json"
+          python - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          root=Path(os.environ["TASK_DIR"])
+          score=json.loads((root/"score.json").read_text())
+          rp=root/"light-agent-result.json"
+          runner=json.loads(rp.read_text()) if rp.exists() else {}
+          turn_limit=bool(runner.get("max_turns")) and runner.get("responses",0)>=runner.get("max_turns")
+          shell_limit=bool(runner.get("shell_budget")) and runner.get("shell_commands",0)>=runner.get("shell_budget")
+          saturated=turn_limit or shell_limit
+          quality=float(score["score"])
+          if saturated and quality < 95:
+              classification="budget-confounded-needs-repeat"
+          elif quality >= 95:
+              classification="coverage-only-ceiling"
+          elif quality <= 20:
+              classification="too-hard-or-invalid"
+          else:
+              classification="promising-candidate"
+          result={
+            "task":"${{ matrix.task }}",
+            "model":"${{ needs.prepare.outputs.model }}",
+            "effort":"${{ needs.prepare.outputs.effort }}",
+            "score":score["score"],
+            "classification":classification,
+            "checks":score["checks"],
+            "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
+            "responses":runner.get("responses",0),
+            "max_turns":runner.get("max_turns"),
+            "shell_commands":runner.get("shell_commands",0),
+            "shell_budget":runner.get("shell_budget"),
+            "turn_limit_reached":turn_limit,
+            "shell_budget_reached":shell_limit,
+            "finished_with_message":bool(runner.get("final_text")),
+            "usage":runner.get("usage",{}),
+            "api_retries":runner.get("api_retries",0),
+            "infrastructure_error":runner.get("infrastructure_error"),
+            "agent_exit_code":int("${{ steps.agent.outputs.exit_code || '999' }}")
+          }
+          Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
+          if rp.exists(): shutil.copy2(rp,"result/light-agent-result.json")
+          for name in ["REVIEW.md","PLAN.md","plan.json","REPORT.txt","FINDINGS.json"]:
+              p=root/name
+              if p.exists(): shutil.copy2(p,"result/"+name)
+          if (root/"src").exists(): shutil.copytree(root/"src","result/final-src",dirs_exist_ok=True)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontier-batch-${{ matrix.task }}-${{ github.run_id }}
+          path: result/
+          retention-days: 30
+
+  aggregate:
+    needs: [prepare, screen]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: frontier-batch-*-${{ github.run_id }}
+          path: results/frontier-batch
+
+      - name: Summarize batch
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[]
+          for p in Path("results/frontier-batch").rglob("result.json"):
+              rows.append(json.loads(p.read_text()))
+          rows.sort(key=lambda x:x["task"])
+          out={"rows":rows}
+          Path("frontier-batch-summary.json").write_text(json.dumps(out,indent=2)+"\n")
+          lines=[
+              "# Frontier Batch Screen",
+              "",
+              "| Task | Score | Class | Runtime | Turns | Shell | Saturated |",
+              "|---|---:|---|---:|---:|---:|---|",
+          ]
+          for r in rows:
+              sat=r.get("turn_limit_reached") or r.get("shell_budget_reached")
+              lines.append(
+                  f"| {r['task']} | {r['score']} | {r['classification']} | "
+                  f"{r.get('duration_seconds',0)}s | {r.get('responses',0)} | "
+                  f"{r.get('shell_commands',0)} | {'yes' if sat else 'no'} |"
+              )
+          Path("frontier-batch-summary.md").write_text("\n".join(lines)+"\n")
+          print("\n".join(lines))
+          PY
+          cat frontier-batch-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontier-batch-summary-${{ github.run_id }}
+          path: |
+            frontier-batch-summary.json
+            frontier-batch-summary.md
+          retention-days: 30
+
+      - name: Publish latest batch screen
+        shell: bash
+        run: |
+          cp frontier-batch-summary.json /tmp/frontier-batch-summary.json
+          cp frontier-batch-summary.md /tmp/frontier-batch-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin frontier-batch-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/frontier-batch-results; then
+            git switch -C frontier-batch-results origin/frontier-batch-results
+          else
+            git switch --orphan frontier-batch-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p frontier-batch/runs
+          cp /tmp/frontier-batch-summary.json frontier-batch/latest.json
+          cp /tmp/frontier-batch-summary.md frontier-batch/latest.md
+          cp /tmp/frontier-batch-summary.json "frontier-batch/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/frontier-batch-summary.md "frontier-batch/runs/${GITHUB_RUN_ID}.md"
+          git add frontier-batch
+          if ! git diff --cached --quiet; then
+            git commit -m "Record frontier batch screen ${GITHUB_RUN_ID}"
+            git push origin HEAD:frontier-batch-results
+          fi
