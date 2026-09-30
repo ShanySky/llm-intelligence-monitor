@@ -1,0 +1,51 @@
+{
+  "task": "frontier-workflow-resume",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "score": 100,
+  "checks": {
+    "compiles": {
+      "points": 5,
+      "passed": true
+    },
+    "visible_regression": {
+      "points": 5,
+      "passed": true
+    },
+    "dependency_order_from_unordered_input": {
+      "points": 20,
+      "passed": true
+    },
+    "resume_skips_completed_steps": {
+      "points": 15,
+      "passed": true
+    },
+    "crash_resume_stable_idempotency_key": {
+      "points": 25,
+      "passed": true
+    },
+    "bounded_retry_and_downstream_blocking": {
+      "points": 15,
+      "passed": true
+    },
+    "midflight_cancel_stops_new_steps": {
+      "points": 10,
+      "passed": true
+    },
+    "cycle_and_missing_dependency_validation": {
+      "points": 10,
+      "passed": true
+    }
+  },
+  "duration_seconds": 91,
+  "shell_commands": 7,
+  "usage": {
+    "input_tokens": 22549,
+    "output_tokens": 2750,
+    "reasoning_tokens": 1088,
+    "cached_input_tokens": 12288
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0
+}
