@@ -785,6 +785,81 @@ elif task == "frontier-plan-review":
             "reported": false_positives
         }
 
+
+elif task == "frontier-identity-rollout":
+    hidden = r'''public final class FrontierIdentityHiddenTest {
+  public static void main(String[] args) {
+    run("LEGACY_STABLE", FrontierIdentityHiddenTest::legacyGetsStableKey);
+    run("NO_ROTATE", FrontierIdentityHiddenTest::assignedKeyDoesNotRotate);
+    run("V1_PRESERVE", FrontierIdentityHiddenTest::v1UpdatePreservesKey);
+    run("REST", FrontierIdentityHiddenTest::restAdditive);
+    run("JWT", FrontierIdentityHiddenTest::jwtAdditive);
+    run("KAFKA", FrontierIdentityHiddenTest::kafkaAdditive);
+    run("CACHE", FrontierIdentityHiddenTest::cacheFallback);
+  }
+  interface Case { void run(); }
+  static void run(String name, Case c) {
+    try { c.run(); System.out.println(name+"_PASS"); }
+    catch(Throwable t) { System.out.println(name+"_FAIL:"+t); }
+  }
+  static void legacyGetsStableKey() {
+    CustomerStore s=new CustomerStore(); V1CustomerService v1=new V1CustomerService(s); IdentityService ids=new IdentityService(s);
+    Customer c=v1.write(41L,"Legacy");
+    String a=ids.customerKey(41L), b=ids.customerKey(41L);
+    check(a!=null && !a.isBlank()); check(a.equals(b)); check(a.equals(c.customerKey));
+  }
+  static void assignedKeyDoesNotRotate() {
+    CustomerStore s=new CustomerStore(); IdentityService ids=new IdentityService(s); V2CustomerService v2=new V2CustomerService(s,ids);
+    Customer a=v2.write(7L,"ck-original","A");
+    Customer b=v2.write(7L,"ck-other","B");
+    check("ck-original".equals(a.customerKey)); check("ck-original".equals(b.customerKey));
+  }
+  static void v1UpdatePreservesKey() {
+    CustomerStore s=new CustomerStore(); IdentityService ids=new IdentityService(s); V1CustomerService v1=new V1CustomerService(s); V2CustomerService v2=new V2CustomerService(s,ids);
+    Customer c=v2.write(8L,"ck-8","A"); v1.write(8L,"B");
+    check("ck-8".equals(c.customerKey)); check(v1.id(c)==8L); check("B".equals(c.name));
+  }
+  static void restAdditive() {
+    Customer c=new Customer(9L,"R"); c.customerKey="ck-9";
+    String x=new RestContract().encode(c);
+    check(x.contains("customer_id") && x.contains("9") && x.contains("customer_key") && x.contains("ck-9"));
+  }
+  static void jwtAdditive() {
+    Customer c=new Customer(10L,"J"); c.customerKey="ck-10";
+    String x=new JwtContract().claims(c);
+    check(x.contains("customer_id") && x.contains("10") && x.contains("customer_key") && x.contains("ck-10"));
+  }
+  static void kafkaAdditive() {
+    Customer c=new Customer(11L,"K"); c.customerKey="ck-11";
+    String x=new KafkaContract().event(c);
+    check(x.contains("customer_id") && x.contains("11") && x.contains("customer_key") && x.contains("ck-11"));
+  }
+  static void cacheFallback() {
+    CustomerCache c=new CustomerCache();
+    c.putLegacy(12L,"old");
+    check("old".equals(c.getCompatible(12L,"ck-12")));
+    c.putV2("ck-12","new");
+    check("new".equals(c.getCompatible(12L,"ck-12")));
+  }
+  static void check(boolean x){if(!x)throw new AssertionError();}
+}'''
+    (root/"FrontierIdentityHiddenTest.java").write_text(hidden)
+    outdir=root/"hidden-out"; outdir.mkdir(exist_ok=True)
+    cp=subprocess.run(["javac","-d",str(outdir),*map(str,(root/"src").glob("*.java")),str(root/"FrontierIdentityHiddenTest.java")],capture_output=True,text=True)
+    add("compiles",5,cp.returncode==0)
+    visible=False; hidden_out=""
+    if cp.returncode==0:
+        vr=subprocess.run(["java","-cp",str(outdir),"VisibleTest"],capture_output=True,text=True); visible=vr.returncode==0
+        hr=subprocess.run(["java","-cp",str(outdir),"FrontierIdentityHiddenTest"],capture_output=True,text=True); hidden_out=hr.stdout+hr.stderr
+    add("visible_regression",5,visible)
+    add("legacy_key_stable_and_persisted",20,"LEGACY_STABLE_PASS" in hidden_out)
+    add("assigned_key_never_rotates",15,"NO_ROTATE_PASS" in hidden_out)
+    add("v1_update_preserves_v2_identity",10,"V1_PRESERVE_PASS" in hidden_out)
+    add("rest_additive_contract",15,"REST_PASS" in hidden_out)
+    add("jwt_additive_contract",10,"JWT_PASS" in hidden_out)
+    add("kafka_additive_contract",10,"KAFKA_PASS" in hidden_out)
+    add("cache_legacy_fallback_and_v2_preference",10,"CACHE_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
