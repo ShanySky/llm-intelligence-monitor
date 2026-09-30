@@ -1,0 +1,52 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-dynamic-diagnosis-high-t2",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 54,
+  "responses": 7,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 2,
+  "shell_budget": 12,
+  "validation_calls": 0,
+  "validation_budget": 8,
+  "validation_enabled": true,
+  "probe_calls": 9,
+  "probe_attempts": 11,
+  "probe_budget": 9,
+  "probe_enabled": true,
+  "probe_queries": [
+    "Provide runtime incident overview, including observed symptoms and available diagnostic dimensions.",
+    "help",
+    "overview",
+    "pods",
+    "slice http-errors by pod",
+    "slice duplicate-effects by boundary",
+    "slice stale-reads by path",
+    "capacity",
+    "queue",
+    "cache",
+    "component consumer-2"
+  ],
+  "probe_executed_queries": [
+    "Provide runtime incident overview, including observed symptoms and available diagnostic dimensions.",
+    "help",
+    "overview",
+    "pods",
+    "slice http-errors by pod",
+    "slice duplicate-effects by boundary",
+    "slice stale-reads by path",
+    "capacity",
+    "queue"
+  ],
+  "max_turns": 24,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 12204,
+    "output_tokens": 662,
+    "reasoning_tokens": 240,
+    "cached_input_tokens": 4608
+  },
+  "final_text": "Created `DIAGNOSIS.json` with the evidence-supported causes: API capacity shortage and an incompatible fulfillment consumer. The selected repairs are to scale the checkout API and replace only the incompatible consumer.\n\nValidation: reviewed `architecture.md` and `repair-catalog.json`, and queried runtime diagnostics. Probe diagnostics reached their action budget before further component checks were available."
+}

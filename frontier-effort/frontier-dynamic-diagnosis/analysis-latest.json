@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-09-30T03:30:19.958Z",
+  "task": "frontier-dynamic-diagnosis",
+  "model": "gpt-6-luna",
+  "trial_count": 3,
+  "by_effort": {
+    "high": {
+      "effort": "high",
+      "trials": 3,
+      "expected_trials": 3,
+      "score": 90,
+      "score_stddev": 8.16496580927726,
+      "duration_seconds": 58,
+      "shell_commands": 2,
+      "probe_calls": 9,
+      "probe_attempts": 13.333333333333334,
+      "total_tokens": 14042.666666666666,
+      "reasoning_tokens": 341,
+      "saturated": false,
+      "data_complete": true
+    }
+  },
+  "effort_spread_points": 0,
+  "medium_to_xhigh": null,
+  "nonmonotonic": null
+}
