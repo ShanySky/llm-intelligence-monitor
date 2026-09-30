@@ -91,11 +91,13 @@ jobs:
           max_turns="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(String(x.max_turns ?? 12))")"
           shell_budget="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(String(x.shell_budget ?? 12))")"
           probe_budget="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(String(x.probe_budget ?? 12))")"
+          fixed_variant="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(x.fixed_variant == null ? '' : String(x.fixed_variant))")"
           echo "task=$task" >> "$GITHUB_OUTPUT"
           echo "model=$model" >> "$GITHUB_OUTPUT"
           echo "max_turns=$max_turns" >> "$GITHUB_OUTPUT"
           echo "shell_budget=$shell_budget" >> "$GITHUB_OUTPUT"
           echo "probe_budget=$probe_budget" >> "$GITHUB_OUTPUT"
+          echo "fixed_variant=$fixed_variant" >> "$GITHUB_OUTPUT"
 
       - name: Prepare
         shell: bash
@@ -104,9 +106,12 @@ jobs:
           TASK_DIR="/tmp/frontier-effort-$TASK-${{ matrix.effort }}-t${{ matrix.trial }}"
           rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
           cp -R "benchmarks/$TASK/workspace/." "$TASK_DIR/"
-          VARIANT_DIR="benchmarks/$TASK/variants/${{ matrix.trial }}"
+          VARIANT_ID="${{ steps.target.outputs.fixed_variant }}"
+          if [ -z "$VARIANT_ID" ]; then VARIANT_ID="${{ matrix.trial }}"; fi
+          VARIANT_DIR="benchmarks/$TASK/variants/$VARIANT_ID"
           if [ -d "$VARIANT_DIR" ]; then
             cp -R "$VARIANT_DIR/." "$TASK_DIR/"
+            printf '%s\n' "$VARIANT_ID" > "$TASK_DIR/.frontier-variant"
           fi
           [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
           if [ -f "$TASK_DIR/run_visible_tests.sh" ]; then
