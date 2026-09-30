@@ -18,3 +18,22 @@ VERDICT: APPROVE
 or
 
 VERDICT: REQUEST_CHANGES
+
+Also write `FINDINGS.json` using this shape:
+
+```json
+{
+  "findings": [
+    {
+      "file": "SomeFile.java",
+      "symbol": "methodOrType",
+      "failure_class": "one taxonomy value"
+    }
+  ],
+  "verdict": "REQUEST_CHANGES"
+}
+```
+
+Use only failure classes defined in `review-taxonomy.json`. Report each blocking
+failure domain once at its primary implementation location. Do not list speculative
+or non-blocking issues merely to increase coverage.

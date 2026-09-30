@@ -1429,62 +1429,53 @@ public final class FrontierPaginationHiddenTest {
 
 
 elif task == "frontier-review-deep":
-    review=text("REVIEW.md").lower()
+    raw=text("FINDINGS.json")
+    try:
+        data=json.loads(raw)
+        findings=data.get("findings",[]) if isinstance(data,dict) else []
+        valid=isinstance(findings,list) and isinstance(data.get("verdict"),str)
+    except Exception:
+        data={}
+        findings=[]
+        valid=False
 
-    optimistic=(
-        ("optimistic" in review or "updateifversion" in review or "version" in review)
-        and ("return" in review or "boolean" in review or "false" in review or "result" in review)
-        and ("ignore" in review or "check" in review or "conflict" in review or "failed" in review)
-    )
-    add("optimistic_write_result_must_gate_followup",15,optimistic)
+    add("valid_findings_json",5,valid)
 
-    cache_boundary=(
-        "cache" in review
-        and ("commit" in review or "transaction" in review)
-        and ("stale" in review or "repopulate" in review or "old committed" in review or "after commit" in review)
-    )
-    add("cache_invalidation_transaction_boundary",15,cache_boundary)
+    expected={
+        ("PriceService.java","ignored_write_result"):15,
+        ("PriceService.java","transaction_visibility"):15,
+        ("AuditWorker.java","payload_snapshot"):10,
+        ("AuditWorker.java","retry_idempotency"):10,
+        ("WebhookService.java","business_identity_scope"):20,
+        ("WebhookService.java","external_effect_recovery"):10,
+        ("ReservationMover.java","lock_order"):10,
+    }
 
-    audit_payload=(
-        "audit" in review
-        and ("re-read" in review or "reread" in review or "current" in review or "snapshot" in review or "mutable" in review)
-        and "price" in review
-        and "version" in review
-    )
-    add("audit_payload_must_snapshot_accepted_version",10,audit_payload)
+    reported=set()
+    if valid:
+        for item in findings:
+            if not isinstance(item,dict):
+                continue
+            file=str(item.get("file","")).strip().split("/")[-1]
+            failure=str(item.get("failure_class","")).strip().lower()
+            if file and failure:
+                reported.add((file,failure))
 
-    audit_idem=(
-        "audit" in review
-        and ("uuid" in review or "random" in review)
-        and ("idempot" in review or "dedup" in review or "stable" in review or "retry" in review)
-    )
-    add("audit_delivery_needs_stable_business_key",10,audit_idem)
+    for (file,failure),points in expected.items():
+        add(f"finding_{file}_{failure}",points,(file,failure) in reported)
 
-    fulfillment_identity=(
-        "order" in review and "event" in review
-        and ("fulfillment" in review or "inventory" in review or "reservation" in review)
-        and ("idempot" in review or "dedup" in review or "key" in review)
-        and ("version" in review or "different event" in review or "same logical" in review or "per order" in review)
-    )
-    add("fulfillment_identity_is_order_version_not_event_id",20,fulfillment_identity)
+    extras=sorted(reported-set(expected))
+    if extras:
+        penalty=min(15,5*len(extras))
+        score-=penalty
+        checks["false_positive_penalty"]={
+            "points":-penalty,
+            "passed":False,
+            "reported":[{"file":f,"failure_class":c} for f,c in extras],
+        }
 
-    crash_recovery=(
-        ("inventory" in review or "reservation" in review or "external" in review)
-        and ("crash" in review or "failure" in review)
-        and ("retry" in review or "reconcile" in review or "idempot" in review or "stable key" in review or "outbox" in review)
-        and ("transaction" in review or "commit" in review or "local" in review)
-    )
-    add("external_side_effect_crash_recovery",15,crash_recovery)
-
-    lock_order=(
-        "lock" in review
-        and ("deadlock" in review or "lock order" in review or "ordering" in review)
-        and ("ascending" in review or "canonical" in review or "consistent" in review or "same order" in review)
-    )
-    add("canonical_pair_lock_order",10,lock_order)
-
-    add("requests_changes",5,"verdict: request_changes" in review)
-
+    verdict=str(data.get("verdict","")).strip().upper() if valid else ""
+    add("requests_changes",5,verdict=="REQUEST_CHANGES")
 
 elif task == "frontier-key-rotation":
     hidden = r'''public final class FrontierKeyRotationHiddenTest {
