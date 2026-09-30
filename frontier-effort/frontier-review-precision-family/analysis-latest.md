@@ -12,10 +12,10 @@ Trial mode: variants
 
 Quality gain: 0.0 points; runtime improvement: -109.6%; shell improvement: -20.0%; probe improvement: -%; token improvement: -92.6%; paired trials: 3.
 
-**Effort sensitivity:** `effort-sensitivity-confirmed` (spread 13.3 points; best=medium; worst=high; shape=nonmonotonic).
+**Effort sensitivity:** `effort-sensitivity-candidate` (spread 13.3 points; best=medium; worst=high; shape=nonmonotonic).
 
-**Non-monotonic signal:** `nonmonotonic-effort-anomaly-confirmed` (high-dip, 13.3 points).
+**Non-monotonic signal:** `nonmonotonic-effort-anomaly-candidate` (high-dip, 13.3 points).
 
-**Promotion recommendation:** `effort-sensitivity-confirmed`.
+**Promotion recommendation:** `do-not-promote`.
 
 > Directional quality improvement, generic effort sensitivity, efficiency, and non-monotonic anomalies are separate signals. Effort sensitivity means the chosen effort level reliably changes quality; it does not imply that higher effort is better. Formal effort-discriminator promotion still requires repeated positive Medium→X High quality gain.

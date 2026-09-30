@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-30T08:37:54.577Z",
+  "generated_at": "2026-09-30T08:45:05.952Z",
   "task": "frontier-review-precision-family",
   "model": "gpt-6.1-sol",
   "trial_count": 3,
@@ -110,16 +110,54 @@
     "stable": true,
     "saturated": false,
     "data_complete": true,
-    "classification": "effort-sensitivity-confirmed"
+    "sensitive_variant_count": 1,
+    "required_sensitive_variant_count": 2,
+    "variant_sensitivity": [
+      {
+        "trial": 1,
+        "spread_points": 0,
+        "sensitive": false
+      },
+      {
+        "trial": 2,
+        "spread_points": 40,
+        "sensitive": true
+      },
+      {
+        "trial": 3,
+        "spread_points": 0,
+        "sensitive": false
+      }
+    ],
+    "classification": "effort-sensitivity-candidate"
   },
   "nonmonotonic": {
     "direction": "high-dip",
     "magnitude_points": 13.333333333333329,
-    "classification": "nonmonotonic-effort-anomaly-confirmed",
+    "signal_variant_count": 1,
+    "required_signal_variant_count": 2,
+    "per_variant": [
+      {
+        "trial": 1,
+        "magnitude_points": 0,
+        "signal": false
+      },
+      {
+        "trial": 2,
+        "magnitude_points": 40,
+        "signal": true
+      },
+      {
+        "trial": 3,
+        "magnitude_points": 0,
+        "signal": false
+      }
+    ],
+    "classification": "nonmonotonic-effort-anomaly-candidate",
     "repeated": true,
     "stable": true
   },
-  "promotion_recommendation": "effort-sensitivity-confirmed",
+  "promotion_recommendation": "do-not-promote",
   "promotion_evidence": {
     "trial_mode": "variants",
     "paired_variants": 3,
