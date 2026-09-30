@@ -181,7 +181,8 @@ for (const family of families) {
 const coreTasks = tasks.filter((x) => x.role === 'core');
 const confirmedModelCoreTasks = coreTasks.filter((x) => x.model_signal_confirmed);
 const confirmedEffortRegistryTasks = (frontierRegistry.tasks ?? []).filter((x) =>
-  ['effort-discriminator-confirmed','model+effort-discriminator-confirmed','effort-sensitivity-confirmed'].includes(x?.status)
+  ['effort-discriminator-confirmed','model+effort-discriminator-confirmed','effort-sensitivity-confirmed'].includes(x?.status) &&
+  (!residentSolModel || x?.evidence?.resident_sol_model === residentSolModel)
 );
 const minModelCoreFamilies = Number(policy.selection?.model_core_min_families ?? data.manifest?.core_min_families_for_mature_score ?? 2);
 const minEffortCoreFamilies = Number(policy.selection?.effort_core_min_families ?? 1);
