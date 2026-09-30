@@ -35,5 +35,15 @@
       "role": "coverage"
     }
   ],
-  "core_min_families_for_mature_score": 2
+  "core_min_families_for_mature_score": 2,
+  "resident_model_epoch": {
+    "effective_date": "2026-09-30",
+    "resident_sol_model": "gpt-6.1-sol",
+    "cross_model_set": [
+      "gpt-6-astra",
+      "gpt-6.1-sol",
+      "gpt-6-luna",
+      "gpt-5.6-sol"
+    ]
+  }
 }
