@@ -17,11 +17,61 @@ const stages = stageNames
   .map((name) => ({ name, text: fs.readFileSync(path.join(taskDir, name), 'utf8') }));
 if (!stages.length) throw new Error('No staged task files found');
 
-// Future requirements must not be discoverable from the workspace before they are
-// revealed. Read them into the harness, then remove them from the agent-visible
-// workspace. TASK.md may remain as the currently revealed stage-1 instruction.
+function snapshotAssetTree(root) {
+  if (!fs.existsSync(root)) return [];
+  const assets = [];
+  function walk(current, relativeBase = '') {
+    for (const ent of fs.readdirSync(current, { withFileTypes: true })) {
+      const full = path.join(current, ent.name);
+      const rel = path.join(relativeBase, ent.name);
+      const st = fs.lstatSync(full);
+      if (st.isSymbolicLink()) {
+        throw new Error('Stage assets must not contain symlinks: ' + rel);
+      }
+      if (ent.isDirectory()) {
+        walk(full, rel);
+      } else if (ent.isFile()) {
+        assets.push({
+          relative_path: rel,
+          content_base64: fs.readFileSync(full).toString('base64'),
+          mode: st.mode & 0o777,
+        });
+      }
+    }
+  }
+  walk(root);
+  return assets;
+}
+
+const stageAssets = new Map();
+const stageAssetsRoot = path.join(taskDir, '.stage-assets');
+for (let stageNumber = 2; stageNumber <= stages.length; stageNumber += 1) {
+  const dir = path.join(stageAssetsRoot, String(stageNumber));
+  stageAssets.set(stageNumber, snapshotAssetTree(dir));
+}
+if (fs.existsSync(stageAssetsRoot)) {
+  fs.rmSync(stageAssetsRoot, { recursive: true, force: true });
+}
+
+// Future requirements and evidence must not be discoverable before reveal.
+// Stage text is held in harness memory; future stage assets are snapshotted and
+// removed from the agent-visible workspace. TASK.md may remain visible for stage 1.
 for (const stage of stages.slice(1)) {
   fs.rmSync(path.join(taskDir, stage.name), { force: true });
+}
+
+function revealStageAssets(stageNumber) {
+  const assets = stageAssets.get(stageNumber) ?? [];
+  for (const asset of assets) {
+    const target = path.resolve(taskDir, asset.relative_path);
+    if (!(target === taskDir || target.startsWith(taskDir + path.sep))) {
+      throw new Error('Invalid staged asset path: ' + asset.relative_path);
+    }
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, Buffer.from(asset.content_base64, 'base64'));
+    fs.chmodSync(target, asset.mode);
+  }
+  return assets.map((x) => x.relative_path);
 }
 
 const instructions = [
@@ -128,9 +178,14 @@ function runShell(command) {
 }
 
 async function runStage(stage, index) {
+  const stageNumber = index + 1;
+  const revealedAssets = stageNumber > 1 ? revealStageAssets(stageNumber) : [];
+  const assetNotice = revealedAssets.length
+    ? `\n\nNew repository evidence/files have appeared for this stage. Inspect the workspace before deciding what to change.`
+    : '';
   const stagePrompt = index === 0
     ? stage.text
-    : `A new stage is now revealed. Do not discard prior requirements unless this stage explicitly changes them.\n\n${stage.text}`;
+    : `A new stage is now revealed. Do not discard prior requirements unless this stage explicitly changes them.${assetNotice}\n\n${stage.text}`;
 
   input.push({ role: 'user', content: [{ type: 'input_text', text: stagePrompt }] });
   let finalText = '';
@@ -175,7 +230,8 @@ async function runStage(stage, index) {
   const stageResponses = responses - responseStart;
   stageResults.push({
     stage: stage.name,
-    index: index + 1,
+    index: stageNumber,
+    revealed_assets: revealedAssets,
     duration_seconds: Math.round((Date.now() - stageStart) / 1000),
     responses: stageResponses,
     max_turns: maxTurnsPerStage,
