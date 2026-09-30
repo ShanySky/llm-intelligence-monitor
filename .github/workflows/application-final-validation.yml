@@ -14,13 +14,30 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  eval:
+  prepare:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-app-final]')
+    runs-on: ubuntu-latest
+    outputs:
+      tasks: ${{ steps.matrix.outputs.tasks }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - id: matrix
+        shell: bash
+        run: |
+          tasks="$(node -e "const x=require('./benchmarks/application-final-suite.json');process.stdout.write(JSON.stringify(x.families.map(f=>f.id)))")"
+          echo "tasks=$tasks" >> "$GITHUB_OUTPUT"
+
+  eval:
+    needs: prepare
+    if: needs.prepare.result == 'success'
     strategy:
       fail-fast: false
       max-parallel: 4
       matrix:
-        task: [hard-plan, hard-webhook, frontier-review-deep, hard-incident, micro-export]
+        task: ${{ fromJSON(needs.prepare.outputs.tasks) }}
         config:
           - key: gpt-6-astra-xhigh
             model: gpt-6-astra
@@ -55,7 +72,6 @@ jobs:
           node-version: "24"
 
       - uses: actions/setup-java@v4
-        if: matrix.task == 'hard-webhook' || matrix.task == 'micro-export'
         with:
           distribution: temurin
           java-version: "17"
@@ -144,8 +160,8 @@ jobs:
           retention-days: 30
 
   aggregate:
-    needs: eval
-    if: always() && needs.eval.result != 'skipped'
+    needs: [prepare, eval]
+    if: always() && needs.prepare.result == 'success' && needs.eval.result != 'skipped'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
