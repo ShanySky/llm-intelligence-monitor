@@ -237,7 +237,8 @@ jobs:
           function walk(p){for(const e of fs.readdirSync(p,{withFileTypes:true})){const f=path.join(p,e.name);if(e.isDirectory())walk(f);else if(e.name==='result.json')rows.push(JSON.parse(fs.readFileSync(f,'utf8')))}}
           walk('results/frontier-effort');
           rows.sort((a,b)=>a.effort.localeCompare(b.effort) || Number(a.trial??1)-Number(b.trial??1));
-          const out={generated_at:new Date().toISOString(),rows};
+          const target=require('./benchmarks/frontier-effort-target.json');
+          const out={generated_at:new Date().toISOString(),trial_mode:target.trial_mode??'repeats',rows};
           fs.writeFileSync('results/frontier-effort-summary.json',JSON.stringify(out,null,2)+'\n');
           let md='# Frontier Effort Calibration\n\n| Effort | Trial | Score | Runtime | Turns | Turn cap | Shell | Shell cap | Saturated | Outcome |\n|---|---:|---:|---:|---:|---:|---:|---:|---|---|\n';
           for(const r of rows) {

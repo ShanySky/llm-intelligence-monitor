@@ -8,6 +8,7 @@ const outMd = process.argv[5] ?? 'results/frontier-effort-analysis.md';
 const data = JSON.parse(fs.readFileSync(input, 'utf8'));
 const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
 const rows = Array.isArray(data.rows) ? data.rows : [];
+const trialMode = String(data.trial_mode ?? 'repeats');
 const eff = policy.efficiency ?? {};
 const quality = policy.quality ?? {};
 
@@ -117,9 +118,12 @@ if (medium && xhigh) {
     ? paired.filter(p=>p.efficiency_signal).length/paired.length : 0;
 
   const enoughRepeats = commonTrials.length >= minTrials;
-  const stable =
-    medium.score_stddev <= maxStd &&
-    xhigh.score_stddev <= maxStd;
+  const stable = trialMode === 'variants'
+    ? true
+    : (
+      medium.score_stddev <= maxStd &&
+      xhigh.score_stddev <= maxStd
+    );
   const saturated = medium.saturated || xhigh.saturated;
   const complete = medium.data_complete && xhigh.data_complete;
 
@@ -224,6 +228,7 @@ const output = {
   task: rows[0]?.task ?? null,
   model: rows[0]?.model ?? null,
   trial_count: Math.max(...Object.values(byEffort).map(x=>x.trials),0),
+  trial_mode: trialMode,
   by_effort: byEffort,
   effort_spread_points: effortSpread,
   medium_to_xhigh: comparison,
@@ -235,6 +240,8 @@ fs.writeFileSync(outJson, JSON.stringify(output, null, 2) + '\n');
 const f1 = (v) => v == null ? '-' : Number(v).toFixed(1);
 const lines = [
   '# Frontier Effort Analysis',
+  '',
+  `Trial mode: ${trialMode}`,
   '',
   '| Effort | Trials | Quality mean | Quality stddev | Runtime avg | Shell avg | Probes avg | Probe attempts avg | Total tokens avg | Reasoning avg | Saturated |',
   '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|',
