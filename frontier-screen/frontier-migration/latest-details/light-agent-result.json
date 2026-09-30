@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-migration",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 100,
+  "responses": 7,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 7,
+  "shell_budget": 30,
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 25602,
+    "output_tokens": 2699,
+    "reasoning_tokens": 1323,
+    "cached_input_tokens": 14336
+  },
+  "final_text": "Implemented rolling-status compatibility by mirroring v1 and v2 writes into both representations, resolving reads from the newest version, and guarding backfill updates against stale snapshots. v2 also falls back to legacy-only rows.\n\nValidation: `./run_visible_tests.sh` passed."
+}
