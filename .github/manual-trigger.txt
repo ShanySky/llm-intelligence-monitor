@@ -32,3 +32,4 @@ Frontier effort calibration: frontier-config Sol Medium vs X High.
 Frontier identity rollout Luna screen.
 Frontier identity rollout Luna rescreen with legacy contracts.
 Frontier config rerun with time-first 20/20 budget.
+Frontier single-flight cache Luna screen.
