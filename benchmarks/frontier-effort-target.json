@@ -1,5 +1,5 @@
 {
-  "task": "frontier-compat-review-family",
+  "task": "frontier-review-precision-family",
   "model": "gpt-6-luna",
   "efforts": ["high"],
   "trials": 3,
