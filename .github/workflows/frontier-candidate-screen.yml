@@ -85,19 +85,32 @@ jobs:
           score=json.loads((root/"score.json").read_text())
           runner_path=root/"light-agent-result.json"
           runner=json.loads(runner_path.read_text()) if runner_path.exists() else {}
+          turn_limit=bool(runner.get("max_turns")) and runner.get("responses",0) >= runner.get("max_turns")
+          shell_limit=bool(runner.get("shell_budget")) and runner.get("shell_commands",0) >= runner.get("shell_budget")
+          saturated=turn_limit or shell_limit
+          quality=float(score["score"])
+          if saturated and quality < 95:
+              classification="budget-confounded-needs-repeat"
+          elif quality >= 95:
+              classification="coverage-only-ceiling"
+          elif quality <= 20:
+              classification="too-hard-or-invalid"
+          else:
+              classification="promising-candidate"
           result={
             "task":"${{ steps.target.outputs.task }}",
             "model":"${{ steps.target.outputs.model }}",
             "effort":"${{ steps.target.outputs.effort }}",
             "score":score["score"],
+            "classification":classification,
             "checks":score["checks"],
             "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
             "responses":runner.get("responses",0),
             "max_turns":runner.get("max_turns"),
             "shell_commands":runner.get("shell_commands",0),
             "shell_budget":runner.get("shell_budget"),
-            "turn_limit_reached":bool(runner.get("max_turns")) and runner.get("responses",0) >= runner.get("max_turns"),
-            "shell_budget_reached":bool(runner.get("shell_budget")) and runner.get("shell_commands",0) >= runner.get("shell_budget"),
+            "turn_limit_reached":turn_limit,
+            "shell_budget_reached":shell_limit,
             "finished_with_message":bool(runner.get("final_text")),
             "usage":runner.get("usage",{}),
             "api_retries":runner.get("api_retries",0),
