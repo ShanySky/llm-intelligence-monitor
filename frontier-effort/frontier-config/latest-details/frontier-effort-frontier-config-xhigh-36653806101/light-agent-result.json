@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-config-xhigh",
+  "model": "gpt-6-sol",
+  "effort": "xhigh",
+  "duration_seconds": 425,
+  "responses": 40,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 40,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 269453,
+    "output_tokens": 7758,
+    "reasoning_tokens": 2376,
+    "cached_input_tokens": 232960
+  },
+  "final_text": ""
+}

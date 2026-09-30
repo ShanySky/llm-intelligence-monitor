@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-config-medium",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "duration_seconds": 335,
+  "responses": 33,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 32,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 191293,
+    "output_tokens": 5622,
+    "reasoning_tokens": 838,
+    "cached_input_tokens": 167552
+  },
+  "final_text": "Added configuration format versioning with `1.0` as the default for files that omit `version`. The loader accepts `APP_VERSION` overrides and rejects unsupported effective versions with `IllegalArgumentException`. Updated the schema source, regenerated the checked-in schema, and updated both example configs. Existing public signatures remain unchanged.\n\nValidation passed: `./run_visible_tests.sh` and `./check_generated.sh`."
+}

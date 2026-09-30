@@ -1,0 +1,63 @@
+{
+  "task": "frontier-config",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "score": 100,
+  "checks": {
+    "compiles": {
+      "points": 5,
+      "passed": true
+    },
+    "visible_regression": {
+      "points": 5,
+      "passed": true
+    },
+    "legacy_defaults_to_v1": {
+      "points": 15,
+      "passed": true
+    },
+    "explicit_v1_supported": {
+      "points": 10,
+      "passed": true
+    },
+    "unsupported_version_rejected": {
+      "points": 20,
+      "passed": true
+    },
+    "environment_override_semantics": {
+      "points": 15,
+      "passed": true
+    },
+    "existing_config_regression": {
+      "points": 10,
+      "passed": true
+    },
+    "schema_source_and_generated_contract": {
+      "points": 15,
+      "passed": true
+    },
+    "checked_in_examples_versioned": {
+      "points": 10,
+      "passed": true
+    }
+  },
+  "duration_seconds": 335,
+  "responses": 33,
+  "max_turns": 40,
+  "shell_commands": 32,
+  "shell_budget": 40,
+  "turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "finished_with_message": true,
+  "usage": {
+    "input_tokens": 191293,
+    "output_tokens": 5622,
+    "reasoning_tokens": 838,
+    "cached_input_tokens": 167552
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}
