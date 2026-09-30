@@ -1,0 +1,7 @@
+{
+  "findings": [
+    {"file":"PairCoordinator.java","symbol":"detach","failure_class":"lock_order"},
+    {"file":"LegacyRenewalPath.java","symbol":"heartbeat","failure_class":"stale_lease_fencing"}
+  ],
+  "verdict":"REQUEST_CHANGES"
+}

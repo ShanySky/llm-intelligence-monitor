@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-high-t2",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 70,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 7,
+  "shell_budget": 16,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 24,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 9704,
+    "output_tokens": 1418,
+    "reasoning_tokens": 832,
+    "cached_input_tokens": 1536
+  },
+  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with two blocking findings: inconsistent lock ordering in `PairCoordinator.detach` and missing epoch fencing in `LegacyRenewalPath.heartbeat`.\n\nValidation: `python -m json.tool FINDINGS.json` passed."
+}

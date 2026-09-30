@@ -1,0 +1,51 @@
+{
+  "task": "frontier-review-precision-family",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "trial": 1,
+  "score": 100,
+  "checks": {
+    "valid_findings_json": {
+      "points": 5,
+      "passed": true
+    },
+    "finding_ConfirmationService.java_business_identity_scope": {
+      "points": 40,
+      "passed": true
+    },
+    "finding_RefundService.java_external_effect_recovery": {
+      "points": 50,
+      "passed": true
+    },
+    "requests_changes": {
+      "points": 5,
+      "passed": true
+    }
+  },
+  "duration_seconds": 57,
+  "responses": 6,
+  "max_turns": 24,
+  "shell_commands": 5,
+  "shell_budget": 16,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "finished_with_message": true,
+  "usage": {
+    "input_tokens": 9697,
+    "output_tokens": 828,
+    "reasoning_tokens": 256,
+    "cached_input_tokens": 3072
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}

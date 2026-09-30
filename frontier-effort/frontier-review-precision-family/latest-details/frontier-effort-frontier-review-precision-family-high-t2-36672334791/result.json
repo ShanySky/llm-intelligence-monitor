@@ -1,0 +1,55 @@
+{
+  "task": "frontier-review-precision-family",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "trial": 2,
+  "score": 70,
+  "checks": {
+    "valid_findings_json": {
+      "points": 5,
+      "passed": true
+    },
+    "finding_LegacyRenewalPath.java_stale_lease_fencing": {
+      "points": 35,
+      "passed": true
+    },
+    "finding_CallbackDispatcher.java_retry_idempotency": {
+      "points": 30,
+      "passed": false
+    },
+    "finding_PairCoordinator.java_lock_order": {
+      "points": 25,
+      "passed": true
+    },
+    "requests_changes": {
+      "points": 5,
+      "passed": true
+    }
+  },
+  "duration_seconds": 70,
+  "responses": 5,
+  "max_turns": 24,
+  "shell_commands": 7,
+  "shell_budget": 16,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "finished_with_message": true,
+  "usage": {
+    "input_tokens": 9704,
+    "output_tokens": 1418,
+    "reasoning_tokens": 832,
+    "cached_input_tokens": 1536
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}
