@@ -191,13 +191,22 @@ jobs:
           fs.writeFileSync('results/frontier-effort-summary.md',md);
           console.log(md);
           NODE
+          node scripts/analyze-effort-efficiency.mjs \
+            results/frontier-effort-summary.json \
+            benchmarks/application-selection-policy.json \
+            results/frontier-effort-analysis.json \
+            results/frontier-effort-analysis.md
           cat results/frontier-effort-summary.md >> "$GITHUB_STEP_SUMMARY"
+          printf "\n\n" >> "$GITHUB_STEP_SUMMARY"
+          cat results/frontier-effort-analysis.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
           name: frontier-effort-summary-${{ github.run_id }}
           path: |
             results/frontier-effort-summary.json
             results/frontier-effort-summary.md
+            results/frontier-effort-analysis.json
+            results/frontier-effort-analysis.md
           retention-days: 30
 
 
@@ -206,6 +215,8 @@ jobs:
         run: |
           cp results/frontier-effort-summary.json /tmp/frontier-effort-summary.json
           cp results/frontier-effort-summary.md /tmp/frontier-effort-summary.md
+          cp results/frontier-effort-analysis.json /tmp/frontier-effort-analysis.json
+          cp results/frontier-effort-analysis.md /tmp/frontier-effort-analysis.md
           rm -rf /tmp/frontier-effort-details
           cp -R results/frontier-effort /tmp/frontier-effort-details
           TASK="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(x.task)")"
@@ -225,8 +236,12 @@ jobs:
           cp /tmp/frontier-effort-summary.md latest.md
           cp /tmp/frontier-effort-summary.json "frontier-effort/$TASK/latest.json"
           cp /tmp/frontier-effort-summary.md "frontier-effort/$TASK/latest.md"
+          cp /tmp/frontier-effort-analysis.json "frontier-effort/$TASK/analysis-latest.json"
+          cp /tmp/frontier-effort-analysis.md "frontier-effort/$TASK/analysis-latest.md"
           cp /tmp/frontier-effort-summary.json "frontier-effort/$TASK/runs/${GITHUB_RUN_ID}.json"
           cp /tmp/frontier-effort-summary.md "frontier-effort/$TASK/runs/${GITHUB_RUN_ID}.md"
+          cp /tmp/frontier-effort-analysis.json "frontier-effort/$TASK/runs/${GITHUB_RUN_ID}-analysis.json"
+          cp /tmp/frontier-effort-analysis.md "frontier-effort/$TASK/runs/${GITHUB_RUN_ID}-analysis.md"
           git add latest.json latest.md frontier-effort
           if ! git diff --cached --quiet; then
             git commit -m "Record frontier effort calibration $TASK ${GITHUB_RUN_ID}"
