@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-incident-cascade",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 92,
+  "responses": 8,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 11,
+  "shell_budget": 12,
+  "max_turns": 12,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 9818,
+    "output_tokens": 1463,
+    "reasoning_tokens": 801,
+    "cached_input_tokens": 0
+  },
+  "final_text": "Repaired api-b: it was on config revision 17 with `payment_mode` missing, causing the pinned checkout 500s. After replacing it, status reported 200/200 successful responses.\n\nI could not complete the required verification: `./ctl verify` returned `ACTION_BUDGET_EXCEEDED` (exit 3). The queue output also did not establish fulfillment recovery, so I made no consumer changes without actionable evidence.\n\nI wrote `REPORT.txt` with the evidence, repair, and verification limitation."
+}
