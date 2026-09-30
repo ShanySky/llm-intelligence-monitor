@@ -1,0 +1,119 @@
+{
+  "generated_at": "2026-09-30T01:04:18.517Z",
+  "rows": [
+    {
+      "task": "frontier-config",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "score": 0,
+      "checks": {
+        "compiles": {
+          "points": 5,
+          "passed": false
+        },
+        "visible_regression": {
+          "points": 5,
+          "passed": false
+        },
+        "legacy_defaults_to_v1": {
+          "points": 15,
+          "passed": false
+        },
+        "explicit_v1_supported": {
+          "points": 10,
+          "passed": false
+        },
+        "unsupported_version_rejected": {
+          "points": 20,
+          "passed": false
+        },
+        "environment_override_semantics": {
+          "points": 15,
+          "passed": false
+        },
+        "existing_config_regression": {
+          "points": 10,
+          "passed": false
+        },
+        "schema_source_and_generated_contract": {
+          "points": 15,
+          "passed": false
+        },
+        "checked_in_examples_versioned": {
+          "points": 10,
+          "passed": false
+        }
+      },
+      "duration_seconds": 168,
+      "shell_commands": 20,
+      "usage": {
+        "input_tokens": 81398,
+        "output_tokens": 2782,
+        "reasoning_tokens": 474,
+        "cached_input_tokens": 61568
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-config",
+      "model": "gpt-6-sol",
+      "effort": "xhigh",
+      "score": 100,
+      "checks": {
+        "compiles": {
+          "points": 5,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 5,
+          "passed": true
+        },
+        "legacy_defaults_to_v1": {
+          "points": 15,
+          "passed": true
+        },
+        "explicit_v1_supported": {
+          "points": 10,
+          "passed": true
+        },
+        "unsupported_version_rejected": {
+          "points": 20,
+          "passed": true
+        },
+        "environment_override_semantics": {
+          "points": 15,
+          "passed": true
+        },
+        "existing_config_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "schema_source_and_generated_contract": {
+          "points": 15,
+          "passed": true
+        },
+        "checked_in_examples_versioned": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 211,
+      "shell_commands": 20,
+      "usage": {
+        "input_tokens": 102144,
+        "output_tokens": 4438,
+        "reasoning_tokens": 1249,
+        "cached_input_tokens": 77952
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    }
+  ]
+}
