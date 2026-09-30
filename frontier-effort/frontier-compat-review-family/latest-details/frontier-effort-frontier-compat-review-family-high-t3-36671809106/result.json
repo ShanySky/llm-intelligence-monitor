@@ -1,0 +1,55 @@
+{
+  "task": "frontier-compat-review-family",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "trial": 3,
+  "score": 100,
+  "checks": {
+    "valid_findings_json": {
+      "points": 5,
+      "passed": true
+    },
+    "finding_EventProducer.java_event_contract_compatibility": {
+      "points": 30,
+      "passed": true
+    },
+    "finding_FulfillmentConsumer.java_business_dedupe_scope": {
+      "points": 30,
+      "passed": true
+    },
+    "finding_ReplayCompactor.java_replay_compatibility": {
+      "points": 30,
+      "passed": true
+    },
+    "requests_changes": {
+      "points": 5,
+      "passed": true
+    }
+  },
+  "duration_seconds": 37,
+  "responses": 5,
+  "max_turns": 24,
+  "shell_commands": 8,
+  "shell_budget": 16,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "turn_limit_reached": false,
+  "shell_budget_reached": false,
+  "finished_with_message": true,
+  "usage": {
+    "input_tokens": 8098,
+    "output_tokens": 888,
+    "reasoning_tokens": 189,
+    "cached_input_tokens": 1536
+  },
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "agent_exit_code": 0,
+  "outcome": "completed",
+  "data_complete": true
+}

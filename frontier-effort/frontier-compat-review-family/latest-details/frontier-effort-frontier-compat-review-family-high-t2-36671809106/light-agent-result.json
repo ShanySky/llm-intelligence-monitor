@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-compat-review-family-high-t2",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 41,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 6,
+  "shell_budget": 16,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 24,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 8804,
+    "output_tokens": 1035,
+    "reasoning_tokens": 357,
+    "cached_input_tokens": 4096
+  },
+  "final_text": "Created `REVIEW.md` with four blocking findings and `FINDINGS.json` with the matching taxonomy entries.\n\nValidation: `python3 -m json.tool FINDINGS.json` and checked that `REVIEW.md` contains exactly one verdict line."
+}

@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-09-30T05:06:41.402Z",
+  "task": "frontier-compat-review-family",
+  "model": "gpt-6-luna",
+  "trial_count": 3,
+  "trial_mode": "variants",
+  "by_effort": {
+    "high": {
+      "effort": "high",
+      "trials": 3,
+      "expected_trials": 3,
+      "score": 100,
+      "score_stddev": 0,
+      "duration_seconds": 42.666666666666664,
+      "shell_commands": 6.333333333333333,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "total_tokens": 9955.333333333334,
+      "reasoning_tokens": 310.3333333333333,
+      "saturated": false,
+      "data_complete": true
+    }
+  },
+  "effort_spread_points": 0,
+  "medium_to_xhigh": null,
+  "effort_sensitivity": null,
+  "nonmonotonic": null
+}

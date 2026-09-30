@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-compat-review-family-high-t3",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 37,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 8,
+  "shell_budget": 16,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "max_turns": 24,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 8098,
+    "output_tokens": 888,
+    "reasoning_tokens": 189,
+    "cached_input_tokens": 1536
+  },
+  "final_text": "Created `REVIEW.md` with three blocking findings and `FINDINGS.json` with matching taxonomy entries. Validated the JSON with `python -m json.tool FINDINGS.json` and confirmed the review ends with `VERDICT: REQUEST_CHANGES`."
+}

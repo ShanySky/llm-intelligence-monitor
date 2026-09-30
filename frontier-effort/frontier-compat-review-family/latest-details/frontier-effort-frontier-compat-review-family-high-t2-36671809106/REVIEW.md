@@ -1,0 +1,6 @@
+- **LegacyVerifier.java — `verify` (`legacy_verification_scope`):** For a token without a `kid`, the fallback accepts a signature if any retained overlap key verifies it, without checking that key's issuer. A valid token can therefore be accepted using another issuer's key during the grace window. Filter retained overlap keys to `token.issuer()` before attempting verification.
+- **SessionService.java — `refresh` (`identity_preservation`):** Refresh creates a fresh UUID for the replacement session instead of preserving the existing session's `session_key`. This breaks the logical session's revocation and audit identity after refresh. Carry the old session's session key into the replacement.
+- **VerifierCache.java — `resolve` (`cache_identity_scope`):** Cache entries are indexed only by `kid`, so a lookup for one issuer can return the key cached for another issuer that reuses that kid. Include issuer in the cache identity.
+- **VerifierCache.java — `resolve` (`cache_generation_staleness`):** `registryRevision` is ignored, so a cache hit can continue returning key material from an earlier registry generation after emergency replacement under the same issuer and kid. Include the registry generation in cache validity (or invalidate entries when the revision changes).
+
+VERDICT: REQUEST_CHANGES

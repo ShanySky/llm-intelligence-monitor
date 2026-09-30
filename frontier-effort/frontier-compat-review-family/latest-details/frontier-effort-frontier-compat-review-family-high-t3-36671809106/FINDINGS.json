@@ -1,0 +1,8 @@
+{
+  "findings": [
+    {"file":"EventProducer.java","symbol":"paid","failure_class":"event_contract_compatibility"},
+    {"file":"FulfillmentConsumer.java","symbol":"on","failure_class":"business_dedupe_scope"},
+    {"file":"ReplayCompactor.java","symbol":"compact","failure_class":"replay_compatibility"}
+  ],
+  "verdict":"REQUEST_CHANGES"
+}

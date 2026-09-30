@@ -1,0 +1,8 @@
+{
+  "findings": [
+    {"file":"LegacyCustomerService.java","symbol":"rename","failure_class":"identity_preservation"},
+    {"file":"CustomerCache.java","symbol":"invalidateLegacy","failure_class":"cache_alias_invalidation"},
+    {"file":"BackfillJob.java","symbol":"apply","failure_class":"migration_race"}
+  ],
+  "verdict":"REQUEST_CHANGES"
+}
