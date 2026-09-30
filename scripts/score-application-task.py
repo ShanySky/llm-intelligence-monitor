@@ -2463,10 +2463,23 @@ elif task == "frontier-review-family":
             if file and failure:
                 reported.add((file,failure))
 
+    # Normalize semantically equivalent labels so taxonomy wording does not
+    # create fake score gaps. Cache eviction before commit is both a transaction
+    # visibility bug and a stale-cache failure mode.
+    alias_pairs={
+        ("PriceService.java","cache_staleness"):("PriceService.java","transaction_visibility"),
+        ("ProfileService.java","cache_staleness"):("ProfileService.java","transaction_visibility"),
+    }
+    alias_reported=set()
+    for alias,canonical in alias_pairs.items():
+        if alias in reported:
+            reported.add(canonical)
+            alias_reported.add(alias)
+
     for (file,failure),points in expected.items():
         add(f"finding_{file}_{failure}",points,(file,failure) in reported)
 
-    extras=sorted(reported-set(expected))
+    extras=sorted(reported-set(expected)-alias_reported)
     if extras:
         penalty=min(15,5*len(extras))
         score-=penalty
