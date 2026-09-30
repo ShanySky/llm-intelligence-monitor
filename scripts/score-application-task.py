@@ -1427,6 +1427,64 @@ public final class FrontierPaginationHiddenTest {
     add("complete_duplicate_free_traversal",15,"TRAVERSE_PASS" in hidden_out)
     add("invalid_cursor_rejected",5,"INVALID_PASS" in hidden_out)
 
+
+elif task == "frontier-review-deep":
+    review=text("REVIEW.md").lower()
+
+    optimistic=(
+        ("optimistic" in review or "updateifversion" in review or "version" in review)
+        and ("return" in review or "boolean" in review or "false" in review or "result" in review)
+        and ("ignore" in review or "check" in review or "conflict" in review or "failed" in review)
+    )
+    add("optimistic_write_result_must_gate_followup",15,optimistic)
+
+    cache_boundary=(
+        "cache" in review
+        and ("commit" in review or "transaction" in review)
+        and ("stale" in review or "repopulate" in review or "old committed" in review or "after commit" in review)
+    )
+    add("cache_invalidation_transaction_boundary",15,cache_boundary)
+
+    audit_payload=(
+        "audit" in review
+        and ("re-read" in review or "reread" in review or "current" in review or "snapshot" in review or "mutable" in review)
+        and "price" in review
+        and "version" in review
+    )
+    add("audit_payload_must_snapshot_accepted_version",10,audit_payload)
+
+    audit_idem=(
+        "audit" in review
+        and ("uuid" in review or "random" in review)
+        and ("idempot" in review or "dedup" in review or "stable" in review or "retry" in review)
+    )
+    add("audit_delivery_needs_stable_business_key",10,audit_idem)
+
+    fulfillment_identity=(
+        "order" in review and "event" in review
+        and ("fulfillment" in review or "inventory" in review or "reservation" in review)
+        and ("idempot" in review or "dedup" in review or "key" in review)
+        and ("version" in review or "different event" in review or "same logical" in review or "per order" in review)
+    )
+    add("fulfillment_identity_is_order_version_not_event_id",20,fulfillment_identity)
+
+    crash_recovery=(
+        ("inventory" in review or "reservation" in review or "external" in review)
+        and ("crash" in review or "failure" in review)
+        and ("retry" in review or "reconcile" in review or "idempot" in review or "stable key" in review or "outbox" in review)
+        and ("transaction" in review or "commit" in review or "local" in review)
+    )
+    add("external_side_effect_crash_recovery",15,crash_recovery)
+
+    lock_order=(
+        "lock" in review
+        and ("deadlock" in review or "lock order" in review or "ordering" in review)
+        and ("ascending" in review or "canonical" in review or "consistent" in review or "same order" in review)
+    )
+    add("canonical_pair_lock_order",10,lock_order)
+
+    add("requests_changes",5,"verdict: request_changes" in review)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
