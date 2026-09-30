@@ -36,3 +36,4 @@ Frontier single-flight cache Luna screen.
 Frontier identity rollout persisted screen rerun.
 Frontier resumable workflow Luna screen.
 Frontier identity rollout fixed-latest rerun.
+Identity rollout dedicated persisted screen.
