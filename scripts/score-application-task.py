@@ -1464,7 +1464,12 @@ elif task == "frontier-review-deep":
     for (file,failure),points in expected.items():
         add(f"finding_{file}_{failure}",points,(file,failure) in reported)
 
-    extras=sorted(reported-set(expected))
+    # Plausible additional blocking domains may be reported without earning
+    # hidden-checklist credit. They must not be mislabeled as false positives.
+    allowed_optional={
+        ("WebhookService.java","lost_update"),
+    }
+    extras=sorted(reported-set(expected)-allowed_optional)
     if extras:
         penalty=min(15,5*len(extras))
         score-=penalty
