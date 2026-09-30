@@ -37,11 +37,15 @@ jobs:
           effort="$(node -e "const x=require('./benchmarks/frontier-screen-target.json');process.stdout.write(x.effort)")"
           max_turns="$(node -e "const x=require('./benchmarks/frontier-screen-target.json');process.stdout.write(String(x.max_turns ?? 12))")"
           shell_budget="$(node -e "const x=require('./benchmarks/frontier-screen-target.json');process.stdout.write(String(x.shell_budget ?? 12))")"
+          validation_script="$(node -e "const x=require('./benchmarks/frontier-screen-target.json');process.stdout.write(String(x.validation_script ?? ''))")"
+          validation_budget="$(node -e "const x=require('./benchmarks/frontier-screen-target.json');process.stdout.write(String(x.validation_budget ?? 8))")"
           echo "task=$task" >> "$GITHUB_OUTPUT"
           echo "model=$model" >> "$GITHUB_OUTPUT"
           echo "effort=$effort" >> "$GITHUB_OUTPUT"
           echo "max_turns=$max_turns" >> "$GITHUB_OUTPUT"
           echo "shell_budget=$shell_budget" >> "$GITHUB_OUTPUT"
+          echo "validation_script=$validation_script" >> "$GITHUB_OUTPUT"
+          echo "validation_budget=$validation_budget" >> "$GITHUB_OUTPUT"
 
       - name: Prepare
         shell: bash
@@ -64,6 +68,10 @@ jobs:
           AGENT_SHELL_BUDGET: ${{ steps.target.outputs.shell_budget }}
         shell: bash
         run: |
+          if [ -n "${{ steps.target.outputs.validation_script }}" ]; then
+            export AGENT_VALIDATION_COMMAND="python '$GITHUB_WORKSPACE/${{ steps.target.outputs.validation_script }}' '$TASK_DIR'"
+            export AGENT_VALIDATION_BUDGET="${{ steps.target.outputs.validation_budget }}"
+          fi
           start="$(date +%s)"
           set +e
           timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ steps.target.outputs.model }}"             "${{ steps.target.outputs.effort }}"             "$TASK_DIR/light-agent-result.json"
@@ -110,6 +118,9 @@ jobs:
             "max_turns":runner.get("max_turns"),
             "shell_commands":runner.get("shell_commands",0),
             "shell_budget":runner.get("shell_budget"),
+            "validation_calls":runner.get("validation_calls",0),
+            "validation_budget":runner.get("validation_budget",0),
+            "validation_enabled":runner.get("validation_enabled",False),
             "turn_limit_reached":turn_limit,
             "shell_budget_reached":shell_limit,
             "finished_with_message":bool(runner.get("final_text")),
