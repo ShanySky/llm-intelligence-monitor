@@ -554,9 +554,22 @@
         ],
         "initial_shell_budget": 20,
         "budget_confounded_variant": 3,
-        "next_epoch": "gpt-6.1-sol-medium-high-xhigh with shell/turn budget 36"
+        "next_epoch": "gpt-6.1-sol-medium-high-xhigh with shell/turn budget 36",
+        "luna_high_variant_scores": [
+          10,
+          84,
+          0
+        ],
+        "reference_selfcheck_scores": [
+          100,
+          100,
+          100
+        ],
+        "reference_selfcheck_ok": true,
+        "max_luna_duration_seconds": 411,
+        "trial_mode": "variants"
       },
-      "note": "Real-repo replay produced strong non-ceiling difficulty. Variant 3 exceeded the initial Luna shell budget, so the resident Sol calibration uses nonbinding 36/36 turn+shell budgets before any effort conclusion."
+      "note": "Real historical parent-commit replay produced strong non-ceiling Luna separation with valid 100/100/100 reference self-checks. GPT-6.1 Sol M/H/XH cross-instance calibration is running."
     },
     {
       "id": "frontier-runtime-repair-family",
