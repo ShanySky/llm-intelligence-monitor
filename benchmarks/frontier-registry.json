@@ -435,6 +435,22 @@
         }
       },
       "note": "Historical effort signal was entirely caused by whitespace-sensitive exact-string scoring. All 15 repeat outputs were semantically correct after whitespace normalization."
+    },
+    {
+      "id": "AG21",
+      "family": "tool_use_planning_prompt_probe",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "semantic_order_equivalent_repeat5": {
+          "medium": 100,
+          "high": 100,
+          "xhigh": 100
+        },
+        "trials_per_effort": 5,
+        "effort_signal": "none"
+      },
+      "note": "Initial Medium 67% vs X High 100% was not stable. After allowing causally equivalent A2/A3 experiment order, all 15 repeated outputs passed."
     }
   ]
 }
