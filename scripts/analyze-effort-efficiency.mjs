@@ -167,6 +167,38 @@ if (medium && xhigh) {
 const effortStats = [medium,high,xhigh].filter(Boolean);
 const scores = effortStats.map(x=>x.score).filter(Number.isFinite);
 const effortSpread = scores.length ? Math.max(...scores)-Math.min(...scores) : null;
+let effortSensitivity = null;
+if (effortStats.length >= 2 && effortSpread != null) {
+  const repeated = Math.min(...effortStats.map(x=>x.trials)) >= minTrials;
+  const stable = Math.max(...effortStats.map(x=>x.score_stddev)) <= maxStd;
+  const saturated = effortStats.some(x=>x.saturated);
+  const complete = effortStats.every(x=>x.data_complete);
+  const threshold = Number(quality.min_effort_spread_points ?? 10);
+  if (effortSpread >= threshold) {
+    const sorted=[...effortStats].sort((a,b)=>b.score-a.score);
+    const ordered=['medium','high','xhigh']
+      .map(k=>byEffort[k])
+      .filter(Boolean)
+      .map(x=>x.score);
+    const increasing=ordered.length>=2 && ordered.every((v,i)=>i===0 || v>=ordered[i-1]);
+    const decreasing=ordered.length>=2 && ordered.every((v,i)=>i===0 || v<=ordered[i-1]);
+    effortSensitivity={
+      spread_points:effortSpread,
+      best_effort:sorted[0]?.effort ?? null,
+      worst_effort:sorted[sorted.length-1]?.effort ?? null,
+      shape:increasing?'nondecreasing':(decreasing?'nonincreasing':'nonmonotonic'),
+      repeated,
+      stable,
+      saturated,
+      data_complete:complete,
+      classification:
+        complete && !saturated && repeated && stable
+          ? 'effort-sensitivity-confirmed'
+          : 'effort-sensitivity-candidate',
+    };
+  }
+}
+
 let nonMonotonic = null;
 if (medium && high && xhigh) {
   const highDip = Math.min(medium.score,xhigh.score)-high.score;
@@ -195,6 +227,7 @@ const output = {
   by_effort: byEffort,
   effort_spread_points: effortSpread,
   medium_to_xhigh: comparison,
+  effort_sensitivity: effortSensitivity,
   nonmonotonic: nonMonotonic,
 };
 fs.writeFileSync(outJson, JSON.stringify(output, null, 2) + '\n');
@@ -224,6 +257,12 @@ if (comparison) {
     `paired trials: ${comparison.common_trials}.`,
   );
 }
+if (effortSensitivity) {
+  lines.push(
+    '',
+    `**Effort sensitivity:** \`${effortSensitivity.classification}\` (spread ${f1(effortSensitivity.spread_points)} points; best=${effortSensitivity.best_effort}; worst=${effortSensitivity.worst_effort}; shape=${effortSensitivity.shape}).`,
+  );
+}
 if (nonMonotonic) {
   lines.push(
     '',
@@ -232,7 +271,7 @@ if (nonMonotonic) {
 }
 lines.push(
   '',
-  '> Quality, efficiency, and non-monotonic anomalies are separate signals. Confirmed labels require repeated non-confounded trials; one-shot differences remain candidates.',
+  '> Directional quality improvement, generic effort sensitivity, efficiency, and non-monotonic anomalies are separate signals. Effort sensitivity means the chosen effort level reliably changes quality; it does not imply that higher effort is better. Formal effort-discriminator promotion still requires repeated positive Medium→X High quality gain.',
 );
 fs.writeFileSync(outMd, lines.join('\n') + '\n');
 console.log(lines.join('\n'));
