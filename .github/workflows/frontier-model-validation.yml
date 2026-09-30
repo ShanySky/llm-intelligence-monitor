@@ -22,6 +22,7 @@ jobs:
       task: ${{ steps.matrix.outputs.task }}
       max_turns: ${{ steps.matrix.outputs.max_turns }}
       shell_budget: ${{ steps.matrix.outputs.shell_budget }}
+      probe_budget: ${{ steps.matrix.outputs.probe_budget }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -40,6 +41,7 @@ jobs:
           console.log('task='+x.task);
           console.log('max_turns='+String(x.max_turns??40));
           console.log('shell_budget='+String(x.shell_budget??40));
+          console.log('probe_budget='+String(x.probe_budget??12));
           NODE
 
   eval:
@@ -96,16 +98,10 @@ jobs:
             export AGENT_VALIDATION_COMMAND="python '$VALIDATOR' '$TASK_DIR'"
             export AGENT_VALIDATION_BUDGET="8"
           fi
-          TASK="${{ needs.prepare.outputs.task }}"
-          VALIDATOR=""
-          if [ -f "$GITHUB_WORKSPACE/benchmarks/$TASK/blackbox_validate.py" ]; then
-            VALIDATOR="$GITHUB_WORKSPACE/benchmarks/$TASK/blackbox_validate.py"
-          elif [ -f "$GITHUB_WORKSPACE/scripts/validators/$TASK.py" ]; then
-            VALIDATOR="$GITHUB_WORKSPACE/scripts/validators/$TASK.py"
-          fi
-          if [ -n "$VALIDATOR" ]; then
-            export AGENT_VALIDATION_COMMAND="python '$VALIDATOR' '$TASK_DIR'"
-            export AGENT_VALIDATION_BUDGET="8"
+          PROBE="$GITHUB_WORKSPACE/scripts/probes/$TASK.py"
+          if [ -f "$PROBE" ]; then
+            export AGENT_PROBE_SCRIPT="$PROBE"
+            export AGENT_PROBE_BUDGET="${{ needs.prepare.outputs.probe_budget }}"
           fi
           start="$(date +%s)"
           set +e
@@ -152,6 +148,10 @@ jobs:
             "validation_calls":runner.get("validation_calls",0),
             "validation_budget":runner.get("validation_budget",0),
             "validation_enabled":runner.get("validation_enabled",False),
+            "probe_calls":runner.get("probe_calls",0),
+            "probe_attempts":runner.get("probe_attempts",0),
+            "probe_budget":runner.get("probe_budget",0),
+            "probe_enabled":runner.get("probe_enabled",False),
             "usage":runner.get("usage",{}),
             "api_retries":runner.get("api_retries",0),
             "infrastructure_error":infra,
