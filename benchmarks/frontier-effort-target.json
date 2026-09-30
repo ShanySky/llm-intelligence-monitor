@@ -1,5 +1,5 @@
 {
-  "task": "frontier-deep-fix-v3",
+  "task": "frontier-review-precision-family",
   "model": "gpt-6.1-sol",
   "efforts": [
     "medium",
@@ -7,8 +7,8 @@
     "xhigh"
   ],
   "trials": 3,
-  "trial_mode": "repeats",
-  "max_turns": 36,
-  "shell_budget": 36,
+  "trial_mode": "variants",
+  "max_turns": 28,
+  "shell_budget": 18,
   "probe_budget": 0
 }
