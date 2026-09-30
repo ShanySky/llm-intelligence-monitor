@@ -34,3 +34,4 @@ Frontier identity rollout Luna rescreen with legacy contracts.
 Frontier config rerun with time-first 20/20 budget.
 Frontier single-flight cache Luna screen.
 Frontier identity rollout persisted screen rerun.
+Frontier resumable workflow Luna screen.
