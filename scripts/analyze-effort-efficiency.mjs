@@ -33,6 +33,8 @@ function stats(effort) {
     score_stddev: stdev(valid.map(r=>Number(r.score ?? 0))),
     duration_seconds: mean(valid.map(r=>Number(r.duration_seconds ?? 0))),
     shell_commands: mean(valid.map(r=>Number(r.shell_commands ?? 0))),
+    probe_calls: mean(valid.map(r=>Number(r.probe_calls ?? 0))),
+    probe_attempts: mean(valid.map(r=>Number(r.probe_attempts ?? r.probe_calls ?? 0))),
     total_tokens: mean(valid.map(totalTokens)),
     reasoning_tokens: mean(valid.map(r=>Number(r?.usage?.reasoning_tokens ?? 0))),
     saturated: valid.some(r=>Boolean(r.turn_limit_reached || r.shell_budget_reached)),
@@ -89,6 +91,7 @@ if (medium && xhigh) {
     const pairImprovements = {
       duration_seconds: pctImprovement(Number(m.duration_seconds??0),Number(x.duration_seconds??0)),
       shell_commands: pctImprovement(Number(m.shell_commands??0),Number(x.shell_commands??0)),
+      probe_calls: pctImprovement(Number(m.probe_calls??0),Number(x.probe_calls??0)),
       total_tokens: pctImprovement(totalTokens(m),totalTokens(x)),
     };
     const pairImprovedMetrics = Object.entries(pairImprovements)
@@ -200,13 +203,13 @@ const f1 = (v) => v == null ? '-' : Number(v).toFixed(1);
 const lines = [
   '# Frontier Effort Analysis',
   '',
-  '| Effort | Trials | Quality mean | Quality stddev | Runtime avg | Shell avg | Total tokens avg | Reasoning avg | Saturated |',
-  '|---|---:|---:|---:|---:|---:|---:|---:|---|',
+  '| Effort | Trials | Quality mean | Quality stddev | Runtime avg | Shell avg | Probes avg | Probe attempts avg | Total tokens avg | Reasoning avg | Saturated |',
+  '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|',
 ];
 for (const key of ['medium','high','xhigh']) {
   const r = byEffort[key];
   if (!r) continue;
-  lines.push(`| ${key} | ${r.trials} | ${f1(r.score)} | ${f1(r.score_stddev)} | ${Math.round(r.duration_seconds??0)}s | ${f1(r.shell_commands)} | ${Math.round(r.total_tokens??0)} | ${Math.round(r.reasoning_tokens??0)} | ${r.saturated ? 'yes' : 'no'} |`);
+  lines.push(`| ${key} | ${r.trials} | ${f1(r.score)} | ${f1(r.score_stddev)} | ${Math.round(r.duration_seconds??0)}s | ${f1(r.shell_commands)} | ${f1(r.probe_calls)} | ${f1(r.probe_attempts)} | ${Math.round(r.total_tokens??0)} | ${Math.round(r.reasoning_tokens??0)} | ${r.saturated ? 'yes' : 'no'} |`);
 }
 if (comparison) {
   lines.push(
@@ -216,6 +219,7 @@ if (comparison) {
     `Quality gain: ${f1(comparison.medium_to_xhigh_quality_gain_points)} points; ` +
     `runtime improvement: ${f1(comparison.improvements_percent.duration_seconds)}%; ` +
     `shell improvement: ${f1(comparison.improvements_percent.shell_commands)}%; ` +
+    `probe improvement: ${f1(comparison.improvements_percent.probe_calls)}%; ` +
     `token improvement: ${f1(comparison.improvements_percent.total_tokens)}%; ` +
     `paired trials: ${comparison.common_trials}.`,
   );
