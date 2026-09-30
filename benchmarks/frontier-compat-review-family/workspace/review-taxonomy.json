@@ -1,0 +1,16 @@
+{
+  "failure_classes": [
+    "identity_preservation",
+    "cache_alias_invalidation",
+    "migration_race",
+    "cache_identity_scope",
+    "cache_generation_staleness",
+    "legacy_verification_scope",
+    "rollback_compatibility",
+    "event_contract_compatibility",
+    "business_dedupe_scope",
+    "replay_compatibility",
+    "lost_update",
+    "retry_idempotency"
+  ]
+}
