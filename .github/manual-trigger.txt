@@ -56,3 +56,4 @@ Frontier filter parser Luna rescreen.
 Frontier lease fencing Luna screen.
 Three-level external Terminal-Bench calibration.
 Hidden-dependency webhook Luna screen.
+Batch-screen retained frontier candidates with Luna High.
