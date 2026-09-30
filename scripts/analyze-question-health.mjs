@@ -10,6 +10,7 @@ const configPath = process.argv[7] ?? 'monitor-config.json';
 
 const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+const current = JSON.parse(fs.readFileSync(currentPath, 'utf8'));
 const anchorPoolList = config?.daily?.anchorPool ?? [];
 const anchorPool = new Set(anchorPoolList);
 const activeAnchorCount = Number(config?.daily?.anchorCount ?? 0);
@@ -23,7 +24,6 @@ const selectedAdaptiveAnchors = current?.selection?.adaptiveAnchors ??
 const activeAnchors = new Set(selectedAnchors);
 const coreAnchors = new Set(selectedCoreAnchors);
 const adaptiveAnchors = new Set(selectedAdaptiveAnchors);
-const current = JSON.parse(fs.readFileSync(currentPath, 'utf8'));
 const minDays = 3;
 
 const docs = [];
