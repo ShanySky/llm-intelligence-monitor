@@ -65,3 +65,4 @@ Repeat frontier review for efficiency confirmation.
 Rolling migration Luna screen under current funnel.
 Deep cross-file review Luna screen.
 Fixed hard external debugging verifier.
+Frontier key rotation Luna screen.
