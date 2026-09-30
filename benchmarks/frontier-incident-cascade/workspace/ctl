@@ -19,7 +19,7 @@ EOF
 
 if [[ "$cmd" != "help" ]]; then
   count="$(wc -l < .actions | tr -d ' ')"
-  if (( count >= 16 )); then
+  if (( count >= 30 )); then
     echo "ACTION_BUDGET_EXCEEDED: no more recorded actions are allowed" >&2
     exit 3
   fi
