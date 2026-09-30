@@ -29,13 +29,19 @@
           "xhigh": 95
         },
         "effort_signal": "none"
-      }
+      },
+      "note": "Promoted into the final application suite as the Code Review core task."
     },
     {
       "id": "frontier-plan-runtime",
       "family": "solution_design_runtime_validated",
-      "status": "screening",
-      "promoted_to_final": false
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100,
+        "validation_calls": 2
+      },
+      "note": "Executable rollout ordering with opaque validation still saturated on Luna High."
     },
     {
       "id": "staged-identity-evolution",
@@ -52,8 +58,10 @@
       "status": "coverage-only-ceiling",
       "promoted_to_final": false,
       "evidence": {
-        "luna_high_opaque_screen": 100
-      }
+        "luna_high_opaque_screen": 100,
+        "validation_calls": 2
+      },
+      "note": "Re-screened after harness-only opaque-validator hardening."
     },
     {
       "id": "frontier-build-cache",
@@ -226,6 +234,12 @@
       "evidence": {
         "luna_high": 100
       }
+    },
+    {
+      "id": "frontier-deep-fix",
+      "family": "coding_debug_cross_file_reliability",
+      "status": "screening",
+      "promoted_to_final": false
     }
   ]
 }
