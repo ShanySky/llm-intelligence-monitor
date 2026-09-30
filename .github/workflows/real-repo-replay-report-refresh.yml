@@ -1,0 +1,51 @@
+name: Refresh real repo replay analysis
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[refresh-replay-report]')
+    concurrency:
+      group: real-repo-replay-results-publish
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Load persisted replay summary
+        shell: bash
+        run: |
+          git fetch origin real-repo-replay-results
+          git show origin/real-repo-replay-results:replay/latest.json > replay-summary.json
+
+      - name: Reanalyze with current policy
+        shell: bash
+        run: |
+          node scripts/analyze-effort-efficiency.mjs             replay-summary.json             benchmarks/application-selection-policy.json             replay-analysis.json             replay-analysis.md
+          cat replay-analysis.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish refreshed replay analysis
+        shell: bash
+        run: |
+          cp replay-analysis.json /tmp/replay-analysis.json
+          cp replay-analysis.md /tmp/replay-analysis.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C real-repo-replay-results origin/real-repo-replay-results
+          cp /tmp/replay-analysis.json replay/analysis-latest.json
+          cp /tmp/replay-analysis.md replay/analysis-latest.md
+          git add replay/analysis-latest.json replay/analysis-latest.md
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh real-repo replay analysis"
+            git push origin HEAD:real-repo-replay-results
+          fi
