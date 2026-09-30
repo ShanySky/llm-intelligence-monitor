@@ -20,6 +20,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-effort]')
     runs-on: ubuntu-latest
     outputs:
+      eligible: ${{ steps.eligibility.outputs.eligible }}
       efforts: ${{ steps.matrix.outputs.efforts }}
       trials: ${{ steps.matrix.outputs.trials }}
     steps:
@@ -27,27 +28,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-      - name: Validate frontier funnel eligibility
+      - name: Check frontier funnel eligibility
+        id: eligibility
         shell: bash
         run: |
-          node - <<'NODE'
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
           const fs=require('fs');
           const target=require('./benchmarks/frontier-effort-target.json');
           let registry={tasks:[]};
           try { registry=JSON.parse(fs.readFileSync('./benchmarks/frontier-registry.json','utf8')); } catch {}
           const item=(registry.tasks||[]).find(x=>x.id===target.task);
           const blocked=new Set(['coverage-only-ceiling','invalid-or-superseded','retired']);
-          if (item && blocked.has(item.status) && target.force !== true) {
-            console.error(
-              'Refusing expensive effort calibration for '+target.task+
-              ' because registry status is '+item.status+
-              '. Set "force": true in frontier-effort-target.json only for an intentional revalidation.'
-            );
-            process.exit(2);
+          const eligible=!(item && blocked.has(item.status) && target.force !== true);
+          console.log('eligible='+String(eligible));
+          if (!eligible) {
+            console.error('Skipping expensive effort calibration for '+target.task+' because registry status is '+item.status+'.');
+          } else {
+            console.error('Frontier funnel eligibility OK for '+target.task+(item?' ('+item.status+')':' (unregistered candidate)'));
           }
-          console.log('Frontier funnel eligibility OK for '+target.task+(item?' ('+item.status+')':' (unregistered candidate)'));
           NODE
       - name: Load effort matrix
+        if: steps.eligibility.outputs.eligible == 'true'
         id: matrix
         shell: bash
         run: |
@@ -58,7 +59,7 @@ jobs:
 
   eval:
     needs: prepare
-    if: needs.prepare.result == 'success'
+    if: needs.prepare.result == 'success' && needs.prepare.outputs.eligible == 'true'
     strategy:
       fail-fast: false
       max-parallel: 3
