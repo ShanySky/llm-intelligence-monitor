@@ -1,9 +1,9 @@
 {
-  "task": "frontier-runtime-diagnosis-v2",
+  "task": "frontier-fullstack-autosave",
   "model": "gpt-6-luna",
   "effort": "high",
-  "max_turns": 28,
-  "shell_budget": 16,
-  "validation_budget": 4,
-  "probe_budget": 20
+  "max_turns": 30,
+  "shell_budget": 24,
+  "validation_budget": 5,
+  "probe_budget": 12
 }
