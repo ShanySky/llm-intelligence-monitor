@@ -132,6 +132,8 @@ jobs:
 
   aggregate:
     needs: eval
+    permissions:
+      contents: write
     if: always() && needs.eval.result != 'skipped'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -168,3 +170,30 @@ jobs:
             results/frontier-effort-summary.json
             results/frontier-effort-summary.md
           retention-days: 30
+
+
+      - name: Publish latest frontier effort result
+        shell: bash
+        run: |
+          cp results/frontier-effort-summary.json /tmp/frontier-effort-summary.json
+          cp results/frontier-effort-summary.md /tmp/frontier-effort-summary.md
+          TASK="$(node -e "const x=require('./benchmarks/frontier-effort-target.json');process.stdout.write(x.task)")"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin frontier-effort-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/frontier-effort-results; then
+            git switch -C frontier-effort-results origin/frontier-effort-results
+          else
+            git switch --orphan frontier-effort-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p "frontier-effort/$TASK/runs"
+          cp /tmp/frontier-effort-summary.json "frontier-effort/$TASK/latest.json"
+          cp /tmp/frontier-effort-summary.md "frontier-effort/$TASK/latest.md"
+          cp /tmp/frontier-effort-summary.json "frontier-effort/$TASK/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/frontier-effort-summary.md "frontier-effort/$TASK/runs/${GITHUB_RUN_ID}.md"
+          git add frontier-effort
+          if ! git diff --cached --quiet; then
+            git commit -m "Record frontier effort calibration $TASK ${GITHUB_RUN_ID}"
+            git push origin HEAD:frontier-effort-results
+          fi
