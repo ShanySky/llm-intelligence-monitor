@@ -1,0 +1,286 @@
+{
+  "rows": [
+    {
+      "task": "frontier-migration",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 100,
+      "classification": "coverage-only-ceiling",
+      "checks": {
+        "compiles": {
+          "points": 5,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 5,
+          "passed": true
+        },
+        "legacy_fallback_read": {
+          "points": 15,
+          "passed": true
+        },
+        "v2_write_rollback_compatible": {
+          "points": 20,
+          "passed": true
+        },
+        "newer_v1_write_visible_to_v2": {
+          "points": 20,
+          "passed": true
+        },
+        "online_backfill_current_legacy": {
+          "points": 15,
+          "passed": true
+        },
+        "stale_backfill_cannot_clobber_live_update": {
+          "points": 25,
+          "passed": true
+        }
+      },
+      "duration_seconds": 71,
+      "responses": 7,
+      "max_turns": 30,
+      "shell_commands": 6,
+      "shell_budget": 30,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 18800,
+        "output_tokens": 1817,
+        "reasoning_tokens": 826,
+        "cached_input_tokens": 4096
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0
+    },
+    {
+      "task": "frontier-plan",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 100,
+      "classification": "coverage-only-ceiling",
+      "checks": {
+        "online_additive_schema": {
+          "points": 10,
+          "passed": true
+        },
+        "stable_persisted_identity": {
+          "points": 10,
+          "passed": true
+        },
+        "mixed_version_db_compatibility": {
+          "points": 15,
+          "passed": true
+        },
+        "resumable_verified_backfill": {
+          "points": 10,
+          "passed": true
+        },
+        "rest_and_jwt_compatibility": {
+          "points": 10,
+          "passed": true
+        },
+        "kafka_consumer_first_compatibility": {
+          "points": 15,
+          "passed": true
+        },
+        "cache_and_invalidation_compatibility": {
+          "points": 15,
+          "passed": true
+        },
+        "rollback_gate": {
+          "points": 10,
+          "passed": true
+        },
+        "delayed_cleanup": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 109,
+      "responses": 5,
+      "max_turns": 30,
+      "shell_commands": 4,
+      "shell_budget": 30,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 20350,
+        "output_tokens": 3809,
+        "reasoning_tokens": 1493,
+        "cached_input_tokens": 5632
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0
+    },
+    {
+      "task": "frontier-review",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 100,
+      "classification": "coverage-only-ceiling",
+      "checks": {
+        "cache_transaction_boundary": {
+          "points": 15,
+          "passed": true
+        },
+        "audit_delivery_boundary": {
+          "points": 15,
+          "passed": true
+        },
+        "audit_payload_and_idempotency": {
+          "points": 15,
+          "passed": true
+        },
+        "order_scoped_exactly_once": {
+          "points": 25,
+          "passed": true
+        },
+        "external_side_effect_recovery": {
+          "points": 20,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 61,
+      "responses": 4,
+      "max_turns": 30,
+      "shell_commands": 3,
+      "shell_budget": 30,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 7364,
+        "output_tokens": 2092,
+        "reasoning_tokens": 1544,
+        "cached_input_tokens": 1536
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0
+    },
+    {
+      "task": "frontier-scheduler",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 100,
+      "classification": "coverage-only-ceiling",
+      "checks": {
+        "compiles": {
+          "points": 10,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 10,
+          "passed": true
+        },
+        "global_optimality_critical_path": {
+          "points": 25,
+          "passed": true
+        },
+        "precedence_global_optimality": {
+          "points": 20,
+          "passed": true
+        },
+        "exclusive_gpu_resource": {
+          "points": 15,
+          "passed": true
+        },
+        "deterministic_tie_break": {
+          "points": 10,
+          "passed": true
+        },
+        "input_validation_and_cycle": {
+          "points": 10,
+          "passed": true
+        }
+      },
+      "duration_seconds": 101,
+      "responses": 5,
+      "max_turns": 30,
+      "shell_commands": 4,
+      "shell_budget": 30,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 14861,
+        "output_tokens": 4074,
+        "reasoning_tokens": 1803,
+        "cached_input_tokens": 6144
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0
+    },
+    {
+      "task": "frontier-webhook",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 100,
+      "classification": "coverage-only-ceiling",
+      "checks": {
+        "compiles": {
+          "points": 5,
+          "passed": true
+        },
+        "visible_regression": {
+          "points": 5,
+          "passed": true
+        },
+        "same_event_duplicate": {
+          "points": 10,
+          "passed": true
+        },
+        "different_event_same_order": {
+          "points": 15,
+          "passed": true
+        },
+        "post_reserve_crash_retry": {
+          "points": 20,
+          "passed": true
+        },
+        "concurrent_same_order": {
+          "points": 20,
+          "passed": true
+        },
+        "newer_cancel_releases": {
+          "points": 10,
+          "passed": true
+        },
+        "stale_paid_ignored": {
+          "points": 10,
+          "passed": true
+        },
+        "newer_paid_reactivates": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 122,
+      "responses": 5,
+      "max_turns": 30,
+      "shell_commands": 5,
+      "shell_budget": 30,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 14504,
+        "output_tokens": 2065,
+        "reasoning_tokens": 940,
+        "cached_input_tokens": 3584
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0
+    }
+  ]
+}
