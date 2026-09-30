@@ -2133,6 +2133,116 @@ elif task == "frontier-dynamic-diagnosis-v2":
     add("causal_evidence_a",10,bool(evidence[0]))
     add("causal_evidence_b",10,bool(evidence[1]))
 
+
+elif task == "staged-autosave-evolution":
+    hidden = r'''const { saveOrder } = require("./frontend/orderEditor");
+const { OfflineQueue } = require("./frontend/offlineQueue");
+const { MemoryQueueStorage } = require("./frontend/memoryQueueStorage");
+const { AuditSink } = require("./backend/auditSink");
+const { OrderService } = require("./backend/orderService");
+const { ApiError } = require("./backend/errors");
+
+function check(x,m){ if(!x) throw new Error(m||"check"); }
+async function run(name,fn){
+  try{ await fn(); console.log(name+"_PASS"); }
+  catch(e){ console.log(name+"_FAIL:"+(e&&e.message)); }
+}
+
+async function timeout(){
+  const audit=new AuditSink(); let once=true;
+  const service=new OrderService(audit,{afterCommit(){if(once){once=false;throw new ApiError("TIMEOUT","lost");}}});
+  service.seed("t","draft",1);
+  const api={patch:async r=>service.patch(r),get:async id=>service.get(id)};
+  const state={id:"t",value:"draft",version:1};
+  const out=await saveOrder(api,state,{value:"ready"});
+  check(out.version===2 && service.get("t").version===2 && audit.count()===1);
+}
+
+async function conflict(){
+  const audit=new AuditSink(); const service=new OrderService(audit);
+  service.seed("c","base",1);
+  service.patch({id:"c",expectedVersion:1,operationId:"remote",value:"remote"});
+  const api={patch:async r=>service.patch(r),get:async id=>service.get(id)};
+  const state={id:"c",value:"local-draft",version:1};
+  let ok=false;
+  try{ await saveOrder(api,state,{value:"local"}); }catch(e){ ok=e&&e.code==="CONFLICT"; }
+  check(ok,"conflict");
+  const row=service.get("c");
+  check(row.version===2 && row.value==="remote","overwrite");
+  console.log("STATE_"+(state.version===1 && state.value==="local-draft"?"PASS":"FAIL"));
+}
+
+async function backendRetry(){
+  const audit=new AuditSink(); let once=true;
+  const service=new OrderService(audit,{afterCommit(){if(once){once=false;throw new ApiError("TIMEOUT","lost");}}});
+  service.seed("b","base",1);
+  const req={id:"b",expectedVersion:1,operationId:"stable",value:"saved"};
+  try{service.patch(req);}catch(e){}
+  const out=service.patch(req);
+  check(out.order.version===2 && service.get("b").version===2 && audit.count()===1);
+}
+
+async function offlineRestart(){
+  const audit=new AuditSink(); let crash=true;
+  const service=new OrderService(audit,{afterCommit(){if(crash){crash=false;throw new ApiError("PROCESS_CRASH","died");}}});
+  service.seed("q","draft",1);
+  const api={patch:async r=>service.patch(r),get:async id=>service.get(id)};
+  const storage=new MemoryQueueStorage();
+  const q1=new OfflineQueue(storage);
+  q1.enqueue({id:"q",value:"draft",version:1},{value:"ready"});
+  try{await q1.flush(api);}catch(e){}
+  check(storage.items.length===1,"lost queued item");
+  const q2=new OfflineQueue(storage);
+  await q2.flush(api);
+  check(storage.items.length===0,"not drained");
+  check(service.get("q").version===2 && service.get("q").value==="ready" && audit.count()===1,"not converged");
+}
+
+async function queuedDistinct(){
+  const audit=new AuditSink(); const service=new OrderService(audit);
+  service.seed("d","v1",1);
+  const api={patch:async r=>service.patch(r),get:async id=>service.get(id)};
+  const storage=new MemoryQueueStorage();
+  const q=new OfflineQueue(storage);
+  q.enqueue({id:"d",value:"v1",version:1},{value:"v2"});
+  q.enqueue({id:"d",value:"v2",version:2},{value:"v3"});
+  await q.flush(api);
+  check(service.get("d").version===3 && service.get("d").value==="v3" && audit.count()===2);
+}
+
+(async()=>{
+  await run("TIMEOUT",timeout);
+  await run("CONFLICT",conflict);
+  await run("BACKEND",backendRetry);
+  await run("OFFLINE",offlineRestart);
+  await run("DISTINCT",queuedDistinct);
+})().catch(e=>{console.error(e);process.exit(2);});
+'''
+    syntax_files=[
+        root/"frontend/orderEditor.js",
+        root/"frontend/offlineQueue.js",
+        root/"frontend/memoryQueueStorage.js",
+        root/"backend/orderService.js",
+    ]
+    syntax=all(
+        p.exists() and subprocess.run(["node","--check",str(p)],cwd=root,capture_output=True,text=True).returncode==0
+        for p in syntax_files
+    )
+    add("syntax_valid",5,syntax)
+    visible=False; hidden_out=""
+    if syntax:
+        vr=subprocess.run(["node","visible-test.js"],cwd=root,capture_output=True,text=True,timeout=20)
+        visible=vr.returncode==0
+        hr=subprocess.run(["node","-e",hidden],cwd=root,capture_output=True,text=True,timeout=30)
+        hidden_out=(hr.stdout or "")+(hr.stderr or "")
+    add("visible_regression",5,visible)
+    add("stage1_timeout_retry_converges",20,"TIMEOUT_PASS" in hidden_out)
+    add("stage2_conflict_not_overwritten",15,"CONFLICT_PASS" in hidden_out)
+    add("stage2_local_state_preserved_on_conflict",10,"STATE_PASS" in hidden_out)
+    add("stage1_backend_same_operation_recovery",15,"BACKEND_PASS" in hidden_out)
+    add("stage3_offline_queue_identity_survives_restart",20,"OFFLINE_PASS" in hidden_out)
+    add("stage3_separate_queued_edits_remain_distinct",10,"DISTINCT_PASS" in hidden_out)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
