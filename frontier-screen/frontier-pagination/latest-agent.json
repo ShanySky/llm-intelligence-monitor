@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-pagination",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 69,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 7,
+  "shell_budget": 30,
+  "max_turns": 30,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 20730,
+    "output_tokens": 2010,
+    "reasoning_tokens": 1005,
+    "cached_input_tokens": 6144
+  },
+  "final_text": "Repaired feed pagination by adding a stable `(createdAt, id)` ordering and keyset cursor, preserving the snapshot across resumed pages, and filtering out rows inserted after that snapshot. The cursor codec now supports the new format and resumes legacy `v1` links using their timestamp-only semantics.\n\nValidation passed: `./run_visible_tests.sh` and `java -cp out PaginationProbe`."
+}
