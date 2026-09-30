@@ -1,5 +1,5 @@
 {
-  "task": "frontier-incident-cascade",
+  "task": "frontier-review",
   "model": "gpt-6-sol",
   "efforts": ["medium", "high", "xhigh"],
   "max_turns": 40,
