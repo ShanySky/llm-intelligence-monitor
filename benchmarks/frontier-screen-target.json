@@ -1,5 +1,7 @@
 {
-  "task": "frontier-outbox-recovery",
+  "task": "frontier-incident-cascade",
   "model": "gpt-6-luna",
-  "effort": "high"
+  "effort": "high",
+  "max_turns": 20,
+  "shell_budget": 20
 }
