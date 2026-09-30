@@ -285,15 +285,19 @@
     {
       "id": "frontier-runtime-diagnosis-v2",
       "family": "agent_runtime_investigation_hypothesis_driven",
-      "status": "effort-calibration",
+      "status": "model-discrimination-candidate",
       "promoted_to_final": false,
       "evidence": {
         "luna_high_score": 90,
-        "duration_seconds": 80,
-        "probe_calls": 17,
-        "missed_check": "isolated_retry_failure_on_healthy_pod"
+        "sol_effort_repeat_means": {
+          "medium": 100,
+          "high": 95,
+          "xhigh": 100
+        },
+        "effort_signal": "none",
+        "missed_luna_check": "isolated_retry_failure_on_healthy_pod"
       },
-      "note": "Natural-language opaque probes removed the help catalog. Luna found the final causal repair but skipped the key healthy-pod timeout isolation experiment; Sol M/H/XH repeat calibration is running."
+      "note": "No stable Sol effort quality/efficiency gain. Promoted to repeated cross-model validation because Luna missed a causal isolation check while Sol generally completed it."
     }
   ]
 }
