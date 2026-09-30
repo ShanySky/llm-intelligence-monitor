@@ -152,3 +152,24 @@ Sol Medium / High / X High effort 校准。
 - 仅靠较低 shell / turn budget 截断长工具轨迹。
 
 这些题仍可保留为覆盖面或回归题，但不应占用 reasoning-effort 区分题的核心权重。
+
+## Core Signal 与证据型 Agent 评分
+
+应用套件明确区分三类角色：
+
+- **core**：重复验证后确认有稳定信息量，可影响 Core Signal；
+- **candidate**：正在验证中的潜在区分题；
+- **coverage**：真实应用相关但前沿模型已容易封顶，仅用于防回归与能力覆盖。
+
+正式晋级不接受单次分差。跨模型题要求重复横向验证；reasoning-effort 题要求重复 Medium / High / X High 校准并满足方向一致性。Final Suite 的单次结果只用于观察当前状态，晋级证据以 frontier registry 中的重复验证记录为准。
+
+Agent 调查 Harness 增加 opaque `probe`：
+
+- probe 源码和路径不暴露给模型；
+- 模型必须主动提出诊断问题或控制实验；
+- Harness 记录实际 query、返回 observation 和调用次数；
+- scorer 可以要求模型真正获得某项因果证据，而不是只检查 query 关键词；
+- probe 次数、耗时、Token 属于效率信号，不和质量分混淆。
+
+下一阶段 effort 区分题优先采用**反事实/干预型调查**：观测相关性不足以确定根因，模型必须设计保持其它变量不变的实验，才能拿到完整证据分。
+
