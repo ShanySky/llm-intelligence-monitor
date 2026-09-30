@@ -1223,6 +1223,65 @@ elif task == "frontier-lease-fencing":
     add("takeover_retry_reuses_business_idempotency_identity",15,"CRASH_TAKEOVER_PASS" in hidden_out)
     add("cancellation_wins_race_with_completion",15,"CANCEL_PASS" in hidden_out)
 
+
+elif task == "frontier-incident-chain":
+    state={}
+    for line in text(".state").splitlines():
+        if "=" in line:
+            k,v=line.split("=",1)
+            state[k.strip()]=v.strip()
+    actions=[x.strip() for x in text(".actions").splitlines() if x.strip()]
+    report=text("REPORT.txt").lower()
+
+    def pos(prefix, start=0):
+        for i,x in enumerate(actions[start:], start):
+            if x == prefix or x.startswith(prefix+" "):
+                return i
+        return None
+
+    config_fix=pos("replace-config")
+    first_verify=pos("verify", (config_fix+1) if config_fix is not None else 0)
+    consumer_fix=pos("replace-consumer", (first_verify+1) if first_verify is not None else 0)
+    second_verify=pos("verify", (consumer_fix+1) if consumer_fix is not None else 0)
+    invalidator_fix=pos("replace-invalidator", (second_verify+1) if second_verify is not None else 0)
+
+    config_evidence=False
+    if config_fix is not None:
+        before=actions[:config_fix]
+        config_evidence=("config api-b" in before or "logs api-b" in before) and "pods" in before
+
+    fulfillment_evidence=False
+    if first_verify is not None and consumer_fix is not None and consumer_fix > first_verify:
+        between=actions[first_verify+1:consumer_fix]
+        fulfillment_evidence=("queue" in between and "logs consumer-2" in between)
+
+    cache_evidence=False
+    if second_verify is not None and invalidator_fix is not None and invalidator_fix > second_verify:
+        between=actions[second_verify+1:invalidator_fix]
+        cache_evidence=("cache" in between and ("invalidators" in between or "logs invalidator-b" in between))
+
+    dangerous=any(
+        x=="restart-all" or x.startswith("scale ") or x=="reset-offset" or x=="flush-cache"
+        for x in actions
+    )
+
+    add("targeted_config_repair",15,state.get("config_bad")=="0")
+    add("verification_exposed_fulfillment_failure",10,state.get("fulfillment_seen")=="1")
+    add("targeted_consumer_repair",15,state.get("consumer_bad")=="0")
+    add("verification_exposed_cache_failure",10,state.get("cache_seen")=="1")
+    add("targeted_invalidator_repair",15,state.get("invalidator_bad")=="0")
+    add("config_evidence_before_mutation",5,config_evidence)
+    add("fulfillment_evidence_before_mutation",5,fulfillment_evidence)
+    add("cache_evidence_before_mutation",5,cache_evidence)
+    add("avoided_broad_or_destructive_actions",5,not dangerous)
+    add("final_end_to_end_verification",10,state.get("final_verified")=="1")
+    report_ok=(
+        ("config" in report and ("revision" in report or "payment_mode" in report))
+        and ("consumer" in report and ("duplicate" in report or "dedup" in report or "contract" in report))
+        and ("invalidator" in report and ("cache" in report or "stale" in report or "legacy" in report))
+    )
+    add("reported_all_failure_domains",5,report_ok)
+
 else:
     raise SystemExit(f"unknown task {task}")
 
