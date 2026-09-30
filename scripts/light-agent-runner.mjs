@@ -18,6 +18,8 @@ const task = fs.readFileSync(taskPath, 'utf8');
 const dockerContainer = String(process.env.AGENT_DOCKER_CONTAINER ?? '').trim();
 const dockerWorkdir = String(process.env.AGENT_DOCKER_WORKDIR ?? '/app').trim() || '/app';
 const containerMode = Boolean(dockerContainer);
+const validationCommand = String(process.env.AGENT_VALIDATION_COMMAND ?? '').trim();
+const validationBudget = Number(process.env.AGENT_VALIDATION_BUDGET ?? 8);
 
 const instructions = (
   containerMode
@@ -55,10 +57,26 @@ const tools = [{
   strict: true,
 }];
 
+if (validationCommand) {
+  tools.push({
+    type: 'function',
+    name: 'validate',
+    description: 'Run the benchmark-provided black-box validation against the current workspace. Use its failure output as evidence, fix the implementation, and rerun as needed.',
+    parameters: {
+      type: 'object',
+      properties: {},
+      additionalProperties: false,
+    },
+    strict: true,
+  });
+}
+
 const safeEnv = { ...process.env };
 for (const key of Object.keys(safeEnv)) {
   if (/KEY|SECRET|TOKEN|PASSWORD|AUTH/i.test(key)) delete safeEnv[key];
 }
+delete safeEnv.AGENT_VALIDATION_COMMAND;
+delete safeEnv.AGENT_VALIDATION_BUDGET;
 safeEnv.PATH = process.env.PATH ?? '/usr/local/bin:/usr/bin:/bin';
 safeEnv.HOME = taskDir;
 
@@ -70,6 +88,7 @@ const shellTimeoutMs = Number(process.env.AGENT_SHELL_TIMEOUT_MS ?? 30000);
 let input = [{ role: 'user', content: [{ type: 'input_text', text: task }] }];
 let totalUsage = { input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, cached_input_tokens: 0 };
 let commands = [];
+let validationCalls = 0;
 let finalText = '';
 let responses = 0;
 let apiRetries = 0;
@@ -154,6 +173,28 @@ function runShell(command) {
   return output.slice(0, 24000);
 }
 
+function runValidation() {
+  validationCalls += 1;
+  if (!validationCommand) return 'ERROR: black-box validation is not enabled for this task';
+  if (validationCalls > validationBudget) {
+    return `ERROR: validation action budget exceeded (${validationBudget})`;
+  }
+
+  const result = spawnSync('/bin/bash', ['-lc', validationCommand], {
+    cwd: taskDir,
+    env: safeEnv,
+    encoding: 'utf8',
+    timeout: shellTimeoutMs,
+    maxBuffer: 256 * 1024,
+  });
+  const output = [
+    result.stdout ? 'STDOUT:\n' + result.stdout : '',
+    result.stderr ? 'STDERR:\n' + result.stderr : '',
+    'EXIT_CODE=' + (result.status ?? 124),
+  ].filter(Boolean).join('\n');
+  return output.slice(0, 24000);
+}
+
 try {
   for (let turn = 0; turn < maxTurns; turn += 1) {
     const response = await callModel();
@@ -161,7 +202,9 @@ try {
     addUsage(response.usage);
   
     const outputs = Array.isArray(response.output) ? response.output : [];
-    const calls = outputs.filter((item) => item?.type === 'function_call' && item?.name === 'shell');
+    const calls = outputs.filter((item) =>
+      item?.type === 'function_call' && (item?.name === 'shell' || item?.name === 'validate')
+    );
     const messages = outputs.filter((item) => item?.type === 'message');
   
     input.push(...outputs);
@@ -171,7 +214,9 @@ try {
         let args;
         try { args = JSON.parse(call.arguments ?? '{}'); }
         catch { args = {}; }
-        const result = runShell(String(args.command ?? ''));
+        const result = call.name === 'validate'
+          ? runValidation()
+          : runShell(String(args.command ?? ''));
         input.push({ type: 'function_call_output', call_id: call.call_id, output: result });
       }
       continue;
@@ -199,6 +244,9 @@ const result = {
   infrastructure_error: infrastructureError,
   shell_commands: commands.length,
   shell_budget: shellBudget,
+  validation_calls: validationCalls,
+  validation_budget: validationCommand ? validationBudget : 0,
+  validation_enabled: Boolean(validationCommand),
   max_turns: maxTurns,
   container_mode: containerMode,
   docker_container: containerMode ? dockerContainer : null,
