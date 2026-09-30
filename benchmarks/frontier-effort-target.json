@@ -1,9 +1,9 @@
 {
-  "task": "frontier-runtime-diagnosis",
+  "task": "frontier-runtime-diagnosis-v2",
   "model": "gpt-6-sol",
   "efforts": ["medium", "high", "xhigh"],
   "trials": 2,
   "max_turns": 30,
-  "shell_budget": 20,
+  "shell_budget": 18,
   "probe_budget": 20
 }
