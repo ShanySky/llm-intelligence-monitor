@@ -10,8 +10,8 @@
       "effort": "xhigh"
     },
     {
-      "key": "gpt-6-sol-xhigh",
-      "model": "gpt-6-sol",
+      "key": "gpt-6-1-sol-xhigh",
+      "model": "gpt-6.1-sol",
       "effort": "xhigh"
     },
     {
