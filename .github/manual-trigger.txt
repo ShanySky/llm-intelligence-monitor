@@ -50,3 +50,4 @@ Frontier incident cascade Sol Medium High X High calibration.
 Staged incident screen after budget wiring fix.
 Incident cascade repeat after nonbinding action cap.
 Frontier cross-file review Luna rescreen.
+Frontier objective plan-review Luna rescreen.
