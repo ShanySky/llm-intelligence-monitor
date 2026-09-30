@@ -2,10 +2,6 @@ name: Agent micro coding benchmark
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-
 permissions:
   contents: read
 
