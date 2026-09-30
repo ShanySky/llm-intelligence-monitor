@@ -113,7 +113,9 @@ let totalUsage = { input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, cache
 let commands = [];
 let validationCalls = 0;
 let probeCalls = 0;
+let probeAttempts = 0;
 let probeQueries = [];
+let probeExecutedQueries = [];
 let finalText = '';
 let responses = 0;
 let apiRetries = 0;
@@ -298,9 +300,11 @@ const result = {
   validation_budget: validationCommand ? validationBudget : 0,
   validation_enabled: Boolean(validationCommand),
   probe_calls: probeCalls,
+  probe_attempts: probeAttempts,
   probe_budget: probeScript ? probeBudget : 0,
   probe_enabled: Boolean(probeScript),
   probe_queries: probeQueries,
+  probe_executed_queries: probeExecutedQueries,
   max_turns: maxTurns,
   container_mode: containerMode,
   docker_container: containerMode ? dockerContainer : null,
