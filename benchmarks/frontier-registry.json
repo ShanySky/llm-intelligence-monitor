@@ -454,20 +454,21 @@
     },
     {
       "id": "frontier-review-family",
-      "family": "code_review_multi_instance_reliability",
-      "status": "effort-calibration",
+      "family": "code_review_multi_instance",
+      "status": "coverage-only-no-effort-signal",
       "promoted_to_final": false,
       "evidence": {
-        "luna_high_variant_scores": [
-          70,
-          65,
-          100
-        ],
-        "luna_high_mean": 78.3,
-        "variants": 3,
-        "budget_saturated": false
+        "instances": 3,
+        "scoring": "semantic-normalized",
+        "recalculated_sol_means": {
+          "medium": 98.3,
+          "high": 95,
+          "xhigh": 98.3
+        },
+        "medium_to_xhigh_gain_points": 0,
+        "effort_signal": "none"
       },
-      "note": "Three distinct Code Review instances passed Luna-first funnel. Sol Medium/High/XHigh paired-variant calibration is running."
+      "note": "Three-instance family initially appeared to show a small X High gain, but two taxonomy labels were semantically equivalent and one lease recovery domain was double-counted. After normalization the directional effort signal disappears."
     }
   ]
 }
