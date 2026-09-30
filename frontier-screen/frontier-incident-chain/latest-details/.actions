@@ -1,0 +1,30 @@
+status 
+pods 
+queue 
+cache 
+logs api-b
+config api-b
+config api-a
+invalidators 
+verify 
+replace-config api-b
+status 
+verify 
+queue 
+logs consumer-1
+logs consumer-2
+pods 
+replace-consumer consumer-2
+queue 
+verify 
+cache 
+invalidators 
+logs invalidator-1
+logs api-a
+logs consumer-2
+logs invalidator-b
+logs invalidator-a
+replace-invalidator invalidator-b
+cache 
+verify 
+verify 

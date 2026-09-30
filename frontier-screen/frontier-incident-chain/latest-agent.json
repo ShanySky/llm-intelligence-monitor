@@ -1,0 +1,21 @@
+{
+  "task_dir": "/tmp/frontier-screen-frontier-incident-chain",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "duration_seconds": 87,
+  "responses": 11,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 25,
+  "shell_budget": 40,
+  "max_turns": 40,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 17679,
+    "output_tokens": 1275,
+    "reasoning_tokens": 118,
+    "cached_input_tokens": 6144
+  },
+  "final_text": "Recovered checkout and completed all three repairs: updated api-b’s config, upgraded consumer-2’s deduplication contract, and upgraded invalidator-b’s legacy-write compatibility.\n\n`./ctl verify` passes: checkout, exactly-once fulfillment, and read-after-write cache checks passed. Root causes, evidence, repairs, and the final result are documented in `REPORT.txt`."
+}

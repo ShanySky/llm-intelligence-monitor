@@ -1,0 +1,18 @@
+Checkout incident recovery report
+
+1. Checkout HTTP 500s on api-b
+   Root cause: api-b was running config revision 23 without the required payment_mode, while desired config revision 24 specifies payment_mode=tokenized.
+   Evidence: `./ctl status` showed 49/200 500 responses pinned to api-b; `./ctl config api-b` reported payment_mode=<missing> and desired=24; `./ctl logs api-b` reported the missing payment_mode.
+   Repair: ran `./ctl replace-config api-b`, replacing it with config revision 24. Checkout then returned 200/200.
+
+2. Duplicate fulfillment effects on consumer-2
+   Root cause: consumer-2 used contract 2, which deduplicates by delivery ID and can duplicate business fulfillment under retries. The required contract 3 enables order-key deduplication.
+   Evidence: after checkout HTTP recovered, `./ctl verify` reported duplicate fulfillment under retry; `./ctl queue` showed 9 duplicate business effects in 240 retries pinned to consumer-2; `./ctl logs consumer-2` identified contract=2 and the unsafe dedupe behavior, while consumer-1 ran contract=3.
+   Repair: ran `./ctl replace-consumer consumer-2`, upgrading it to rev=41 contract=3. Queue summary then showed 0 duplicate business effects.
+
+3. Stale customer reads after legacy writes
+   Root cause: invalidator-b was revision 11 with key-only compatibility, dropping legacy numeric invalidations during mixed writes. Revision 12 dual compatibility emits both numeric and key invalidations.
+   Evidence: after fulfillment recovery, `./ctl verify` reported stale customer reads; `./ctl cache` showed 13 stale read-after-write failures following legacy customer_id writes; `./ctl invalidators` showed invalidator-b at rev=11 compatibility=key-only versus invalidator-a at rev=12 compatibility=dual; `./ctl logs invalidator-b` confirmed it dropped legacy numeric invalidations.
+   Repair: ran `./ctl replace-invalidator invalidator-b`, upgrading it to rev=12 compatibility=dual. Cache summary then showed 0 stale read-after-write failures.
+
+Final verification: `./ctl verify` passed — checkout, exactly-once fulfillment, and read-after-write cache checks passed.
