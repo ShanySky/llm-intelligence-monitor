@@ -1,5 +1,5 @@
 {
-  "task": "frontier-singleflight-cache",
+  "task": "frontier-workflow-resume",
   "model": "gpt-6-luna",
   "effort": "high"
 }
