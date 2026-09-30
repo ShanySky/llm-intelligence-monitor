@@ -1,0 +1,172 @@
+{
+  "generated_at": "2026-09-30T08:31:29.657Z",
+  "trial_mode": "variants",
+  "rows": [
+    {
+      "task": "real-repo-replay-family",
+      "case_id": "repeat-evidence-promotion",
+      "trial": 1,
+      "base_sha": "c6fa4e719ec45f3847e2cb8c8625086a9c6e9cf1",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 10,
+      "behavior_score": 10,
+      "patch_quality_score": null,
+      "checks": {
+        "analyzer_runs": {
+          "points": 10,
+          "passed": true
+        },
+        "one_shot_not_formally_confirmed": {
+          "points": 30,
+          "passed": false
+        },
+        "registry_confirmation_preserved": {
+          "points": 30,
+          "passed": false
+        },
+        "repeated_current_evidence_can_confirm": {
+          "points": 20,
+          "passed": false
+        },
+        "confirmation_source_exposed": {
+          "points": 10,
+          "passed": false
+        }
+      },
+      "patch_metrics": {
+        "changed_files": 1,
+        "changed_lines": 38,
+        "added_files": 0,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "scripts/analyze-application-discrimination.mjs",
+            "kind": "modified",
+            "changed_lines": 38
+          }
+        ]
+      },
+      "unexpected_changed": [],
+      "duration_seconds": 187,
+      "shell_commands": 14,
+      "usage": {
+        "input_tokens": 106759,
+        "output_tokens": 2911,
+        "reasoning_tokens": 751,
+        "cached_input_tokens": 78848
+      },
+      "infrastructure_error": null,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "real-repo-replay-family",
+      "case_id": "variant-effort-counts",
+      "trial": 2,
+      "base_sha": "7568a6773901c30598388839c43e277ccdd87841",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 84,
+      "behavior_score": 80,
+      "patch_quality_score": 100,
+      "checks": {
+        "analyzer_runs": {
+          "points": 10,
+          "passed": true
+        },
+        "two_of_three_variants_confirm": {
+          "points": 50,
+          "passed": true
+        },
+        "explicit_positive_variant_count": {
+          "points": 20,
+          "passed": false
+        },
+        "repeat_mode_keeps_rate_semantics": {
+          "points": 20,
+          "passed": true
+        }
+      },
+      "patch_metrics": {
+        "changed_files": 1,
+        "changed_lines": 29,
+        "added_files": 0,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "scripts/analyze-effort-efficiency.mjs",
+            "kind": "modified",
+            "changed_lines": 29
+          }
+        ]
+      },
+      "unexpected_changed": [],
+      "duration_seconds": 214,
+      "shell_commands": 14,
+      "usage": {
+        "input_tokens": 175646,
+        "output_tokens": 5293,
+        "reasoning_tokens": 1452,
+        "cached_input_tokens": 148480
+      },
+      "infrastructure_error": null,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "real-repo-replay-family",
+      "case_id": "split-core-maturity",
+      "trial": 3,
+      "base_sha": "9f7134bf479284925cac6f38520cea3e6b4d0e82",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 0,
+      "behavior_score": 0,
+      "patch_quality_score": null,
+      "checks": {
+        "analyzer_runs": {
+          "points": 10,
+          "passed": false
+        },
+        "model_core_split": {
+          "points": 35,
+          "passed": false
+        },
+        "effort_core_split": {
+          "points": 35,
+          "passed": false
+        },
+        "overall_requires_both": {
+          "points": 20,
+          "passed": false
+        }
+      },
+      "patch_metrics": {
+        "changed_files": 1,
+        "changed_lines": 12,
+        "added_files": 0,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "scripts/analyze-application-discrimination.mjs",
+            "kind": "modified",
+            "changed_lines": 12
+          }
+        ]
+      },
+      "unexpected_changed": [],
+      "duration_seconds": 411,
+      "shell_commands": 27,
+      "usage": {
+        "input_tokens": 348021,
+        "output_tokens": 6720,
+        "reasoning_tokens": 1411,
+        "cached_input_tokens": 312832
+      },
+      "infrastructure_error": null,
+      "outcome": "completed",
+      "data_complete": true
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-09-30T08:31:29.687Z",
+  "task": "real-repo-replay-family",
+  "model": "gpt-6-luna",
+  "trial_count": 3,
+  "trial_mode": "variants",
+  "by_effort": {
+    "high": {
+      "effort": "high",
+      "trials": 3,
+      "expected_trials": 3,
+      "score": 31.333333333333332,
+      "score_stddev": 37.464056848605644,
+      "duration_seconds": 270.6666666666667,
+      "shell_commands": 18.333333333333332,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "changed_files": 1,
+      "changed_lines": 26.333333333333332,
+      "total_tokens": 215116.66666666666,
+      "reasoning_tokens": 1204.6666666666667,
+      "saturated": false,
+      "data_complete": true
+    }
+  },
+  "effort_spread_points": 0,
+  "medium_to_xhigh": null,
+  "effort_sensitivity": null,
+  "nonmonotonic": null,
+  "promotion_recommendation": "do-not-promote",
+  "promotion_evidence": {
+    "trial_mode": "variants",
+    "paired_variants": 0,
+    "medium_to_xhigh_gain_points": null,
+    "positive_variant_count": null,
+    "required_positive_variant_count": null,
+    "effort_spread_points": 0,
+    "budget_confounded": false
+  }
+}
