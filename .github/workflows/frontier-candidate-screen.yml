@@ -92,7 +92,13 @@ jobs:
             "score":score["score"],
             "checks":score["checks"],
             "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
+            "responses":runner.get("responses",0),
+            "max_turns":runner.get("max_turns"),
             "shell_commands":runner.get("shell_commands",0),
+            "shell_budget":runner.get("shell_budget"),
+            "turn_limit_reached":bool(runner.get("max_turns")) and runner.get("responses",0) >= runner.get("max_turns"),
+            "shell_budget_reached":bool(runner.get("shell_budget")) and runner.get("shell_commands",0) >= runner.get("shell_budget"),
+            "finished_with_message":bool(runner.get("final_text")),
             "usage":runner.get("usage",{}),
             "api_retries":runner.get("api_retries",0),
             "infrastructure_error":runner.get("infrastructure_error"),
@@ -100,7 +106,7 @@ jobs:
           }
           Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
           if runner_path.exists(): shutil.copy2(runner_path,"result/light-agent-result.json")
-          for name in ["REVIEW.md","PLAN.md","plan.json","REPORT.txt","FINDINGS.json"]:
+          for name in ["REVIEW.md","PLAN.md","plan.json","REPORT.txt","FINDINGS.json",".actions"]:
               p=root/name
               if p.exists(): shutil.copy2(p,"result/"+name)
           if (root/"src").exists(): shutil.copytree(root/"src","result/final-src",dirs_exist_ok=True)
@@ -123,6 +129,8 @@ jobs:
             exit 0
           fi
           cp result/result.json /tmp/frontier-screen-result.json
+          rm -rf /tmp/frontier-screen-details
+          cp -R result /tmp/frontier-screen-details
           rm -rf /tmp/frontier-screen-final-src
           if [ -d result/final-src ]; then cp -R result/final-src /tmp/frontier-screen-final-src; fi
           if [ -f result/light-agent-result.json ]; then cp result/light-agent-result.json /tmp/frontier-screen-agent.json; fi
@@ -137,6 +145,8 @@ jobs:
           fi
           TASK="${{ steps.target.outputs.task }}"
           mkdir -p "frontier-screen/$TASK/runs"
+          rm -rf "frontier-screen/$TASK/latest-details"
+          cp -R /tmp/frontier-screen-details "frontier-screen/$TASK/latest-details"
           cp /tmp/frontier-screen-result.json latest.json
           cp /tmp/frontier-screen-result.json "frontier-screen/$TASK/latest.json"
           cp /tmp/frontier-screen-result.json "frontier-screen/$TASK/runs/${GITHUB_RUN_ID}.json"
