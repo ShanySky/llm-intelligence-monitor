@@ -454,21 +454,26 @@
     },
     {
       "id": "frontier-review-family",
-      "family": "code_review_multi_instance",
-      "status": "coverage-only-no-effort-signal",
+      "family": "code_review_multi_instance_reliability",
+      "status": "effort-sensitivity-candidate",
       "promoted_to_final": false,
       "evidence": {
-        "instances": 3,
-        "scoring": "semantic-normalized",
-        "recalculated_sol_means": {
-          "medium": 98.3,
-          "high": 95,
-          "xhigh": 98.3
+        "luna_high_variant_scores": [
+          70,
+          65,
+          100
+        ],
+        "sol_variant_means": {
+          "medium": 88.3,
+          "high": 85,
+          "xhigh": 93.3
         },
-        "medium_to_xhigh_gain_points": 0,
-        "effort_signal": "none"
+        "medium_to_xhigh_gain_points": 5,
+        "paired_positive_rate": 0.333,
+        "variants": 3,
+        "budget_saturated": false
       },
-      "note": "Three-instance family initially appeared to show a small X High gain, but two taxonomy labels were semantically equivalent and one lease recovery domain was double-counted. After normalization the directional effort signal disappears."
+      "note": "One of three variants showed +15 points Medium→XHigh, but family mean gain is only +5 and paired consistency is 1/3. Keep as research evidence; not Effort Core."
     }
   ]
 }
