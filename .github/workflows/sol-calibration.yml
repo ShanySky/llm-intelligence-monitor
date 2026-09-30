@@ -19,17 +19,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  eval:
+  prepare:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-sol-calibration')
+    runs-on: ubuntu-latest
+    outputs:
+      efforts: ${{ steps.matrix.outputs.efforts }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: matrix
+        name: Load configured effort matrix
+        shell: bash
+        run: |
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const c=require('./calibration-config.json');
+          const efforts=c.solExploration?.efforts ?? ['medium','xhigh'];
+          console.log('efforts='+JSON.stringify(efforts));
+          NODE
+
+  eval:
+    needs: prepare
+    if: needs.prepare.result == 'success'
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 3
       matrix:
-        include:
-          - effort: medium
-            label: GPT-6 Sol Medium
-          - effort: xhigh
-            label: GPT-6 Sol X High
+        effort: ${{ fromJSON(needs.prepare.outputs.efforts) }}
 
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -68,11 +82,11 @@ jobs:
           bank_path="$(node -e "const c=require('./calibration-config.json'); process.stdout.write(c.solExploration?.bankPath ?? 'tests/core.yaml')")"
           node scripts/select-calibration-tests.mjs             calibration-config.json             "$bank_path"             tests/sol-calibration-selected.yaml
 
-      - name: Build GPT-6 Sol ${{ matrix.label }} config
+      - name: Build GPT-6 Sol ${{ matrix.effort }} config
         shell: bash
         run: |
           mkdir -p results
-          node scripts/build-model-config.mjs             "gpt-6-sol"             "${{ matrix.label }}"             "results/promptfoo-${{ matrix.effort }}.yaml"             "${{ matrix.effort }}"             "../tests/sol-calibration-selected.yaml"
+          node scripts/build-model-config.mjs             "gpt-6-sol"             "${{ matrix.effort }}"             "results/promptfoo-${{ matrix.effort }}.yaml"             "${{ matrix.effort }}"             "../tests/sol-calibration-selected.yaml"
 
       - name: Run GPT-6 Sol ${{ matrix.effort }}
         shell: bash
