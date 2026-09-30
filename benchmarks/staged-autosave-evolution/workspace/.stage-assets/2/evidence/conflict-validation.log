@@ -1,0 +1,6 @@
+gate=multi-editor-concurrency status=FAILED
+remote edit: expected=1 -> committed value=remote version=2
+stale editor: expected=1 -> 409
+client then fetched version=2 and automatically replayed stale local patch
+final server value=local version=3
+expected: conflict surfaced without automatic overwrite
