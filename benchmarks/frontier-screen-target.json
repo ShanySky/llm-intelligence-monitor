@@ -1,5 +1,5 @@
 {
-  "task": "frontier-review",
+  "task": "frontier-plan-review",
   "model": "gpt-6-luna",
   "effort": "high",
   "max_turns": 20,
