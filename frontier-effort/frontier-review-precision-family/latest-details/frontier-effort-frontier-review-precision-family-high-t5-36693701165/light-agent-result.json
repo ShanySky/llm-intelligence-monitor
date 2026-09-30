@@ -1,0 +1,49 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-high-t5",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "duration_seconds": 115,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 4,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 39,
+    "added_files": 2,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "FINDINGS.json",
+        "kind": "added",
+        "changed_lines": 8
+      },
+      {
+        "path": "REVIEW.md",
+        "kind": "added",
+        "changed_lines": 31
+      }
+    ]
+  },
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 9006,
+    "output_tokens": 1640,
+    "reasoning_tokens": 333,
+    "cached_input_tokens": 3584
+  },
+  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with verdict **REQUEST_CHANGES** and three blocking findings:\n\n- Callback retries use delivery-specific keys instead of stable job-generation keys.\n- Legacy heartbeat renewals omit epoch fencing.\n- Detach acquires pair locks in the wrong order, permitting deadlock.\n\nValidation ran:\n- `python3 -m json.tool FINDINGS.json`\n- Python assertions checking taxonomy membership, unique failure domains, source symbols, and review coverage.\n\nNo compilation was attempted: the supplied Java fragments lack supporting types and a build/test harness."
+}

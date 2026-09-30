@@ -1,0 +1,49 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-xhigh-t3",
+  "model": "gpt-6.1-sol",
+  "effort": "xhigh",
+  "duration_seconds": 186,
+  "responses": 6,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 5,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 53,
+    "added_files": 2,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "FINDINGS.json",
+        "kind": "added",
+        "changed_lines": 20
+      },
+      {
+        "path": "REVIEW.md",
+        "kind": "added",
+        "changed_lines": 33
+      }
+    ]
+  },
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 15817,
+    "output_tokens": 2965,
+    "reasoning_tokens": 1511,
+    "cached_input_tokens": 3968
+  },
+  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with three blocking findings:\n\n- Callback deduplication uses delivery identity rather than job-generation identity.\n- Legacy heartbeat bypasses epoch fencing.\n- Detach acquires account locks in an order that can deadlock with attach.\n\n**Verdict:** `REQUEST_CHANGES`\n\nValidation run:\n- `python3 -m json.tool FINDINGS.json`\n- Python assertions checking allowed taxonomy values, unique failure domains, existing source symbols, and agreement with `REVIEW.md`.\n- `test -s REVIEW.md`"
+}

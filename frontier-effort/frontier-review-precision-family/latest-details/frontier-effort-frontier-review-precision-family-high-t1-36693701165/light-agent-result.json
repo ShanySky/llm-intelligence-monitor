@@ -1,0 +1,49 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-high-t1",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "duration_seconds": 95,
+  "responses": 4,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 38,
+    "added_files": 2,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "FINDINGS.json",
+        "kind": "added",
+        "changed_lines": 8
+      },
+      {
+        "path": "REVIEW.md",
+        "kind": "added",
+        "changed_lines": 30
+      }
+    ]
+  },
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 6289,
+    "output_tokens": 1386,
+    "reasoning_tokens": 261,
+    "cached_input_tokens": 1536
+  },
+  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with three blocking findings:\n\n- Callback retry keys are not stable per job generation.\n- Legacy heartbeats bypass epoch fencing.\n- `detach` acquires pair locks in an order that can deadlock with `attach`.\n\n**Verdict:** `REQUEST_CHANGES`\n\nValidation ran via `python3` assertions for JSON structure, allowed taxonomy values, unique failure domains, source symbols, and review coverage. Used `nl -ba` to verify cited source lines."
+}

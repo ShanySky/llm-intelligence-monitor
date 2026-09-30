@@ -1,0 +1,49 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-medium-t2",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "duration_seconds": 80,
+  "responses": 4,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 3,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 36,
+    "added_files": 2,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "FINDINGS.json",
+        "kind": "added",
+        "changed_lines": 8
+      },
+      {
+        "path": "REVIEW.md",
+        "kind": "added",
+        "changed_lines": 28
+      }
+    ]
+  },
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 5789,
+    "output_tokens": 1026,
+    "reasoning_tokens": 56,
+    "cached_input_tokens": 0
+  },
+  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with three blocking findings:\n\n- Callback retries use delivery-specific keys rather than a stable job-generation key.\n- Legacy heartbeat renews leases without epoch fencing.\n- Detach acquires account locks in an order that can deadlock with attach.\n\n**Verdict:** `REQUEST_CHANGES`\n\nValidation: ran a Python check confirming valid JSON, allowed taxonomy values, unique failure domains, existing implementation files and symbols, and report presence."
+}

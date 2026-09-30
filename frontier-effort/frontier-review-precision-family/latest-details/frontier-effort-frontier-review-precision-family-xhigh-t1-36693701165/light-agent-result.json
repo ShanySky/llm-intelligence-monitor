@@ -1,0 +1,49 @@
+{
+  "task_dir": "/tmp/frontier-effort-frontier-review-precision-family-xhigh-t1",
+  "model": "gpt-6.1-sol",
+  "effort": "xhigh",
+  "duration_seconds": 180,
+  "responses": 5,
+  "api_retries": 0,
+  "infrastructure_error": null,
+  "shell_commands": 4,
+  "shell_budget": 18,
+  "validation_calls": 0,
+  "validation_budget": 0,
+  "validation_enabled": false,
+  "probe_calls": 0,
+  "probe_attempts": 0,
+  "probe_budget": 0,
+  "probe_enabled": false,
+  "probe_queries": [],
+  "probe_executed_queries": [],
+  "probe_observations": [],
+  "patch_metrics": {
+    "changed_files": 2,
+    "changed_lines": 47,
+    "added_files": 2,
+    "deleted_files": 0,
+    "files": [
+      {
+        "path": "FINDINGS.json",
+        "kind": "added",
+        "changed_lines": 20
+      },
+      {
+        "path": "REVIEW.md",
+        "kind": "added",
+        "changed_lines": 27
+      }
+    ]
+  },
+  "max_turns": 28,
+  "container_mode": false,
+  "docker_container": null,
+  "usage": {
+    "input_tokens": 11219,
+    "output_tokens": 2970,
+    "reasoning_tokens": 1565,
+    "cached_input_tokens": 3072
+  },
+  "final_text": "Created `REVIEW.md` and `FINDINGS.json` with verdict **REQUEST_CHANGES**.\n\nReported three blocking defects:\n- Callback retries use delivery-specific rather than generation-stable deduplication keys.\n- Legacy heartbeats bypass lease epoch fencing.\n- `detach` violates lock ordering and can deadlock with `attach`.\n\nValidation passed:\n- `python3 -m json.tool FINDINGS.json`\n- Inline Python checks for schema, allowed taxonomy values, unique failure domains, source symbols, and agreement between both reports."
+}

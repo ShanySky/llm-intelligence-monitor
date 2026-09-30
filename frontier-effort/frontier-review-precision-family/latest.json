@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-30T08:56:21.643Z",
+  "generated_at": "2026-09-30T09:17:21.814Z",
   "trial_mode": "repeats",
   "rows": [
     {
@@ -44,10 +44,10 @@
           "passed": true
         }
       },
-      "duration_seconds": 107,
-      "responses": 5,
+      "duration_seconds": 95,
+      "responses": 4,
       "max_turns": 28,
-      "shell_commands": 4,
+      "shell_commands": 3,
       "shell_budget": 18,
       "validation_calls": 0,
       "validation_budget": 0,
@@ -58,19 +58,19 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 69,
+        "changed_lines": 38,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
           {
             "path": "FINDINGS.json",
             "kind": "added",
-            "changed_lines": 20
+            "changed_lines": 8
           },
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 49
+            "changed_lines": 30
           }
         ]
       },
@@ -78,10 +78,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 9290,
-        "output_tokens": 1560,
-        "reasoning_tokens": 376,
-        "cached_input_tokens": 4352
+        "input_tokens": 6289,
+        "output_tokens": 1386,
+        "reasoning_tokens": 261,
+        "cached_input_tokens": 1536
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -117,10 +117,10 @@
           "passed": true
         }
       },
-      "duration_seconds": 93,
-      "responses": 4,
+      "duration_seconds": 105,
+      "responses": 5,
       "max_turns": 28,
-      "shell_commands": 3,
+      "shell_commands": 4,
       "shell_budget": 18,
       "validation_calls": 0,
       "validation_budget": 0,
@@ -131,7 +131,7 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 67,
+        "changed_lines": 47,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
@@ -143,7 +143,7 @@
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 47
+            "changed_lines": 27
           }
         ]
       },
@@ -151,10 +151,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 6025,
-        "output_tokens": 1337,
-        "reasoning_tokens": 209,
-        "cached_input_tokens": 1536
+        "input_tokens": 8821,
+        "output_tokens": 1497,
+        "reasoning_tokens": 230,
+        "cached_input_tokens": 1408
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -183,180 +183,6 @@
         },
         "finding_StrictCustomerReader.java_strict_read_consistency": {
           "points": 30,
-          "passed": false
-        },
-        "false_positive_penalty": {
-          "points": -30,
-          "passed": false,
-          "reported": [
-            {
-              "file": "CallbackDispatcher.java",
-              "failure_class": "retry_idempotency"
-            },
-            {
-              "file": "LegacyRenewalPath.java",
-              "failure_class": "stale_lease_fencing"
-            },
-            {
-              "file": "PairCoordinator.java",
-              "failure_class": "lock_order"
-            }
-          ]
-        },
-        "requests_changes": {
-          "points": 5,
-          "passed": true
-        }
-      },
-      "duration_seconds": 104,
-      "responses": 4,
-      "max_turns": 28,
-      "shell_commands": 3,
-      "shell_budget": 18,
-      "validation_calls": 0,
-      "validation_budget": 0,
-      "validation_enabled": false,
-      "probe_calls": 0,
-      "probe_attempts": 0,
-      "probe_budget": 0,
-      "probe_enabled": false,
-      "patch_metrics": {
-        "changed_files": 2,
-        "changed_lines": 52,
-        "added_files": 2,
-        "deleted_files": 0,
-        "files": [
-          {
-            "path": "FINDINGS.json",
-            "kind": "added",
-            "changed_lines": 20
-          },
-          {
-            "path": "REVIEW.md",
-            "kind": "added",
-            "changed_lines": 32
-          }
-        ]
-      },
-      "turn_limit_reached": false,
-      "shell_budget_reached": false,
-      "finished_with_message": true,
-      "usage": {
-        "input_tokens": 6159,
-        "output_tokens": 1564,
-        "reasoning_tokens": 403,
-        "cached_input_tokens": 0
-      },
-      "api_retries": 0,
-      "infrastructure_error": null,
-      "agent_exit_code": 0,
-      "outcome": "completed",
-      "data_complete": true
-    },
-    {
-      "task": "frontier-review-precision-family",
-      "model": "gpt-6.1-sol",
-      "effort": "high",
-      "trial": 4,
-      "score": 0,
-      "checks": {
-        "valid_findings_json": {
-          "points": 5,
-          "passed": true
-        },
-        "finding_ConfirmationService.java_business_identity_scope": {
-          "points": 40,
-          "passed": false
-        },
-        "finding_RefundService.java_external_effect_recovery": {
-          "points": 50,
-          "passed": false
-        },
-        "false_positive_penalty": {
-          "points": -30,
-          "passed": false,
-          "reported": [
-            {
-              "file": "CallbackDispatcher.java",
-              "failure_class": "business_identity_scope"
-            },
-            {
-              "file": "LegacyRenewalPath.java",
-              "failure_class": "stale_lease_fencing"
-            },
-            {
-              "file": "PairCoordinator.java",
-              "failure_class": "lock_order"
-            }
-          ]
-        },
-        "requests_changes": {
-          "points": 5,
-          "passed": true
-        }
-      },
-      "duration_seconds": 114,
-      "responses": 6,
-      "max_turns": 28,
-      "shell_commands": 5,
-      "shell_budget": 18,
-      "validation_calls": 0,
-      "validation_budget": 0,
-      "validation_enabled": false,
-      "probe_calls": 0,
-      "probe_attempts": 0,
-      "probe_budget": 0,
-      "probe_enabled": false,
-      "patch_metrics": {
-        "changed_files": 2,
-        "changed_lines": 37,
-        "added_files": 2,
-        "deleted_files": 0,
-        "files": [
-          {
-            "path": "FINDINGS.json",
-            "kind": "added",
-            "changed_lines": 8
-          },
-          {
-            "path": "REVIEW.md",
-            "kind": "added",
-            "changed_lines": 29
-          }
-        ]
-      },
-      "turn_limit_reached": false,
-      "shell_budget_reached": false,
-      "finished_with_message": true,
-      "usage": {
-        "input_tokens": 10369,
-        "output_tokens": 1523,
-        "reasoning_tokens": 290,
-        "cached_input_tokens": 1536
-      },
-      "api_retries": 0,
-      "infrastructure_error": null,
-      "agent_exit_code": 0,
-      "outcome": "completed",
-      "data_complete": true
-    },
-    {
-      "task": "frontier-review-precision-family",
-      "model": "gpt-6.1-sol",
-      "effort": "high",
-      "trial": 5,
-      "score": 0,
-      "checks": {
-        "valid_findings_json": {
-          "points": 5,
-          "passed": true
-        },
-        "finding_ConfirmationService.java_business_identity_scope": {
-          "points": 40,
-          "passed": false
-        },
-        "finding_RefundService.java_external_effect_recovery": {
-          "points": 50,
           "passed": false
         },
         "false_positive_penalty": {
@@ -396,6 +222,93 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
+        "changed_lines": 35,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 8
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 27
+          }
+        ]
+      },
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 8757,
+        "output_tokens": 1477,
+        "reasoning_tokens": 326,
+        "cached_input_tokens": 1408
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-precision-family",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "trial": 4,
+      "score": 0,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_ConfirmationService.java_business_identity_scope": {
+          "points": 40,
+          "passed": false
+        },
+        "finding_RefundService.java_external_effect_recovery": {
+          "points": 50,
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 105,
+      "responses": 5,
+      "max_turns": 28,
+      "shell_commands": 4,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
         "changed_lines": 47,
         "added_files": 2,
         "deleted_files": 0,
@@ -416,10 +329,97 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 8741,
-        "output_tokens": 1455,
-        "reasoning_tokens": 153,
+        "input_tokens": 8704,
+        "output_tokens": 1461,
+        "reasoning_tokens": 262,
         "cached_input_tokens": 2048
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-precision-family",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "trial": 5,
+      "score": 0,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_ConfirmationService.java_business_identity_scope": {
+          "points": 40,
+          "passed": false
+        },
+        "finding_RefundService.java_external_effect_recovery": {
+          "points": 50,
+          "passed": false
+        },
+        "false_positive_penalty": {
+          "points": -30,
+          "passed": false,
+          "reported": [
+            {
+              "file": "CallbackDispatcher.java",
+              "failure_class": "retry_idempotency"
+            },
+            {
+              "file": "LegacyRenewalPath.java",
+              "failure_class": "stale_lease_fencing"
+            },
+            {
+              "file": "PairCoordinator.java",
+              "failure_class": "lock_order"
+            }
+          ]
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 115,
+      "responses": 5,
+      "max_turns": 28,
+      "shell_commands": 4,
+      "shell_budget": 18,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 39,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 8
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 31
+          }
+        ]
+      },
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "finished_with_message": true,
+      "usage": {
+        "input_tokens": 9006,
+        "output_tokens": 1640,
+        "reasoning_tokens": 333,
+        "cached_input_tokens": 3584
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -469,7 +469,7 @@
           "passed": true
         }
       },
-      "duration_seconds": 77,
+      "duration_seconds": 80,
       "responses": 4,
       "max_turns": 28,
       "shell_commands": 3,
@@ -503,9 +503,9 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 5691,
-        "output_tokens": 1057,
-        "reasoning_tokens": 69,
+        "input_tokens": 5701,
+        "output_tokens": 1066,
+        "reasoning_tokens": 130,
         "cached_input_tokens": 0
       },
       "api_retries": 0,
@@ -542,7 +542,7 @@
           "passed": true
         }
       },
-      "duration_seconds": 85,
+      "duration_seconds": 80,
       "responses": 4,
       "max_turns": 28,
       "shell_commands": 3,
@@ -576,10 +576,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 5796,
-        "output_tokens": 1169,
-        "reasoning_tokens": 163,
-        "cached_input_tokens": 2816
+        "input_tokens": 5789,
+        "output_tokens": 1026,
+        "reasoning_tokens": 56,
+        "cached_input_tokens": 0
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -633,7 +633,7 @@
           "passed": true
         }
       },
-      "duration_seconds": 86,
+      "duration_seconds": 83,
       "responses": 4,
       "max_turns": 28,
       "shell_commands": 3,
@@ -647,19 +647,19 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 40,
+        "changed_lines": 50,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
           {
             "path": "FINDINGS.json",
             "kind": "added",
-            "changed_lines": 8
+            "changed_lines": 20
           },
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 32
+            "changed_lines": 30
           }
         ]
       },
@@ -667,10 +667,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 5790,
-        "output_tokens": 1174,
-        "reasoning_tokens": 139,
-        "cached_input_tokens": 1408
+        "input_tokens": 5847,
+        "output_tokens": 1220,
+        "reasoning_tokens": 164,
+        "cached_input_tokens": 0
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -720,7 +720,7 @@
           "passed": true
         }
       },
-      "duration_seconds": 82,
+      "duration_seconds": 83,
       "responses": 4,
       "max_turns": 28,
       "shell_commands": 3,
@@ -754,10 +754,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 5744,
-        "output_tokens": 1111,
-        "reasoning_tokens": 118,
-        "cached_input_tokens": 0
+        "input_tokens": 5800,
+        "output_tokens": 1177,
+        "reasoning_tokens": 136,
+        "cached_input_tokens": 1408
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -807,7 +807,7 @@
           "passed": true
         }
       },
-      "duration_seconds": 87,
+      "duration_seconds": 83,
       "responses": 4,
       "max_turns": 28,
       "shell_commands": 3,
@@ -821,7 +821,7 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 31,
+        "changed_lines": 40,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
@@ -833,7 +833,7 @@
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 23
+            "changed_lines": 32
           }
         ]
       },
@@ -841,10 +841,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 5754,
-        "output_tokens": 1143,
-        "reasoning_tokens": 183,
-        "cached_input_tokens": 1408
+        "input_tokens": 5780,
+        "output_tokens": 1149,
+        "reasoning_tokens": 123,
+        "cached_input_tokens": 0
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -894,10 +894,10 @@
           "passed": true
         }
       },
-      "duration_seconds": 214,
-      "responses": 6,
+      "duration_seconds": 180,
+      "responses": 5,
       "max_turns": 28,
-      "shell_commands": 5,
+      "shell_commands": 4,
       "shell_budget": 18,
       "validation_calls": 0,
       "validation_budget": 0,
@@ -908,7 +908,7 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 50,
+        "changed_lines": 47,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
@@ -920,7 +920,7 @@
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 30
+            "changed_lines": 27
           }
         ]
       },
@@ -928,10 +928,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 14067,
-        "output_tokens": 3561,
-        "reasoning_tokens": 2028,
-        "cached_input_tokens": 1536
+        "input_tokens": 11219,
+        "output_tokens": 2970,
+        "reasoning_tokens": 1565,
+        "cached_input_tokens": 3072
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -967,7 +967,7 @@
           "passed": true
         }
       },
-      "duration_seconds": 155,
+      "duration_seconds": 353,
       "responses": 6,
       "max_turns": 28,
       "shell_commands": 5,
@@ -981,7 +981,7 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 47,
+        "changed_lines": 73,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
@@ -993,7 +993,7 @@
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 27
+            "changed_lines": 53
           }
         ]
       },
@@ -1001,10 +1001,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 12616,
-        "output_tokens": 2197,
-        "reasoning_tokens": 741,
-        "cached_input_tokens": 5248
+        "input_tokens": 20406,
+        "output_tokens": 6352,
+        "reasoning_tokens": 3354,
+        "cached_input_tokens": 7296
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -1058,10 +1058,10 @@
           "passed": true
         }
       },
-      "duration_seconds": 152,
-      "responses": 5,
+      "duration_seconds": 186,
+      "responses": 6,
       "max_turns": 28,
-      "shell_commands": 4,
+      "shell_commands": 5,
       "shell_budget": 18,
       "validation_calls": 0,
       "validation_budget": 0,
@@ -1072,7 +1072,7 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 47,
+        "changed_lines": 53,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
@@ -1084,7 +1084,7 @@
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 27
+            "changed_lines": 33
           }
         ]
       },
@@ -1092,10 +1092,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 9493,
-        "output_tokens": 2498,
-        "reasoning_tokens": 1162,
-        "cached_input_tokens": 3328
+        "input_tokens": 15817,
+        "output_tokens": 2965,
+        "reasoning_tokens": 1511,
+        "cached_input_tokens": 3968
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -1145,7 +1145,7 @@
           "passed": true
         }
       },
-      "duration_seconds": 376,
+      "duration_seconds": 240,
       "responses": 6,
       "max_turns": 28,
       "shell_commands": 5,
@@ -1159,7 +1159,7 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 91,
+        "changed_lines": 56,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
@@ -1171,7 +1171,7 @@
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 71
+            "changed_lines": 36
           }
         ]
       },
@@ -1179,10 +1179,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 21927,
-        "output_tokens": 6772,
-        "reasoning_tokens": 3538,
-        "cached_input_tokens": 11392
+        "input_tokens": 18797,
+        "output_tokens": 4141,
+        "reasoning_tokens": 2612,
+        "cached_input_tokens": 6912
       },
       "api_retries": 0,
       "infrastructure_error": null,
@@ -1232,10 +1232,10 @@
           "passed": true
         }
       },
-      "duration_seconds": 197,
-      "responses": 6,
+      "duration_seconds": 147,
+      "responses": 4,
       "max_turns": 28,
-      "shell_commands": 5,
+      "shell_commands": 3,
       "shell_budget": 18,
       "validation_calls": 0,
       "validation_budget": 0,
@@ -1246,7 +1246,7 @@
       "probe_enabled": false,
       "patch_metrics": {
         "changed_files": 2,
-        "changed_lines": 56,
+        "changed_lines": 50,
         "added_files": 2,
         "deleted_files": 0,
         "files": [
@@ -1258,7 +1258,7 @@
           {
             "path": "REVIEW.md",
             "kind": "added",
-            "changed_lines": 36
+            "changed_lines": 30
           }
         ]
       },
@@ -1266,10 +1266,10 @@
       "shell_budget_reached": false,
       "finished_with_message": true,
       "usage": {
-        "input_tokens": 12964,
-        "output_tokens": 3211,
-        "reasoning_tokens": 1780,
-        "cached_input_tokens": 4608
+        "input_tokens": 7028,
+        "output_tokens": 2452,
+        "reasoning_tokens": 1267,
+        "cached_input_tokens": 1536
       },
       "api_retries": 0,
       "infrastructure_error": null,
