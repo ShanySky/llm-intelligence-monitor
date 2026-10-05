@@ -1,4 +1,4 @@
-name: LLM intelligence daily monitor
+name: LLM intelligence manual monitor
 
 on:
   workflow_dispatch:
@@ -19,9 +19,6 @@ on:
         description: "Models to run: all, or comma-separated keys (gpt-6-astra,gpt-6-1-sol,gpt-6-luna,gpt-5-6-sol); legacy gpt-6-sol remains accepted as an alias"
         required: false
         default: "all"
-  schedule:
-    - cron: "30 8 * * *"
-      timezone: "Asia/Shanghai"
   push:
     branches:
       - main
@@ -137,9 +134,7 @@ jobs:
         run: |
           enabled=false
 
-          if [ "$EVENT_NAME" = "schedule" ]; then
-            enabled=true
-          elif [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             requested="${REQUESTED_MODELS:-all}"
             if [ "$requested" = "all" ]; then
               enabled=true
