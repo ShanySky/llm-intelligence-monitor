@@ -56,6 +56,16 @@
         "scripts/analyze-discrimination.mjs"
       ],
       "preferred_max_changed_lines": 120
+    },
+    {
+      "trial": 6,
+      "id": "quick-monitor-floor-health",
+      "target_sha": "67db9a4734c0488a646ffd6e0db6be0b545916ed",
+      "allowed_paths": [
+        "monitor-config.json",
+        "scripts/analyze-question-health.mjs"
+      ],
+      "preferred_max_changed_lines": 140
     }
   ]
 }
