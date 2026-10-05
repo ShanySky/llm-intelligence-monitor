@@ -2,9 +2,9 @@
 
 用于长期监控 GPT 等大模型是否出现能力下降的轻量回归测试项目。
 
-## 日常监控策略
+## 快速监控策略
 
-完整题库保留大量中英文镜像题，但每日不会全量运行。
+完整题库保留大量中英文镜像题，但单次快速监控不会全量运行。自 2026-10-05 起，自动日测 `schedule` 已停用；该通道保留为按需人工运行，`monitor-config.json` 中的 `daily` 字段继续作为兼容性的快速监控参数名。
 
 默认日常配置：
 
@@ -12,7 +12,7 @@
 - 分层轮换题：8 道
 - 每道原始题同时测试中文和英文版本
 - 每模型每题默认只运行 1 次
-- 因此默认每个模型每天执行：16 道原始题 × 2 种语言 = 32 次测试
+- 因此默认每个模型每轮执行：16 道原始题 × 2 种语言 = 32 次测试
 
 固定锚点用于保证不同日期之间有稳定可比基准；轮换题用于扩大题库覆盖面，降低模型对固定题集适配造成的失真。
 
@@ -25,7 +25,7 @@
 
 ## 题目健康度与锚点退役
 
-正式日测会按单题累计健康度持续判断题目是否还有信息量：
+历史正式日测已按单题累计健康度判断题目是否还有信息量；当前按需快速监控继续读取已有健康度数据进行选题：
 
 - 长期接近全模型满分、模型间差异很小的题标记为 `stable-ceiling`，轮换抽样自动降权；
 - 能拉开模型差异的题提高轮换权重；
@@ -79,17 +79,21 @@
 - 同题中英文表现差异
 - 每个模型输入 / 输出 / 推理 / 总令牌（Token）
 
-## 定时运行
+## 运行方式
 
-GitHub Actions 每天 **中国时间 08:30（Asia/Shanghai）** 自动运行。
+自 **2026-10-05** 起，自动日测已停用，仓库当前没有快速监控的 `schedule`。
 
-每轮完成后：
+需要检查模型状态时，通过 **Actions → LLM intelligence manual monitor → Run workflow** 按需运行；也可以只修改专用的 `.github/triggers/daily-monitor.txt` 触发一次受控运行。普通代码、文档或评分器提交不会触发模型评测。
 
-1. 生成抽题清单；
-2. 使用 Promptfoo 执行测试；
-3. 汇总模型得分和令牌（Token）；
-4. 上传完整 JSON / HTML / Markdown 报告；
-5. 通过 Gmail 自动发送中文日报。
+按需运行会：
+
+1. 生成固定锚点 + 分层轮换题清单；
+2. 使用 Promptfoo / Responses API 执行测试；
+3. 汇总正确率、错误、超时、Token 与响应时间；
+4. 上传 JSON / HTML / Markdown 报告；
+5. 发送“手动测试”邮件报告。
+
+按需运行**不写入正式历史基线，也不参与自动降质/路由异常判定**。历史 `history` 分支继续保留旧正式日测结果，供题目健康度和趋势研究使用。
 
 ## 每周深度测试
 
@@ -114,7 +118,7 @@ GitHub Actions 每天 **中国时间 08:30（Asia/Shanghai）** 自动运行。
 
 ## 四模型 X High 并行测试
 
-当前日测同时运行四个模型：
+当前快速监控默认支持四个模型：
 
 - GPT-6 Astra X High
 - GPT-6.1 Sol X High
@@ -123,11 +127,11 @@ GitHub Actions 每天 **中国时间 08:30（Asia/Shanghai）** 自动运行。
 
 GitHub Actions 使用模型矩阵并行运行：四个模型分别在独立 job 中同时执行同一批题；每个模型内部最多并发 2 个请求，因此峰值约为 8 个并发模型请求。
 
-默认日测为 8 道固定锚点 + 8 道分层轮换题。每道原始题同时运行中文、英文镜像版本，因此每个模型每天默认执行 32 个测试。
+默认快速监控为 8 道固定锚点 + 8 道分层轮换题。每道原始题同时运行中文、英文镜像版本，因此每个模型每天默认执行 32 个测试。
 
-日报额外统计固定锚点上的正确率、平均响应时间、平均输出令牌、平均推理令牌（Reasoning Token）和平均总令牌，用于辅助识别“正确率下降 + 思考变少 + 响应变快”的异常模式。
+报告额外统计固定锚点上的正确率、平均响应时间、平均输出令牌、平均推理令牌（Reasoning Token）和平均总令牌，用于辅助识别“正确率下降 + 思考变少 + 响应变快”的异常模式。
 
-GPT-6.1 Sol 作为新的模型纪元独立积累日测基线。趋势分析按 provider 名精确匹配，因此不会把旧 GPT-6 Sol 的历史样本直接并入 GPT-6.1 Sol 的降智/路由异常判断；切换后的前几次正式日测会正常显示为“基线积累中”。旧结果仍保留用于历史对照。
+GPT-6.1 Sol 作为新的模型纪元与旧 GPT-6 Sol 历史严格分离。历史趋势按 provider 名精确匹配，不会把旧 GPT-6 Sol 样本并入 GPT-6.1 Sol；当前按需运行不写入正式趋势基线，旧结果仅保留用于历史对照。
 
 
 ## 超时与错误统计
@@ -145,7 +149,7 @@ H03、U03 等高成本长链计算题保留在完整题库中，但不再作为�
 
 ## 评分与重试策略
 
-默认每个模型每天固定执行 32 个测试，横向比较始终使用固定题目分母：
+默认每个模型每轮固定执行 32 个测试，横向比较始终使用固定题目分母：
 
 - 正确：计 1 分；
 - 普通答错：计 0 分；
@@ -167,7 +171,7 @@ H03、U03 等高成本长链计算题保留在完整题库中，但不再作为�
 
 Manual runs can execute all configured models or only selected models.
 
-In **Actions → LLM intelligence daily monitor → Run workflow**, set `models` to:
+In **Actions → LLM intelligence manual monitor → Run workflow**, set `models` to:
 
 - `all` — run every configured model;
 - `gpt-6-luna` — run only GPT-6 Luna X High;
@@ -180,9 +184,9 @@ Email delivery uses an HTML body for normal reading, includes a plain-text fallb
 
 ## History branch
 
-Formal daily monitoring history is stored on the dedicated `history` branch under `history/YYYY-MM-DD.json`.
+Historical formal monitoring results are stored on the dedicated `history` branch under `history/YYYY-MM-DD.json`. Automatic daily monitoring is currently disabled, so manual runs do not append new formal history.
 
-The `main` branch contains only source code and configuration; scheduled monitoring never writes result history back to `main`.
+The `main` branch contains only source code and configuration; historical formal monitoring never wrote result history back to `main`, and current manual runs do not write formal history.
 
 If the complete history directory ever needs to be restored into `main`, do it explicitly instead of merging the whole history branch:
 
@@ -198,7 +202,7 @@ This restores every retained history file, including files that are intentionall
 
 ## High manual run mode
 
-A controlled manual run can execute all configured models at reasoning effort `high` without changing the scheduled X High configuration or writing formal history.
+A controlled manual run can execute all configured models at reasoning effort `high` without changing the default X High configuration or writing formal history.
 
 
 ## 应用型智能评测
@@ -241,12 +245,12 @@ A controlled manual run can execute all configured models at reasoning effort `h
 
 ### 运行分层
 
-- **日常快速监控**：继续使用 Promptfoo 低成本题库，适合每天运行；
+- **快速智能监控**：继续使用 Promptfoo 低成本题库，当前按需人工运行；
 - **应用型校准**：使用轻量 Agent Harness，小规模筛选候选任务；
 - **最终应用验收**：`Final application benchmark validation` 工作流，对多个模型以及 GPT-6.1 Sol Medium / High / X High 做完整对照；
 - **稳定性复测**：只重复真正有区分信号的任务，不整套重跑。
 
-应用型任务默认不加入每天的全量定时运行，避免 Agent 工具调用和长上下文显著放大 Token 成本。需要模型版本验收、疑似降智、题库校准时再运行完整套件。
+应用型任务不加入快速监控，避免 Agent 工具调用和长上下文显著放大 Token 成本。仅在模型版本验收、疑似降智或题库校准时按漏斗运行必要套件。
 
 ### 应用题选择规则
 
@@ -342,7 +346,7 @@ Core tests.
 
 为避免研发阶段的 benchmark Workflow 在每次普通提交时全部创建 `skipped` run：
 
-- 正式日测保留 `schedule`；
+- 当前快速监控 `schedule` 已停用；若未来恢复周期运行，也只允许快速监控通道使用 `schedule`；
 - benchmark / calibration / report refresh 默认使用 `workflow_dispatch`；
 - 需要从提交触发时，只允许监听各自的 `.github/triggers/*.txt` 专用触发文件；
 - 禁止重新使用“所有 `main` push 都创建 run，再靠 job-level `if` 跳过”的模式；
