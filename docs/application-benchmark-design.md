@@ -216,6 +216,12 @@ The replay family intentionally uses small real changes so individual tasks norm
 fit the 3–5 minute target and remain below the 10 minute hard limit.
 
 
+### Replay 超时与有效样本
+
+Real-repo replay 的能力证据必须来自 runner 已写出遥测的样本。若外层 Workflow 在 runner 写出 `light-agent-result.json` 前终止，样本标记为 `pre_telemetry_timeout` / 数据不完整，不允许进入 Effort Core 统计。
+
+runner 自身的 wall timeout 会在外层 timeout 前写出遥测，并以模型超时结束；这类样本可以用于可靠性/预算诊断，但在 reasoning-effort 晋级分析中视为 budget-confounded，不能把“某档更容易超时”伪装成稳定质量差异。
+
 ### Real-repo replay 主集与后备集
 
 Real-repo replay 的正式 Effort Core 校准使用经过 reference self-check 的 **required cases**。每个 required case 的历史目标提交必须在隐藏行为 verifier 上自检为 100 分，否则整轮正式校准停止。
