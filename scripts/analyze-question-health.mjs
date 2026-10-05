@@ -84,6 +84,7 @@ for (const pairId of Object.keys(metadata)) {
   const days = [...new Set(xs.map((x) => x.day))];
   const rates = xs.map((x) => x.passRate);
   const ceilingRate = xs.length ? xs.filter((x) => x.passRate >= 1).length / xs.length : null;
+  const floorRate = xs.length ? xs.filter((x) => x.passRate <= 0).length / xs.length : null;
   const languageDisagreementRate = xs.length
     ? xs.filter((x) => x.zhPassRate !== x.enPassRate).length / xs.length
     : null;
@@ -102,6 +103,9 @@ for (const pairId of Object.keys(metadata)) {
     const variability = stdev(rates);
     if (ceilingRate >= 0.9 && (maxModelSpread ?? 0) <= 0.25) {
       classification = 'stable-ceiling';
+      selectionWeight = 0.2;
+    } else if (floorRate >= 0.9 && (maxModelSpread ?? 0) <= 0.25) {
+      classification = 'stable-floor';
       selectionWeight = 0.2;
     } else if ((maxModelSpread ?? 0) >= 0.5 || (avgModelSpread ?? 0) >= 0.25) {
       classification = 'model-discriminator';
@@ -126,6 +130,7 @@ for (const pairId of Object.keys(metadata)) {
     averagePassRate: mean(rates),
     passRateStddev: stdev(rates),
     ceilingObservationRate: ceilingRate,
+    floorObservationRate: floorRate,
     maxDailyModelSpread: maxModelSpread,
     averageDailyModelSpread: avgModelSpread,
     languageDisagreementRate,
@@ -136,9 +141,9 @@ for (const pairId of Object.keys(metadata)) {
     coreAnchor: coreAnchors.has(pairId),
     adaptiveAnchor: adaptiveAnchors.has(pairId),
     anchorRecommendation:
-      coreAnchors.has(pairId) && classification === 'stable-ceiling'
+      coreAnchors.has(pairId) && ['stable-ceiling','stable-floor'].includes(classification)
         ? 'retire-core-at-next-anchor-epoch'
-        : (anchorPool.has(pairId) && classification === 'stable-ceiling'
+        : (anchorPool.has(pairId) && ['stable-ceiling','stable-floor'].includes(classification)
             ? 'downweight-adaptive'
             : 'keep'),
   };
@@ -193,7 +198,7 @@ lines.push(
     ? `建议在下一次 anchor 版本切换时替换：${recommendedAnchorRetirements.join(', ')}`
     : '当前没有达到退役条件的固定锚点。',
   '',
-  '> 只有至少 3 个正式日测样本日后才自动分类。stable-ceiling 会立即降低轮换题和自适应锚点的抽中概率；核心固定锚点不会日常自动变更，而是在明确的 anchor 版本切换时按退役建议替换，以保留历史可比性。',
+  '> 只有至少 3 个正式样本日后才自动分类。stable-ceiling 与 stable-floor 都表示当前缺乏区分信息，会立即降低轮换题和自适应锚点的抽中概率；核心固定锚点不会自动漂移，而是在明确的 anchor 版本切换时按退役建议替换，以保留历史可比性。',
   ''
 );
 fs.writeFileSync(outMd, lines.join('\n') + '\n');
