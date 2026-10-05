@@ -124,7 +124,7 @@ const output={
   },
   manual_acceptance_remaining:[
     'Confirm application scores remain consistent with real day-to-day Coding/Agent experience over continued use.',
-    'Confirm daily operating cost remains acceptable after several normal scheduled runs.'
+    'Confirm the on-demand quick-monitor cost remains acceptable across representative normal runs.'
   ],
 };
 fs.mkdirSync('results',{recursive:true});
@@ -151,7 +151,7 @@ const lines=[
   `Max observed task runtime: ${maxDuration??'-'}s / hard limit ${hardLimit}s.`,
   `Current model epoch: resident=${residentSolModel??'-'}; cross-model coverage=${crossModelEpochPass?'complete':'incomplete'}; resident M/H/XH=${residentEffortPass?'complete':'incomplete'}.`,
   '',
-  '> Two acceptance items remain intentionally manual: real-use alignment and sustained operating cost. They should not be faked by a static repository check.',
+  '> Two acceptance items remain intentionally manual: real-use alignment and representative on-demand operating cost. They should not be faked by a static repository check.',
   ''
 ];
 fs.writeFileSync(outMd,lines.join('\n'));

@@ -8,7 +8,8 @@ const resultPath=path.resolve(process.argv[4]);
 const configPath=path.resolve(process.argv[5]);
 
 const config=JSON.parse(fs.readFileSync(configPath,'utf8'));
-const spec=config.cases.find(x=>x.id===caseId);
+const allSpecs=[...(config.cases??[]),...(config.backup_cases??[])];
+const spec=allSpecs.find(x=>x.id===caseId);
 if(!spec) throw new Error('unknown replay case '+caseId);
 
 const checks={};
