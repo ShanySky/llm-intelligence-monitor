@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T08:13:21.502Z",
+  "generated_at": "2026-10-05T08:41:10.388Z",
   "ok": true,
   "cases": [
     {
@@ -26,15 +26,15 @@
     {
       "id": "core-signal-summary",
       "target_sha": "e4c921e7f3bfc898d9d8d24275a78189282897c0",
-      "behavior_score": null,
-      "error": "Command failed: node scripts/score-real-repo-replay.mjs core-signal-summary /tmp/replay-reference-core-signal-summary /tmp/replay-reference-core-signal-summary/reference-score.json benchmarks/real-repo-replay/config.json",
+      "behavior_score": 0,
+      "error": null,
       "required": false
     },
     {
       "id": "repeat-sample-policy",
       "target_sha": "12c852a1d01367e7d1d749811d3d4e224abf3d85",
-      "behavior_score": null,
-      "error": "Command failed: node scripts/score-real-repo-replay.mjs repeat-sample-policy /tmp/replay-reference-repeat-sample-policy /tmp/replay-reference-repeat-sample-policy/reference-score.json benchmarks/real-repo-replay/config.json",
+      "behavior_score": 100,
+      "error": null,
       "required": false
     }
   ]
