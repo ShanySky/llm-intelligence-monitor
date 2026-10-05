@@ -107,7 +107,8 @@ const maxTurns = Number(process.env.AGENT_MAX_TURNS ?? 16);
 const shellBudget = Number(process.env.AGENT_SHELL_BUDGET ?? 24);
 const maxOutputTokens = Number(process.env.AGENT_MAX_OUTPUT_TOKENS ?? 4096);
 const shellTimeoutMs = Number(process.env.AGENT_SHELL_TIMEOUT_MS ?? 30000);
-const apiTimeoutMs = Number(process.env.AGENT_API_TIMEOUT_MS ?? 450000);
+const apiTimeoutMs = Number(process.env.AGENT_API_TIMEOUT_MS ?? 300000);
+const wallTimeoutMs = Number(process.env.AGENT_WALL_TIMEOUT_MS ?? 440000);
 
 let input = [{ role: 'user', content: [{ type: 'input_text', text: task }] }];
 let totalUsage = { input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, cached_input_tokens: 0 };
@@ -122,7 +123,16 @@ let finalText = '';
 let responses = 0;
 let apiRetries = 0;
 let infrastructureError = null;
+let modelTimeoutReason = null;
 const startedAt = Date.now();
+const wallDeadline = startedAt + wallTimeoutMs;
+
+class AgentModelTimeoutError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'AgentModelTimeoutError';
+  }
+}
 
 const snapshotIgnore = (rel) =>
   /(^|\/)(?:\.git|out|hidden-out|node_modules)(?:\/|$)/.test(rel) ||
@@ -199,9 +209,12 @@ async function callModel() {
   let lastError = null;
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
+      const remainingWallMs = wallDeadline - Date.now();
+      if (remainingWallMs <= 0) throw new AgentModelTimeoutError(`Agent wall timeout after ${wallTimeoutMs}ms`);
+      const requestTimeoutMs = Math.max(1000, Math.min(apiTimeoutMs, remainingWallMs));
       const response = await fetch(baseUrl + '/responses', {
         method: 'POST',
-        signal: AbortSignal.timeout(apiTimeoutMs),
+        signal: AbortSignal.timeout(requestTimeoutMs),
         headers: {
           'content-type': 'application/json',
           authorization: 'Bearer ' + apiKey,
@@ -227,8 +240,9 @@ async function callModel() {
     } catch (error) {
       const timeoutError = error?.name === 'TimeoutError' || error?.name === 'AbortError';
       if (timeoutError) {
-        throw new Error(`Responses API request timed out after ${apiTimeoutMs}ms`);
+        throw new AgentModelTimeoutError(`Responses API request timed out before agent wall deadline`);
       }
+      if (error?.name === 'AgentModelTimeoutError') throw error;
       lastError = error;
       if (attempt === 2) throw error;
     }
@@ -334,6 +348,7 @@ function runProbe(query) {
 
 try {
   for (let turn = 0; turn < maxTurns; turn += 1) {
+    if (Date.now() >= wallDeadline) throw new AgentModelTimeoutError(`Agent wall timeout after ${wallTimeoutMs}ms`);
     const response = await callModel();
     responses += 1;
     addUsage(response.usage);
@@ -370,7 +385,8 @@ try {
   }
   
 } catch (error) {
-  infrastructureError = String(error?.message ?? error);
+  if (error?.name === 'AgentModelTimeoutError') modelTimeoutReason = String(error?.message ?? error);
+  else infrastructureError = String(error?.message ?? error);
 }
 
 const finalWorkspaceSnapshot = snapshotWorkspace(taskDir);
@@ -384,6 +400,9 @@ const result = {
   responses,
   api_retries: apiRetries,
   api_timeout_ms: apiTimeoutMs,
+  wall_timeout_ms: wallTimeoutMs,
+  model_timeout: Boolean(modelTimeoutReason),
+  timeout_reason: modelTimeoutReason,
   infrastructure_error: infrastructureError,
   shell_commands: commands.length,
   shell_budget: shellBudget,
@@ -406,4 +425,5 @@ const result = {
 };
 fs.writeFileSync(path.resolve(outFile), JSON.stringify(result, null, 2) + '\n');
 console.log(JSON.stringify(result, null, 2));
-if (infrastructureError) process.exitCode = 2;
+if (modelTimeoutReason) process.exitCode = 124;
+else if (infrastructureError) process.exitCode = 2;
