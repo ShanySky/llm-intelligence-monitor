@@ -11,5 +11,7 @@
   "fixed_variant": 2,
   "max_turns": 28,
   "shell_budget": 18,
-  "probe_budget": 0
+  "probe_budget": 0,
+  "enabled": false,
+  "note": "Disabled by default: the current precision-review target was retired from Effort Core after unstable/invalid repeat evidence. Replace with a new promoted candidate and set enabled=true before running."
 }
