@@ -169,6 +169,76 @@ try{
     add('overall_requires_both',20,data?.core_signal?.mature===true);
   }
 
+
+  else if(caseId==='quick-monitor-floor-health'){
+    const analyzer=path.join(root,'scripts/analyze-question-health.mjs');
+    const repoConfig=readJson(path.join(root,'monitor-config.json'))??{};
+    const repoMeta=readJson(path.join(root,'tests/question-metadata.json'))??{};
+
+    const fixtureMeta={
+      QF:{ability:'coding',difficulty:'standard'},
+      QC:{ability:'reasoning',difficulty:'hard'},
+      QD:{ability:'instruction',difficulty:'extreme'}
+    };
+    const fixtureConfig={
+      daily:{
+        anchorCount:2,
+        rotatingCount:1,
+        repeat:1,
+        anchorPool:['QF','QD','QC'],
+        anchorCoreCount:1,
+        rotatingDifficultyWeights:{standard:1,hard:1,extreme:1}
+      },
+      deepTest:{enabled:false}
+    };
+    const histDir=path.join(hiddenDir,'history');
+    fs.mkdirSync(histDir,{recursive:true});
+    function provider(name,floorPass,ceilingPass,discrPass){
+      const q=(rate)=>({all:{total:2,apiErrors:0,passRate:rate},zh:{passRate:rate},en:{passRate:rate}});
+      return {provider:name,questionStats:{QF:q(floorPass),QC:q(ceilingPass),QD:q(discrPass)}};
+    }
+    function summary(day,flip=false){
+      return {
+        generatedAt:day+'T00:00:00Z',
+        selection:{runDate:day},
+        providers:[
+          provider('model-a',0,1,flip?1:0),
+          provider('model-b',0,1,flip?0:1)
+        ]
+      };
+    }
+    writeJson(path.join(histDir,'2026-01-01.json'),summary('2026-01-01',false));
+    writeJson(path.join(histDir,'2026-01-02.json'),summary('2026-01-02',true));
+    const current=path.join(hiddenDir,'current.json');
+    writeJson(current,summary('2026-01-03',false));
+    const metaPath=path.join(hiddenDir,'metadata.json');
+    const configPath2=path.join(hiddenDir,'monitor-config.json');
+    const out=path.join(hiddenDir,'health.json');
+    const md=path.join(hiddenDir,'health.md');
+    writeJson(metaPath,fixtureMeta);
+    writeJson(configPath2,fixtureConfig);
+    const p=runNode(analyzer,[histDir,current,metaPath,out,md,configPath2]);
+    const data=readJson(out);
+    const floor=data?.questions?.QF;
+    const ceiling=data?.questions?.QC;
+    const discr=data?.questions?.QD;
+
+    const coreIds=(repoConfig?.daily?.anchorPool??[]).slice(0,Number(repoConfig?.daily?.anchorCoreCount??0));
+    const coreAbilities=new Set(coreIds.map(id=>repoMeta?.[id]?.ability).filter(Boolean));
+    add('health_analyzer_runs',10,p.status===0&&Boolean(data));
+    add('stable_floor_detected',25,floor?.classification==='stable-floor');
+    add('stable_floor_downweighted',15,Number(floor?.selectionWeight)===0.2);
+    add('stable_floor_core_retirement',15,floor?.anchorRecommendation==='retire-core-at-next-anchor-epoch');
+    add('stable_ceiling_remains_symmetric',10,ceiling?.classification==='stable-ceiling'&&Number(ceiling?.selectionWeight)===0.2);
+    add('model_discriminator_preserved',10,discr?.classification==='model-discriminator'&&Number(discr?.selectionWeight)===2);
+    add('core_anchor_capability_mix',15,
+      coreIds.length>=4 &&
+      coreAbilities.has('reasoning') &&
+      coreAbilities.has('instruction') &&
+      coreAbilities.has('coding')
+    );
+  }
+
   else if(caseId==='core-signal-summary'){
     const summarizer=path.join(root,'scripts/summarize-application-results.mjs');
     const manifest={
