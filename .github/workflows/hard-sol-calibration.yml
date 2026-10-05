@@ -45,7 +45,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          timeout 480s node scripts/light-agent-runner.mjs "$TASK_DIR" "gpt-6-sol" "${{ matrix.effort }}" "$TASK_DIR/light-agent-result.json"
+          timeout 480s node scripts/light-agent-runner.mjs "$TASK_DIR" "gpt-6.1-sol" "${{ matrix.effort }}" "$TASK_DIR/light-agent-result.json"
           status=$?
           set -e
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
@@ -62,7 +62,7 @@ jobs:
           root=Path(os.environ["TASK_DIR"]); score=json.loads((root/"score.json").read_text()); rp=root/"light-agent-result.json"
           runner=json.loads(rp.read_text()) if rp.exists() else {}; exit_code=int("${{ steps.agent.outputs.exit_code || '999' }}"); infra=runner.get("infrastructure_error")
           outcome="infrastructure_error" if infra else ("completed" if exit_code==0 else ("model_timeout" if exit_code==124 else "runner_error"))
-          result={"task":"${{ matrix.task }}","model":"gpt-6-sol","effort":"${{ matrix.effort }}","score":score["score"],"checks":score["checks"],"duration_seconds":runner.get("duration_seconds",480),"usage":runner.get("usage",{}),"api_retries":runner.get("api_retries",0),"infrastructure_error":infra,"agent_exit_code":exit_code,"outcome":outcome,"data_complete":outcome in ("completed","model_timeout")}
+          result={"task":"${{ matrix.task }}","model":"gpt-6.1-sol","effort":"${{ matrix.effort }}","score":score["score"],"checks":score["checks"],"duration_seconds":runner.get("duration_seconds",480),"usage":runner.get("usage",{}),"api_retries":runner.get("api_retries",0),"infrastructure_error":infra,"agent_exit_code":exit_code,"outcome":outcome,"data_complete":outcome in ("completed","model_timeout")}
           Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
           if rp.exists(): shutil.copy2(rp,"result/light-agent-result.json")
           PY

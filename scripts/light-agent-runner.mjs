@@ -3,7 +3,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const taskDir = path.resolve(process.argv[2] ?? '.');
-const model = process.argv[3] ?? process.env.BENCHMARK_MODEL ?? 'gpt-6-sol';
+const model = process.argv[3] ?? process.env.BENCHMARK_MODEL ?? 'gpt-6.1-sol';
 const effort = process.argv[4] ?? process.env.BENCHMARK_EFFORT ?? 'medium';
 const outFile = process.argv[5] ?? 'light-agent-result.json';
 
@@ -107,6 +107,7 @@ const maxTurns = Number(process.env.AGENT_MAX_TURNS ?? 16);
 const shellBudget = Number(process.env.AGENT_SHELL_BUDGET ?? 24);
 const maxOutputTokens = Number(process.env.AGENT_MAX_OUTPUT_TOKENS ?? 4096);
 const shellTimeoutMs = Number(process.env.AGENT_SHELL_TIMEOUT_MS ?? 30000);
+const apiTimeoutMs = Number(process.env.AGENT_API_TIMEOUT_MS ?? 450000);
 
 let input = [{ role: 'user', content: [{ type: 'input_text', text: task }] }];
 let totalUsage = { input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, cached_input_tokens: 0 };
@@ -200,6 +201,7 @@ async function callModel() {
     try {
       const response = await fetch(baseUrl + '/responses', {
         method: 'POST',
+        signal: AbortSignal.timeout(apiTimeoutMs),
         headers: {
           'content-type': 'application/json',
           authorization: 'Bearer ' + apiKey,
@@ -223,6 +225,10 @@ async function callModel() {
         throw lastError;
       }
     } catch (error) {
+      const timeoutError = error?.name === 'TimeoutError' || error?.name === 'AbortError';
+      if (timeoutError) {
+        throw new Error(`Responses API request timed out after ${apiTimeoutMs}ms`);
+      }
       lastError = error;
       if (attempt === 2) throw error;
     }
@@ -377,6 +383,7 @@ const result = {
   duration_seconds: Math.round((Date.now() - startedAt) / 1000),
   responses,
   api_retries: apiRetries,
+  api_timeout_ms: apiTimeoutMs,
   infrastructure_error: infrastructureError,
   shell_commands: commands.length,
   shell_budget: shellBudget,

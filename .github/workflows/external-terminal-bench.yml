@@ -19,15 +19,15 @@ jobs:
       max-parallel: 3
       matrix:
         include:
-          - model: gpt-6-sol
+          - model: gpt-6.1-sol
             effort: medium
-            key: gpt-6-sol-medium
-          - model: gpt-6-sol
+            key: gpt-6-1-sol-medium
+          - model: gpt-6.1-sol
             effort: high
-            key: gpt-6-sol-high
-          - model: gpt-6-sol
+            key: gpt-6-1-sol-high
+          - model: gpt-6.1-sol
             effort: xhigh
-            key: gpt-6-sol-xhigh
+            key: gpt-6-1-sol-xhigh
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:

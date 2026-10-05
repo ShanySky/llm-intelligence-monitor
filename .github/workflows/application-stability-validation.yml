@@ -21,14 +21,14 @@ jobs:
           - key: gpt-6-astra-xhigh
             model: gpt-6-astra
             effort: xhigh
-          - key: gpt-6-sol-medium
-            model: gpt-6-sol
+          - key: gpt-6-1-sol-medium
+            model: gpt-6.1-sol
             effort: medium
-          - key: gpt-6-sol-high
-            model: gpt-6-sol
+          - key: gpt-6-1-sol-high
+            model: gpt-6.1-sol
             effort: high
-          - key: gpt-6-sol-xhigh
-            model: gpt-6-sol
+          - key: gpt-6-1-sol-xhigh
+            model: gpt-6.1-sol
             effort: xhigh
 
     runs-on: ubuntu-latest

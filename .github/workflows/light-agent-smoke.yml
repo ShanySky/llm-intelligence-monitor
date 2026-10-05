@@ -41,7 +41,7 @@ jobs:
       - name: Run lightweight agent
         shell: bash
         run: |
-          timeout 300s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "gpt-6-sol"             "medium"             "$TASK_DIR/light-agent-result.json"
+          timeout 300s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "gpt-6.1-sol"             "medium"             "$TASK_DIR/light-agent-result.json"
 
       - name: Hidden verification
         shell: bash

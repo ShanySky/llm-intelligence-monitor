@@ -68,7 +68,7 @@ jobs:
           set +e
           timeout 480s node scripts/light-agent-runner.mjs \
             "$TASK_DIR" \
-            "gpt-6-sol" \
+            "gpt-6.1-sol" \
             "${{ matrix.effort }}" \
             "$TASK_DIR/light-agent-result.json"
           status=$?
@@ -109,7 +109,7 @@ jobs:
 
           result = {
               "task": "${{ matrix.task }}",
-              "model": "gpt-6-sol",
+              "model": "gpt-6.1-sol",
               "effort": "${{ matrix.effort }}",
               "score": score["score"],
               "checks": score["checks"],

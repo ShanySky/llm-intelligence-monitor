@@ -73,7 +73,7 @@ jobs:
             --strict-config \
             --sandbox danger-full-access \
             --skip-git-repo-check \
-            --model gpt-6-sol \
+            --model gpt-6.1-sol \
             -c 'model_reasoning_effort="${{ matrix.effort }}"' \
             -c 'model_provider="benchmark_proxy"' \
             -c 'model_providers.benchmark_proxy.name="Benchmark Proxy"' \
@@ -240,7 +240,7 @@ jobs:
           import json, os
           result = {
               "task": "micro-export",
-              "model": "gpt-6-sol",
+              "model": "gpt-6.1-sol",
               "effort": "${{ matrix.effort }}",
               "codex_exit_code": int("${{ steps.codex.outputs.exit_code || '999' }}"),
               "duration_seconds": int("${{ steps.codex.outputs.duration_seconds || '0' }}"),

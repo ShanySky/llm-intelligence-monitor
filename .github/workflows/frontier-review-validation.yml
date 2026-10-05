@@ -41,7 +41,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "gpt-6-sol"             "${{ matrix.effort }}"             "$TASK_DIR/light-agent-result.json"
+          timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "gpt-6.1-sol"             "${{ matrix.effort }}"             "$TASK_DIR/light-agent-result.json"
           status=$?
           set -e
           echo "exit_code=$status" >> "$GITHUB_OUTPUT"
@@ -64,7 +64,7 @@ jobs:
           outcome="infrastructure_error" if infra else ("completed" if exit_code==0 else ("model_timeout" if exit_code==124 else "runner_error"))
           result={
             "task":"frontier-review",
-            "model":"gpt-6-sol",
+            "model":"gpt-6.1-sol",
             "effort":"${{ matrix.effort }}",
             "trial":int("${{ matrix.trial }}"),
             "score":score["score"],
