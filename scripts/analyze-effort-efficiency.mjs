@@ -40,7 +40,7 @@ function stats(effort) {
     changed_lines: mean(valid.map(r=>Number(r.patch_metrics?.changed_lines ?? 0))),
     total_tokens: mean(valid.map(totalTokens)),
     reasoning_tokens: mean(valid.map(r=>Number(r?.usage?.reasoning_tokens ?? 0))),
-    saturated: valid.some(r=>Boolean(r.turn_limit_reached || r.shell_budget_reached)),
+    saturated: valid.some(r=>Boolean(r.turn_limit_reached || r.shell_budget_reached || r.model_timeout || r.outcome === 'model_timeout')),
     data_complete: valid.length === xs.length,
   };
 }
