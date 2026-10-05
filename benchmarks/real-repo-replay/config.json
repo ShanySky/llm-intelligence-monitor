@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "purpose": "Replay real historical maintenance fixes from this repository without exposing target commits to the agent.",
+  "version": 2,
+  "purpose": "Replay compact real historical maintenance fixes with hidden behavioral equivalence and patch-discipline scoring; v2 replaces the budget-confounded first family.",
   "model": "gpt-6.1-sol",
   "efforts": [
     "medium",
@@ -12,35 +12,6 @@
   "cases": [
     {
       "trial": 1,
-      "id": "repeat-evidence-promotion",
-      "target_sha": "0fe6e031c6fb35d408fd69aade1e7de1bcf603e0",
-      "allowed_paths": [
-        "scripts/analyze-application-discrimination.mjs"
-      ],
-      "preferred_max_changed_lines": 120
-    },
-    {
-      "trial": 2,
-      "id": "variant-effort-counts",
-      "target_sha": "bda09b65e1428975dbfa79a6c0aa96ef1756f4f9",
-      "allowed_paths": [
-        "scripts/analyze-effort-efficiency.mjs"
-      ],
-      "preferred_max_changed_lines": 80
-    },
-    {
-      "trial": 3,
-      "id": "split-core-maturity",
-      "target_sha": "5bd797ffe84d4ad233aab03129ccbd2c43d5bf7f",
-      "allowed_paths": [
-        "scripts/analyze-application-discrimination.mjs"
-      ],
-      "preferred_max_changed_lines": 100
-    }
-  ],
-  "backup_cases": [
-    {
-      "trial": 4,
       "id": "core-signal-summary",
       "target_sha": "e4c921e7f3bfc898d9d8d24275a78189282897c0",
       "allowed_paths": [
@@ -49,7 +20,7 @@
       "preferred_max_changed_lines": 120
     },
     {
-      "trial": 5,
+      "trial": 2,
       "id": "repeat-sample-policy",
       "target_sha": "12c852a1d01367e7d1d749811d3d4e224abf3d85",
       "allowed_paths": [
@@ -58,7 +29,7 @@
       "preferred_max_changed_lines": 120
     },
     {
-      "trial": 6,
+      "trial": 3,
       "id": "quick-monitor-floor-health",
       "target_sha": "67db9a4734c0488a646ffd6e0db6be0b545916ed",
       "allowed_paths": [
@@ -66,6 +37,40 @@
         "scripts/analyze-question-health.mjs"
       ],
       "preferred_max_changed_lines": 140
+    }
+  ],
+  "backup_cases": [],
+  "family_version": 2,
+  "retired_cases": [
+    {
+      "trial": 1,
+      "id": "repeat-evidence-promotion",
+      "target_sha": "0fe6e031c6fb35d408fd69aade1e7de1bcf603e0",
+      "allowed_paths": [
+        "scripts/analyze-application-discrimination.mjs"
+      ],
+      "preferred_max_changed_lines": 120,
+      "retired_reason": "v1 family exceeded the target runtime and repeatedly hit the 440s model wall timeout during GPT-6.1 Sol calibration."
+    },
+    {
+      "trial": 2,
+      "id": "variant-effort-counts",
+      "target_sha": "bda09b65e1428975dbfa79a6c0aa96ef1756f4f9",
+      "allowed_paths": [
+        "scripts/analyze-effort-efficiency.mjs"
+      ],
+      "preferred_max_changed_lines": 80,
+      "retired_reason": "v1 family exceeded the target runtime and repeatedly hit the 440s model wall timeout during GPT-6.1 Sol calibration."
+    },
+    {
+      "trial": 3,
+      "id": "split-core-maturity",
+      "target_sha": "5bd797ffe84d4ad233aab03129ccbd2c43d5bf7f",
+      "allowed_paths": [
+        "scripts/analyze-application-discrimination.mjs"
+      ],
+      "preferred_max_changed_lines": 100,
+      "retired_reason": "v1 family exceeded the target runtime and repeatedly hit the 440s model wall timeout during GPT-6.1 Sol calibration."
     }
   ]
 }
