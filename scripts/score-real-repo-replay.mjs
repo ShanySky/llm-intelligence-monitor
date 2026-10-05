@@ -190,7 +190,7 @@ try{
     const rowsDir=path.join(hiddenDir,'rows');
     fs.mkdirSync(rowsDir,{recursive:true});
     writeJson(manifestPath,manifest);
-    rows.forEach((row,i)=>writeJson(path.join(rowsDir,'r'+i+'.json'),row));
+    rows.forEach((row,i)=>writeJson(path.join(rowsDir,'r'+i,'result.json'),row));
     const out=path.join(hiddenDir,'summary.json');
     const md=path.join(hiddenDir,'summary.md');
     const p=runNode(summarizer,[rowsDir,manifestPath,out,md]);
