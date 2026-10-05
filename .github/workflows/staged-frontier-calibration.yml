@@ -65,7 +65,7 @@ jobs:
           task="$(node -e "const x=require('./benchmarks/staged-frontier-target.json');process.stdout.write(x.task)")"
           workspace="$(node -e "const x=require('./benchmarks/staged-frontier-target.json');process.stdout.write(x.workspace)")"
           score_task="$(node -e "const x=require('./benchmarks/staged-frontier-target.json');process.stdout.write(x.score_task ?? x.task)")"
-          model="$(node -e "const x=require('./benchmarks/staged-frontier-target.json');process.stdout.write(x.model ?? 'gpt-6-sol')")"
+          model="$(node -e "const x=require('./benchmarks/staged-frontier-target.json');process.stdout.write(x.model ?? 'gpt-6.1-sol')")"
           max_turns="$(node -e "const x=require('./benchmarks/staged-frontier-target.json');process.stdout.write(String(x.max_turns_per_stage ?? 20))")"
           shell_budget="$(node -e "const x=require('./benchmarks/staged-frontier-target.json');process.stdout.write(String(x.shell_budget ?? 60))")"
           echo "task=$task" >> "$GITHUB_OUTPUT"

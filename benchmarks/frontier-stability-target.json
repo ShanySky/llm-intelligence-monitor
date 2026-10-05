@@ -1,6 +1,6 @@
 {
   "task": "frontier-review-deep",
-  "model": "gpt-6-sol",
+  "model": "gpt-6.1-sol",
   "efforts": ["medium", "high", "xhigh"],
   "repeats": 3,
   "max_turns": 40,

@@ -54,7 +54,7 @@ jobs:
           set +e
           timeout 480s node scripts/light-agent-staged-runner.mjs \
             "$TASK_DIR" \
-            "gpt-6-sol" \
+            "gpt-6.1-sol" \
             "${{ matrix.effort }}" \
             "$TASK_DIR/staged-agent-result.json"
           status=$?
@@ -84,7 +84,7 @@ jobs:
           shell_saturated=bool(runner.get("shell_budget_reached"))
           result={
             "task":"staged-migration",
-            "model":"gpt-6-sol",
+            "model":"gpt-6.1-sol",
             "effort":"${{ matrix.effort }}",
             "score":score["score"],
             "checks":score["checks"],

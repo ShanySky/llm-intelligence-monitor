@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-30",
+  "updated_at": "2026-10-05",
   "policy": {
     "model_discriminator": "Repeated cross-model spread >= 10 points with per-config score stddev <= 12.",
     "effort_discriminator": "Repeated resident-Sol Medium-to-XHigh quality gain >= 10 points across the configured family gate without budget saturation; single-run differences are not sufficient. Current resident Sol is gpt-6.1-sol.",
@@ -632,9 +632,13 @@
           30
         ],
         "luna_high_mean_latest": 41.3,
-        "resident_sol_model": "gpt-6.1-sol"
+        "resident_sol_model": "gpt-6.1-sol",
+        "latest_gpt_6_1_run_status": "invalid-timeout-confounded",
+        "latest_gpt_6_1_run_generated_at": "2026-09-30T09:31:08.409Z",
+        "formal_effort_signal": "none",
+        "invalid_reason": "High/X High included 480s external timeouts with no runner telemetry (responses=0, usage=0) that were previously treated as complete quality samples. Those rows must not be used for Effort Core promotion."
       },
-      "note": "Primary Effort Core candidate: three real historical maintenance fixes replayed from their parent commits with hidden behavioral scoring and patch-discipline scoring. GPT-6.1 Sol M/H/XH calibration is running."
+      "note": "Primary Effort Core candidate. The first GPT-6.1 Sol M/H/XH replay round is invalid for promotion because several High/X High rows timed out before runner telemetry was written. Rerun after timeout classification/API timeout hardening; only complete telemetry-backed rows may count."
     },
     {
       "id": "frontier-runtime-repair-family",
