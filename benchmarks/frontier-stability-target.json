@@ -1,8 +1,14 @@
 {
   "task": "frontier-review-deep",
   "model": "gpt-6.1-sol",
-  "efforts": ["medium", "high", "xhigh"],
+  "efforts": [
+    "medium",
+    "high",
+    "xhigh"
+  ],
   "repeats": 3,
   "max_turns": 40,
-  "shell_budget": 40
+  "shell_budget": 40,
+  "enabled": false,
+  "note": "Disabled by default: frontier-review-deep is retained as Model Core but repeated resident-Sol calibration found no stable effort signal. Enable only after a new candidate signal justifies stability replay."
 }
