@@ -106,5 +106,13 @@ set +e
 timeout 200s docker exec -w /testbed "$C" bash -e /tmp/v11/eval.sh > "$REPORT_DIR/reference.log" 2>&1
 REFERENCE_EXIT=$?
 set -e
-if [[ "$REFERENCE_EXIT" != 0 ]]; then echo "Upstream gold patch did not pass official evaluator" >&2; exit 1; fi
+if [[ "$REFERENCE_EXIT" != 0 ]]; then
+  echo "::group::Reference failure diagnosis for $CASE_ID (exit=$REFERENCE_EXIT)"
+  echo "---- reference evaluator last 65 lines ----"
+  tail -n 65 "$REPORT_DIR/reference.log" || true
+  echo "---- dependency / test failure signatures ----"
+  grep -iE 'unknown host|not found|could not (resolve|download|transfer|find|collect)|no such file|network is unreachable|temporary failure|unable to get|npm err|failed to|compilation failure|test failures|error' "$REPORT_DIR/reference.log" | tail -n 55 || true
+  echo "::endgroup::"
+  exit 1
+fi
 STAGE="completed"

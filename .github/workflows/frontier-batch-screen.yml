@@ -26,8 +26,6 @@ jobs:
         case_id:
           - google__gson-2158
           - google__gson-2311
-          - vuejs__core-11589
-          - vuejs__core-11899
           - axios__axios-5316
     # Reuse existing Workflow, and only execute on a dedicated no-model-cost trigger.
     if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-preflight]')
