@@ -117,7 +117,7 @@
     "no_automatic_daily": true
   },
   "current_round": {
-    "status": "first-official-environment-passed",
+    "status": "first-five-official-environments-passed",
     "paid_workflow_runs": [
       37748890240,
       37749238271
@@ -127,7 +127,7 @@
     "sol_xhigh_runs": 0,
     "astra_runs": 0,
     "not_a_release": true,
-    "next": "Batch 4 remaining A-priority source cases through same no-model workflow; record result branch; no Luna runs yet."
+    "next": "Prepare thin official-repo Luna harness for one task; no Sol/Astra. Gold/test patches are host-only."
   },
   "strategy": "official_public_engineering_benchmark_first",
   "public_sources": {
@@ -139,9 +139,10 @@
     "manifest": "benchmarks/v1.1-public-candidates.json",
     "source_shortlist_size": 20,
     "verified_metadata": true,
-    "verified_environments": 1,
+    "verified_environments": 5,
     "paid_model_runs": 0,
     "first_verified_case": "google__gson-2311",
-    "first_preflight_run_id": 37757728878
+    "first_preflight_run_id": 37757728878,
+    "batch_preflight_run_id": 37757979238
   }
 }
