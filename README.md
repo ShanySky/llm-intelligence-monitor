@@ -360,3 +360,7 @@ Core tests.
 ### Replay v2 筛题记录（2026-10-08）
 
 Luna High 参考自检 3/3 为 100 分；模型筛题分：`core-signal-summary` 45、`repeat-sample-policy` 25、`quick-monitor-floor-health` 100。前两题进入 GPT‑6.1 Sol M/H/XH **单轮候选诊断**；100 分题仅保留 coverage/reference self-check，不加入付费校准。单轮分差不得进入正式 Effort Core，正式晋级还要求更多独立变体与同变体重复验证。
+
+### Replay v2 校准结论（2026-10-08）
+
+单轮 GPT‑6.1 Sol Medium/High/X High 校准（现有 Actions run `37713197713`）共有 6 个样本：**正常完成 1 / 模型或请求超时 5**。`core-signal-summary` 的补丁原始得分为 100/96/25，`repeat-sample-policy` 为 25/25/25，但**不能据此解释档位能力差距**，因为前者三档均超时，后者 Medium/X High 超时。正式结论为 `budget-confounded`、`do-not-promote`，不存在已确认 Effort Core。当前 `real-repo-replay/config.json` 已设置 `enabled: false`，避免对已判定无效的题族继续自动/误触发付费运行。待新短程、有隐藏依赖的真实历史题通过 reference self-check，再按 Luna→Sol 漏斗启动。

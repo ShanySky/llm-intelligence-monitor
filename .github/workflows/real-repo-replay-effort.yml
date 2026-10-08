@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
+      eligible: ${{ steps.matrix.outputs.eligible }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -115,6 +116,8 @@ jobs:
         run: |
           node - <<'NODE' >> "$GITHUB_OUTPUT"
           const c=require('./benchmarks/real-repo-replay/config.json');
+          const eligible=c.enabled!==false;
+          console.log('eligible='+String(eligible));
           const include=[];
           const repeats=Number(c.repeats_per_case ?? 1);
           if (!Number.isInteger(repeats) || repeats<1 || repeats>3)
@@ -148,7 +151,7 @@ jobs:
 
   eval:
     needs: prepare
-    if: needs.prepare.result == 'success'
+    if: needs.prepare.result == 'success' && needs.prepare.outputs.eligible == 'true'
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -262,7 +265,7 @@ jobs:
       group: real-repo-replay-results-publish
       cancel-in-progress: false
     needs: [prepare, eval]
-    if: always() && needs.prepare.result == 'success'
+    if: always() && needs.prepare.result == 'success' && needs.eval.result != 'skipped'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     permissions:
