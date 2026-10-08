@@ -16,6 +16,12 @@ const registryByTask = new Map((frontierRegistry.tasks ?? []).map((x) => [x.id, 
 const residentSolModel = frontierRegistry.resident_model_epoch?.resident_sol_model ?? null;
 const rows = Array.isArray(data.rows) ? data.rows : [];
 const families = data.manifest?.families ?? [];
+// A runner may write a complete telemetry record despite timing out. This is
+// reliability evidence, not admissible reasoning-effort quality evidence.
+const rowQualityAdmissible = (r) =>
+  r.data_complete !== false && !r.infrastructure_error && !r.model_timeout &&
+  !r.turn_limit_reached && !r.shell_budget_reached &&
+  (r.outcome === 'completed' || (!r.outcome && Number(r.agent_exit_code) === 0));
 if (!rows.length) throw new Error('No result rows found');
 
 const q = policy.quality ?? {};
@@ -41,7 +47,8 @@ for (const r of rows) {
 const tasks = [];
 for (const family of families) {
   const rs = group.get(family.id) ?? [];
-  const valid = rs.filter((r) => r.data_complete !== false && !r.infrastructure_error);
+  const valid = rs.filter(rowQualityAdmissible);
+  const hasInadmissible = rs.some((r) => !rowQualityAdmissible(r));
 
   const byConfig = new Map();
   for (const r of valid) {
@@ -146,7 +153,8 @@ for (const family of families) {
   const efficiencyCandidate = efficiencyMetrics.length >= minImprovedMetrics;
 
   let classification;
-  if (!withinBudget) classification = 'too-slow';
+  if (hasInadmissible) classification = 'incomplete-or-budget-confounded';
+  else if (!withinBudget) classification = 'too-slow';
   else if (!stable) classification = 'noisy';
   else if (modelDiscriminator && effortDiscriminator) classification = 'model+effort-discriminator';
   else if (effortDiscriminator) classification = 'effort-discriminator';
@@ -177,6 +185,7 @@ for (const family of families) {
     efficiency_improved_metrics: efficiencyMetrics,
     stable,
     within_budget: withinBudget,
+    quality_evidence_complete: rs.length > 0 && !hasInadmissible,
     config_stats: configStats,
   });
 }

@@ -45,11 +45,17 @@ const residentEpoch=manifest.resident_model_epoch ?? {};
 const residentSolModel=residentEpoch.resident_sol_model ?? registry.resident_model_epoch?.resident_sol_model ?? null;
 const expectedCrossModels=Array.isArray(residentEpoch.cross_model_set)?residentEpoch.cross_model_set:[];
 const observedModels=new Set(rows.map((r)=>String(r.model??'')).filter(Boolean));
-const crossModelEpochPass=expectedCrossModels.length===0 || expectedCrossModels.every((m)=>observedModels.has(m));
+const configSummaries=Object.values(app.by_config??{});
+const completeConfigs=configSummaries.filter(s=>s.data_complete===true && s.core_data_complete===true);
+const completeModels=new Set(completeConfigs.map(s=>String(s.model??'')).filter(Boolean));
+const currentQualityComplete=configSummaries.length>0 &&
+  completeConfigs.length===configSummaries.length;
+const crossModelEpochPass=expectedCrossModels.length===0 ||
+  expectedCrossModels.every((m)=>completeModels.has(m));
 const residentSolEfforts=new Set(
-  rows
-    .filter((r)=>!residentSolModel || r.model===residentSolModel)
-    .map((r)=>String(r.effort??''))
+  completeConfigs
+    .filter(s=>!residentSolModel || s.model===residentSolModel)
+    .map(s=>String(s.effort??''))
     .filter(Boolean)
 );
 const residentEffortPass=!residentSolModel || ['medium','high','xhigh'].every((e)=>residentSolEfforts.has(e));
@@ -69,7 +75,7 @@ const docsPass=
   readme.includes('Effort Core') &&
   readme.includes('frontier-registry.json');
 
-const modelCorePass=Boolean(modelCore.mature);
+const modelCorePass=Boolean(modelCore.mature && currentQualityComplete);
 const effortCorePass=Boolean(effortCore.mature);
 const coveragePass=Object.values(familyCoverage).every(Boolean);
 
@@ -85,6 +91,7 @@ const confirmedEffortTasks=(registry.tasks??[]).filter(x=>
 const checks={
   model_core:modelCorePass,
   effort_core:effortCorePass,
+  final_quality_evidence_complete:currentQualityComplete,
   application_family_coverage:coveragePass,
   duration_hard_limit:durationPass,
   final_model_epoch_coverage:finalModelEpochPass,
@@ -117,6 +124,7 @@ const output={
     resident_sol_model:residentSolModel,
     expected_cross_models:expectedCrossModels,
     observed_models:[...observedModels].sort(),
+    quality_complete_models:[...completeModels].sort(),
     cross_model_coverage:crossModelEpochPass,
     resident_sol_efforts:[...residentSolEfforts].sort(),
     resident_sol_effort_coverage:residentEffortPass,
@@ -137,6 +145,7 @@ const lines=[
   '|---|---|',
   `| Model Core | ${yn(checks.model_core)} |`,
   `| Effort Core | ${yn(checks.effort_core)} |`,
+  `| Final quality evidence complete | ${yn(checks.final_quality_evidence_complete)} |`,
   `| Five application families | ${yn(checks.application_family_coverage)} |`,
   `| Per-task hard runtime limit | ${yn(checks.duration_hard_limit)} |`,
   `| Current model-epoch final validation | ${yn(checks.final_model_epoch_coverage)} |`,
