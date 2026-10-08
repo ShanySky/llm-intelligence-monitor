@@ -3,3 +3,4 @@
 2026-10-08 single-candidate shell-trace diagnosis; no full three-case rescreen
 2026-10-08 re-screen after Docker mount writable-user fix and improved hidden verifiers
 2026-10-08 one-case Sol Medium pilot for lease only; two Luna ceilings excluded
+2026-10-08 two-candidate causal runtime investigation Luna High screen after no-cost proof regression
