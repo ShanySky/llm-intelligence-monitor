@@ -117,7 +117,7 @@
     "no_automatic_daily": true
   },
   "current_round": {
-    "status": "official-luna-fixed-cohort-under-verification",
+    "status": "sol-high-two-official-vue-cases-screened",
     "paid_workflow_runs": [
       37748890240,
       37749238271
@@ -127,7 +127,7 @@
     "sol_xhigh_runs": 0,
     "astra_runs": 0,
     "not_a_release": true,
-    "next": "Prepare thin official-repo Luna harness for one task; no Sol/Astra. Gold/test patches are host-only.",
+    "next": "No further paid expansion until more offline-admitted official Java/Vue tasks and repeat-stability checks; keep V1.1 Draft.",
     "pilot_run_ids": [
       37758488863,
       37759079285
@@ -156,8 +156,16 @@
       }
     ],
     "final_luna_cohort_score": null,
-    "network_parity": "pending",
-    "notes": "These are preliminary result records until same-isolation official reference run verifies correctness; disabled future paid triggers."
+    "network_parity": "2 Vue passed, 2 Gson and Axios failed offline gold",
+    "notes": "These are preliminary result records until same-isolation official reference run verifies correctness; disabled future paid triggers.",
+    "sol_high_run_id": 37761041016,
+    "sol_high_eligible_task_count": 2,
+    "sol_high_valid_tasks": 2,
+    "sol_high_resolved": 1,
+    "sol_high_quality_score": 50,
+    "luna_high_same_two_task_quality_score": 0,
+    "observed_spread_points": 50,
+    "known_model_difference_status": "candidate-only-single-attempt"
   },
   "strategy": "official_public_engineering_benchmark_first",
   "public_sources": {
