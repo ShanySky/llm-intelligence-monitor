@@ -1,16 +1,9 @@
 {
-  "version": 12,
-  "purpose": "One cost-gated candidate screening round for an original cross-module delivery/checkpoint failure-window repair. Hidden reference admission must pass before any model call. Do not launch Sol effort until Luna score and completion are admissible and non-ceiling.",
+  "version": 13,
+  "purpose": "Compact delivery candidate Luna High 100/100 in 84s with 7 Responses/8 Shell, all hidden checks passed and no saturation. Coverage-only; do not run Sol effort tiers. No current paid screening target.",
   "model": "gpt-6-luna",
   "effort": "high",
-  "tasks": [
-    {
-      "task": "frontier-compact-delivery",
-      "max_turns": 18,
-      "shell_budget": 22,
-      "wall_timeout_ms": 240000
-    }
-  ],
+  "tasks": [],
   "excluded_coverage_only": [
     "frontier-webhook",
     "frontier-webhook-hidden",
@@ -39,7 +32,7 @@
       "next": "cross-model-validation"
     }
   },
-  "enabled": true,
+  "enabled": false,
   "deferred_tasks": [
     {
       "task": "frontier-compact-idempotency",
@@ -60,8 +53,12 @@
     {
       "task": "frontier-runtime-diagnosis-cache-db",
       "reason": "Luna High 85 with 17/17 turns and 20/20 probes; no causal experiment evidence, budget-confounded; do not run Sol"
+    },
+    {
+      "task": "frontier-compact-delivery",
+      "reason": "Luna High completed 100/100 in 84s, 7 Responses, 8 Shell. All 4 hidden behavior checks pass; coverage-only, no Sol effort calibration."
     }
   ],
   "diagnostic_mode": false,
-  "phase": "screen"
+  "phase": "idle"
 }
