@@ -100,7 +100,7 @@ const tools = [{
 
 const safeEnv = { ...process.env };
 for (const key of Object.keys(safeEnv)) {
-  if (/KEY|SECRET|TOKEN|PASSWORD|AUTH/i.test(key)) delete safeEnv[key];
+  if (/KEY|SECRET|TOKEN|PASSWORD|AUTH/i.test(key) || /^GITHUB_/i.test(key) || /^RUNNER_/i.test(key)) delete safeEnv[key];
 }
 safeEnv.PATH = process.env.PATH ?? '/usr/local/bin:/usr/bin:/bin';
 safeEnv.HOME = taskDir;
@@ -108,6 +108,8 @@ safeEnv.HOME = taskDir;
 const maxTurnsPerStage = Number(process.env.AGENT_STAGE_MAX_TURNS ?? process.env.AGENT_MAX_TURNS ?? 20);
 const shellBudget = Number(process.env.AGENT_SHELL_BUDGET ?? 50);
 const maxOutputTokens = Number(process.env.AGENT_MAX_OUTPUT_TOKENS ?? 4096);
+const apiTimeoutMs = Number(process.env.AGENT_API_TIMEOUT_MS ?? 300000);
+const wallTimeoutMs = Number(process.env.AGENT_WALL_TIMEOUT_MS ?? 440000);
 
 let input = [];
 let commands = [];
@@ -115,15 +117,28 @@ let totalUsage = { input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, cache
 let responses = 0;
 let apiRetries = 0;
 let infrastructureError = null;
+let modelTimeoutReason = null;
 const stageResults = [];
 const startedAt = Date.now();
+const wallDeadline = startedAt + wallTimeoutMs;
+
+class AgentWallTimeoutError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'AgentWallTimeoutError';
+  }
+}
 
 async function callModel() {
   let lastError;
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
+      const remaining = wallDeadline - Date.now();
+      if (remaining <= 0) throw new AgentWallTimeoutError('Agent wall deadline reached');
+      const requestTimeoutMs = Math.max(1000, Math.min(apiTimeoutMs, remaining));
       const response = await fetch(baseUrl + '/responses', {
         method: 'POST',
+        signal: AbortSignal.timeout(requestTimeoutMs),
         headers: { 'content-type': 'application/json', authorization: 'Bearer ' + apiKey },
         body: JSON.stringify({
           model,
@@ -141,6 +156,13 @@ async function callModel() {
       lastError = new Error('Responses API ' + response.status + ': ' + text.slice(0, 1000));
       if (!(response.status === 429 || response.status >= 500) || attempt === 2) throw lastError;
     } catch (error) {
+      if (error?.name === 'AgentWallTimeoutError') throw error;
+      if (error?.name === 'AbortError' || error?.name === 'TimeoutError') {
+        if (Date.now() >= wallDeadline - 1000) {
+          throw new AgentWallTimeoutError('Agent wall deadline reached during API call');
+        }
+        throw new Error('Responses API request timed out before agent wall deadline; infrastructure-incomplete');
+      }
       lastError = error;
       if (attempt === 2) throw error;
     }
@@ -195,6 +217,7 @@ async function runStage(stage, index) {
   let finishedWithMessage = false;
 
   for (let turn = 0; turn < maxTurnsPerStage; turn += 1) {
+    if (Date.now() >= wallDeadline) throw new AgentWallTimeoutError('Agent wall deadline reached');
     const response = await callModel();
     responses += 1;
     addUsage(response.usage);
@@ -247,7 +270,8 @@ try {
     await runStage(stages[i], i);
   }
 } catch (error) {
-  infrastructureError = String(error?.message ?? error);
+  if (error?.name === 'AgentWallTimeoutError') modelTimeoutReason = String(error?.message ?? error);
+  else infrastructureError = String(error?.message ?? error);
 }
 
 const result = {
@@ -260,6 +284,10 @@ const result = {
   responses,
   max_turns_per_stage: maxTurnsPerStage,
   api_retries: apiRetries,
+  api_timeout_ms: apiTimeoutMs,
+  wall_timeout_ms: wallTimeoutMs,
+  model_timeout: Boolean(modelTimeoutReason),
+  timeout_reason: modelTimeoutReason,
   infrastructure_error: infrastructureError,
   shell_commands: commands.length,
   shell_budget: shellBudget,
@@ -268,4 +296,5 @@ const result = {
 };
 fs.writeFileSync(path.resolve(outFile), JSON.stringify(result, null, 2) + '\n');
 console.log(JSON.stringify(result, null, 2));
-if (infrastructureError) process.exitCode = 2;
+if (modelTimeoutReason) process.exitCode = 124;
+else if (infrastructureError) process.exitCode = 2;

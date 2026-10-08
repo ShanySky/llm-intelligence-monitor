@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - name: Check staged runner syntax before model billing
+        run: node --check scripts/light-agent-staged-runner.mjs
       - id: matrix
         shell: bash
         run: |
@@ -115,15 +117,18 @@ jobs:
           root=Path(os.environ["TASK_DIR"])
           score=json.loads((root/"score.json").read_text())
           rp=root/"staged-agent-result.json"
-          runner=json.loads(rp.read_text()) if rp.exists() else {}
+          runner_present=rp.exists()
+          runner=json.loads(rp.read_text()) if runner_present else {}
           exit_code=int("${{ steps.agent.outputs.exit_code || '999' }}")
           infra=runner.get("infrastructure_error")
           if infra:
               outcome="infrastructure_error"
-          elif exit_code==0:
+          elif exit_code==0 and runner_present:
               outcome="completed"
-          elif exit_code==124:
+          elif exit_code==124 and runner_present and runner.get("model_timeout"):
               outcome="model_timeout"
+          elif exit_code==124 and not runner_present:
+              outcome="pre_telemetry_timeout"
           else:
               outcome="runner_error"
           stages=runner.get("stages",[])
@@ -146,10 +151,15 @@ jobs:
             "stages":stages,
             "usage":runner.get("usage",{}),
             "api_retries":runner.get("api_retries",0),
+            "api_timeout_ms":runner.get("api_timeout_ms"),
+            "wall_timeout_ms":runner.get("wall_timeout_ms"),
+            "model_timeout":bool(runner.get("model_timeout")),
+            "timeout_reason":runner.get("timeout_reason"),
+            "runner_telemetry_present":runner_present,
             "infrastructure_error":infra,
             "agent_exit_code":exit_code,
             "outcome":outcome,
-            "data_complete":outcome in ("completed","model_timeout")
+            "data_complete":runner_present and outcome in ("completed","model_timeout")
           }
           Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
           if rp.exists(): shutil.copy2(rp,"result/staged-agent-result.json")
