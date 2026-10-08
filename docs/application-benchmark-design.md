@@ -235,3 +235,7 @@ Backup replay cases 仅用于主集区分力不足时扩展样本。它们可以
 ### 模型质量与请求超时分离
 
 如果单次 Responses API 请求在 Agent 总 wall-clock 截止前触发客户端 timeout，无法确认根因是模型思考、网关排队还是网络传输；此时标记为 `infrastructure_error` / 数据不完整，不计入模型质量比较。若达到 Agent 任务总时限，标记为 `model_timeout`，在报告中单列完成率与耗时；即使工作区的隐藏测试已通过，该样本也属于 `budget-confounded`，不得用来确认 reasoning-effort 差异。Replay Markdown 报告同时展示 `Outcome` 和 `Quality evidence`，防止将未按时完成的补丁原始分误当成完成质量。
+
+### v2 replay 退役记录
+
+2026-10-08 的 v2 replay 使用 Luna High 先筛（45、25、100），随后仅对两道非封顶题跑 GPT‑6.1 Sol M/H/XH。六个 Sol 样本中有五个未按任务时限正常完成，结果为 `budget-confounded`，不可晋级 Effort Core。当前 v2 题族从付费验证漏斗退役并默认禁用；不应通过增加复测次数来掩盖任务体量/请求超时问题。后续重新选择更短、更密集的跨文件隐藏依赖场景，先完成无成本 reference self-check 和 Luna 低成本筛选。

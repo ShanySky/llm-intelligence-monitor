@@ -581,7 +581,7 @@
     {
       "id": "real-repo-replay-family",
       "family": "coding_real_repo_commit_replay",
-      "status": "effort-calibration",
+      "status": "invalid-or-superseded",
       "promoted_to_final": false,
       "evidence": {
         "variants": 3,
@@ -662,9 +662,29 @@
         "v2_coverage_only_cases": [
           "quick-monitor-floor-health"
         ],
-        "v2_effort_pilot_status": "pending"
+        "v2_effort_pilot_status": "budget-confounded",
+        "v2_effort_pilot_run_id": 37713197713,
+        "v2_effort_pilot_generated_at": "2026-10-08T01:45:04.103Z",
+        "v2_effort_pilot_outcomes": {
+          "total": 6,
+          "completed": 1,
+          "model_timeout": 5
+        },
+        "v2_effort_pilot_scores": {
+          "core-signal-summary": {
+            "medium": 100,
+            "high": 96,
+            "xhigh": 25
+          },
+          "repeat-sample-policy": {
+            "medium": 25,
+            "high": 25,
+            "xhigh": 25
+          }
+        },
+        "v2_quality_promotion": "do-not-promote"
       },
-      "note": "v2 screen: Luna High 45/25 on two real-repo repairs; floor-health variant 100 and excluded from paid Sol effort. Run a single resident gpt-6.1-sol M/H/XH pilot on two cases, not an Effort Core confirmation; repeated paired evidence and >=3 signal variants still required for promotion."
+      "note": "V2 Luna High selected two cases (45/25) and stopped a 100-point coverage case. The Sol M/H/XH single-round pilot had 5/6 model-timeout outcomes; completion budget confounded all cross-effort comparisons. Marked invalid/superseded, disabled; no more paid replay on these cases. A new short, hidden-dependency real-repo family is needed for Effort Core."
     },
     {
       "id": "frontier-runtime-repair-family",
