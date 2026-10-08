@@ -75,9 +75,27 @@
         "v11-recovery-lease",
         "v11-recovery-identity"
       ],
-      "status": "reference-admission-passed",
-      "paid_screening": "one-lease-luna-high-pilot-triggered",
-      "reference_check_run_id": 37748689004
+      "status": "one-instance-coverage-other-untested",
+      "paid_screening": false,
+      "reference_check_run_id": 37748689004,
+      "instances_state": {
+        "lease": "coverage-only-ceiling",
+        "payment": "untested",
+        "identity": "untested"
+      },
+      "lease_luna_run_id": 37748890240
+    },
+    {
+      "id": "compact_lease_repeat",
+      "instances": [
+        "frontier-compact-lease"
+      ],
+      "status": "retest-luna-after-prior-80-sol-medium-100",
+      "paid_screening": "one-luna-high-repeat",
+      "prior_runs": [
+        37722327602,
+        37722610571
+      ]
     }
   ],
   "release_gate": {

@@ -890,6 +890,21 @@
         "next_action": "coverage-no-sol"
       },
       "note": "Original multi-failure, cross-contract repair passed 100/100 in 84s on Luna High, with no model/tool saturation. Retain as regression Coverage; no valid reason to pay for Sol Medium/High/XHigh on this instance."
+    },
+    {
+      "id": "v11-recovery-lease",
+      "family": "cross_boundary_recovery_lease",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100,
+        "run_id": 37748890240,
+        "duration_seconds": 42,
+        "turns": 6,
+        "shell_commands": 5,
+        "budget_confounded": false
+      },
+      "note": "100/100 on first Luna High probe; stop Sol effort spending. Other V1.1 recovery variants remain untested."
     }
   ],
   "resident_model_epoch": {

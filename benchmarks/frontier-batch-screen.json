@@ -1,13 +1,13 @@
 {
-  "version": 14,
-  "purpose": "V1.1 one-case paid admission after reference selfcheck; only lease instance Luna High. No Sol/Astra.",
+  "version": 15,
+  "purpose": "Bounded repeat of previously promising compact lease: Luna High 80 vs Sol Medium 100. Recheck Luna first with original 18-turn/24-shell budget; only if stable consider Sol High.",
   "model": "gpt-6-luna",
   "effort": "high",
   "tasks": [
     {
-      "task": "v11-recovery-lease",
-      "max_turns": 40,
-      "shell_budget": 40,
+      "task": "frontier-compact-lease",
+      "max_turns": 18,
+      "shell_budget": 24,
       "wall_timeout_ms": 290000
     }
   ],
