@@ -119,6 +119,15 @@ jobs:
 
   public-luna-pilot:
     if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-luna]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        case_id:
+          - google__gson-2311
+          - vuejs__core-11589
+          - vuejs__core-11899
+          - axios__axios-5316
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -138,19 +147,72 @@ jobs:
         env:
           BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          CASE_ID: ${{ matrix.case_id }}
         run: bash scripts/v11-public-luna-screen.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: v11-public-luna-${{ github.run_id }}
+          name: v11-public-luna-${{ matrix.case_id }}-${{ github.run_id }}
           path: v11-public-luna/
           retention-days: 30
-      - name: Persist one-case Luna result
-        if: always()
+
+  public-luna-summary:
+    needs: public-luna-pilot
+    if: always() && needs.public-luna-pilot.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v11-public-luna-*-${{ github.run_id }}
+          path: results/v11-public-luna
+      - name: Aggregate fixed-cohort Luna results
         shell: bash
         run: |
-          test -f v11-public-luna/result.json || exit 0
-          cp v11-public-luna/result.json /tmp/v11-luna-result.json
+          git fetch origin v11-public-luna-results || true
+          git show origin/v11-public-luna-results:public-luna/runs/37758488863.json > /tmp/v11-prior-luna.json || true
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[json.loads(f.read_text()) for f in Path('results/v11-public-luna').rglob('result.json')]
+          prior=Path('/tmp/v11-prior-luna.json')
+          if prior.is_file() and prior.stat().st_size:
+              r=json.loads(prior.read_text())
+              if r['task'] not in {x['task'] for x in rows}: rows.append(r)
+          rows.sort(key=lambda x:x['task'])
+          expected={'google__gson-2158','google__gson-2311','vuejs__core-11589','vuejs__core-11899','axios__axios-5316'}
+          all_valid=len(rows)==5 and {r['task'] for r in rows}==expected and all(r.get('data_complete') for r in rows)
+          passed=sum(r.get('score')==100 for r in rows if r.get('data_complete'))
+          quality=100*passed/5 if all_valid else None
+          report={'source':'official-swe-bench-multilingual','model':'gpt-6-luna','effort':'high',
+                  'run_id':int('${{ github.run_id }}'),'rows':rows,'data_complete':all_valid,
+                  'expected_tasks':5,'valid_tasks':sum(bool(r.get('data_complete')) for r in rows),
+                  'passed_tasks':passed,'quality_score':quality,
+                  'signal':'single-run-screen-only-not-a-stable-discriminator'}
+          Path('v11-luna-summary.json').write_text(json.dumps(report,indent=2)+'\n')
+          lines=['# V1.1 Five-case Luna High Screening','','| Task | Quality | Admissible | Model seconds | Input tokens |',
+                 '|---|---:|---|---:|---:|']
+          for r in rows:
+              lines.append(f"| {r['task']} | {r.get('score') if r.get('data_complete') else '-'} | {r.get('data_complete')} | {r.get('duration_seconds') or '-'} | {r.get('usage',{}).get('input_tokens','-')} |")
+          lines+=['',f"Fixed-cohort quality: {quality if quality is not None else 'INCOMPLETE'}, {passed}/5 passed. Single runs are NOT repeat-confirmed."]
+          Path('v11-luna-summary.md').write_text('\n'.join(lines)+'\n')
+          print('\n'.join(lines))
+          PY
+          cat v11-luna-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-luna-summary-${{ github.run_id }}
+          path: |
+            v11-luna-summary.json
+            v11-luna-summary.md
+          retention-days: 30
+      - name: Persist batch result
+        run: |
+          cp v11-luna-summary.json /tmp/v11-luna-summary.json
+          cp v11-luna-summary.md /tmp/v11-luna-summary.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin v11-public-luna-results || true
@@ -161,11 +223,13 @@ jobs:
             git rm -rf --ignore-unmatch .
           fi
           mkdir -p public-luna/runs
-          cp /tmp/v11-luna-result.json public-luna/latest.json
-          cp /tmp/v11-luna-result.json "public-luna/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-luna-summary.json public-luna/latest.json
+          cp /tmp/v11-luna-summary.md public-luna/latest.md
+          cp /tmp/v11-luna-summary.json "public-luna/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-luna-summary.md "public-luna/runs/${GITHUB_RUN_ID}.md"
           git add public-luna
           if ! git diff --cached --quiet; then
-            git commit -m "Record V1.1 Luna public candidate ${GITHUB_RUN_ID}"
+            git commit -m "Record V1.1 official Luna cohort ${GITHUB_RUN_ID}"
             git push origin HEAD:v11-public-luna-results
           fi
 

@@ -60,28 +60,32 @@ PY
 }
 trap finalize EXIT
 
-read -r CASE BASE IMAGE UPSTREAM_COMMIT < <(python3 - <<'PY'
-import json
+read -r CASE BASE UPSTREAM_COMMIT < <(python3 - <<'PY'
+import json,os
 from pathlib import Path
 config=json.loads(Path("benchmarks/v1.1-luna-pilot.json").read_text())
 manifest=json.loads(Path("benchmarks/v1.1-public-candidates.json").read_text())
 if not config["enabled"] or config["model"]!="gpt-6-luna" or config["effort"]!="high":
     raise SystemExit("No Luna-only admission")
-task=next((x for x in manifest["source_candidates"] if x["id"]==config["task"]),None)
+selected=os.getenv("CASE_ID","")
+if selected not in config["tasks"]: raise SystemExit("Case is not in fixed Luna cohort")
+task=next((x for x in manifest["source_candidates"] if x["id"]==selected),None)
 if task is None or task["environment_status"]!="environment_ready" or task.get("reference_test_status")!="baseline_failed_reference_passed":
     raise SystemExit("Official environment/reference not verified for this task")
 if task["environment_validation"]["reference_exit_code"]!=0 or task["environment_validation"]["baseline_exit_code"]==0:
     raise SystemExit("Invalid historical reference admission")
-print(task["id"],task["base_commit"],"swebench/sweb.eval.x86_64.google_1776_gson-2158:latest",config["pinned_task_commit"])
+print(task["id"],task["base_commit"],config["pinned_task_commit"])
 PY
 )
-test "$CASE" = "google__gson-2158"
 STAGE="prepare-task"
 mkdir -p "$OUTDIR/agent-work"
-curl --retry 2 --fail --silent --show-error --max-time 45 \
- "https://raw.githubusercontent.com/SWE-bench/swe-bench-multilingual-tasks/$UPSTREAM_COMMIT/tasks/$CASE/problem_statement.md" \
- -o "$OUTDIR/agent-work/TASK.md"
-
+UPSTREAM_TASK="https://raw.githubusercontent.com/SWE-bench/swe-bench-multilingual-tasks/$UPSTREAM_COMMIT/tasks/$CASE"
+curl --retry 2 --fail --silent --show-error --max-time 45 "$UPSTREAM_TASK/problem_statement.md" -o "$OUTDIR/agent-work/TASK.md"
+curl --retry 2 --fail --silent --show-error --max-time 45 "$UPSTREAM_TASK/task.yaml" -o "$OUTDIR/upstream-task.yaml"
+IMAGE=$(sed -n 's/^image: //p' "$OUTDIR/upstream-task.yaml" | tr -d '\r')
+PIN=$(sed -n 's/^base_commit: //p' "$OUTDIR/upstream-task.yaml" | tr -d '\r')
+test "$PIN" = "$BASE"
+[[ "$IMAGE" == swebench/sweb.eval.x86_64.* ]]
 STAGE="pull-official-image"
 timeout 180s docker pull "$IMAGE" > "$OUTDIR/pull.log" 2>&1
 C="v11-luna-${GITHUB_RUN_ID:-local}"
