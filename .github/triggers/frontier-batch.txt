@@ -1,1 +1,1 @@
-V1.1 Luna High pilot: v11-recovery-lease only. Reference admission passed; capped at one task.
+V1.1 independent reproducibility check: frontier-compact-lease Luna High 18 turns/24 shells, one run.
