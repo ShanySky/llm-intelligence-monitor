@@ -24,6 +24,7 @@ jobs:
       matrix:
         case_id:
           - google__gson-2158
+          - google__gson-2311
           - vuejs__core-11589
           - vuejs__core-11899
           - axios__axios-5316

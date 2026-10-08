@@ -31,7 +31,7 @@ obj={
   "task":env("CASE"),"source":"SWE-bench Multilingual",
   "upstream_commit":env("COMMIT"),"base_commit":env("BASE"),"image":env("IMAGE"),
   "status":"environment_ready" if complete else "incomplete_environment",
-  "stage":env("STAGE"),"image_ready":env("IMAGE_READY")=="true",
+  "stage":env("STAGE"),"network_mode":"none","image_ready":env("IMAGE_READY")=="true",
   "test_patch_and_ref_applied":env("PATCH_READY")=="true",
   "evaluator_ready":env("EVALUATOR_READY")=="true",
   "baseline_exit_code":base_exit,"reference_exit_code":reference_exit,
@@ -77,7 +77,7 @@ timeout 180s docker pull "$IMAGE" > "$REPORT_DIR/pull.log" 2>&1
 IMAGE_READY=true
 STAGE="start-official-image"
 C="v11-public-${GITHUB_RUN_ID:-local}"
-docker run -d --name "$C" "$IMAGE" sleep infinity >/dev/null
+docker run -d --network none --name "$C" "$IMAGE" sleep infinity >/dev/null
 docker exec "$C" test -d /testbed
 
 STAGE="copy-upstream-evaluator"
