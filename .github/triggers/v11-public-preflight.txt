@@ -1,0 +1,1 @@
+Official SWE-bench reference-only admission, one pinned Gson case; no model calls.
