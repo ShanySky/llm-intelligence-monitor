@@ -31,6 +31,9 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Verify effort evidence admission rules
+        run: node tests/effort-repeat-gate.test.mjs
+
       - name: Reference commit self-check
         id: selfcheck
         shell: bash
@@ -119,11 +122,20 @@ jobs:
           if (c.mode==='screen' && (c.model!=='gpt-6-luna' ||
               c.efforts.length!==1 || c.efforts[0]!=='high' || repeats!==1))
             throw new Error('Screen mode must run Luna High once per case');
+          if (c.mode==='effort') {
+            const registry=require('./benchmarks/frontier-registry.json');
+            const item=(registry.tasks??[]).find(x=>x.id==='real-repo-replay-family');
+            const blocked=new Set(item?.evidence?.v2_coverage_only_cases??[]);
+            const forbidden=(c.cases??[]).map(x=>x.id).filter(id=>blocked.has(id));
+            if (forbidden.length) throw new Error('Coverage-only replay cases cannot consume Sol effort: '+forbidden.join(', '));
+            if(c.model!=='gpt-6.1-sol') throw new Error('Resident Sol effort calibration must use gpt-6.1-sol');
+          }
           for(const effort of c.efforts){
             for(const item of c.cases) for(let repeat=1;repeat<=repeats;repeat++) include.push({
               effort,
               repeat,
               model:c.model,
+              family_version:c.family_version??1,
               trial:item.trial,
               case_id:item.id,
               target_sha:item.target_sha,
@@ -208,6 +220,7 @@ jobs:
             "case_id":"${{ matrix.case_id }}",
             "trial":int("${{ matrix.trial }}"),
             "repeat":int("${{ matrix.repeat }}"),
+            "family_version":int("${{ matrix.family_version }}"),
             "base_sha":os.environ.get("BASE_SHA"),
             "model":"${{ matrix.model }}",
             "effort":"${{ matrix.effort }}",
