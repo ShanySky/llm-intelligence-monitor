@@ -1,0 +1,104 @@
+{
+  "version": "0.1.0-beta.1",
+  "profile": "v1-core",
+  "generated_at": "2026-10-08T04:21:28.978Z",
+  "ready": true,
+  "application_suite_mature": false,
+  "effort_core_confirmed": false,
+  "full_model_epoch_validation": "pending",
+  "comparison_evidence": "single-run-directional-only; not a repeated ranking",
+  "core_confirmed_by_registry": true,
+  "full_matrix_complete": true,
+  "fully_valid_models": [
+    "gpt-6-astra",
+    "gpt-6.1-sol",
+    "gpt-6-luna",
+    "gpt-5.6-sol"
+  ],
+  "required_results": 8,
+  "admissible_results": 8,
+  "core_families": [
+    "frontier-review-deep",
+    "hard-incident"
+  ],
+  "models": [
+    "gpt-6-astra",
+    "gpt-6.1-sol",
+    "gpt-6-luna",
+    "gpt-5.6-sol"
+  ],
+  "checks": [
+    {
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "task": "frontier-review-deep",
+      "admissible": true,
+      "score": 100,
+      "duration_seconds": 117,
+      "reason": "completed"
+    },
+    {
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "task": "hard-incident",
+      "admissible": true,
+      "score": 100,
+      "duration_seconds": 43,
+      "reason": "completed"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "task": "frontier-review-deep",
+      "admissible": true,
+      "score": 100,
+      "duration_seconds": 188,
+      "reason": "completed"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "task": "hard-incident",
+      "admissible": true,
+      "score": 100,
+      "duration_seconds": 63,
+      "reason": "completed"
+    },
+    {
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "task": "frontier-review-deep",
+      "admissible": true,
+      "score": 90,
+      "duration_seconds": 80,
+      "reason": "completed"
+    },
+    {
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "task": "hard-incident",
+      "admissible": true,
+      "score": 90,
+      "duration_seconds": 51,
+      "reason": "completed"
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "task": "frontier-review-deep",
+      "admissible": true,
+      "score": 90,
+      "duration_seconds": 136,
+      "reason": "completed"
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "task": "hard-incident",
+      "admissible": true,
+      "score": 80,
+      "duration_seconds": 40,
+      "reason": "completed"
+    }
+  ]
+}

@@ -1,0 +1,927 @@
+{
+  "generated_at": "2026-10-08T04:21:28.930Z",
+  "manifest": {
+    "version": 4,
+    "target_seconds": 300,
+    "hard_timeout_seconds": 600,
+    "purpose": "Final application validation with coverage quality separated from confirmed high-information core signal quality.",
+    "families": [
+      {
+        "id": "hard-plan",
+        "family": "solution_design",
+        "weight": 20,
+        "role": "coverage"
+      },
+      {
+        "id": "hard-webhook",
+        "family": "coding_idempotency",
+        "weight": 25,
+        "role": "coverage"
+      },
+      {
+        "id": "frontier-review-deep",
+        "family": "code_review_cross_file_reliability",
+        "weight": 20,
+        "role": "core"
+      },
+      {
+        "id": "hard-incident",
+        "family": "agent_tool_use",
+        "weight": 15,
+        "role": "core"
+      },
+      {
+        "id": "micro-export",
+        "family": "coding_long_horizon_recovery",
+        "weight": 20,
+        "role": "coverage"
+      }
+    ],
+    "core_min_families_for_mature_score": 2,
+    "resident_model_epoch": {
+      "effective_date": "2026-09-30",
+      "resident_sol_model": "gpt-6.1-sol",
+      "cross_model_set": [
+        "gpt-6-astra",
+        "gpt-6.1-sol",
+        "gpt-6-luna",
+        "gpt-5.6-sol"
+      ]
+    }
+  },
+  "configs": [
+    {
+      "key": "gpt-5.6-sol|high",
+      "model": "gpt-5.6-sol",
+      "effort": "high"
+    },
+    {
+      "key": "gpt-6-astra|high",
+      "model": "gpt-6-astra",
+      "effort": "high"
+    },
+    {
+      "key": "gpt-6-luna|high",
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    {
+      "key": "gpt-6.1-sol|high",
+      "model": "gpt-6.1-sol",
+      "effort": "high"
+    }
+  ],
+  "rows": [
+    {
+      "task": "frontier-review-deep",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "score": 90,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": false
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 136,
+      "responses": 4,
+      "shell_commands": 4,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "probe_budget_reached": false,
+      "model_timeout": false,
+      "timeout_reason": null,
+      "runner_telemetry_present": true,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 99,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 40
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 59
+          }
+        ]
+      },
+      "usage": {
+        "input_tokens": 15529,
+        "output_tokens": 6363,
+        "reasoning_tokens": 4522,
+        "cached_input_tokens": 4864
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-deep",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "score": 100,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 188,
+      "responses": 6,
+      "shell_commands": 5,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "probe_budget_reached": false,
+      "model_timeout": false,
+      "timeout_reason": null,
+      "runner_telemetry_present": true,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 118,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 45
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 73
+          }
+        ]
+      },
+      "usage": {
+        "input_tokens": 25171,
+        "output_tokens": 6654,
+        "reasoning_tokens": 2468,
+        "cached_input_tokens": 13312
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-deep",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "score": 100,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 117,
+      "responses": 5,
+      "shell_commands": 4,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "probe_budget_reached": false,
+      "model_timeout": false,
+      "timeout_reason": null,
+      "runner_telemetry_present": true,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 118,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 45
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 73
+          }
+        ]
+      },
+      "usage": {
+        "input_tokens": 16906,
+        "output_tokens": 3311,
+        "reasoning_tokens": 834,
+        "cached_input_tokens": 5504
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "frontier-review-deep",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 90,
+      "checks": {
+        "valid_findings_json": {
+          "points": 5,
+          "passed": true
+        },
+        "finding_PriceService.java_ignored_write_result": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_PriceService.java_transaction_visibility": {
+          "points": 15,
+          "passed": true
+        },
+        "finding_AuditWorker.java_payload_snapshot": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_AuditWorker.java_retry_idempotency": {
+          "points": 10,
+          "passed": true
+        },
+        "finding_WebhookService.java_business_identity_scope": {
+          "points": 20,
+          "passed": true
+        },
+        "finding_WebhookService.java_external_effect_recovery": {
+          "points": 10,
+          "passed": false
+        },
+        "finding_ReservationMover.java_lock_order": {
+          "points": 10,
+          "passed": true
+        },
+        "requests_changes": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 80,
+      "responses": 6,
+      "shell_commands": 6,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "probe_budget_reached": false,
+      "model_timeout": false,
+      "timeout_reason": null,
+      "runner_telemetry_present": true,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 2,
+        "changed_lines": 50,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": "FINDINGS.json",
+            "kind": "added",
+            "changed_lines": 35
+          },
+          {
+            "path": "REVIEW.md",
+            "kind": "added",
+            "changed_lines": 15
+          }
+        ]
+      },
+      "usage": {
+        "input_tokens": 23834,
+        "output_tokens": 2962,
+        "reasoning_tokens": 1138,
+        "cached_input_tokens": 12800
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-incident",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "score": 80,
+      "checks": {
+        "targeted_replacement": {
+          "points": 30,
+          "passed": true
+        },
+        "within_budget": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_failure_log": {
+          "points": 10,
+          "passed": false
+        },
+        "checked_pod_config": {
+          "points": 15,
+          "passed": true
+        },
+        "checked_current_configmap": {
+          "points": 10,
+          "passed": false
+        },
+        "avoided_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_config_drift": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 40,
+      "responses": 7,
+      "shell_commands": 8,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "probe_budget_reached": false,
+      "model_timeout": false,
+      "timeout_reason": null,
+      "runner_telemetry_present": true,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 3,
+        "changed_lines": 22,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": ".actions",
+            "kind": "added",
+            "changed_lines": 7
+          },
+          {
+            "path": ".state",
+            "kind": "modified",
+            "changed_lines": 2
+          },
+          {
+            "path": "REPORT.txt",
+            "kind": "added",
+            "changed_lines": 13
+          }
+        ]
+      },
+      "usage": {
+        "input_tokens": 7610,
+        "output_tokens": 813,
+        "reasoning_tokens": 330,
+        "cached_input_tokens": 2432
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-incident",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "score": 100,
+      "checks": {
+        "targeted_replacement": {
+          "points": 30,
+          "passed": true
+        },
+        "within_budget": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_failure_log": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_pod_config": {
+          "points": 15,
+          "passed": true
+        },
+        "checked_current_configmap": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_config_drift": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 63,
+      "responses": 11,
+      "shell_commands": 10,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "probe_budget_reached": false,
+      "model_timeout": false,
+      "timeout_reason": null,
+      "runner_telemetry_present": true,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 3,
+        "changed_lines": 35,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": ".actions",
+            "kind": "added",
+            "changed_lines": 7
+          },
+          {
+            "path": ".state",
+            "kind": "modified",
+            "changed_lines": 2
+          },
+          {
+            "path": "REPORT.txt",
+            "kind": "added",
+            "changed_lines": 26
+          }
+        ]
+      },
+      "usage": {
+        "input_tokens": 12543,
+        "output_tokens": 795,
+        "reasoning_tokens": 120,
+        "cached_input_tokens": 3328
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-incident",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "score": 100,
+      "checks": {
+        "targeted_replacement": {
+          "points": 30,
+          "passed": true
+        },
+        "within_budget": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_failure_log": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_pod_config": {
+          "points": 15,
+          "passed": true
+        },
+        "checked_current_configmap": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_config_drift": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 43,
+      "responses": 6,
+      "shell_commands": 5,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "probe_budget_reached": false,
+      "model_timeout": false,
+      "timeout_reason": null,
+      "runner_telemetry_present": true,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 3,
+        "changed_lines": 38,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": ".actions",
+            "kind": "added",
+            "changed_lines": 8
+          },
+          {
+            "path": ".state",
+            "kind": "modified",
+            "changed_lines": 2
+          },
+          {
+            "path": "REPORT.txt",
+            "kind": "added",
+            "changed_lines": 28
+          }
+        ]
+      },
+      "usage": {
+        "input_tokens": 8104,
+        "output_tokens": 692,
+        "reasoning_tokens": 35,
+        "cached_input_tokens": 4224
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    },
+    {
+      "task": "hard-incident",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "score": 90,
+      "checks": {
+        "targeted_replacement": {
+          "points": 30,
+          "passed": true
+        },
+        "within_budget": {
+          "points": 10,
+          "passed": false
+        },
+        "checked_failure_log": {
+          "points": 10,
+          "passed": true
+        },
+        "checked_pod_config": {
+          "points": 15,
+          "passed": true
+        },
+        "checked_current_configmap": {
+          "points": 10,
+          "passed": true
+        },
+        "avoided_restart_scale": {
+          "points": 10,
+          "passed": true
+        },
+        "verified": {
+          "points": 10,
+          "passed": true
+        },
+        "reported_config_drift": {
+          "points": 5,
+          "passed": true
+        }
+      },
+      "duration_seconds": 51,
+      "responses": 8,
+      "shell_commands": 12,
+      "shell_budget": 40,
+      "turn_limit_reached": false,
+      "shell_budget_reached": false,
+      "probe_budget_reached": false,
+      "model_timeout": false,
+      "timeout_reason": null,
+      "runner_telemetry_present": true,
+      "validation_calls": 0,
+      "validation_budget": 0,
+      "validation_enabled": false,
+      "probe_calls": 0,
+      "probe_attempts": 0,
+      "probe_budget": 0,
+      "probe_enabled": false,
+      "patch_metrics": {
+        "changed_files": 3,
+        "changed_lines": 16,
+        "added_files": 2,
+        "deleted_files": 0,
+        "files": [
+          {
+            "path": ".actions",
+            "kind": "added",
+            "changed_lines": 9
+          },
+          {
+            "path": ".state",
+            "kind": "modified",
+            "changed_lines": 2
+          },
+          {
+            "path": "REPORT.txt",
+            "kind": "added",
+            "changed_lines": 5
+          }
+        ]
+      },
+      "usage": {
+        "input_tokens": 12356,
+        "output_tokens": 1160,
+        "reasoning_tokens": 676,
+        "cached_input_tokens": 3072
+      },
+      "api_retries": 0,
+      "infrastructure_error": null,
+      "agent_exit_code": 0,
+      "outcome": "completed",
+      "data_complete": true
+    }
+  ],
+  "by_config": {
+    "gpt-5.6-sol|high": {
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "data_complete": false,
+      "telemetry_complete": true,
+      "quality_admissible_tasks": 2,
+      "budget_confounded_tasks": [],
+      "valid_weight": 35,
+      "total_weight": 100,
+      "task_count": 2,
+      "quality_score": 85.71428571428571,
+      "practical_score": 87.85714285714286,
+      "core_quality_score": 85.71428571428571,
+      "core_practical_score": 87.85714285714286,
+      "core_valid_weight": 35,
+      "core_total_weight": 35,
+      "core_task_count": 2,
+      "core_family_count": 2,
+      "core_data_complete": true,
+      "core_mature": true,
+      "budget_completion_rate": 1,
+      "duration_seconds": 176,
+      "average_duration_seconds": 88,
+      "input_tokens": 23139,
+      "output_tokens": 7176,
+      "reasoning_tokens": 4852,
+      "average_input_tokens": 11569.5,
+      "average_reasoning_tokens": 2426,
+      "api_retries": 0,
+      "incomplete_tasks": []
+    },
+    "gpt-6-astra|high": {
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "data_complete": false,
+      "telemetry_complete": true,
+      "quality_admissible_tasks": 2,
+      "budget_confounded_tasks": [],
+      "valid_weight": 35,
+      "total_weight": 100,
+      "task_count": 2,
+      "quality_score": 100,
+      "practical_score": 100,
+      "core_quality_score": 100,
+      "core_practical_score": 100,
+      "core_valid_weight": 35,
+      "core_total_weight": 35,
+      "core_task_count": 2,
+      "core_family_count": 2,
+      "core_data_complete": true,
+      "core_mature": true,
+      "budget_completion_rate": 1,
+      "duration_seconds": 160,
+      "average_duration_seconds": 80,
+      "input_tokens": 25010,
+      "output_tokens": 4003,
+      "reasoning_tokens": 869,
+      "average_input_tokens": 12505,
+      "average_reasoning_tokens": 434.5,
+      "api_retries": 0,
+      "incomplete_tasks": []
+    },
+    "gpt-6-luna|high": {
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "data_complete": false,
+      "telemetry_complete": true,
+      "quality_admissible_tasks": 2,
+      "budget_confounded_tasks": [],
+      "valid_weight": 35,
+      "total_weight": 100,
+      "task_count": 2,
+      "quality_score": 90,
+      "practical_score": 91.5,
+      "core_quality_score": 90,
+      "core_practical_score": 91.5,
+      "core_valid_weight": 35,
+      "core_total_weight": 35,
+      "core_task_count": 2,
+      "core_family_count": 2,
+      "core_data_complete": true,
+      "core_mature": true,
+      "budget_completion_rate": 1,
+      "duration_seconds": 131,
+      "average_duration_seconds": 65.5,
+      "input_tokens": 36190,
+      "output_tokens": 4122,
+      "reasoning_tokens": 1814,
+      "average_input_tokens": 18095,
+      "average_reasoning_tokens": 907,
+      "api_retries": 0,
+      "incomplete_tasks": []
+    },
+    "gpt-6.1-sol|high": {
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "data_complete": false,
+      "telemetry_complete": true,
+      "quality_admissible_tasks": 2,
+      "budget_confounded_tasks": [],
+      "valid_weight": 35,
+      "total_weight": 100,
+      "task_count": 2,
+      "quality_score": 100,
+      "practical_score": 100,
+      "core_quality_score": 100,
+      "core_practical_score": 100,
+      "core_valid_weight": 35,
+      "core_total_weight": 35,
+      "core_task_count": 2,
+      "core_family_count": 2,
+      "core_data_complete": true,
+      "core_mature": true,
+      "budget_completion_rate": 1,
+      "duration_seconds": 251,
+      "average_duration_seconds": 125.5,
+      "input_tokens": 37714,
+      "output_tokens": 7449,
+      "reasoning_tokens": 2588,
+      "average_input_tokens": 18857,
+      "average_reasoning_tokens": 1294,
+      "api_retries": 0,
+      "incomplete_tasks": []
+    }
+  },
+  "by_effort": {}
+}
