@@ -860,6 +860,22 @@
         "next_action": "retired-budget-confounded-no-sol"
       },
       "note": "2026-10-08 Luna High 85/100 (original correct actions only), 90s but exhausted 17 agent turns and 20 probe budget, no successful controlled experiments. Budget-confounded; exclude from both Model Core/Effort Core and stop paid rescreening."
+    },
+    {
+      "id": "frontier-compact-delivery",
+      "family": "coding_agent_cross_module_recovery",
+      "status": "screening",
+      "promoted_to_final": false,
+      "evidence": {
+        "source": "new isolated Java repository with two scattered contracts",
+        "hidden_tests": true,
+        "root_difficulty": "retry identity + pre/post-effect crash + checkpoint monotonicity + concurrent duplicate delivery",
+        "model": "gpt-6-luna",
+        "effort": "high",
+        "reference_admission": "pending",
+        "model_epoch": "gpt-6.1-sol"
+      },
+      "note": "Single original higher-interaction candidate. Hidden reference must score 100 and baseline fail. Luna High screens first; no Sol call until valid 20-95 score with no budget confound; repeated paired independent evidence required for Effort Core."
     }
   ],
   "resident_model_epoch": {

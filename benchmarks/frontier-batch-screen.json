@@ -1,9 +1,16 @@
 {
-  "version": 11,
-  "purpose": "2026-10-08 Luna High investigation screen closed: capacity case 95/58s valid coverage; cache-db case 85/90s exhausted 17-turn and 20-probe budgets without controlled experiments, thus budget-confounded and not an effort candidate. No Sol validation on these cases.",
+  "version": 12,
+  "purpose": "One cost-gated candidate screening round for an original cross-module delivery/checkpoint failure-window repair. Hidden reference admission must pass before any model call. Do not launch Sol effort until Luna score and completion are admissible and non-ceiling.",
   "model": "gpt-6-luna",
   "effort": "high",
-  "tasks": [],
+  "tasks": [
+    {
+      "task": "frontier-compact-delivery",
+      "max_turns": 18,
+      "shell_budget": 22,
+      "wall_timeout_ms": 240000
+    }
+  ],
   "excluded_coverage_only": [
     "frontier-webhook",
     "frontier-webhook-hidden",
@@ -32,7 +39,7 @@
       "next": "cross-model-validation"
     }
   },
-  "enabled": false,
+  "enabled": true,
   "deferred_tasks": [
     {
       "task": "frontier-compact-idempotency",
@@ -56,5 +63,5 @@
     }
   ],
   "diagnostic_mode": false,
-  "phase": "idle"
+  "phase": "screen"
 }

@@ -401,3 +401,7 @@ Luna High 参考自检 3/3 为 100 分；模型筛题分：`core-signal-summary`
 ### 无稳定 Effort 信号的旧候选收口
 
 `frontier-dynamic-diagnosis-v2` 已完成 3 次/档重复，思考档位分差最大 6.7（低于 10 分晋级阈值），不再投入付费校准；`frontier-review-family` 经过等价标签和重复域修正后 Medium/High/XHigh 均接近封顶（98.3/95/98.3），转为 Coverage。这两组的旧实验不得作为 Effort Core 证据。当前 Effort Core 仍为 0/1，下一阶段只接受新的、可重复、非预算混淆的质量信号。
+
+### 新 Effort 研究候选：跨模块 Delivery 故障恢复
+
+仅新增一个原始 Java 微型仓库 `frontier-compact-delivery`，考察同一消息在发送前失败、发送后回执丢失、业务身份跨租户/版本/行项目不重合、并发重放和分区 checkpoint 不能倒退等相互影响的条件。实现需从 `contracts/delivery-identity.md`、`contracts/acknowledgement.md` 和三个实现模块综合推断；模型可见目录不包含隐藏 verifier 和参考补丁。先执行零费用基线/参考修复自检，再只跑 Luna High 单题。封顶直接留作 Coverage，只有非预算混淆且有区分空间的题才进入 Sol Medium 校准；这仍只是题型族的第一个实例，不能单题晋级 Effort Core。
