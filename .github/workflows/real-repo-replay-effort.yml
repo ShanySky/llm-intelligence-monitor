@@ -113,9 +113,16 @@ jobs:
           node - <<'NODE' >> "$GITHUB_OUTPUT"
           const c=require('./benchmarks/real-repo-replay/config.json');
           const include=[];
+          const repeats=Number(c.repeats_per_case ?? 1);
+          if (!Number.isInteger(repeats) || repeats<1 || repeats>3)
+            throw new Error('Invalid repeats_per_case (supported 1..3)');
+          if (c.mode==='screen' && (c.model!=='gpt-6-luna' ||
+              c.efforts.length!==1 || c.efforts[0]!=='high' || repeats!==1))
+            throw new Error('Screen mode must run Luna High once per case');
           for(const effort of c.efforts){
-            for(const item of c.cases) include.push({
+            for(const item of c.cases) for(let repeat=1;repeat<=repeats;repeat++) include.push({
               effort,
+              repeat,
               model:c.model,
               trial:item.trial,
               case_id:item.id,
@@ -152,7 +159,7 @@ jobs:
         run: |
           TARGET="${{ matrix.target_sha }}"
           BASE="$(git rev-parse "$TARGET^")"
-          TASK_DIR="/tmp/replay-${{ matrix.case_id }}-${{ matrix.effort }}"
+          TASK_DIR="/tmp/replay-${{ matrix.case_id }}-${{ matrix.effort }}-r${{ matrix.repeat }}"
           rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
           git archive "$BASE" | tar -x -C "$TASK_DIR"
           cp "benchmarks/real-repo-replay/${{ matrix.case_id }}/TASK.md" "$TASK_DIR/TASK.md"
@@ -200,6 +207,7 @@ jobs:
             "task":"real-repo-replay-family",
             "case_id":"${{ matrix.case_id }}",
             "trial":int("${{ matrix.trial }}"),
+            "repeat":int("${{ matrix.repeat }}"),
             "base_sha":os.environ.get("BASE_SHA"),
             "model":"${{ matrix.model }}",
             "effort":"${{ matrix.effort }}",
@@ -232,7 +240,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: replay-${{ matrix.case_id }}-${{ matrix.effort }}-${{ github.run_id }}
+          name: replay-${{ matrix.case_id }}-${{ matrix.effort }}-r${{ matrix.repeat }}-${{ github.run_id }}
           path: result/
           retention-days: 30
 
@@ -271,7 +279,7 @@ jobs:
             }
           }
           walk('replay-results');
-          rows.sort((a,b)=>String(a.effort).localeCompare(String(b.effort))||Number(a.trial)-Number(b.trial));
+          rows.sort((a,b)=>String(a.effort).localeCompare(String(b.effort))||Number(a.trial)-Number(b.trial)||Number(a.repeat??1)-Number(b.repeat??1));
           const cfg=JSON.parse(fs.readFileSync('benchmarks/real-repo-replay/config.json','utf8'));
           const min=20,ceiling=95,hardLimit=600,target=300;
           const screen=cfg.mode==='screen'?{

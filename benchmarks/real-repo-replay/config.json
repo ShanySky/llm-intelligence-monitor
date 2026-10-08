@@ -72,5 +72,7 @@
     }
   ],
   "mode": "screen",
-  "screening_policy": "20 <= score < 95 and no timeout/infra/budget confound: promote to Sol calibration candidate; >=95: coverage; <20: review as too-hard/invalid; timeout: invalidate."
+  "screening_policy": "20 <= score < 95 and no timeout/infra/budget confound: promote to Sol calibration candidate; >=95: coverage; <20: review as too-hard/invalid; timeout: invalidate.",
+  "repeats_per_case": 1,
+  "repeat_policy": "Luna screen: 1 per case; early Sol calibration: 1 per effort/case (candidate only); formal Effort Core confirmation: >=2 independent repeat rounds per effort/case with stable direction, non-confounded."
 }
