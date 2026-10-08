@@ -1,9 +1,16 @@
 {
-  "version": 13,
-  "purpose": "Compact delivery candidate Luna High 100/100 in 84s with 7 Responses/8 Shell, all hidden checks passed and no saturation. Coverage-only; do not run Sol effort tiers. No current paid screening target.",
+  "version": 14,
+  "purpose": "V1.1 one-case paid admission after reference selfcheck; only lease instance Luna High. No Sol/Astra.",
   "model": "gpt-6-luna",
   "effort": "high",
-  "tasks": [],
+  "tasks": [
+    {
+      "task": "v11-recovery-lease",
+      "max_turns": 40,
+      "shell_budget": 40,
+      "wall_timeout_ms": 290000
+    }
+  ],
   "excluded_coverage_only": [
     "frontier-webhook",
     "frontier-webhook-hidden",
@@ -32,7 +39,7 @@
       "next": "cross-model-validation"
     }
   },
-  "enabled": false,
+  "enabled": true,
   "deferred_tasks": [
     {
       "task": "frontier-compact-idempotency",
@@ -60,5 +67,5 @@
     }
   ],
   "diagnostic_mode": false,
-  "phase": "idle"
+  "phase": "screen"
 }
