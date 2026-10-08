@@ -1,0 +1,60 @@
+{
+  "run_id": 37762875284,
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "original_luna_cohort_run_id": 37759079285,
+  "quality_score_corrected": 20,
+  "data_complete": true,
+  "matched_cases": 5,
+  "corrected_regrade_cases": 3,
+  "new_model_calls": 0,
+  "rows": [
+    {
+      "task": "axios__axios-5316",
+      "original_score": 0,
+      "corrected_score": 0,
+      "data_complete": true,
+      "cause": "evaluator needed public dependency registry access",
+      "original_model_run_id": 37759079285,
+      "regrade_model_calls": 0,
+      "agent_duration_seconds": 189
+    },
+    {
+      "task": "google__gson-2158",
+      "original_score": 0,
+      "corrected_score": 0,
+      "data_complete": true,
+      "cause": "evaluator needed public dependency registry access",
+      "original_model_run_id": 37758488863,
+      "regrade_model_calls": 0,
+      "agent_duration_seconds": 95
+    },
+    {
+      "task": "google__gson-2311",
+      "original_score": 0,
+      "corrected_score": 100,
+      "data_complete": true,
+      "cause": "evaluator needed public dependency registry access",
+      "original_model_run_id": 37759079285,
+      "regrade_model_calls": 0,
+      "agent_duration_seconds": 128
+    },
+    {
+      "task": "vuejs__core-11589",
+      "original_score": 0,
+      "corrected_score": 0,
+      "data_complete": true,
+      "cause": "unchanged: official gold passed network-none validation",
+      "agent_duration_seconds": 161
+    },
+    {
+      "task": "vuejs__core-11899",
+      "original_score": 0,
+      "corrected_score": 0,
+      "data_complete": true,
+      "cause": "unchanged: official gold passed network-none validation",
+      "agent_duration_seconds": 519
+    }
+  ],
+  "warning": "Reference-grade environment repaired; single sample does not establish stable capability."
+}
