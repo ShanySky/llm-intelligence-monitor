@@ -1,0 +1,23 @@
+{
+  "reference_admission": "PASS",
+  "cases": [
+    {
+      "variant": "payment",
+      "baseline": 20,
+      "reference": 100,
+      "passed": true
+    },
+    {
+      "variant": "lease",
+      "baseline": 80,
+      "reference": 100,
+      "passed": true
+    },
+    {
+      "variant": "identity",
+      "baseline": 40,
+      "reference": 100,
+      "passed": true
+    }
+  ]
+}
