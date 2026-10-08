@@ -2,6 +2,15 @@ name: Final application benchmark validation
 
 on:
   workflow_dispatch:
+    inputs:
+      profile:
+        description: "v1-core: 2 core tasks x 4 models High; full: original 5 tasks x 6 model/effort configs"
+        type: choice
+        required: true
+        default: v1-core
+        options:
+          - v1-core
+          - full
   push:
     branches:
       - main
@@ -20,17 +29,51 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-app-final]')
     runs-on: ubuntu-latest
     outputs:
-      tasks: ${{ steps.matrix.outputs.tasks }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      profile: ${{ steps.matrix.outputs.profile }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - name: No-cost V1 preflight
+        run: |
+          node --check scripts/light-agent-runner.mjs
+          node --check scripts/summarize-application-results.mjs
+          node --check scripts/check-application-v1.mjs
+          node scripts/selfcheck-application-v1.mjs
       - id: matrix
         shell: bash
+        env:
+          INPUT_PROFILE: ${{ inputs.profile }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          tasks="$(node -e "const x=require('./benchmarks/application-final-suite.json');process.stdout.write(JSON.stringify(x.families.map(f=>f.id)))")"
-          echo "tasks=$tasks" >> "$GITHUB_OUTPUT"
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const m=require('./benchmarks/application-final-suite.json');
+          const profile=process.env.EVENT_NAME==='workflow_dispatch'
+            ? (process.env.INPUT_PROFILE||'v1-core')
+            : 'v1-core';
+          if (!['v1-core','full'].includes(profile)) throw new Error('Unknown profile: '+profile);
+          const tasks=profile==='full'
+            ? m.families.map(x=>x.id)
+            : m.families.filter(x=>x.role==='core').map(x=>x.id);
+          const configs=profile==='full' ? [
+            {key:'gpt-6-astra-xhigh',model:'gpt-6-astra',effort:'xhigh'},
+            {key:'gpt-5-6-sol-xhigh',model:'gpt-5.6-sol',effort:'xhigh'},
+            {key:'gpt-6-luna-xhigh',model:'gpt-6-luna',effort:'xhigh'},
+            {key:'gpt-6-1-sol-medium',model:'gpt-6.1-sol',effort:'medium'},
+            {key:'gpt-6-1-sol-high',model:'gpt-6.1-sol',effort:'high'},
+            {key:'gpt-6-1-sol-xhigh',model:'gpt-6.1-sol',effort:'xhigh'},
+          ] : [
+            {key:'gpt-6-astra-high',model:'gpt-6-astra',effort:'high'},
+            {key:'gpt-5-6-sol-high',model:'gpt-5.6-sol',effort:'high'},
+            {key:'gpt-6-luna-high',model:'gpt-6-luna',effort:'high'},
+            {key:'gpt-6-1-sol-high',model:'gpt-6.1-sol',effort:'high'},
+          ];
+          const include=tasks.flatMap(task=>configs.map(config=>({task,config})));
+          console.log('profile='+profile);
+          console.log('matrix='+JSON.stringify({include}));
+          NODE
 
   eval:
     needs: prepare
@@ -38,27 +81,7 @@ jobs:
     strategy:
       fail-fast: false
       max-parallel: 4
-      matrix:
-        task: ${{ fromJSON(needs.prepare.outputs.tasks) }}
-        config:
-          - key: gpt-6-astra-xhigh
-            model: gpt-6-astra
-            effort: xhigh
-          - key: gpt-5-6-sol-xhigh
-            model: gpt-5.6-sol
-            effort: xhigh
-          - key: gpt-6-luna-xhigh
-            model: gpt-6-luna
-            effort: xhigh
-          - key: gpt-6-1-sol-medium
-            model: gpt-6.1-sol
-            effort: medium
-          - key: gpt-6-1-sol-high
-            model: gpt-6.1-sol
-            effort: high
-          - key: gpt-6-1-sol-xhigh
-            model: gpt-6.1-sol
-            effort: xhigh
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
 
     runs-on: ubuntu-latest
     timeout-minutes: 12
@@ -144,15 +167,23 @@ jobs:
           root=Path(os.environ["TASK_DIR"])
           score=json.loads((root/"score.json").read_text())
           rp=root/"light-agent-result.json"
-          runner=json.loads(rp.read_text()) if rp.exists() else {}
+          runner_present=rp.exists()
+          runner=json.loads(rp.read_text()) if runner_present else {}
           exit_code=int("${{ steps.agent.outputs.exit_code || '999' }}")
           infra=runner.get("infrastructure_error")
+          turn_limit=bool(runner.get("turn_limit_reached"))
+          shell_limit=bool(runner.get("shell_budget_reached"))
+          probe_limit=bool(runner.get("probe_enabled")) and runner.get("probe_calls",0)>=runner.get("probe_budget",999)
           if infra:
               outcome="infrastructure_error"
-          elif exit_code==0:
-              outcome="completed"
-          elif exit_code==124:
+          elif runner_present and exit_code==124 and runner.get("model_timeout"):
               outcome="model_timeout"
+          elif exit_code==124 and not runner_present:
+              outcome="pre_telemetry_timeout"
+          elif exit_code==0 and runner_present and not (turn_limit or shell_limit or probe_limit):
+              outcome="completed"
+          elif exit_code==0 and runner_present:
+              outcome="budget_confounded"
           else:
               outcome="runner_error"
 
@@ -166,6 +197,12 @@ jobs:
             "responses":runner.get("responses",0),
             "shell_commands":runner.get("shell_commands",0),
             "shell_budget":runner.get("shell_budget"),
+            "turn_limit_reached":turn_limit,
+            "shell_budget_reached":shell_limit,
+            "probe_budget_reached":probe_limit,
+            "model_timeout":bool(runner.get("model_timeout")),
+            "timeout_reason":runner.get("timeout_reason"),
+            "runner_telemetry_present":runner_present,
             "validation_calls":runner.get("validation_calls",0),
             "validation_budget":runner.get("validation_budget",0),
             "validation_enabled":runner.get("validation_enabled",False),
@@ -179,7 +216,7 @@ jobs:
             "infrastructure_error":infra,
             "agent_exit_code":exit_code,
             "outcome":outcome,
-            "data_complete":outcome in ("completed","model_timeout")
+            "data_complete":outcome=="completed"
           }
           Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
           if rp.exists(): shutil.copy2(rp,"result/light-agent-result.json")
@@ -215,77 +252,115 @@ jobs:
           pattern: app-final-*-${{ github.run_id }}
           path: results/application-final
 
-      - name: Build final application summary
+      - name: Build selected application report
+        shell: bash
+        env:
+          PROFILE: ${{ needs.prepare.outputs.profile }}
         run: |
           node scripts/summarize-application-results.mjs \
             results/application-final \
             benchmarks/application-final-suite.json \
             results/application-final-summary.json \
             results/application-final-summary.md
-          node scripts/analyze-application-discrimination.mjs \
-            results/application-final-summary.json \
-            benchmarks/application-selection-policy.json \
-            results/application-discrimination.json \
-            results/application-discrimination.md
-          node scripts/check-application-maturity.mjs \
-            results/application-final-summary.json \
-            results/application-discrimination.json \
-            benchmarks/frontier-registry.json \
-            benchmarks/application-final-suite.json \
-            results/application-maturity.json \
-            results/application-maturity.md
+          if [ "$PROFILE" = "v1-core" ]; then
+            node scripts/check-application-v1.mjs \
+              results/application-final-summary.json \
+              results/application-v1-readiness.json \
+              results/application-v1-readiness.md
+            cat results/application-v1-readiness.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            node scripts/analyze-application-discrimination.mjs \
+              results/application-final-summary.json \
+              benchmarks/application-selection-policy.json \
+              results/application-discrimination.json \
+              results/application-discrimination.md
+            node scripts/check-application-maturity.mjs \
+              results/application-final-summary.json \
+              results/application-discrimination.json \
+              benchmarks/frontier-registry.json \
+              benchmarks/application-final-suite.json \
+              results/application-maturity.json \
+              results/application-maturity.md
+            cat results/application-maturity.md >> "$GITHUB_STEP_SUMMARY"
+            cat results/application-discrimination.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          printf "\\n\\n" >> "$GITHUB_STEP_SUMMARY"
           cat results/application-final-summary.md >> "$GITHUB_STEP_SUMMARY"
-          printf "\n\n" >> "$GITHUB_STEP_SUMMARY"
-          cat results/application-discrimination.md >> "$GITHUB_STEP_SUMMARY"
-          printf "\n\n" >> "$GITHUB_STEP_SUMMARY"
-          cat results/application-maturity.md >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: application-final-summary-${{ github.run_id }}
+          name: application-${{ needs.prepare.outputs.profile }}-summary-${{ github.run_id }}
           path: |
             results/application-final-summary.json
             results/application-final-summary.md
+            results/application-v1-readiness.json
+            results/application-v1-readiness.md
             results/application-discrimination.json
             results/application-discrimination.md
             results/application-maturity.json
             results/application-maturity.md
           retention-days: 60
 
-      - name: Publish latest final validation
+      - name: Publish versioned application results
         shell: bash
+        env:
+          PROFILE: ${{ needs.prepare.outputs.profile }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp results/application-final-summary.md /tmp/application-final-latest.md
-          cp results/application-final-summary.json /tmp/application-final-latest.json
-          cp results/application-discrimination.md /tmp/application-discrimination-latest.md
-          cp results/application-discrimination.json /tmp/application-discrimination-latest.json
-          cp results/application-maturity.md /tmp/application-maturity-latest.md
-          cp results/application-maturity.json /tmp/application-maturity-latest.json
+          mkdir -p /tmp/application-report
+          cp results/application-final-summary.json /tmp/application-report/latest.json
+          cp results/application-final-summary.md /tmp/application-report/latest.md
+          if [ "$PROFILE" = "v1-core" ]; then
+            cp results/application-v1-readiness.json /tmp/application-report/readiness-latest.json
+            cp results/application-v1-readiness.md /tmp/application-report/readiness-latest.md
+            BRANCH=application-v1-results
+            PREFIX=application-v1
+          else
+            cp results/application-discrimination.json /tmp/application-report/discrimination-latest.json
+            cp results/application-discrimination.md /tmp/application-report/discrimination-latest.md
+            cp results/application-maturity.json /tmp/application-report/maturity-latest.json
+            cp results/application-maturity.md /tmp/application-report/maturity-latest.md
+            BRANCH=application-final-results
+            PREFIX=application-final
+          fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch origin application-final-results || true
-          if git show-ref --verify --quiet refs/remotes/origin/application-final-results; then
-            git switch -C application-final-results origin/application-final-results
+          git fetch origin "$BRANCH" || true
+          if git show-ref --verify --quiet "refs/remotes/origin/$BRANCH"; then
+            git switch -C "$BRANCH" "origin/$BRANCH"
           else
-            git switch --orphan application-final-results
+            git switch --orphan "$BRANCH"
             git rm -rf --ignore-unmatch .
           fi
 
-          mkdir -p application-final/runs
-          cp /tmp/application-final-latest.md application-final/latest.md
-          cp /tmp/application-final-latest.json application-final/latest.json
-          cp /tmp/application-discrimination-latest.md application-final/discrimination-latest.md
-          cp /tmp/application-discrimination-latest.json application-final/discrimination-latest.json
-          cp /tmp/application-maturity-latest.md application-final/maturity-latest.md
-          cp /tmp/application-maturity-latest.json application-final/maturity-latest.json
-          cp /tmp/application-final-latest.md "application-final/runs/${GITHUB_RUN_ID}.md"
-          cp /tmp/application-final-latest.json "application-final/runs/${GITHUB_RUN_ID}.json"
-          cp /tmp/application-discrimination-latest.md "application-final/runs/${GITHUB_RUN_ID}-discrimination.md"
-          cp /tmp/application-discrimination-latest.json "application-final/runs/${GITHUB_RUN_ID}-discrimination.json"
-
-          git add application-final
+          mkdir -p "$PREFIX/runs"
+          cp /tmp/application-report/latest.json "$PREFIX/latest.json"
+          cp /tmp/application-report/latest.md "$PREFIX/latest.md"
+          cp /tmp/application-report/latest.json "$PREFIX/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/application-report/latest.md "$PREFIX/runs/${GITHUB_RUN_ID}.md"
+          if [ "$PROFILE" = "v1-core" ]; then
+            cp /tmp/application-report/readiness-latest.json "$PREFIX/readiness-latest.json"
+            cp /tmp/application-report/readiness-latest.md "$PREFIX/readiness-latest.md"
+          else
+            cp /tmp/application-report/discrimination-latest.json "$PREFIX/discrimination-latest.json"
+            cp /tmp/application-report/discrimination-latest.md "$PREFIX/discrimination-latest.md"
+            cp /tmp/application-report/maturity-latest.json "$PREFIX/maturity-latest.json"
+            cp /tmp/application-report/maturity-latest.md "$PREFIX/maturity-latest.md"
+            cp /tmp/application-report/discrimination-latest.json "$PREFIX/runs/${GITHUB_RUN_ID}-discrimination.json"
+            cp /tmp/application-report/discrimination-latest.md "$PREFIX/runs/${GITHUB_RUN_ID}-discrimination.md"
+          fi
+          git add "$PREFIX"
           if ! git diff --cached --quiet; then
-            git commit -m "Record final application validation ${GITHUB_RUN_ID}"
-            git push origin HEAD:application-final-results
+            git commit -m "Record $PROFILE application run ${GITHUB_RUN_ID}"
+            git push origin "HEAD:$BRANCH"
+          fi
+
+          if [ "$PROFILE" = "v1-core" ] && node -e "process.exit(require('/tmp/application-report/readiness-latest.json').ready?0:1)"; then
+            if ! gh release view "v0.1.0-beta.1" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              gh release create "v0.1.0-beta.1" \
+                -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+                --title "v0.1.0-beta.1 · Core 可用试用版" \
+                --notes-file /tmp/application-report/readiness-latest.md
+            fi
           fi

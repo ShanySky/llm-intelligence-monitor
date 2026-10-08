@@ -128,6 +128,7 @@ let finalText = '';
 let responses = 0;
 let apiRetries = 0;
 let infrastructureError = null;
+let finishedWithMessage = false;
 let modelTimeoutReason = null;
 const startedAt = Date.now();
 const wallDeadline = startedAt + wallTimeoutMs;
@@ -403,7 +404,7 @@ try {
         if (part?.type === 'output_text' && typeof part.text === 'string') finalText += part.text;
       }
     }
-    if (messages.length) break;
+    if (messages.length) { finishedWithMessage = true; break; }
   }
   
 } catch (error) {
@@ -428,6 +429,7 @@ const result = {
   infrastructure_error: infrastructureError,
   shell_commands: commands.length,
   shell_budget: shellBudget,
+  shell_budget_reached: commands.length >= shellBudget,
   shell_trace: captureShellTrace ? shellTrace.slice(0,20) : [],
   validation_calls: validationCalls,
   validation_budget: validationCommand ? validationBudget : 0,
@@ -441,6 +443,8 @@ const result = {
   probe_observations: probeObservations,
   patch_metrics: patchMetrics,
   max_turns: maxTurns,
+  turn_limit_reached: !finishedWithMessage && responses >= maxTurns,
+  finished_with_message: finishedWithMessage,
   container_mode: containerMode,
   docker_container: containerMode ? dockerContainer : null,
   usage: totalUsage,
