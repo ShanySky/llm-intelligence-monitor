@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/triggers/frontier-batch.txt"
       - ".github/triggers/v11-preflight.txt"
+      - ".github/triggers/v11-public-preflight.txt"
 permissions:
   contents: read
 
@@ -15,6 +16,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  public-source-preflight:
+    # Reuse existing Workflow, and only execute on a dedicated no-model-cost trigger.
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-preflight]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check pinned public SWE-bench reference without model calls
+        env:
+          CASE_ID: google__gson-2311
+        run: bash scripts/v11-public-env-preflight.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-public-env-preflight-${{ github.run_id }}
+          path: v11-public-env-preflight/
+          retention-days: 30
+
   prepare:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-batch]') || contains(github.event.head_commit.message, '[v11-preflight]')
     runs-on: ubuntu-latest
