@@ -1,5 +1,7 @@
 # LLM Intelligence Monitor
 
+> **V1.1 本地测试依赖预热已验证：** Gson 两题与 Axios 一题已确认可在模型容器断网后执行本地测试，官方基线失败/参考修复通过（[免费验证结果](docs/V1.1-AGENT-DEPENDENCY-WARMUP.md)）。Luna/Sol Harness 已加入验证通过才允许启动模型的预热门槛；付费测试未重启。
+
 > **V1.1 评分环境修复：** 已解决官方 Maven/npm 测试依赖在禁网评分器中无法下载的问题。模型仍禁网，评分改在独立联网容器完成。使用历史 Luna 补丁零模型费用重评后，原 5 题成绩修正为 **20/100**（原误报 0/100），详见 [可核验修正记录](docs/V1.1-REFERENCE-ENV-FIX.md)。仍非正式 V1.1 发布。
 
 > **V1.1 公开基准优先：** 已整理并核对 [20 道 Java/Vue/JS 官方候选](docs/V1.1-PUBLIC-BENCHMARK-SCREEN.md)；20 道仅确认元数据，其中 Gson #2311 已完成官方 Docker baseline→gold 验证（46 秒）；其余候选环境及所有模型表现尚未验证。原先自造题探索已止损，开发仍在 Draft PR，日测仍关闭。

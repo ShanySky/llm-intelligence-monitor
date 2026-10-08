@@ -137,7 +137,10 @@
       "connected_evaluator_reference_run_id": 37762875284,
       "connected_evaluator_network": "bridge-verifier-only",
       "last_luna_regrade_run_id": 37762875284,
-      "last_luna_regraded_score": 0
+      "last_luna_regraded_score": 0,
+      "offline_agent_local_tests": "ready",
+      "offline_agent_warmup_reference_run_id": 37764439033,
+      "offline_agent_preheat_no_model": true
     },
     {
       "id": "google__gson-2311",
@@ -177,7 +180,10 @@
       "connected_evaluator_reference_run_id": 37762875284,
       "connected_evaluator_network": "bridge-verifier-only",
       "last_luna_regrade_run_id": 37762875284,
-      "last_luna_regraded_score": 100
+      "last_luna_regraded_score": 100,
+      "offline_agent_local_tests": "ready",
+      "offline_agent_warmup_reference_run_id": 37764439033,
+      "offline_agent_preheat_no_model": true
     },
     {
       "id": "apache__druid-14092",
@@ -609,9 +615,13 @@
       "connected_evaluator_reference_run_id": 37762875284,
       "connected_evaluator_network": "bridge-verifier-only",
       "last_luna_regrade_run_id": 37762875284,
-      "last_luna_regraded_score": 0
+      "last_luna_regraded_score": 0,
+      "offline_agent_local_tests": "ready",
+      "offline_agent_warmup_reference_run_id": 37764439033,
+      "offline_agent_preheat_no_model": true
     }
   ],
   "corrected_luna_cohort_score": 20,
-  "corrected_luna_cohort_run_id": 37762875284
+  "corrected_luna_cohort_run_id": 37762875284,
+  "offline_local_test_warmup_ready": 3
 }

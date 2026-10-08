@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "origin": "SWE-bench Multilingual",
+  "preflight_run_id": 37764439033,
+  "preflight_result_url": "https://github.com/ShanySky/llm-intelligence-monitor/blob/v11-public-warmup-results/public-warmup/latest.json",
+  "required_agent_network": "none",
+  "source_pristine": true,
+  "model_calls": 0,
+  "task_results": {
+    "google__gson-2158": {
+      "status": "offline_agent_ready",
+      "baseline_exit_code": 1,
+      "reference_exit_code": 0,
+      "seconds": 73
+    },
+    "google__gson-2311": {
+      "status": "offline_agent_ready",
+      "baseline_exit_code": 1,
+      "reference_exit_code": 0,
+      "seconds": 121
+    },
+    "axios__axios-5316": {
+      "status": "offline_agent_ready",
+      "baseline_exit_code": 1,
+      "reference_exit_code": 0,
+      "seconds": 98
+    }
+  }
+}

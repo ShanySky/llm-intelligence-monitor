@@ -45,7 +45,9 @@ result={
  "classification":("valid-official-pass" if env("EVAL_EXIT")=="0" else "valid-official-fail") if admissible else "incomplete-or-budget-confounded",
  "data_complete":admissible,"runner_telemetry_present":bool(runner),"actual_model":runner.get("model"),
  "actual_effort":runner.get("effort"),"agent_exit_code":int(env("RUNNER_EXIT")),"verifier_exit_code":int(env("EVAL_EXIT")),
- "stage":env("STAGE"),"agent_network":"none","evaluator_network":"bridge", "model_started":env("MODEL_STARTED")=="true",
+ "stage":env("STAGE"),"agent_network":"none","evaluator_network":"bridge",
+ "offline_local_test_warmup":env("CASE") in ("google__gson-2158","google__gson-2311","axios__axios-5316"),
+ "model_started":env("MODEL_STARTED")=="true",
  "duration_seconds":runner.get("duration_seconds"),
  "total_wall_seconds":int(time.time())-int(env("START")),
  "responses":runner.get("responses",0),"shell_commands":runner.get("shell_commands",0),
@@ -92,10 +94,38 @@ STAGE="pull-official-image"
 timeout 180s docker pull "$IMAGE" > "$OUTDIR/pull.log" 2>&1
 C="v11-luna-${GITHUB_RUN_ID:-local}"
 STAGE="launch-isolated-repo"
-docker run -d --name "$C" --network none --cap-drop ALL --security-opt no-new-privileges \
+AGENT_INITIAL_NETWORK=none
+case "$CASE" in
+  google__gson-2158|google__gson-2311|axios__axios-5316)
+    # Whitelist only tasks that passed source-only offline local-test
+    # and official baseline/gold tests in no-model preflight.
+    python3 - "$CASE" <<'PY'
+import json,sys
+from pathlib import Path
+record=json.loads(Path("benchmarks/v1.1-agent-warmup-admission.json").read_text())
+assert record["preflight_run_id"]==37764439033
+item=record["task_results"][sys.argv[1]]
+assert item["status"]=="offline_agent_ready"
+assert item["baseline_exit_code"] not in (0,124,137,999)
+assert item["reference_exit_code"]==0
+PY
+    AGENT_INITIAL_NETWORK=bridge
+    ;;
+esac
+docker run -d --name "$C" --network "$AGENT_INITIAL_NETWORK" --cap-drop ALL --security-opt no-new-privileges \
     --memory 4g --cpus 2 "$IMAGE" sleep infinity >/dev/null
 docker exec -w /testbed "$C" git reset --hard "$BASE" > "$OUTDIR/reset.log" 2>&1
 test "$(docker exec -w /testbed "$C" git rev-parse HEAD | tr -d '\r')" = "$BASE"
+if [[ "$AGENT_INITIAL_NETWORK" == bridge ]]; then
+  STAGE="pre-model-local-test-warmup"
+  AGENT_DOCKER_CONTAINER="$C" BASE_COMMIT="$BASE" CASE_ID="$CASE" \
+    WARMUP_LOG_DIR="$OUTDIR/agent-warmup" bash scripts/v11-public-agent-deps.sh
+fi
+# No LLM request is permitted until this proves the agent has no network.
+test "$(docker inspect "$C" --format '{{len .NetworkSettings.Networks}}')" = 0 || {
+  echo "Agent network isolation failed; refuse model billing" >&2
+  exit 1
+}
 
 STAGE="luna-agent"
 MODEL_STARTED=true

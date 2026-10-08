@@ -117,7 +117,7 @@
     "no_automatic_daily": true
   },
   "current_round": {
-    "status": "official-grader-fixed-previous-luna-patches-regraded",
+    "status": "offline-agent-local-test-preheat-verified-no-model",
     "paid_workflow_runs": [
       37748890240,
       37749238271
@@ -127,7 +127,7 @@
     "sol_xhigh_runs": 0,
     "astra_runs": 0,
     "not_a_release": true,
-    "next": "Keep grade networked and model sandbox offline; do not repeat paid trials; validate local test dependency availability separately before new paid pilot.",
+    "next": "Model scripts now use connected dependency prime then detach network; keep pilots off; no further model run until next explicit calibration.",
     "pilot_run_ids": [
       37758488863,
       37759079285
@@ -193,7 +193,10 @@
         "id": "axios__axios-5316",
         "score": 0
       }
-    ]
+    ],
+    "warmup_run_id": 37764439033,
+    "warmup_ready_cases": 3,
+    "upcoming_paid_runs": 0
   },
   "strategy": "official_public_engineering_benchmark_first",
   "public_sources": {
@@ -212,6 +215,8 @@
     "batch_preflight_run_id": 37757979238,
     "connected_official_scorer": "network-bridge-only-after-agent",
     "regraded_prior_patch_run_id": 37762875284,
-    "official_reference_regrade_verified": 3
+    "official_reference_regrade_verified": 3,
+    "agent_local_test_warmup_verified": 3,
+    "agent_local_test_warmup_run_id": 37764439033
   }
 }
