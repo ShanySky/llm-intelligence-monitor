@@ -1,11 +1,9 @@
 {
   "version": 2,
-  "purpose": "Replay compact real historical maintenance fixes with hidden behavioral equivalence and patch-discipline scoring; v2 replaces the budget-confounded first family.",
-  "model": "gpt-6.1-sol",
+  "purpose": "Luna High cost-controlled screen for v2 real-history replay; do not launch Sol M/H/XH until non-ceiling, non-budget-confounded evidence is reviewed.",
+  "model": "gpt-6-luna",
   "efforts": [
-    "medium",
-    "high",
-    "xhigh"
+    "high"
   ],
   "max_turns": 36,
   "shell_budget": 36,
@@ -72,5 +70,7 @@
       "preferred_max_changed_lines": 100,
       "retired_reason": "v1 family exceeded the target runtime and repeatedly hit the 440s model wall timeout during GPT-6.1 Sol calibration."
     }
-  ]
+  ],
+  "mode": "screen",
+  "screening_policy": "20 <= score < 95 and no timeout/infra/budget confound: promote to Sol calibration candidate; >=95: coverage; <20: review as too-hard/invalid; timeout: invalidate."
 }

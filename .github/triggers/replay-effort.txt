@@ -3,3 +3,4 @@ run stabilized GPT-6.1 replay
 retry after nonblocking backup self-check
 2026-10-05 rerun after GPT-6.1 resident-model cleanup and pre-telemetry timeout hardening
 2026-10-05 rerun after internal wall-timeout telemetry hardening
+2026-10-08 v2 cost-controlled Luna High screen, no full Sol suite

@@ -219,6 +219,8 @@ jobs:
             "usage":runner.get("usage",{}),
             "api_timeout_ms":runner.get("api_timeout_ms"),
             "runner_telemetry_present":runner_present,
+            "model_timeout":bool(runner.get("model_timeout")),
+            "timeout_reason":runner.get("timeout_reason"),
             "infrastructure_error":infra,
             "outcome":outcome,
             "data_complete":runner_present and outcome in ("completed","model_timeout")
@@ -270,10 +272,37 @@ jobs:
           }
           walk('replay-results');
           rows.sort((a,b)=>String(a.effort).localeCompare(String(b.effort))||Number(a.trial)-Number(b.trial));
-          const out={generated_at:new Date().toISOString(),trial_mode:'variants',rows};
+          const cfg=JSON.parse(fs.readFileSync('benchmarks/real-repo-replay/config.json','utf8'));
+          const min=20,ceiling=95,hardLimit=600,target=300;
+          const screen=cfg.mode==='screen'?{
+            model:cfg.model,effort:cfg.efforts?.[0],family_version:cfg.family_version,
+            decisions:(cfg.cases??[]).map(c=>{
+              const r=rows.find(x=>x.case_id===c.id);
+              const ok=Boolean(r && r.data_complete===true && r.outcome==='completed' && r.runner_telemetry_present!==false
+                && !r.infrastructure_error && !r.model_timeout && !r.turn_limit_reached && !r.shell_budget_reached
+                && Number(r.responses??0)>0 && Number(r.duration_seconds??Infinity)<=hardLimit);
+              const score=r?Number(r.score):null;
+              const decision=!ok?'invalid-or-budget-confounded'
+                :score>=ceiling?'coverage-only-ceiling'
+                :score>=min?'effort-calibration-candidate':'review-hard-or-invalid';
+              return {case_id:c.id,score,seconds:r?.duration_seconds??null,
+                outcome:r?.outcome??'missing',data_complete:ok,
+                runtime_over_target:ok&&Number(r.duration_seconds)>target,
+                decision};
+            })
+          }:null;
+          const out={generated_at:new Date().toISOString(),mode:cfg.mode??'effort',
+            family_version:cfg.family_version??1,trial_mode:'variants',rows,
+            ...(screen?{screening:screen}:{})};
           fs.writeFileSync('replay-summary.json',JSON.stringify(out,null,2)+'\n');
           let md='# Real Repo Replay Family\n\n| Case | Effort | Replay quality | Behavior | Patch quality | Runtime | Changed files | Changed lines |\n|---|---|---:|---:|---:|---:|---:|---:|\n';
           for(const r of rows) md+=`| ${r.case_id} | ${r.effort} | ${r.score} | ${r.behavior_score} | ${r.patch_quality_score??'-'} | ${r.duration_seconds}s | ${r.patch_metrics?.changed_files??0} | ${r.patch_metrics?.changed_lines??0} |\n`;
+          if(screen){
+            md+='\n## Luna High screening decisions\n\n| Case | Score | Seconds | Decision |\n|---|---:|---:|---|\n';
+            for(const x of screen.decisions)
+              md+=`| ${x.case_id} | ${x.score??'-'} | ${x.seconds??'-'} | ${x.decision}${x.runtime_over_target?' (over 300s target)':''} |\n`;
+            md+='\n> Screening is not effort confirmation; Sol M/H/XH only follows valid non-ceiling signal.\n';
+          }
           fs.writeFileSync('replay-summary.md',md);
           NODE
           node scripts/analyze-effort-efficiency.mjs             replay-summary.json             benchmarks/application-selection-policy.json             replay-analysis.json             replay-analysis.md
