@@ -52,6 +52,15 @@ function rowDataComplete(r) {
   return !r.infrastructure_error;
 }
 
+// Telemetry completeness is not proof of a completed engineering task.
+// A timed-out patch can pass hidden tests but cannot establish an effort-quality gap.
+function rowQualityAdmissible(r) {
+  if (!rowDataComplete(r) || r.infrastructure_error || r.model_timeout ||
+      r.turn_limit_reached || r.shell_budget_reached) return false;
+  return r.outcome === 'completed' ||
+    (!r.outcome && Number(r.agent_exit_code) === 0);
+}
+
 const effortRank = { low: 0, medium: 1, high: 2, xhigh: 3 };
 const configMap = new Map();
 for (const r of rows) {
@@ -70,7 +79,8 @@ const byConfig = {};
 for (const cfg of configs) {
   const rs = rows.filter((r) => configKey(r) === cfg.key);
   const valid = rs.filter(rowDataComplete);
-  const completeTasks = valid.filter((r) => r.outcome === 'completed' || (!r.outcome && Number(r.agent_exit_code) === 0));
+  const qualityRows = rs.filter(rowQualityAdmissible);
+  const completeTasks = qualityRows;
 
   let qualityWeighted = 0;
   let practicalWeighted = 0;
@@ -79,7 +89,7 @@ for (const cfg of configs) {
   let corePracticalWeighted = 0;
   let coreValidWeight = 0;
   let coreValidTasks = 0;
-  for (const r of valid) {
+  for (const r of qualityRows) {
     const w = weights[r.task] ?? 0;
     const quality = Number(r.score ?? 0);
     const completed = r.outcome === 'completed' || (!r.outcome && Number(r.agent_exit_code) === 0);
@@ -104,7 +114,10 @@ for (const cfg of configs) {
   byConfig[cfg.key] = {
     model: cfg.model,
     effort: cfg.effort,
-    data_complete: validWeight === totalWeight,
+    data_complete: totalWeight > 0 && validWeight === totalWeight,
+    telemetry_complete: rs.length > 0 && rs.every(rowDataComplete),
+    quality_admissible_tasks: qualityRows.length,
+    budget_confounded_tasks: rs.filter(r => rowDataComplete(r) && !rowQualityAdmissible(r)).map(r => r.task),
     valid_weight: validWeight,
     total_weight: totalWeight,
     task_count: taskCount,
@@ -127,7 +140,7 @@ for (const cfg of configs) {
     average_input_tokens: taskCount ? inputTokens / taskCount : null,
     average_reasoning_tokens: taskCount ? reasoningTokens / taskCount : null,
     api_retries: rs.reduce((s, r) => s + Number(r.api_retries ?? 0), 0),
-    incomplete_tasks: rs.filter((r) => !rowDataComplete(r)).map((r) => r.task),
+    incomplete_tasks: rs.filter((r) => !rowQualityAdmissible(r)).map((r) => r.task),
   };
 }
 
@@ -156,7 +169,8 @@ function cellFor(family, cfg) {
   const r = rows.find((x) => x.task === family.id && configKey(x) === cfg.key);
   if (!r) return '-';
   if (!rowDataComplete(r)) return '数据不完整';
-  const outcome = r.outcome === 'model_timeout' ? '超时' : '完成';
+  const outcome = rowQualityAdmissible(r) ? '完成' :
+    (r.outcome === 'model_timeout' || r.model_timeout ? '超时/预算混淆' : '未有效完成');
   return `${Number(r.score).toFixed(0)} / ${outcome} / ${Number(r.duration_seconds ?? 0)}s`;
 }
 
@@ -186,7 +200,7 @@ for (const cfg of configs) {
 
 lines.push(
   '',
-  `> Overall quality includes all application coverage. Core signal uses only confirmed high-information tasks. Core is considered mature only when at least ${minCoreFamilies} core families are present and complete. Practical = 85% quality + 15% budget-completion reliability. Runtime and token usage remain separate.`,
+  `> Overall/Core quality only uses completed, non-budget-confounded tasks. Raw timed-out patch scores are diagnostic only; reliability and runtime are separate. Core maturity additionally requires all configured core tasks to have admissible outcomes. Practical combines completed quality (85%) and completion reliability (15%) on admissible samples; report data is incomplete if a task timed out.`,
   ''
 );
 

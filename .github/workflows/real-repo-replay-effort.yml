@@ -32,8 +32,10 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Verify effort evidence admission rules
-        run: node tests/effort-repeat-gate.test.mjs
+      - name: Verify no-cost quality and effort evidence rules
+        run: |
+          node tests/effort-repeat-gate.test.mjs
+          node tests/application-quality-evidence.test.mjs
 
       - name: Reference commit self-check
         id: selfcheck

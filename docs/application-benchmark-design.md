@@ -239,3 +239,7 @@ Backup replay cases 仅用于主集区分力不足时扩展样本。它们可以
 ### v2 replay 退役记录
 
 2026-10-08 的 v2 replay 使用 Luna High 先筛（45、25、100），随后仅对两道非封顶题跑 GPT‑6.1 Sol M/H/XH。六个 Sol 样本中有五个未按任务时限正常完成，结果为 `budget-confounded`，不可晋级 Effort Core。当前 v2 题族从付费验证漏斗退役并默认禁用；不应通过增加复测次数来掩盖任务体量/请求超时问题。后续重新选择更短、更密集的跨文件隐藏依赖场景，先完成无成本 reference self-check 和 Luna 低成本筛选。
+
+### 最终应用报告有效样本门槛
+
+`application-final` 的总体质量分和 Core Signal **仅**从 `outcome=completed`、具有完整遥测、没有 `model_timeout` / turn / shell budget saturation 的样本计算；未完成的工作区仍可保存原始 patch score 与 Token/耗时，但 `data_complete` 和 `core_data_complete` 不得宣称质量验证完整。应用差异分析不得把这样的样本晋级，maturity 验收必须确保当前全部模型配置的实际质量证据完整，而非只凭任务是否存在或历史 registry 状态。

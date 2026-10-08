@@ -364,3 +364,7 @@ Luna High 参考自检 3/3 为 100 分；模型筛题分：`core-signal-summary`
 ### Replay v2 校准结论（2026-10-08）
 
 单轮 GPT‑6.1 Sol Medium/High/X High 校准（现有 Actions run `37713197713`）共有 6 个样本：**正常完成 1 / 模型或请求超时 5**。`core-signal-summary` 的补丁原始得分为 100/96/25，`repeat-sample-policy` 为 25/25/25，但**不能据此解释档位能力差距**，因为前者三档均超时，后者 Medium/X High 超时。正式结论为 `budget-confounded`、`do-not-promote`，不存在已确认 Effort Core。当前 `real-repo-replay/config.json` 已设置 `enabled: false`，避免对已判定无效的题族继续自动/误触发付费运行。待新短程、有隐藏依赖的真实历史题通过 reference self-check，再按 Luna→Sol 漏斗启动。
+
+### 应用报告的质量证据有效性
+
+`Overall Quality` 和 `Core Signal` 仅统计**正常完成且未触及执行预算**的任务。隐藏测试即使给未完成的补丁较高分，也只保留为诊断产物，不得冒充模型质量或思考档位信号。超时的执行轨迹、Token、耗时继续保留，并单独计入完成可靠性；相应模型配置的 `data_complete=false`，最终 maturity 检查必须显示 `final_quality_evidence_complete=false`。两项无 API 费用回归测试由现有 replay Workflow 的 prepare 统一验证。
