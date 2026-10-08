@@ -3,7 +3,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const taskDir = path.resolve(process.argv[2] ?? '.');
-const model = process.argv[3] ?? process.env.BENCHMARK_MODEL ?? 'gpt-6-sol';
+const model = process.argv[3] ?? process.env.BENCHMARK_MODEL ?? 'gpt-6.1-sol';
 const effort = process.argv[4] ?? process.env.BENCHMARK_EFFORT ?? 'medium';
 const outFile = process.argv[5] ?? 'staged-agent-result.json';
 
