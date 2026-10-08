@@ -368,3 +368,12 @@ Luna High 参考自检 3/3 为 100 分；模型筛题分：`core-signal-summary`
 ### 应用报告的质量证据有效性
 
 `Overall Quality` 和 `Core Signal` 仅统计**正常完成且未触及执行预算**的任务。隐藏测试即使给未完成的补丁较高分，也只保留为诊断产物，不得冒充模型质量或思考档位信号。超时的执行轨迹、Token、耗时继续保留，并单独计入完成可靠性；相应模型配置的 `data_complete=false`，最终 maturity 检查必须显示 `final_quality_evidence_complete=false`。两项无 API 费用回归测试由现有 replay Workflow 的 prepare 统一验证。
+
+### 短程跨文件 Contract 微型仓库（候选）
+
+新增三个 Java 17 微型仓库，分别考核多租户消息幂等、可靠 Outbox 投递、租约 epoch fencing。难点来自 `TASK.md`、`contracts/` 和多源文件之间的真实约束，而非增加代码体量。
+
+- 模型只得到各题 `workspace/`；隐藏测试和参考修复都在 `workspace/` 外。
+- `python3 scripts/selfcheck-compact-contract.py` 是**零模型费用**验收：基线必须可编译、通过可见测试但隐藏不满分；参考修复必须隐藏测试满分。
+- `Frontier batch candidate screen` 只在人工触发或专用 trigger 变更时执行。先用 Luna High 单轮筛题，只有有效、未超时、未封顶且在 3–5 分钟目标内有足够信号的题才考虑 Sol 后续档位校准；单轮结果从不直接算 Effort Core。
+- 当前日测 `schedule` 继续停用；旧 coverage-only/retired 题不得自动加入付费筛选。
