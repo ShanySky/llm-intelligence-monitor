@@ -1,1 +1,1 @@
-Luna High only, one admitted public task: google__gson-2158, no Sol/Astra.
+Luna High fixed public benchmark cohort: Gson 2311, Vue 11589/11899, Axios 5316. One batch only.
