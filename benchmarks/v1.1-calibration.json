@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "release": "v1.1",
+  "baseline": "v0.1.0-beta.1",
+  "enabled": false,
+  "intent": "Quality discrimination from reproducible engineering outcomes, not score targeting.",
+  "targets": {
+    "luna_high": [
+      55,
+      65
+    ],
+    "sol_medium": [
+      70,
+      75
+    ],
+    "sol_high": [
+      80,
+      90
+    ],
+    "sol_xhigh": [
+      90,
+      95
+    ],
+    "non_binding": true
+  },
+  "scope": {
+    "models": [
+      "gpt-6-luna",
+      "gpt-6.1-sol"
+    ],
+    "efforts": [
+      "medium",
+      "high",
+      "xhigh"
+    ],
+    "astra_deferred": true
+  },
+  "funnel": {
+    "max_families_per_round": 2,
+    "instances_per_family": 3,
+    "model_order": [
+      "gpt-6-luna/high",
+      "gpt-6.1-sol/medium",
+      "gpt-6.1-sol/high",
+      "gpt-6.1-sol/xhigh"
+    ],
+    "no_paid_run_without_reference_admission": true,
+    "require_repeats_for_confirmation": true,
+    "max_consecutive_no_signal_rounds": 2
+  },
+  "quality": {
+    "model_spread_points": 10,
+    "effort_spread_points": 10,
+    "ceiling": 95,
+    "require_consistent_pairwise_instances": true,
+    "exclude_budget_confounded": true,
+    "exclude_infrastructure_errors": true
+  },
+  "runtime": {
+    "target_seconds": 300,
+    "hard_limit_seconds": 600
+  },
+  "decisions": [
+    "promote",
+    "retest",
+    "coverage",
+    "retire",
+    "pause"
+  ],
+  "candidate_families": [],
+  "release_gate": {
+    "preserve_v1": true,
+    "min_new_validated_family": 1,
+    "require_verified_improvement": true,
+    "allow_effort_pending": true,
+    "no_automatic_daily": true
+  }
+}
