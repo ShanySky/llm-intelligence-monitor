@@ -3,7 +3,7 @@
   "cases": [
     {
       "task": "frontier-compact-idempotency",
-      "baseline": 40,
+      "baseline": 20,
       "reference": 100,
       "passed": true
     },
