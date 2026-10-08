@@ -53,7 +53,7 @@ with tempfile.TemporaryDirectory(prefix="compact-hidden-") as td:
             hidden_output = hidden.stdout
     add("compiles", 10, compiled)
     add("visible_regression", 10, visible_ok)
-    weights = [25, 25, 20, 20]
+    weights = [20, 20, 20, 20]
     for name, weight in zip(tasks[task], weights):
         add(name.lower(), weight, name + "_PASS" in hidden_output.splitlines())
 
