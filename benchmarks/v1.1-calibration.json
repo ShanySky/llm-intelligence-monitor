@@ -117,7 +117,7 @@
     "no_automatic_daily": true
   },
   "current_round": {
-    "status": "sol-high-two-official-vue-cases-screened",
+    "status": "official-grader-fixed-previous-luna-patches-regraded",
     "paid_workflow_runs": [
       37748890240,
       37749238271
@@ -127,7 +127,7 @@
     "sol_xhigh_runs": 0,
     "astra_runs": 0,
     "not_a_release": true,
-    "next": "No further paid expansion until more offline-admitted official Java/Vue tasks and repeat-stability checks; keep V1.1 Draft.",
+    "next": "Keep grade networked and model sandbox offline; do not repeat paid trials; validate local test dependency availability separately before new paid pilot.",
     "pilot_run_ids": [
       37758488863,
       37759079285
@@ -165,7 +165,35 @@
     "sol_high_quality_score": 50,
     "luna_high_same_two_task_quality_score": 0,
     "observed_spread_points": 50,
-    "known_model_difference_status": "candidate-only-single-attempt"
+    "known_model_difference_status": "candidate-only-single-attempt",
+    "dependency_root_cause": "Gson Maven Surefire provider junit4 missing (3.0.0-M7/M8); Axios npm formdata-node absent, requires registry access",
+    "regrade_run_id": 37762875284,
+    "regrade_model_calls": 0,
+    "reference_parity": "connected verifier baseline fails and gold passes for all three affected cases",
+    "corrected_luna_five_task_score": 20,
+    "corrected_luna_five_task_valid": true,
+    "corrected_luna_results": [
+      {
+        "id": "google__gson-2158",
+        "score": 0
+      },
+      {
+        "id": "google__gson-2311",
+        "score": 100
+      },
+      {
+        "id": "vuejs__core-11589",
+        "score": 0
+      },
+      {
+        "id": "vuejs__core-11899",
+        "score": 0
+      },
+      {
+        "id": "axios__axios-5316",
+        "score": 0
+      }
+    ]
   },
   "strategy": "official_public_engineering_benchmark_first",
   "public_sources": {
@@ -181,6 +209,9 @@
     "paid_model_runs": 0,
     "first_verified_case": "google__gson-2311",
     "first_preflight_run_id": 37757728878,
-    "batch_preflight_run_id": 37757979238
+    "batch_preflight_run_id": 37757979238,
+    "connected_official_scorer": "network-bridge-only-after-agent",
+    "regraded_prior_patch_run_id": 37762875284,
+    "official_reference_regrade_verified": 3
   }
 }

@@ -14,9 +14,9 @@
   "scoring_policy": "Use official F2P/P2P pass/fail outcome; no gold patch or test patch is shown to model; binary instance resolution rates compose overall score.",
   "priority_note": "A = first no-model-cost environment audit, B = after A, C = potentially expensive builds; priority is NOT measured model difficulty.",
   "no_paid_runs_in_phase": true,
-  "reference_status": "first-five-validated",
+  "reference_status": "5-of-5-connected-evaluator-admitted",
   "environments_verified": 5,
-  "model_results": 0,
+  "model_results": 5,
   "source_candidates": [
     {
       "id": "google__gson-1014",
@@ -131,7 +131,13 @@
         "reference_exit_code": 0,
         "duration_seconds": 45,
         "model_calls": 0
-      }
+      },
+      "offline_scorer_note": "The previous network-none official evaluator could not install test dependencies. Model results from this environment need connected verifier regrade.",
+      "connected_evaluator_reference_status": "baseline-fails-reference-passes",
+      "connected_evaluator_reference_run_id": 37762875284,
+      "connected_evaluator_network": "bridge-verifier-only",
+      "last_luna_regrade_run_id": 37762875284,
+      "last_luna_regraded_score": 0
     },
     {
       "id": "google__gson-2311",
@@ -165,7 +171,13 @@
         "reference_exit_code": 0,
         "duration_seconds": 46,
         "model_calls": 0
-      }
+      },
+      "offline_scorer_note": "The previous network-none official evaluator could not install test dependencies. Model results from this environment need connected verifier regrade.",
+      "connected_evaluator_reference_status": "baseline-fails-reference-passes",
+      "connected_evaluator_reference_run_id": 37762875284,
+      "connected_evaluator_network": "bridge-verifier-only",
+      "last_luna_regrade_run_id": 37762875284,
+      "last_luna_regraded_score": 100
     },
     {
       "id": "apache__druid-14092",
@@ -591,7 +603,15 @@
         "reference_exit_code": 0,
         "duration_seconds": 49,
         "model_calls": 0
-      }
+      },
+      "offline_scorer_note": "The previous network-none official evaluator could not install test dependencies. Model results from this environment need connected verifier regrade.",
+      "connected_evaluator_reference_status": "baseline-fails-reference-passes",
+      "connected_evaluator_reference_run_id": 37762875284,
+      "connected_evaluator_network": "bridge-verifier-only",
+      "last_luna_regrade_run_id": 37762875284,
+      "last_luna_regraded_score": 0
     }
-  ]
+  ],
+  "corrected_luna_cohort_score": 20,
+  "corrected_luna_cohort_run_id": 37762875284
 }

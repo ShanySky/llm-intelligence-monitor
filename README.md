@@ -1,5 +1,7 @@
 # LLM Intelligence Monitor
 
+> **V1.1 评分环境修复：** 已解决官方 Maven/npm 测试依赖在禁网评分器中无法下载的问题。模型仍禁网，评分改在独立联网容器完成。使用历史 Luna 补丁零模型费用重评后，原 5 题成绩修正为 **20/100**（原误报 0/100），详见 [可核验修正记录](docs/V1.1-REFERENCE-ENV-FIX.md)。仍非正式 V1.1 发布。
+
 > **V1.1 公开基准优先：** 已整理并核对 [20 道 Java/Vue/JS 官方候选](docs/V1.1-PUBLIC-BENCHMARK-SCREEN.md)；20 道仅确认元数据，其中 Gson #2311 已完成官方 Docker baseline→gold 验证（46 秒）；其余候选环境及所有模型表现尚未验证。原先自造题探索已止损，开发仍在 Draft PR，日测仍关闭。
 
 > **V1.1 区分度研发中：** 已新增三实例跨边界故障恢复候选、客观隐藏检查与免费参考自检。当前仅开发分支 [v1.1-discrimination-upgrade](https://github.com/ShanySky/llm-intelligence-monitor/tree/v1.1-discrimination-upgrade)，**尚未证明模型/档位分差或发布 V1.1**。详见 [V1.1 记录](docs/V1.1-CALIBRATION.md)。V1 Core 与自动日测关闭状态不变。
