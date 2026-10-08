@@ -1,1 +1,1 @@
-Official SWE-bench reference-only admission, one pinned Gson case; no model calls.
+V1.1 official environment admission batch: remaining A-candidates, 4 cases, no model calls; immutable upstream.
