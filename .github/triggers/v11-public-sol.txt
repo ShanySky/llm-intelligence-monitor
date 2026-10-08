@@ -1,0 +1,1 @@
+Run two verified-network parity Vue tasks with gpt-6.1-sol/high and identical Luna Harness and budgets; no Java/Sol tiers/Astra.
