@@ -708,7 +708,7 @@
     {
       "id": "frontier-compact-idempotency",
       "family": "coding_cross_file_idempotency_atomicity",
-      "status": "screening",
+      "status": "coverage-only-ceiling",
       "promoted_to_final": false,
       "evidence": {
         "source": "new compact Java micro-repo",
@@ -724,14 +724,19 @@
         "first_screen_runtime_seconds": 97,
         "first_screen_reason": "Docker bind mount /app was unwritable: smoke test returned Permission denied; all 3 earlier Luna screens consumed tool turns without any code edit.",
         "diagnostic_run_id": 37722071930,
-        "hidden_verifier_revision": "v3"
+        "hidden_verifier_revision": "v3",
+        "luna_high_screen_run_id": 37722327602,
+        "luna_high_screen_score": 100,
+        "luna_high_duration_seconds": 45,
+        "luna_high_clean_completed": true,
+        "luna_high_changed_files": true
       },
-      "note": "First 3-item Luna screen invalid due to Docker workdir permission issue (0 modifications). Rerun after aligning container user with GitHub runner UID/GID and enforcing pre-model write smoke. Only new clean results can enter the candidate funnel."
+      "note": "Luna High hidden verifier 100/100, normal completion under one minute; retained for regression coverage. No expensive Sol effort trials."
     },
     {
       "id": "frontier-compact-outbox",
       "family": "coding_durable_outbox_retry",
-      "status": "screening",
+      "status": "coverage-only-ceiling",
       "promoted_to_final": false,
       "evidence": {
         "source": "new compact Java micro-repo",
@@ -747,9 +752,14 @@
         "first_screen_runtime_seconds": 103,
         "first_screen_reason": "Docker bind mount /app was unwritable: smoke test returned Permission denied; all 3 earlier Luna screens consumed tool turns without any code edit.",
         "diagnostic_run_id": 37722071930,
-        "hidden_verifier_revision": "v3"
+        "hidden_verifier_revision": "v3",
+        "luna_high_screen_run_id": 37722327602,
+        "luna_high_screen_score": 100,
+        "luna_high_duration_seconds": 49,
+        "luna_high_clean_completed": true,
+        "luna_high_changed_files": true
       },
-      "note": "First 3-item Luna screen invalid due to Docker workdir permission issue (0 modifications). Rerun after aligning container user with GitHub runner UID/GID and enforcing pre-model write smoke. Only new clean results can enter the candidate funnel."
+      "note": "Luna High hidden verifier 100/100, normal completion under one minute; retained for regression coverage. No expensive Sol effort trials."
     },
     {
       "id": "frontier-compact-lease",
@@ -770,9 +780,14 @@
         "first_screen_runtime_seconds": 91,
         "first_screen_reason": "Docker bind mount /app was unwritable: smoke test returned Permission denied; all 3 earlier Luna screens consumed tool turns without any code edit.",
         "diagnostic_run_id": 37722071930,
-        "hidden_verifier_revision": "v3"
+        "hidden_verifier_revision": "v3",
+        "luna_high_screen_run_id": 37722327602,
+        "luna_high_screen_score": 80,
+        "luna_high_duration_seconds": 55,
+        "luna_high_clean_completed": true,
+        "luna_high_changed_files": true
       },
-      "note": "First 3-item Luna screen invalid due to Docker workdir permission issue (0 modifications). Rerun after aligning container user with GitHub runner UID/GID and enforcing pre-model write smoke. Only new clean results can enter the candidate funnel."
+      "note": "Luna High 80/100, normal completion 55s, no turn/shell saturation, hidden verifier reference 100. Run exactly one gpt-6.1-sol Medium diagnostic. Effort Core remains unconfirmed."
     }
   ],
   "resident_model_epoch": {
