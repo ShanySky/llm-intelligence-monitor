@@ -397,3 +397,7 @@ Luna High 参考自检 3/3 为 100 分；模型筛题分：`core-signal-summary`
 ### 因果诊断漏斗结果（2026-10-08）
 
 新评分器的因果证据回归通过后，仅运行两道 Luna High：`frontier-runtime-diagnosis-capacity` 得 95/100、58 秒、14 响应与 12 次 Probe，属于高分 Coverage；`frontier-runtime-diagnosis-cache-db` 得 85/100、90 秒，但耗尽 17 次模型响应与 20 次 Probe，且没有有效受控实验，因此按预算混淆淘汰。**两题都不进入 Sol 校准**。通用批量筛题目标已关闭，后续不再反复运行这组题。
+
+### 无稳定 Effort 信号的旧候选收口
+
+`frontier-dynamic-diagnosis-v2` 已完成 3 次/档重复，思考档位分差最大 6.7（低于 10 分晋级阈值），不再投入付费校准；`frontier-review-family` 经过等价标签和重复域修正后 Medium/High/XHigh 均接近封顶（98.3/95/98.3），转为 Coverage。这两组的旧实验不得作为 Effort Core 证据。当前 Effort Core 仍为 0/1，下一阶段只接受新的、可重复、非预算混淆的质量信号。

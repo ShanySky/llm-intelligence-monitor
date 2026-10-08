@@ -337,9 +337,9 @@
     {
       "id": "frontier-dynamic-diagnosis-v2",
       "family": "agent_runtime_investigation_catalog_free",
-      "status": "effort-sensitivity-candidate",
+      "status": "retired",
       "promoted_to_final": false,
-      "note": "Actual observation-based scoring removed the ceiling, but repeated spread is below the 10-point threshold and is not directionally positive. Keep only as an effort-sensitivity research candidate.",
+      "note": "Three repeats per effort gave only 6.7-point nonmonotonic spread below 10-point minimum, with Medium-to-XHigh -3.3; no stable effort signal. Stop paid calibration.",
       "evidence": {
         "scoring": "actual-probe-observation",
         "sol_effort_means": {
@@ -355,7 +355,10 @@
         "effort_spread_points": 6.7,
         "trials_per_effort": 3,
         "medium_to_xhigh_gain_points": -3.3,
-        "formal_effort_signal": "none"
+        "formal_effort_signal": "none",
+        "effort_calibration_stopped": true,
+        "effort_stop_reason": "Three repeats per effort gave only 6.7-point nonmonotonic spread below 10-point minimum, with Medium-to-XHigh -3.3; no stable effort signal. Stop paid calibration.",
+        "coverage_eligible": true
       }
     },
     {
@@ -455,7 +458,7 @@
     {
       "id": "frontier-review-family",
       "family": "code_review_multi_instance_reliability",
-      "status": "effort-sensitivity-candidate",
+      "status": "coverage-only-ceiling",
       "promoted_to_final": false,
       "evidence": {
         "semantic_scoring_normalized": true,
@@ -466,9 +469,12 @@
           "xhigh": 98.3
         },
         "medium_to_xhigh_gain_points": 0,
-        "formal_effort_signal": "none"
+        "formal_effort_signal": "none",
+        "effort_calibration_stopped": true,
+        "effort_stop_reason": "Fair normalized repeat rescoring gives Medium 98.3, High 95, XHigh 98.3 and zero Medium-to-XHigh gain; former evidence was taxonomy/double-count artifact. Retain coverage, block paid effort repeats.",
+        "coverage_eligible": true
       },
-      "note": "Initial family spread was inflated by semantically equivalent taxonomy labels and a double-counted lease recovery domain. Fair rescoring removes the directional signal."
+      "note": "Fair normalized repeat rescoring gives Medium 98.3, High 95, XHigh 98.3 and zero Medium-to-XHigh gain; former evidence was taxonomy/double-count artifact. Retain coverage, block paid effort repeats."
     },
     {
       "id": "staged-fulfillment-evolution",
