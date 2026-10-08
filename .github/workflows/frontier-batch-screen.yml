@@ -10,6 +10,7 @@ on:
       - ".github/triggers/v11-public-preflight.txt"
       - ".github/triggers/v11-public-luna.txt"
       - ".github/triggers/v11-public-sol.txt"
+      - ".github/triggers/v11-public-regrade.txt"
 permissions:
   contents: read
 
@@ -358,6 +359,159 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -m "Record V1.1 matched Sol High public tasks ${GITHUB_RUN_ID}"
             git push origin HEAD:v11-public-sol-results
+          fi
+
+  public-regrade:
+    # Zero model cost: re-evaluate archived Luna patches after fixing evaluator dependencies.
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-regrade]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - case_id: google__gson-2158
+            source_run_id: 37758488863
+            source_artifact: v11-public-luna-37758488863
+          - case_id: google__gson-2311
+            source_run_id: 37759079285
+            source_artifact: v11-public-luna-google__gson-2311-37759079285
+          - case_id: axios__axios-5316
+            source_run_id: 37759079285
+            source_artifact: v11-public-luna-axios__axios-5316-37759079285
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch unchanged original Luna patch and telemetry
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.source_artifact }}
+          run-id: ${{ matrix.source_run_id }}
+          github-token: ${{ github.token }}
+          path: v11-regrade-input
+      - name: Static checks without model calls
+        run: |
+          bash -n scripts/v11-public-env-preflight.sh
+          bash -n scripts/v11-public-regrade.sh
+          python3 -m json.tool v11-regrade-input/result.json >/dev/null
+          test -f v11-regrade-input/model.patch
+      - name: Confirm original baseline and official gold under connected evaluator
+        env:
+          CASE_ID: ${{ matrix.case_id }}
+        run: bash scripts/v11-public-env-preflight.sh
+      - name: Regrade only the archived original model patch
+        env:
+          CASE_ID: ${{ matrix.case_id }}
+          ORIGINAL_RUN_ID: ${{ matrix.source_run_id }}
+        run: bash scripts/v11-public-regrade.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-regrade-${{ matrix.case_id }}-${{ github.run_id }}
+          path: |
+            v11-regrade/
+            v11-public-env-preflight/result.json
+          retention-days: 30
+
+  public-regrade-summary:
+    needs: public-regrade
+    if: always() && needs.public-regrade.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v11-regrade-*-${{ github.run_id }}
+          path: results/v11-regrade
+      - name: Restore original cohort and calculate corrected quality
+        shell: bash
+        run: |
+          git fetch origin v11-public-luna-results
+          git show origin/v11-public-luna-results:public-luna/latest.json > /tmp/original-luna.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          originals=json.loads(Path('/tmp/original-luna.json').read_text())['rows']
+          corrections=[json.loads(p.read_text()) for p in Path('results/v11-regrade').rglob('v11-regrade/result.json')]
+          corrections.sort(key=lambda x:x['task'])
+          indexed={x['task']:x for x in corrections}
+          fix_names={'google__gson-2158','google__gson-2311','axios__axios-5316'}
+          valid=len(corrections)==3 and set(indexed)==fix_names and all(
+              indexed[t]['data_complete'] and indexed[t]['model_calls']==0 for t in fix_names)
+          all_rows=[]
+          for original in originals:
+              t=original['task']
+              if t in indexed:
+                  c=indexed[t]
+                  all_rows.append({'task':t,'original_score':original['score'],
+                                   'corrected_score':c['score'],'data_complete':c['data_complete'],
+                                   'cause':'evaluator needed public dependency registry access',
+                                   'original_model_run_id':c['original_run_id'],
+                                   'regrade_model_calls':0,
+                                   'agent_duration_seconds':original['duration_seconds']})
+              else:
+                  all_rows.append({'task':t,'original_score':original['score'],
+                                   'corrected_score':original['score'],
+                                   'data_complete':original['data_complete'],
+                                   'cause':'unchanged: official gold passed network-none validation',
+                                   'agent_duration_seconds':original['duration_seconds']})
+          all_rows.sort(key=lambda x:x['task'])
+          valid=valid and len(all_rows)==5 and all(x['data_complete'] for x in all_rows)
+          score=sum(x['corrected_score']==100 for x in all_rows)*20 if valid else None
+          report={'run_id':int('${{ github.run_id }}'),'model':'gpt-6-luna','effort':'high',
+                  'original_luna_cohort_run_id':37759079285,
+                  'quality_score_corrected':score,'data_complete':valid,
+                  'matched_cases':5,'corrected_regrade_cases':3,
+                  'new_model_calls':0,'rows':all_rows,
+                  'warning':'Reference-grade environment repaired; single sample does not establish stable capability.'}
+          Path('v11-regrade-summary.json').write_text(json.dumps(report,indent=2)+'\n')
+          lines=['# V1.1 Corrected official Luna High results','',
+                 '| Task | Original | Corrected | Integrity |',
+                 '|---|---:|---:|---|']
+          for x in all_rows:
+              lines.append(f"| {x['task']} | {x['original_score']} | {x['corrected_score']} | {'valid' if x['data_complete'] else 'invalid'} |")
+          lines+=['',f"**Corrected five-case quality: {score if score is not None else 'INCOMPLETE'} / 100.**",
+                  'No new model calls. Only the existing archived model patches were graded under working official evaluator.']
+          Path('v11-regrade-summary.md').write_text('\n'.join(lines)+'\n')
+          print('\n'.join(lines))
+          PY
+          cat v11-regrade-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-regrade-summary-${{ github.run_id }}
+          path: |
+            v11-regrade-summary.json
+            v11-regrade-summary.md
+          retention-days: 30
+      - name: Publish new evidence without overwriting historical model results
+        shell: bash
+        run: |
+          cp v11-regrade-summary.json /tmp/v11-regrade-summary.json
+          cp v11-regrade-summary.md /tmp/v11-regrade-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-regrade-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-regrade-results; then
+            git switch -C v11-public-regrade-results origin/v11-public-regrade-results
+          else
+            git switch --orphan v11-public-regrade-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p public-regrade/runs
+          cp /tmp/v11-regrade-summary.json public-regrade/latest.json
+          cp /tmp/v11-regrade-summary.md public-regrade/latest.md
+          cp /tmp/v11-regrade-summary.json "public-regrade/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-regrade-summary.md "public-regrade/runs/${GITHUB_RUN_ID}.md"
+          git add public-regrade
+          if ! git diff --cached --quiet; then
+            git commit -m "Record connected official grader replay ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-regrade-results
           fi
 
   prepare:
