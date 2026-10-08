@@ -9,6 +9,14 @@ const data = JSON.parse(fs.readFileSync(input, 'utf8'));
 const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
 const rows = Array.isArray(data.rows) ? data.rows : [];
 const trialMode = String(data.trial_mode ?? 'repeats');
+const models = new Set(rows.map(r=>String(r.model??'')).filter(Boolean));
+if(models.size>1) {
+  throw new Error('Mixed model epochs/configurations in effort analysis: '+[...models].join(', '));
+}
+const familyVersion=Number(data.family_version ?? 1);
+if(rows.some(r=>r.family_version!=null && Number(r.family_version)!==familyVersion)) {
+  throw new Error('Mixed real-repo replay family versions in one effort analysis');
+}
 const eff = policy.efficiency ?? {};
 const quality = policy.quality ?? {};
 
