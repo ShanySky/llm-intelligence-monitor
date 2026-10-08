@@ -1,41 +1,27 @@
 {
-  "generated_at": "2026-10-05T08:41:10.388Z",
+  "generated_at": "2026-10-08T01:23:32.531Z",
   "ok": true,
   "cases": [
     {
-      "id": "repeat-evidence-promotion",
-      "target_sha": "0fe6e031c6fb35d408fd69aade1e7de1bcf603e0",
-      "behavior_score": 100,
-      "error": null,
-      "required": true
-    },
-    {
-      "id": "variant-effort-counts",
-      "target_sha": "bda09b65e1428975dbfa79a6c0aa96ef1756f4f9",
-      "behavior_score": 100,
-      "error": null,
-      "required": true
-    },
-    {
-      "id": "split-core-maturity",
-      "target_sha": "5bd797ffe84d4ad233aab03129ccbd2c43d5bf7f",
-      "behavior_score": 100,
-      "error": null,
-      "required": true
-    },
-    {
       "id": "core-signal-summary",
       "target_sha": "e4c921e7f3bfc898d9d8d24275a78189282897c0",
-      "behavior_score": 0,
+      "behavior_score": 100,
       "error": null,
-      "required": false
+      "required": true
     },
     {
       "id": "repeat-sample-policy",
       "target_sha": "12c852a1d01367e7d1d749811d3d4e224abf3d85",
       "behavior_score": 100,
       "error": null,
-      "required": false
+      "required": true
+    },
+    {
+      "id": "quick-monitor-floor-health",
+      "target_sha": "67db9a4734c0488a646ffd6e0db6be0b545916ed",
+      "behavior_score": 100,
+      "error": null,
+      "required": true
     }
   ]
 }
