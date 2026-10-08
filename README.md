@@ -1,5 +1,7 @@
 # LLM Intelligence Monitor
 
+> **V1.1 公开基准优先：** 已整理并核对 [20 道 Java/Vue/JS 官方候选](docs/V1.1-PUBLIC-BENCHMARK-SCREEN.md)；仅确认元数据，官方 Docker 环境与模型表现尚未验证。原先自造题探索已止损，开发仍在 Draft PR，日测仍关闭。
+
 > **V1.1 区分度研发中：** 已新增三实例跨边界故障恢复候选、客观隐藏检查与免费参考自检。当前仅开发分支 [v1.1-discrimination-upgrade](https://github.com/ShanySky/llm-intelligence-monitor/tree/v1.1-discrimination-upgrade)，**尚未证明模型/档位分差或发布 V1.1**。详见 [V1.1 记录](docs/V1.1-CALIBRATION.md)。V1 Core 与自动日测关闭状态不变。
 
 ## V1 Core 可用试用版（2026-10-08）

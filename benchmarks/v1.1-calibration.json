@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "release": "v1.1",
   "baseline": "v0.1.0-beta.1",
   "enabled": false,
@@ -10,14 +10,18 @@
       65
     ],
     "sol_medium": [
-      70,
+      65,
       75
     ],
     "sol_high": [
+      75,
+      85
+    ],
+    "sol_xhigh": [
       80,
       90
     ],
-    "sol_xhigh": [
+    "astra_xhigh_deferred": [
       90,
       95
     ],
@@ -113,7 +117,7 @@
     "no_automatic_daily": true
   },
   "current_round": {
-    "status": "paused-no-stable-discriminator",
+    "status": "public-source-shortlist-ready-environment-not-tested",
     "paid_workflow_runs": [
       37748890240,
       37749238271
@@ -123,6 +127,19 @@
     "sol_xhigh_runs": 0,
     "astra_runs": 0,
     "not_a_release": true,
-    "next": "Rethink evidence-sensitive task design before any more paid probes; preserve V1 Core."
+    "next": "Offline/no-model reproducibility check of 5 A-tier official benchmark cases; no paid screening until preflight passes."
+  },
+  "strategy": "official_public_engineering_benchmark_first",
+  "public_sources": {
+    "primary": "SWE-bench Multilingual",
+    "secondary": [
+      "Multi-SWE-bench flash/mini",
+      "Defects4J"
+    ],
+    "manifest": "benchmarks/v1.1-public-candidates.json",
+    "source_shortlist_size": 20,
+    "verified_metadata": true,
+    "verified_environments": 0,
+    "paid_model_runs": 0
   }
 }
