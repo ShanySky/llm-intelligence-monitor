@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "enabled": true,
+  "enabled": false,
   "source": "SWE-bench Multilingual",
   "pinned_task_commit": "6e08cbcd763c869abd7aae4bcb9e1b3991180777",
   "model": "gpt-6-luna",
@@ -10,8 +10,8 @@
   "agent_timeout_seconds": 540,
   "single_pilot": true,
   "allowed_only_when_official_env_ready": true,
-  "last_triggered_run_id": 37758488863,
-  "status": "fixed-four-remaining-cases-only",
+  "last_triggered_run_id": 37759079285,
+  "status": "fixed-cohort-triggered-no-repeat",
   "tasks": [
     "google__gson-2311",
     "vuejs__core-11589",
