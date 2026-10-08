@@ -356,3 +356,7 @@ Core tests.
 ### Real-repo replay 漏斗（v2）
 
 `benchmarks/real-repo-replay/config.json` 的 `mode=screen` 表示只运行 GPT-6 Luna High，每个 v2 历史 replay case 一个样本。结果分支的 `replay/latest.json` 同时包含 `screening.decisions`：`coverage-only-ceiling` 不再进入 Sol 校准；`invalid-or-budget-confounded` 先修正环境/预算；只有 `effort-calibration-candidate` 才值得进一步运行 GPT-6.1 Sol Medium/High/X High。此筛选结果**不能**直接确认 Effort Core，必须经过跨实例、重复的 Sol 校准。v1 replay 的 440 秒预算触顶结果不作为能力区分证据。
+
+### Replay v2 筛题记录（2026-10-08）
+
+Luna High 参考自检 3/3 为 100 分；模型筛题分：`core-signal-summary` 45、`repeat-sample-policy` 25、`quick-monitor-floor-health` 100。前两题进入 GPT‑6.1 Sol M/H/XH **单轮候选诊断**；100 分题仅保留 coverage/reference self-check，不加入付费校准。单轮分差不得进入正式 Effort Core，正式晋级还要求更多独立变体与同变体重复验证。
