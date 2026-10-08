@@ -11,6 +11,7 @@ BASE=""
 IMAGE=""
 UPSTREAM_COMMIT=""
 C=""
+VC=""
 MODEL_STARTED=false
 RUNNER_EXIT=999
 EVAL_EXIT=999
@@ -23,6 +24,7 @@ RESULT_STATUS="incomplete_environment"
 finalize() {
   local shell_exit=$?
   if [[ -n "$C" ]]; then docker rm -f "$C" >/dev/null 2>&1 || true; fi
+  if [[ -n "$VC" ]]; then docker rm -f "$VC" >/dev/null 2>&1 || true; fi
   STAGE="$STAGE" CASE="$CASE" BASE="$BASE" IMAGE="$IMAGE" UPSTREAM_COMMIT="$UPSTREAM_COMMIT" MODEL_STARTED="$MODEL_STARTED" RUNNER_EXIT="$RUNNER_EXIT" EVAL_EXIT="$EVAL_EXIT" RUNNER_FILE="$RUNNER_FILE" SHELL_EXIT="$shell_exit" START="$START" python3 - <<'PY'
 import json,os,time
 from pathlib import Path
@@ -45,7 +47,7 @@ result={
  "classification":("valid-official-pass" if env("EVAL_EXIT")=="0" else "valid-official-fail") if admissible else "incomplete-or-budget-confounded",
  "data_complete":admissible,"runner_telemetry_present":bool(runner),"actual_model":runner.get("model"),
  "actual_effort":runner.get("effort"),"agent_exit_code":int(env("RUNNER_EXIT")),"verifier_exit_code":int(env("EVAL_EXIT")),
- "stage":env("STAGE"),"model_started":env("MODEL_STARTED")=="true",
+ "stage":env("STAGE"),"agent_network":"none","evaluator_network":"bridge", "model_started":env("MODEL_STARTED")=="true",
  "duration_seconds":runner.get("duration_seconds"),
  "total_wall_seconds":int(time.time())-int(env("START")),
  "responses":runner.get("responses",0),"shell_commands":runner.get("shell_commands",0),
@@ -122,14 +124,26 @@ if [[ "$RUNNER_EXIT" != 0 ]]; then
   exit 1
 fi
 
+STAGE="prepare-connected-evaluator"
+# The no-network agent has finished. Grade its captured diff in a DIFFERENT
+# online verifier container so no solution patch or network leaks into the agent.
+VC="${C}-verify"
+docker run -d --name "$VC" --network bridge --cap-drop ALL --security-opt no-new-privileges \
+    --memory 4g --cpus 2 "$IMAGE" sleep infinity >/dev/null
+docker exec -w /testbed "$VC" git reset --hard "$BASE" > "$OUTDIR/verifier-reset.log" 2>&1
+if [[ -s "$OUTDIR/model.patch" ]]; then
+  docker cp "$OUTDIR/model.patch" "$VC:/tmp/model.patch"
+  docker exec -w /testbed "$VC" git apply --check /tmp/model.patch
+  docker exec -w /testbed "$VC" git apply /tmp/model.patch
+fi
 STAGE="official-evaluation"
 UPSTREAM="https://raw.githubusercontent.com/SWE-bench/swe-bench-multilingual-tasks/$UPSTREAM_COMMIT/tasks/$CASE"
 for asset in eval.sh; do
   curl --retry 2 --fail --silent --show-error --max-time 45 "$UPSTREAM/$asset" -o "$OUTDIR/$asset"
-  docker cp "$OUTDIR/$asset" "$C:/tmp/v11-eval.sh"
+  docker cp "$OUTDIR/$asset" "$VC:/tmp/v11-eval.sh"
 done
 set +e
-timeout 210s docker exec -w /testbed "$C" bash -e /tmp/v11-eval.sh > "$OUTDIR/official-eval.log" 2>&1
+timeout 210s docker exec -w /testbed "$VC" bash -e /tmp/v11-eval.sh > "$OUTDIR/official-eval.log" 2>&1
 EVAL_EXIT=$?
 set -e
 if [[ "$EVAL_EXIT" == 124 || "$EVAL_EXIT" == 137 ]]; then
