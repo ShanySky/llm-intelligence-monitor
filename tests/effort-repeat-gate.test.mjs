@@ -53,5 +53,15 @@ try{
     cwd:root,encoding:'utf8',timeout:15000});
   assert.notEqual(mixedRun.status,0,'mixed model epochs must be rejected');
   assert.match(mixedRun.stderr,/Mixed model epochs/);
-  console.log('PASS: five replay evidence regression scenarios');
+  const opposing=[];
+  const directions=[
+    {medium:20,high:90,xhigh:70},
+    {medium:50,high:90,xhigh:20},
+    {medium:50,high:50,xhigh:50}
+  ];
+  for(let trial=1;trial<=3;trial++) for(let repeat=1;repeat<=2;repeat++)
+    for(const effort of ['medium','high','xhigh'])
+      opposing.push(row(trial,effort,repeat,directions[trial-1][effort]));
+  assert.equal(score('opposing',opposing).promotion_recommendation,'do-not-promote');
+  console.log('PASS: six replay evidence regression scenarios');
 }finally{fs.rmSync(dir,{recursive:true,force:true});}

@@ -107,6 +107,7 @@ const distinctVariants=[...new Set(rows.filter(r=>r.trial!=null).map(r=>Number(r
 
 const repeatedVariantAgreement = (efforts, variants, threshold, direction='any') => {
   let agreed=0;
+  const agreementBySignature=new Map();
   for (const trial of variants) {
     const configRounds=efforts.map(effort=>new Map(rows
       .filter(r=>r.effort===effort && Number(r.trial)===trial &&
@@ -137,12 +138,19 @@ const repeatedVariantAgreement = (efforts, variants, threshold, direction='any')
       } else signatures.push(signature);
     }
     const required=Math.ceil(common.length*consistencyThreshold);
-    const ok=direction==='any'
-      ? [...new Set(signatures)].some(s=>signatures.filter(x=>x===s).length>=required)
-      : positive>=required;
-    if(ok) agreed++;
+    if(direction==='any') {
+      const winning=[...new Set(signatures)].find(s=>
+        signatures.filter(x=>x===s).length>=required);
+      if(winning) agreementBySignature.set(winning,(agreementBySignature.get(winning)??0)+1);
+    } else if(positive>=required) {
+      agreed++;
+    }
   }
-  return agreed>=familyMinPositiveVariants;
+  // Cross-instance consistency matters too: two variants with opposite best/worst
+  // effort directions cannot jointly establish a stable family-level sensitivity.
+  return direction==='any'
+    ? [...agreementBySignature.values()].some(n=>n>=familyMinPositiveVariants)
+    : agreed>=familyMinPositiveVariants;
 };
 
 const qualityFloor = Number(eff.min_quality_floor ?? 95);

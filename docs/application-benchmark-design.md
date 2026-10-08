@@ -231,3 +231,7 @@ Backup replay cases 仅用于主集区分力不足时扩展样本。它们可以
 ### 防止单次变体造成 Effort 假确认
 
 同一题型的 3 个不同变体只代表**覆盖度**，不能替代重复实验。`trial_mode=variants` 的正式 Effort Core 晋级必须为每个变体、每个思考档位保留至少 2 个独立的 `repeat` 轮次记录；任一变体缺少成对复测，整族只能保持 candidate。预算触顶、缺遥测或 API/Harness 故障样本不计入复测证据。Luna 单档筛题始终只能产生筛选信号，不能用于 Effort Core 晋级。
+
+### 模型质量与请求超时分离
+
+如果单次 Responses API 请求在 Agent 总 wall-clock 截止前触发客户端 timeout，无法确认根因是模型思考、网关排队还是网络传输；此时标记为 `infrastructure_error` / 数据不完整，不计入模型质量比较。若达到 Agent 任务总时限，标记为 `model_timeout`，在报告中单列完成率与耗时；即使工作区的隐藏测试已通过，该样本也属于 `budget-confounded`，不得用来确认 reasoning-effort 差异。Replay Markdown 报告同时展示 `Outcome` 和 `Quality evidence`，防止将未按时完成的补丁原始分误当成完成质量。
