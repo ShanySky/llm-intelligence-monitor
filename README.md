@@ -405,3 +405,7 @@ Luna High 参考自检 3/3 为 100 分；模型筛题分：`core-signal-summary`
 ### 新 Effort 研究候选：跨模块 Delivery 故障恢复
 
 仅新增一个原始 Java 微型仓库 `frontier-compact-delivery`，考察同一消息在发送前失败、发送后回执丢失、业务身份跨租户/版本/行项目不重合、并发重放和分区 checkpoint 不能倒退等相互影响的条件。实现需从 `contracts/delivery-identity.md`、`contracts/acknowledgement.md` 和三个实现模块综合推断；模型可见目录不包含隐藏 verifier 和参考补丁。先执行零费用基线/参考修复自检，再只跑 Luna High 单题。封顶直接留作 Coverage，只有非预算混淆且有区分空间的题才进入 Sol Medium 校准；这仍只是题型族的第一个实例，不能单题晋级 Effort Core。
+
+### Multi-failure Delivery 候选结论（2026-10-08）
+
+`frontier-compact-delivery` 的基线/参考修复分别为 20/100。Luna High 首轮真实修复获得 **100/100，84 秒，7 次 Responses、8 次 Shell**，四项隐藏失败窗口检查（发送前故障、回执丢失、业务身份、并发检查点）全部通过，无预算混淆。因此只保留为 Coverage，不运行 Sol Medium/High/X High。由此确认：仅增加跨文件数、故障窗口数量和实现约束仍不足以形成可重复 Effort 区分；下一轮优先选择动态证据、反事实决策与遇错修正，而不是继续堆普通代码修复题。

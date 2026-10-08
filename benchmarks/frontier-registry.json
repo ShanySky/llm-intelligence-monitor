@@ -864,7 +864,7 @@
     {
       "id": "frontier-compact-delivery",
       "family": "coding_agent_cross_module_recovery",
-      "status": "screening",
+      "status": "coverage-only-ceiling",
       "promoted_to_final": false,
       "evidence": {
         "source": "new isolated Java repository with two scattered contracts",
@@ -872,10 +872,24 @@
         "root_difficulty": "retry identity + pre/post-effect crash + checkpoint monotonicity + concurrent duplicate delivery",
         "model": "gpt-6-luna",
         "effort": "high",
-        "reference_admission": "pending",
-        "model_epoch": "gpt-6.1-sol"
+        "reference_admission": "PASS",
+        "model_epoch": "gpt-6.1-sol",
+        "luna_high_run_id": 37725714960,
+        "luna_high_score": 100,
+        "luna_high_duration_seconds": 84,
+        "luna_high_responses": 7,
+        "luna_high_shell_commands": 8,
+        "hidden_checks_passed": [
+          "pre_send",
+          "reply_loss",
+          "identity",
+          "concurrent_offset"
+        ],
+        "no_budget_confounds": true,
+        "formal_effort_signal": "none",
+        "next_action": "coverage-no-sol"
       },
-      "note": "Single original higher-interaction candidate. Hidden reference must score 100 and baseline fail. Luna High screens first; no Sol call until valid 20-95 score with no budget confound; repeated paired independent evidence required for Effort Core."
+      "note": "Original multi-failure, cross-contract repair passed 100/100 in 84s on Luna High, with no model/tool saturation. Retain as regression Coverage; no valid reason to pay for Sol Medium/High/XHigh on this instance."
     }
   ],
   "resident_model_epoch": {
