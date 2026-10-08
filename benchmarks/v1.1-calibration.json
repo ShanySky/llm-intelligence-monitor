@@ -117,7 +117,7 @@
     "no_automatic_daily": true
   },
   "current_round": {
-    "status": "first-five-official-environments-passed",
+    "status": "official-luna-fixed-cohort-under-verification",
     "paid_workflow_runs": [
       37748890240,
       37749238271
@@ -127,7 +127,37 @@
     "sol_xhigh_runs": 0,
     "astra_runs": 0,
     "not_a_release": true,
-    "next": "Prepare thin official-repo Luna harness for one task; no Sol/Astra. Gold/test patches are host-only."
+    "next": "Prepare thin official-repo Luna harness for one task; no Sol/Astra. Gold/test patches are host-only.",
+    "pilot_run_ids": [
+      37758488863,
+      37759079285
+    ],
+    "network_parity_run_id": 37759918052,
+    "known_luna_results": [
+      {
+        "id": "google__gson-2158",
+        "score": 0,
+        "seconds": 95
+      },
+      {
+        "id": "google__gson-2311",
+        "score": 0,
+        "seconds": 128
+      },
+      {
+        "id": "vuejs__core-11589",
+        "score": 0,
+        "seconds": 161
+      },
+      {
+        "id": "axios__axios-5316",
+        "score": 0,
+        "seconds": 189
+      }
+    ],
+    "final_luna_cohort_score": null,
+    "network_parity": "pending",
+    "notes": "These are preliminary result records until same-isolation official reference run verifies correctness; disabled future paid triggers."
   },
   "strategy": "official_public_engineering_benchmark_first",
   "public_sources": {
