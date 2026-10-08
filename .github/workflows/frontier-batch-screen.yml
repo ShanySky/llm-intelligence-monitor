@@ -174,7 +174,8 @@ jobs:
           exit_code=int("${{ steps.agent.outputs.exit_code || '999' }}")
           infra=runner.get("infrastructure_error")
           timeout=bool(runner.get("model_timeout")) or exit_code==124
-          saturated=turn_limit or shell_limit or timeout
+          probe_limit=bool(runner.get("probe_enabled")) and bool(runner.get("probe_budget")) and runner.get("probe_calls",0)>=runner.get("probe_budget")
+          saturated=turn_limit or shell_limit or probe_limit or timeout
           quality=float(score["score"])
           phase=json.loads(Path("benchmarks/frontier-batch-screen.json").read_text()).get("phase","screen")
           if not rp_exists or infra or exit_code not in (0,124):
@@ -234,6 +235,7 @@ jobs:
             "probe_enabled":runner.get("probe_enabled",False),
             "turn_limit_reached":turn_limit,
             "shell_budget_reached":shell_limit,
+            "probe_budget_reached":probe_limit,
             "finished_with_message":bool(runner.get("final_text")),
             "usage":runner.get("usage",{}),
             "api_retries":runner.get("api_retries",0),
