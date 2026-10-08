@@ -1,16 +1,9 @@
 {
-  "version": 8,
-  "purpose": "Only GPT-6.1 Sol Medium on frontier-compact-lease after Luna High completed cleanly at 80/100 in 55s. Do not run High/X High unless this single pilot remains non-ceiling and has valid execution quality.",
+  "version": 9,
+  "purpose": "Luna High 3-case compact screen plus one Sol Medium lease pilot completed. All resident-Sol Medium sample tasks saturated at 100, therefore no High/X High or repeat calibration is justified. Disabled to avoid accidental paid reruns.",
   "model": "gpt-6.1-sol",
   "effort": "medium",
-  "tasks": [
-    {
-      "task": "frontier-compact-lease",
-      "max_turns": 18,
-      "shell_budget": 24,
-      "wall_timeout_ms": 280000
-    }
-  ],
+  "tasks": [],
   "excluded_coverage_only": [
     "frontier-webhook",
     "frontier-webhook-hidden",
@@ -39,16 +32,8 @@
       "next": "cross-model-validation"
     }
   },
-  "enabled": true,
+  "enabled": false,
   "deferred_tasks": [
-    {
-      "task": "frontier-compact-idempotency",
-      "reason": "Luna High 100/100 in 45s, coverage-only"
-    },
-    {
-      "task": "frontier-compact-outbox",
-      "reason": "Luna High 100/100 in 49s, coverage-only"
-    },
     {
       "task": "frontier-runtime-diagnosis-capacity",
       "reason": "Preserved as an independent diagnostic candidate, not part of this compact coding-family screen"
@@ -56,8 +41,20 @@
     {
       "task": "frontier-runtime-diagnosis-cache-db",
       "reason": "Preserved as an independent diagnostic candidate, not part of this compact coding-family screen"
+    },
+    {
+      "task": "frontier-compact-idempotency",
+      "reason": "Coverage only: Luna High hidden score 100, 45s clean"
+    },
+    {
+      "task": "frontier-compact-outbox",
+      "reason": "Coverage only: Luna High hidden score 100, 49s clean"
+    },
+    {
+      "task": "frontier-compact-lease",
+      "reason": "Single-run model discrimination candidate (Luna High80 Sol Medium100), but Effort Medium already ceiling. Requires independent model repeat before Model Core promotion; no further Sol effort."
     }
   ],
   "diagnostic_mode": false,
-  "phase": "sol-medium-pilot"
+  "phase": "idle"
 }

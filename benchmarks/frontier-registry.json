@@ -729,9 +729,10 @@
         "luna_high_screen_score": 100,
         "luna_high_duration_seconds": 45,
         "luna_high_clean_completed": true,
-        "luna_high_changed_files": true
+        "luna_high_changed_files": true,
+        "formal_effort_signal": "none"
       },
-      "note": "Luna High hidden verifier 100/100, normal completion under one minute; retained for regression coverage. No expensive Sol effort trials."
+      "note": "Luna High hidden verifier 100/100, normal completion under one minute; retained for regression coverage. No expensive Sol effort trials. Locked out of future Sol calibration by registry coverage-only status."
     },
     {
       "id": "frontier-compact-outbox",
@@ -757,14 +758,15 @@
         "luna_high_screen_score": 100,
         "luna_high_duration_seconds": 49,
         "luna_high_clean_completed": true,
-        "luna_high_changed_files": true
+        "luna_high_changed_files": true,
+        "formal_effort_signal": "none"
       },
-      "note": "Luna High hidden verifier 100/100, normal completion under one minute; retained for regression coverage. No expensive Sol effort trials."
+      "note": "Luna High hidden verifier 100/100, normal completion under one minute; retained for regression coverage. No expensive Sol effort trials. Locked out of future Sol calibration by registry coverage-only status."
     },
     {
       "id": "frontier-compact-lease",
       "family": "coding_fencing_lease_reassignment",
-      "status": "screening",
+      "status": "model-discrimination-candidate",
       "promoted_to_final": false,
       "evidence": {
         "source": "new compact Java micro-repo",
@@ -785,9 +787,21 @@
         "luna_high_screen_score": 80,
         "luna_high_duration_seconds": 55,
         "luna_high_clean_completed": true,
-        "luna_high_changed_files": true
+        "luna_high_changed_files": true,
+        "sol_medium_run_id": 37722610571,
+        "sol_medium_hidden_score": 100,
+        "sol_medium_clean_completion": true,
+        "sol_medium_duration_seconds": 40,
+        "sol_medium_responses": 4,
+        "sol_medium_shell_commands": 3,
+        "sol_medium_reasoning_tokens": 36,
+        "luna_high_vs_sol_medium_quality_gap_points": 20,
+        "cross_model_repeat_confirmed": false,
+        "sol_effort_score_signal": "no-evidence-medium-ceiling",
+        "effort_candidate": false,
+        "formal_effort_signal": "none"
       },
-      "note": "Luna High 80/100, normal completion 55s, no turn/shell saturation, hidden verifier reference 100. Run exactly one gpt-6.1-sol Medium diagnostic. Effort Core remains unconfirmed."
+      "note": "Clean compact Lease v3 hidden repair: Luna High 80 in 55s and resident GPT-6.1 Sol Medium 100 in 40s. This is ONE cross-model pilot and may be a model-discrimination candidate, not a confirmed Model Core. Medium is at ceiling, so High/XHigh Sol effort runs are not cost-effective; leave disabled pending different, higher-information family."
     }
   ],
   "resident_model_epoch": {
