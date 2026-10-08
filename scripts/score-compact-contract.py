@@ -14,7 +14,7 @@ task = sys.argv[1]
 root = Path(sys.argv[2]).resolve()
 out = Path(sys.argv[3]).resolve()
 tasks = {
-    "frontier-compact-idempotency": ("TENANT", "REVISION", "TOPIC", "PARALLEL"),
+    "frontier-compact-idempotency": ("TENANT", "REVISION", "TOPIC", "ENCODING"),
     "frontier-compact-outbox": ("DURABLE", "ACK_WINDOW", "REPEAT", "UNRELATED"),
     "frontier-compact-lease": ("STALE", "DEADLINE", "RENEW", "SEPARATE"),
 }
@@ -72,7 +72,7 @@ if changed_protected:
     score = 0
 result = {"task": task, "score": score, "checks": checks,
           "protected_changes": changed_protected,
-          "verifier": "compact-contract-hidden-v2"}
+          "verifier": "compact-contract-hidden-v3"}
 out.parent.mkdir(parents=True, exist_ok=True)
 out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
 print(json.dumps(result, indent=2))

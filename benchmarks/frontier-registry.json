@@ -713,17 +713,20 @@
       "evidence": {
         "source": "new compact Java micro-repo",
         "hidden_tests": true,
-        "reference_admission": "pending",
+        "reference_admission": "PASS",
         "difficulty_source": "Tenant-scoped and revision-scoped event identity, atomic retry processing",
         "model_epoch": "gpt-6-luna-high-screen",
         "first_screen_run_id": 37721624917,
-        "first_screen_status": "budget-confounded-limit",
+        "first_screen_status": "invalid-container-permission",
         "first_screen_score": 20,
         "first_screen_responses": 14,
         "first_screen_changed_files": 0,
-        "first_screen_runtime_seconds": 97
+        "first_screen_runtime_seconds": 97,
+        "first_screen_reason": "Docker bind mount /app was unwritable: smoke test returned Permission denied; all 3 earlier Luna screens consumed tool turns without any code edit.",
+        "diagnostic_run_id": 37722071930,
+        "hidden_verifier_revision": "v3"
       },
-      "note": "Initial Luna High screen used 14 turns, changed 0 files. Treat as Harness/tool-execution/budget-confounded, not ability evidence. One capped idempotency-only shell-trace diagnostic; no Sol effort trials until tool path is verified and a full patch finishes in budget."
+      "note": "First 3-item Luna screen invalid due to Docker workdir permission issue (0 modifications). Rerun after aligning container user with GitHub runner UID/GID and enforcing pre-model write smoke. Only new clean results can enter the candidate funnel."
     },
     {
       "id": "frontier-compact-outbox",
@@ -733,17 +736,20 @@
       "evidence": {
         "source": "new compact Java micro-repo",
         "hidden_tests": true,
-        "reference_admission": "pending",
+        "reference_admission": "PASS",
         "difficulty_source": "Atomic outbox marker, replay after send/ack failure, transport idempotency",
         "model_epoch": "gpt-6-luna-high-screen",
         "first_screen_run_id": 37721624917,
-        "first_screen_status": "budget-confounded-limit",
+        "first_screen_status": "invalid-container-permission",
         "first_screen_score": 80,
         "first_screen_responses": 14,
         "first_screen_changed_files": 0,
-        "first_screen_runtime_seconds": 103
+        "first_screen_runtime_seconds": 103,
+        "first_screen_reason": "Docker bind mount /app was unwritable: smoke test returned Permission denied; all 3 earlier Luna screens consumed tool turns without any code edit.",
+        "diagnostic_run_id": 37722071930,
+        "hidden_verifier_revision": "v3"
       },
-      "note": "Initial Luna High screen used 14 turns, changed 0 files. Treat as Harness/tool-execution/budget-confounded, not ability evidence. One capped idempotency-only shell-trace diagnostic; no Sol effort trials until tool path is verified and a full patch finishes in budget."
+      "note": "First 3-item Luna screen invalid due to Docker workdir permission issue (0 modifications). Rerun after aligning container user with GitHub runner UID/GID and enforcing pre-model write smoke. Only new clean results can enter the candidate funnel."
     },
     {
       "id": "frontier-compact-lease",
@@ -753,17 +759,20 @@
       "evidence": {
         "source": "new compact Java micro-repo",
         "hidden_tests": true,
-        "reference_admission": "pending",
+        "reference_admission": "PASS",
         "difficulty_source": "Lease incarnation fencing, expiry boundary, stale renewal protection",
         "model_epoch": "gpt-6-luna-high-screen",
         "first_screen_run_id": 37721624917,
-        "first_screen_status": "budget-confounded-limit",
+        "first_screen_status": "invalid-container-permission",
         "first_screen_score": 40,
         "first_screen_responses": 14,
         "first_screen_changed_files": 0,
-        "first_screen_runtime_seconds": 91
+        "first_screen_runtime_seconds": 91,
+        "first_screen_reason": "Docker bind mount /app was unwritable: smoke test returned Permission denied; all 3 earlier Luna screens consumed tool turns without any code edit.",
+        "diagnostic_run_id": 37722071930,
+        "hidden_verifier_revision": "v3"
       },
-      "note": "Initial Luna High screen used 14 turns, changed 0 files. Treat as Harness/tool-execution/budget-confounded, not ability evidence. One capped idempotency-only shell-trace diagnostic; no Sol effort trials until tool path is verified and a full patch finishes in budget."
+      "note": "First 3-item Luna screen invalid due to Docker workdir permission issue (0 modifications). Rerun after aligning container user with GitHub runner UID/GID and enforcing pre-model write smoke. Only new clean results can enter the candidate funnel."
     }
   ],
   "resident_model_epoch": {

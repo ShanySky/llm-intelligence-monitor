@@ -377,3 +377,7 @@ Luna High 参考自检 3/3 为 100 分；模型筛题分：`core-signal-summary`
 - `python3 scripts/selfcheck-compact-contract.py` 是**零模型费用**验收：基线必须可编译、通过可见测试但隐藏不满分；参考修复必须隐藏测试满分。
 - `Frontier batch candidate screen` 只在人工触发或专用 trigger 变更时执行。先用 Luna High 单轮筛题，只有有效、未超时、未封顶且在 3–5 分钟目标内有足够信号的题才考虑 Sol 后续档位校准；单轮结果从不直接算 Effort Core。
 - 当前日测 `schedule` 继续停用；旧 coverage-only/retired 题不得自动加入付费筛选。
+
+### Compact 筛选隔离修正（2026-10-08）
+
+首次 3 题 Luna High 因 Docker 运行用户与 GitHub Runner 挂载目录 owner 不一致，工作区在容器内不可写，模型 14 轮均没有补丁，全部结果判为 **Harness invalid/budget-confounded**，不作为模型能力证据。诊断任务的无模型 shell smoke 明确返回 `Permission denied`。当前容器使用 `--user "$(id -u):$(id -g)"` 对齐 UID/GID，模型调用前必须先成功创建、检查并删除工作区测试文件。下一轮只在 smoke + 隐藏参考自检全部通过后执行 Luna High 三题筛选。

@@ -9,6 +9,7 @@ public final class HiddenVerifier {
   check(bus.count()==1);check(st.pending().isEmpty());}
  static void ackWindow(){Store st=new Store();Bus bus=new Bus();OrderService s=new OrderService(st,bus);
   st.failAckOnce();try{s.place("a-1");}catch(IllegalStateException e){}
+  check(st.pending().contains("a-1"));
   drain(s);check(bus.count()==1);check(st.pending().isEmpty());}
  static void repeat(){Store st=new Store();Bus bus=new Bus();OrderService s=new OrderService(st,bus);
   s.place("r-1");s.place("r-1");drain(s);drain(s);check(bus.count()==1);}
