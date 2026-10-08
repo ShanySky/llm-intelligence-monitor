@@ -1,0 +1,23 @@
+{
+  "reference_admission": "PASS",
+  "cases": [
+    {
+      "task": "frontier-compact-idempotency",
+      "baseline": 40,
+      "reference": 100,
+      "passed": true
+    },
+    {
+      "task": "frontier-compact-outbox",
+      "baseline": 80,
+      "reference": 100,
+      "passed": true
+    },
+    {
+      "task": "frontier-compact-lease",
+      "baseline": 40,
+      "reference": 100,
+      "passed": true
+    }
+  ]
+}
