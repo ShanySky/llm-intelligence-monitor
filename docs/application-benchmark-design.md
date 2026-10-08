@@ -243,3 +243,7 @@ Backup replay cases 仅用于主集区分力不足时扩展样本。它们可以
 ### 最终应用报告有效样本门槛
 
 `application-final` 的总体质量分和 Core Signal **仅**从 `outcome=completed`、具有完整遥测、没有 `model_timeout` / turn / shell budget saturation 的样本计算；未完成的工作区仍可保存原始 patch score 与 Token/耗时，但 `data_complete` 和 `core_data_complete` 不得宣称质量验证完整。应用差异分析不得把这样的样本晋级，maturity 验收必须确保当前全部模型配置的实际质量证据完整，而非只凭任务是否存在或历史 registry 状态。
+
+### 分阶段 Harness 的超时证据保护
+
+staged Agent 保留独立 runner 遥测。外层 Actions `timeout 480s` 终止且 runner 未写出结果时，记录 `pre_telemetry_timeout` / `data_complete=false`，不得产生模型质量差异证据。runner 自身在 440 秒默认 wall deadline 前写出超时标识，单独判定 `model_timeout`，列入预算混淆而不是“低质量答错”；如果是提前发生的独立 Responses API 超时，则分类为基础设施错误，不冒充模型思考档位差异。上述保护是现有 Workflow 的维护，不构成新一轮模型校准。
