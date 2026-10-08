@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "enabled": true,
+  "source": "SWE-bench Multilingual",
+  "pinned_task_commit": "6e08cbcd763c869abd7aae4bcb9e1b3991180777",
+  "task": "google__gson-2158",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "max_turns": 30,
+  "shell_budget": 40,
+  "agent_timeout_seconds": 540,
+  "single_pilot": true,
+  "allowed_only_when_official_env_ready": true
+}

@@ -24,7 +24,16 @@ const probeScript = String(process.env.AGENT_PROBE_SCRIPT ?? '').trim();
 const probeBudget = Number(process.env.AGENT_PROBE_BUDGET ?? 12);
 
 const instructions = (
-  containerMode
+  containerMode && process.env.AGENT_TASK_PROFILE === 'public-swe-bench'
+    ? [
+        'You are a software engineer fixing a real public GitHub issue in the repository at /testbed.',
+        'Use the shell tool to inspect repository code, diagnose the reported issue, edit production code, and run relevant existing tests.',
+        'Work directly in /testbed. Preserve public APIs and unrelated behavior. Aim for a minimal correct fix.',
+        'The official hidden evaluator runs after your session. Do not modify tests to fake passing results.',
+        'There is no gold patch available in your workspace. Work from the original issue and repository evidence.',
+        'Do not access the Docker control plane, host paths, or external network. Finish with a concise validation summary.',
+      ]
+    : containerMode
     ? [
         'You are a software engineering agent operating inside a disposable benchmark container.',
         'Use the shell tool to inspect and modify the container as needed to complete the task.',

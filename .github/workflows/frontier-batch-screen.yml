@@ -8,6 +8,7 @@ on:
       - ".github/triggers/frontier-batch.txt"
       - ".github/triggers/v11-preflight.txt"
       - ".github/triggers/v11-public-preflight.txt"
+      - ".github/triggers/v11-public-luna.txt"
 permissions:
   contents: read
 
@@ -114,6 +115,52 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -m "Record official benchmark environment admission ${GITHUB_RUN_ID}"
             git push origin HEAD:v11-public-env-results
+          fi
+
+  public-luna-pilot:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-luna]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Run one admitted official task with Luna High
+        env:
+          BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+        run: bash scripts/v11-public-luna-screen.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-public-luna-${{ github.run_id }}
+          path: v11-public-luna/
+          retention-days: 30
+      - name: Persist one-case Luna result
+        if: always()
+        shell: bash
+        run: |
+          test -f v11-public-luna/result.json || exit 0
+          cp v11-public-luna/result.json /tmp/v11-luna-result.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-luna-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-luna-results; then
+            git switch -C v11-public-luna-results origin/v11-public-luna-results
+          else
+            git switch --orphan v11-public-luna-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p public-luna/runs
+          cp /tmp/v11-luna-result.json public-luna/latest.json
+          cp /tmp/v11-luna-result.json "public-luna/runs/${GITHUB_RUN_ID}.json"
+          git add public-luna
+          if ! git diff --cached --quiet; then
+            git commit -m "Record V1.1 Luna public candidate ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-luna-results
           fi
 
   prepare:
