@@ -4,7 +4,15 @@ Trial mode: variants
 
 | Effort | Trials | Quality mean | Quality stddev | Runtime avg | Shell avg | Probes avg | Patch files | Patch lines | Total tokens avg | Reasoning avg | Saturated |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| high | 3 | 56.7 | 31.7 | 150s | 10.7 | 0.0 | 1.3 | 40.7 | 107431 | 836 | no |
+| medium | 2 | 62.5 | 37.5 | 406s | 9.0 | 0.0 | 0.5 | 22.0 | 39607 | 225 | yes |
+| high | 2 | 60.5 | 35.5 | 365s | 18.0 | 0.0 | 2.5 | 135.5 | 267102 | 1158 | yes |
+| xhigh | 2 | 25.0 | 0.0 | 400s | 11.5 | 0.0 | 1.5 | 50.0 | 190614 | 2532 | yes |
+
+**M→XH classification:** `budget-confounded`
+
+Quality gain: -37.5 points; runtime improvement: 1.5%; shell improvement: -27.8%; probe improvement: -%; token improvement: -381.3%; paired trials: 2.
+
+**Effort sensitivity:** `effort-sensitivity-candidate` (spread 37.5 points; best=medium; worst=xhigh; shape=nonincreasing).
 
 **Promotion recommendation:** `do-not-promote`.
 
