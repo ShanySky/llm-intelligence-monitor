@@ -3,9 +3,10 @@ name: Frontier batch candidate screen
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, v1.1-discrimination-upgrade]
     paths:
       - ".github/triggers/frontier-batch.txt"
+      - ".github/triggers/v11-preflight.txt"
 permissions:
   contents: read
 
@@ -15,7 +16,7 @@ concurrency:
 
 jobs:
   prepare:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-batch]')
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-batch]') || contains(github.event.head_commit.message, '[v11-preflight]')
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
