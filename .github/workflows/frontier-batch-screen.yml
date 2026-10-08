@@ -9,6 +9,7 @@ on:
       - ".github/triggers/v11-preflight.txt"
       - ".github/triggers/v11-public-preflight.txt"
       - ".github/triggers/v11-public-luna.txt"
+      - ".github/triggers/v11-public-sol.txt"
 permissions:
   contents: read
 
@@ -232,6 +233,133 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -m "Record V1.1 official Luna cohort ${GITHUB_RUN_ID}"
             git push origin HEAD:v11-public-luna-results
+          fi
+
+  public-sol-high-pilot:
+    # Exactly the same source commit, tool budget, timeout, network and official evaluator as Luna.
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-sol]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        case_id:
+          - vuejs__core-11589
+          - vuejs__core-11899
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Check controlled Sol High pilot before billing
+        run: |
+          bash -n scripts/v11-public-sol-screen.sh
+          node --check scripts/light-agent-runner.mjs
+          python3 -m json.tool benchmarks/v1.1-sol-high-pilot.json > /dev/null
+          python3 - <<'PY'
+          import json
+          x=json.load(open("benchmarks/v1.1-sol-high-pilot.json"))
+          assert x["enabled"] and x["model"]=="gpt-6.1-sol" and x["effort"]=="high"
+          assert set(x["tasks"])=={"vuejs__core-11589","vuejs__core-11899"}
+          assert x["offline_reference_admission_run_id"]==37759918052
+          PY
+      - name: Run one real issue with Sol High
+        env:
+          BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          CASE_ID: ${{ matrix.case_id }}
+        run: bash scripts/v11-public-sol-screen.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-public-sol-${{ matrix.case_id }}-${{ github.run_id }}
+          path: v11-public-sol/
+          retention-days: 30
+
+  public-sol-high-summary:
+    needs: public-sol-high-pilot
+    if: always() && needs.public-sol-high-pilot.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v11-public-sol-*-${{ github.run_id }}
+          path: results/v11-public-sol
+      - name: Build exact same two-case comparison and persist
+        shell: bash
+        run: |
+          git fetch origin v11-public-luna-results || true
+          git show origin/v11-public-luna-results:public-luna/latest.json > /tmp/v11-luna-summary.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[json.loads(f.read_text()) for f in Path('results/v11-public-sol').rglob('result.json')]
+          luna=json.loads(Path('/tmp/v11-luna-summary.json').read_text())
+          allowed=['vuejs__core-11589','vuejs__core-11899']
+          l={r['task']:r for r in luna['rows'] if r['task'] in allowed}
+          s={r['task']:r for r in rows}
+          comparable=len(rows)==2 and set(s)==set(l)==set(allowed) and all(
+              s[t].get('data_complete') and l[t].get('data_complete')
+              and s[t].get('base_commit')==l[t].get('base_commit')
+              and s[t].get('max_turns')==l[t].get('max_turns')
+              and s[t].get('shell_budget')==l[t].get('shell_budget')
+              for t in allowed)
+          sol_score=100*sum(s[t]['score']==100 for t in allowed)/len(allowed) if comparable else None
+          luna_score=100*sum(l[t]['score']==100 for t in allowed)/len(allowed) if comparable else None
+          out={'model':'gpt-6.1-sol','effort':'high','run_id':int('${{ github.run_id }}'),
+               'tasks':allowed,'rows':rows,'data_complete':comparable,'sol_quality_score':sol_score,
+               'luna_quality_score_same_tasks':luna_score,
+               'spread_points':sol_score-luna_score if comparable else None,
+               'status':'single-pass exploratory, not repeated discrimination evidence',
+               'excluded_java_reason':'official gold fails under model-equivalent network-none conditions'}
+          Path('v11-sol-summary.json').write_text(json.dumps(out,indent=2)+'\n')
+          lines=['# Sol High vs Luna High – matched official Vue tasks','','| Task | Luna High | Sol High | Sol model seconds |',
+                 '|---|---:|---:|---:|']
+          for t in allowed:
+              a=l.get(t,{})
+              b=s.get(t,{})
+              lines.append(f"| {t} | {a.get('score','INVALID')} | {b.get('score','INVALID')} | {b.get('duration_seconds','-')} |")
+          lines+=['',f"**Matched 2-case scores:** Luna {luna_score}, Sol High {sol_score}; only one attempt per case.",'']
+          Path('v11-sol-summary.md').write_text('\n'.join(lines))
+          print('\n'.join(lines))
+          PY
+          cat v11-sol-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-sol-summary-${{ github.run_id }}
+          path: |
+            v11-sol-summary.json
+            v11-sol-summary.md
+          retention-days: 30
+      - name: Publish Sol comparison
+        run: |
+          cp v11-sol-summary.json /tmp/v11-sol-summary.json
+          cp v11-sol-summary.md /tmp/v11-sol-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-sol-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-sol-results; then
+            git switch -C v11-public-sol-results origin/v11-public-sol-results
+          else
+            git switch --orphan v11-public-sol-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p public-sol/runs
+          cp /tmp/v11-sol-summary.json public-sol/latest.json
+          cp /tmp/v11-sol-summary.md public-sol/latest.md
+          cp /tmp/v11-sol-summary.json "public-sol/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-sol-summary.md "public-sol/runs/${GITHUB_RUN_ID}.md"
+          git add public-sol
+          if ! git diff --cached --quiet; then
+            git commit -m "Record V1.1 matched Sol High public tasks ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-sol-results
           fi
 
   prepare:
