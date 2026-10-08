@@ -1,23 +1,14 @@
 {
-  "version": 5,
-  "purpose": "One-shot Luna High screening of three compact Java cross-file consistency failure modes with isolated hidden verifier, baseline/reference admission, and strict timeout exclusion.",
+  "version": 6,
+  "purpose": "Single low-cost Luna High toolchain diagnostic after all three compact candidates exhausted 14 turns without editing; capture only this candidate's shell exit summaries before deciding whether further benchmarking is valid.",
   "model": "gpt-6-luna",
   "effort": "high",
   "tasks": [
     {
       "task": "frontier-compact-idempotency",
-      "max_turns": 14,
-      "shell_budget": 18
-    },
-    {
-      "task": "frontier-compact-outbox",
-      "max_turns": 14,
-      "shell_budget": 18
-    },
-    {
-      "task": "frontier-compact-lease",
-      "max_turns": 14,
-      "shell_budget": 18
+      "max_turns": 8,
+      "shell_budget": 12,
+      "wall_timeout_ms": 150000
     }
   ],
   "excluded_coverage_only": [
@@ -51,6 +42,14 @@
   "enabled": true,
   "deferred_tasks": [
     {
+      "task": "frontier-compact-outbox",
+      "reason": "Prior Luna High 14 turns without edits; deferred pending harness diagnosis"
+    },
+    {
+      "task": "frontier-compact-lease",
+      "reason": "Prior Luna High 14 turns without edits; deferred pending harness diagnosis"
+    },
+    {
       "task": "frontier-runtime-diagnosis-capacity",
       "reason": "Preserved as an independent diagnostic candidate, not part of this compact coding-family screen"
     },
@@ -58,5 +57,6 @@
       "task": "frontier-runtime-diagnosis-cache-db",
       "reason": "Preserved as an independent diagnostic candidate, not part of this compact coding-family screen"
     }
-  ]
+  ],
+  "diagnostic_mode": true
 }

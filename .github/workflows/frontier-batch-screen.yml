@@ -111,12 +111,19 @@ jobs:
           echo "AGENT_DOCKER_CONTAINER=$name" >> "$GITHUB_ENV"
           echo "AGENT_DOCKER_WORKDIR=/app" >> "$GITHUB_ENV"
 
+      - name: Verify Docker editing toolchain without model calls
+        shell: bash
+        run: |
+          docker exec "$AGENT_DOCKER_CONTAINER" /bin/bash -lc \
+            'pwd; test -w src; command -v javac; command -v sed; command -v python3 || true; command -v patch || true; printf smoke > .shell-smoke; test -f .shell-smoke; rm .shell-smoke'
+
       - name: Run Luna screen
         id: agent
         env:
           AGENT_MAX_TURNS: ${{ matrix.max_turns }}
+          AGENT_CAPTURE_SHELL_TRACE: "1"
           AGENT_SHELL_BUDGET: ${{ matrix.shell_budget }}
-          AGENT_WALL_TIMEOUT_MS: 290000
+          AGENT_WALL_TIMEOUT_MS: ${{ matrix.wall_timeout_ms || 290000 }}
           AGENT_API_TIMEOUT_MS: 120000
         shell: bash
         run: |
@@ -207,6 +214,7 @@ jobs:
             "max_turns":runner.get("max_turns"),
             "shell_commands":runner.get("shell_commands",0),
             "shell_budget":runner.get("shell_budget"),
+            "shell_trace":runner.get("shell_trace",[]),
             "validation_calls":runner.get("validation_calls",0),
             "validation_budget":runner.get("validation_budget",0),
             "validation_enabled":runner.get("validation_enabled",False),

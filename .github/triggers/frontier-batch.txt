@@ -1,2 +1,3 @@
 2026-10-08 first cost-gated compact cross-file Java Luna High screen
 2026-10-08 rerun after hidden verifier maximum-score correction
+2026-10-08 single-candidate shell-trace diagnosis; no full three-case rescreen

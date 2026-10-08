@@ -57,8 +57,22 @@ with tempfile.TemporaryDirectory(prefix="compact-hidden-") as td:
     for name, weight in zip(tasks[task], weights):
         add(name.lower(), weight, name + "_PASS" in hidden_output.splitlines())
 
+# Only production code is editable. A candidate that changes the task, contracts,
+# visible regression tests, or run script cannot receive behavioral credit.
+protected = ["TASK.md", "src/VisibleTest.java", "run_visible_tests.sh"]
+protected += [str(p.relative_to(repo / "benchmarks" / task / "workspace"))
+              for p in (repo / "benchmarks" / task / "workspace" / "contracts").rglob("*")
+              if p.is_file()]
+changed_protected = [rel for rel in protected if
+    not (root / rel).is_file() or
+    (root / rel).read_bytes() !=
+    (repo / "benchmarks" / task / "workspace" / rel).read_bytes()]
+add("preserves_protected_contracts", 0, not changed_protected)
+if changed_protected:
+    score = 0
 result = {"task": task, "score": score, "checks": checks,
-          "verifier": "compact-contract-hidden-v1"}
+          "protected_changes": changed_protected,
+          "verifier": "compact-contract-hidden-v2"}
 out.parent.mkdir(parents=True, exist_ok=True)
 out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
 print(json.dumps(result, indent=2))
