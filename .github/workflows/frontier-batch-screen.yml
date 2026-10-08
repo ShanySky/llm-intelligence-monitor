@@ -98,6 +98,19 @@ jobs:
           fi
           echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
 
+      - name: Start isolated Java benchmark container
+        shell: bash
+        run: |
+          name="compact-${GITHUB_RUN_ID}-${{ strategy.job-index }}"
+          docker run -d --name "$name" --network none --read-only \
+            --cap-drop ALL --security-opt no-new-privileges \
+            --pids-limit 128 --memory 768m --cpus 2 \
+            --tmpfs /tmp:rw,nosuid,size=64m \
+            -v "$TASK_DIR:/app:rw" -w /app \
+            eclipse-temurin:17-jdk-jammy tail -f /dev/null
+          echo "AGENT_DOCKER_CONTAINER=$name" >> "$GITHUB_ENV"
+          echo "AGENT_DOCKER_WORKDIR=/app" >> "$GITHUB_ENV"
+
       - name: Run Luna screen
         id: agent
         env:
@@ -216,6 +229,14 @@ jobs:
               if p.exists(): shutil.copy2(p,"result/"+name)
           if (root/"src").exists(): shutil.copytree(root/"src","result/final-src",dirs_exist_ok=True)
           PY
+
+      - name: Stop isolated Java benchmark container
+        if: always()
+        shell: bash
+        run: |
+          if [ -n "${AGENT_DOCKER_CONTAINER:-}" ]; then
+            docker rm -f "$AGENT_DOCKER_CONTAINER" || true
+          fi
 
       - uses: actions/upload-artifact@v4
         if: always()
