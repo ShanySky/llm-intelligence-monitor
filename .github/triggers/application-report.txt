@@ -1,2 +1,3 @@
 application report refresh trigger
 validate stabilized application report refresh
+2026-10-08 refresh maturity after completed compact screening and Sol epoch audit; no models
