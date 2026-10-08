@@ -352,3 +352,7 @@ Core tests.
 - 禁止重新使用“所有 `main` push 都创建 run，再靠 job-level `if` 跳过”的模式；
 - funnel 判断为 coverage-only / retired 时应正常 skip，不应使用非零退出码制造 failure 邮件；
 - 历史 Actions 清理只删除 skipped / cancelled，成功结果和失败诊断默认保留。
+
+### Real-repo replay 漏斗（v2）
+
+`benchmarks/real-repo-replay/config.json` 的 `mode=screen` 表示只运行 GPT-6 Luna High，每个 v2 历史 replay case 一个样本。结果分支的 `replay/latest.json` 同时包含 `screening.decisions`：`coverage-only-ceiling` 不再进入 Sol 校准；`invalid-or-budget-confounded` 先修正环境/预算；只有 `effort-calibration-candidate` 才值得进一步运行 GPT-6.1 Sol Medium/High/X High。此筛选结果**不能**直接确认 Effort Core，必须经过跨实例、重复的 Sol 校准。v1 replay 的 440 秒预算触顶结果不作为能力区分证据。

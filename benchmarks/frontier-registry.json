@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-05",
+  "updated_at": "2026-10-08",
   "policy": {
     "model_discriminator": "Repeated cross-model spread >= 10 points with per-config score stddev <= 12.",
     "effort_discriminator": "Repeated resident-Sol Medium-to-XHigh quality gain >= 10 points across the configured family gate without budget saturation; single-run differences are not sufficient. Current resident Sol is gpt-6.1-sol.",
@@ -581,7 +581,7 @@
     {
       "id": "real-repo-replay-family",
       "family": "coding_real_repo_commit_replay",
-      "status": "effort-calibration",
+      "status": "screening",
       "promoted_to_final": false,
       "evidence": {
         "variants": 3,
@@ -637,9 +637,19 @@
         "latest_gpt_6_1_run_generated_at": "2026-10-05T08:38:04.407Z",
         "formal_effort_signal": "none",
         "invalid_reason": "All 9 M/H/XH rows hit the outer 480s timeout before light-agent-runner wrote telemetry. The corrected workflow marked every row data_complete=false; no score from this run is admissible for Effort Core.",
-        "latest_gpt_6_1_run_id": 37282273581
+        "latest_gpt_6_1_run_id": 37282273581,
+        "family_version": 2,
+        "screening_model": "gpt-6-luna",
+        "screening_effort": "high",
+        "v2_cases": [
+          "core-signal-summary",
+          "repeat-sample-policy",
+          "quick-monitor-floor-health"
+        ],
+        "v2_screen_status": "not-yet-run",
+        "v1_final_status": "budget-confounded; retired as an effort discriminator"
       },
-      "note": "Primary Effort Core candidate. The latest GPT-6.1 Sol replay round was correctly rejected because every row timed out before runner telemetry. Rerun the same three required cases after internal wall-timeout hardening; model-timeout rows are treated as budget-confounded and cannot promote Effort Core."
+      "note": "v1 GPT-6.1 Sol M/H/XH effort scores invalid due to budget-confounded 440s timeouts. V2 has three compact historical repairs; first screen with Luna High, only non-ceiling/non-confounded cases qualify for Sol M/H/XH. No Effort Core promotion without repeated paired evidence."
     },
     {
       "id": "frontier-runtime-repair-family",
