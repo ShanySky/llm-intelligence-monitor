@@ -381,3 +381,9 @@ Luna High 参考自检 3/3 为 100 分；模型筛题分：`core-signal-summary`
 ### Compact 筛选隔离修正（2026-10-08）
 
 首次 3 题 Luna High 因 Docker 运行用户与 GitHub Runner 挂载目录 owner 不一致，工作区在容器内不可写，模型 14 轮均没有补丁，全部结果判为 **Harness invalid/budget-confounded**，不作为模型能力证据。诊断任务的无模型 shell smoke 明确返回 `Permission denied`。当前容器使用 `--user "$(id -u):$(id -g)"` 对齐 UID/GID，模型调用前必须先成功创建、检查并删除工作区测试文件。下一轮只在 smoke + 隐藏参考自检全部通过后执行 Luna High 三题筛选。
+
+### Compact Java 漏斗结论（2026-10-08）
+
+新题的参考提交在三题隐藏测试上均为 100。纠正 Docker 工作区权限后，Luna High 的实际修复质量为：幂等 100/45s、Outbox 100/49s、租约 fencing 80/55s，均为无超时的真实修改结果。前两题进入 Coverage（不再消耗 Sol）；只对 Lease 跑了一次 GPT-6.1 Sol Medium，取得 **100 分 / 40s / 4 次 Responses / 3 次 Shell**，所有隐藏行为检查通过。
+
+因此 Lease 只能作为**待重复验证的单轮模型区分候选**（Luna High 80、Sol Medium 100），不能进入正式 Model Core；对同一个 Lease 题的 Sol Medium 已经封顶，不再触发 High/X High。三题均**未证明 reasoning-effort 差异**，Effort Core 仍不成熟。当前 `benchmarks/frontier-batch-screen.json` 设置 `enabled:false`，避免误点引起无效付费运行。下一批题需要从真实隐藏依赖发现与多模块决策中寻找仍能区分 Sol 档位的短任务，不再重复已封顶的简单实现题。
