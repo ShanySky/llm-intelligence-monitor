@@ -1,1 +1,1 @@
-V1.1 official environment admission batch: remaining A-candidates, 4 cases, no model calls; immutable upstream.
+Network-isolated official reference parity check: all five fixed tasks; zero model calls.
