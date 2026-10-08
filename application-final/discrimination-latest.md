@@ -2,11 +2,11 @@
 
 | Task | Family | Role | Class | Model signal | XHigh model spread | Sol M→XH gain | Effort signal | Efficiency signal | Min effort trials | Repeat stddev | Ceiling rate | Max avg runtime |
 |---|---|---|---|---|---:|---:|---|---|---:|---:|---:|---:|
-| hard-plan | solution_design | coverage | coverage-only-ceiling | unconfirmed | 0.0 | 0.0 | unconfirmed | - | 1 | 0.0 | 100% | 129s |
-| hard-webhook | coding_idempotency | coverage | coverage-only-ceiling | unconfirmed | 0.0 | 0.0 | unconfirmed | - | 1 | 0.0 | 100% | 174s |
-| frontier-review-deep | code_review_cross_file_reliability | core | model+effort-candidate | confirmed | 10.0 | 10.0 | unconfirmed | - | 1 | 0.0 | 33% | 413s |
-| hard-incident | agent_tool_use | core | model-discriminator | confirmed | 10.0 | 0.0 | unconfirmed | - | 1 | 0.0 | 83% | 91s |
-| micro-export | coding_long_horizon_recovery | coverage | coverage-only-ceiling | unconfirmed | 0.0 | 0.0 | unconfirmed | - | 1 | 0.0 | 100% | 326s |
+| hard-plan | solution_design | coverage | coverage-only-ceiling | unconfirmed | 0.0 | - | unconfirmed | - | - | 0.0 | 100% | 129s |
+| hard-webhook | coding_idempotency | coverage | coverage-only-ceiling | unconfirmed | 0.0 | - | unconfirmed | - | - | 0.0 | 100% | 174s |
+| frontier-review-deep | code_review_cross_file_reliability | core | model-discriminator | confirmed | 10.0 | - | unconfirmed | - | - | 0.0 | 33% | 413s |
+| hard-incident | agent_tool_use | core | model-discriminator | confirmed | 10.0 | - | unconfirmed | - | - | 0.0 | 83% | 91s |
+| micro-export | coding_long_horizon_recovery | coverage | coverage-only-ceiling | unconfirmed | 0.0 | - | unconfirmed | - | - | 0.0 | 100% | 326s |
 
 **Model Core:** 2/2 → mature; **Effort Core:** 0/1 → not yet mature; **Overall application maturity:** not yet mature.
 

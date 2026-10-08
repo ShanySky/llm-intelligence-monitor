@@ -1,9 +1,10 @@
 {
-  "generated_at": "2026-09-30T09:04:07.256Z",
+  "generated_at": "2026-10-08T03:30:49.901Z",
   "automatic_mature": false,
   "checks": {
     "model_core": true,
     "effort_core": false,
+    "final_quality_evidence_complete": true,
     "application_family_coverage": true,
     "duration_hard_limit": true,
     "final_model_epoch_coverage": false,
@@ -59,6 +60,12 @@
       "gpt-6-luna",
       "gpt-6-sol"
     ],
+    "quality_complete_models": [
+      "gpt-5.6-sol",
+      "gpt-6-astra",
+      "gpt-6-luna",
+      "gpt-6-sol"
+    ],
     "cross_model_coverage": false,
     "resident_sol_efforts": [],
     "resident_sol_effort_coverage": false,
@@ -66,6 +73,6 @@
   },
   "manual_acceptance_remaining": [
     "Confirm application scores remain consistent with real day-to-day Coding/Agent experience over continued use.",
-    "Confirm daily operating cost remains acceptable after several normal scheduled runs."
+    "Confirm the on-demand quick-monitor cost remains acceptable across representative normal runs."
   ]
 }

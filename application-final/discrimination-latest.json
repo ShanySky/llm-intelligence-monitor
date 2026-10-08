@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-30T09:04:07.232Z",
+  "generated_at": "2026-10-08T03:30:49.868Z",
   "policy": {
     "version": 1,
     "quality": {
@@ -13,7 +13,8 @@
       "min_directional_consistency_rate": 0.67,
       "effort_family_min_variants": 3,
       "effort_family_min_positive_variants": 2,
-      "effort_family_variant_gain_points": 10
+      "effort_family_variant_gain_points": 10,
+      "effort_family_min_repeats_per_variant": 2
     },
     "runtime": {
       "target_seconds": 300,
@@ -28,7 +29,7 @@
       "effort_core_min_families": 1,
       "maturity_definition": "Application evaluation is mature when model discrimination has at least 2 confirmed task families and reasoning-effort behavior has at least 1 confirmed cross-instance family.",
       "effort_core_definition": "Effort Core accepts either a repeated positive Medium-to-XHigh discriminator or a repeated cross-instance effort-sensitivity signal with quality spread >= the configured threshold. Sensitivity is not interpreted as higher effort always being better.",
-      "effort_family_confirmation": "Cross-instance Effort Core requires >=3 paired variants, mean Medium-to-XHigh gain >=10 points, at least 2 variants with >=10-point positive gain, and no budget saturation. Equivalent-label/format-only differences must be normalized before promotion."
+      "effort_family_confirmation": "Across >=3 paired variants, require >=2 independent repeat rounds per variant per effort, repeated non-confounded quality separation, and >=2 signal-bearing variants. Different variant IDs are not repeated trials. Do not promote one-shot family spreads."
     },
     "efficiency": {
       "min_quality_floor": 95,
@@ -75,9 +76,9 @@
       "model_signal_source": "unconfirmed",
       "effort_signal_confirmed": false,
       "effort_signal_source": "unconfirmed",
-      "sol_effort_spread_points": 0,
-      "sol_directional_effort_gain_points": 0,
-      "min_sol_effort_trials": 1,
+      "sol_effort_spread_points": null,
+      "sol_directional_effort_gain_points": null,
+      "min_sol_effort_trials": null,
       "max_repeat_stddev_points": 0,
       "ceiling_rate": 1,
       "max_average_duration_seconds": 129,
@@ -85,6 +86,7 @@
       "efficiency_improved_metrics": [],
       "stable": true,
       "within_budget": true,
+      "quality_evidence_complete": true,
       "config_stats": [
         {
           "key": "gpt-5.6-sol|xhigh",
@@ -183,9 +185,9 @@
       "model_signal_source": "unconfirmed",
       "effort_signal_confirmed": false,
       "effort_signal_source": "unconfirmed",
-      "sol_effort_spread_points": 0,
-      "sol_directional_effort_gain_points": 0,
-      "min_sol_effort_trials": 1,
+      "sol_effort_spread_points": null,
+      "sol_directional_effort_gain_points": null,
+      "min_sol_effort_trials": null,
       "max_repeat_stddev_points": 0,
       "ceiling_rate": 1,
       "max_average_duration_seconds": 174,
@@ -193,6 +195,7 @@
       "efficiency_improved_metrics": [],
       "stable": true,
       "within_budget": true,
+      "quality_evidence_complete": true,
       "config_stats": [
         {
           "key": "gpt-5.6-sol|xhigh",
@@ -285,15 +288,15 @@
       "family": "code_review_cross_file_reliability",
       "role": "core",
       "weight": 20,
-      "classification": "model+effort-candidate",
+      "classification": "model-discriminator",
       "model_spread_points": 10,
       "model_signal_confirmed": true,
       "model_signal_source": "registry-repeat-validation",
       "effort_signal_confirmed": false,
       "effort_signal_source": "unconfirmed",
-      "sol_effort_spread_points": 15,
-      "sol_directional_effort_gain_points": 10,
-      "min_sol_effort_trials": 1,
+      "sol_effort_spread_points": null,
+      "sol_directional_effort_gain_points": null,
+      "min_sol_effort_trials": null,
       "max_repeat_stddev_points": 0,
       "ceiling_rate": 0.3333333333333333,
       "max_average_duration_seconds": 413,
@@ -301,6 +304,7 @@
       "efficiency_improved_metrics": [],
       "stable": true,
       "within_budget": true,
+      "quality_evidence_complete": true,
       "config_stats": [
         {
           "key": "gpt-5.6-sol|xhigh",
@@ -399,9 +403,9 @@
       "model_signal_source": "registry-repeat-validation",
       "effort_signal_confirmed": false,
       "effort_signal_source": "unconfirmed",
-      "sol_effort_spread_points": 0,
-      "sol_directional_effort_gain_points": 0,
-      "min_sol_effort_trials": 1,
+      "sol_effort_spread_points": null,
+      "sol_directional_effort_gain_points": null,
+      "min_sol_effort_trials": null,
       "max_repeat_stddev_points": 0,
       "ceiling_rate": 0.8333333333333334,
       "max_average_duration_seconds": 91,
@@ -409,6 +413,7 @@
       "efficiency_improved_metrics": [],
       "stable": true,
       "within_budget": true,
+      "quality_evidence_complete": true,
       "config_stats": [
         {
           "key": "gpt-5.6-sol|xhigh",
@@ -507,9 +512,9 @@
       "model_signal_source": "unconfirmed",
       "effort_signal_confirmed": false,
       "effort_signal_source": "unconfirmed",
-      "sol_effort_spread_points": 0,
-      "sol_directional_effort_gain_points": 0,
-      "min_sol_effort_trials": 1,
+      "sol_effort_spread_points": null,
+      "sol_directional_effort_gain_points": null,
+      "min_sol_effort_trials": null,
       "max_repeat_stddev_points": 0,
       "ceiling_rate": 1,
       "max_average_duration_seconds": 326,
@@ -517,6 +522,7 @@
       "efficiency_improved_metrics": [],
       "stable": true,
       "within_budget": true,
+      "quality_evidence_complete": true,
       "config_stats": [
         {
           "key": "gpt-5.6-sol|xhigh",
@@ -607,7 +613,6 @@
   ],
   "counts": {
     "coverage-only-ceiling": 3,
-    "model+effort-candidate": 1,
-    "model-discriminator": 1
+    "model-discriminator": 2
   }
 }
