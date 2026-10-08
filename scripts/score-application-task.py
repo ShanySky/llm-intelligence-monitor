@@ -2298,9 +2298,16 @@ elif task == "frontier-runtime-diagnosis-capacity":
         runner=json.loads((root/"light-agent-result.json").read_text())
     except Exception:
         runner={}
-    queries=[str(x).strip().lower() for x in runner.get("probe_executed_queries", runner.get("probe_queries",[]))]
-    evidence_a=any(any(k in q for k in ("capacity","cpu","load","burst","replica")) for q in queries)
-    evidence_b=any((("consumer" in q or "fulfillment" in q) and any(k in q for k in ("retry","replay","duplicate","dedup","experiment"))) for q in queries)
+    # Evidence credit requires an actual recorded probe response, not a query keyword.
+    # Probe observations originate from the harness execution log, outside model output.
+    observations=runner.get("probe_observations",[])
+    outputs=[str(o.get("output","")).lower() for o in observations
+             if isinstance(o,dict) and o.get("exit_code")==0]
+    evidence_a=any("controlled replica experiment" in o and "503 falls to 0" in o
+                   and "removing replica restores" in o for o in outputs)
+    evidence_b=any("controlled delivery replay" in o and
+                   "consumer-2 produces two effects" in o and
+                   "consumer-1 produces one effect" in o for o in outputs)
 
     add("valid_repair_json",5,bool(result.get("syntax")))
     add("identified_capacity_shortage",15,bool(result.get("root_a")))
@@ -2328,9 +2335,15 @@ elif task == "frontier-runtime-diagnosis-cache-db":
         runner=json.loads((root/"light-agent-result.json").read_text())
     except Exception:
         runner={}
-    queries=[str(x).strip().lower() for x in runner.get("probe_executed_queries", runner.get("probe_queries",[]))]
-    evidence_a=any(any(k in q for k in ("cache","stale","invalidation","invalidator","read-after-write")) for q in queries)
-    evidence_b=any(any(k in q for k in ("database","db","pool","connection","waiter","timeout")) for q in queries)
+    observations=runner.get("probe_observations",[])
+    outputs=[str(o.get("output","")).lower() for o in observations
+             if isinstance(o,dict) and o.get("exit_code")==0]
+    evidence_a=any("controlled invalidation comparison" in o and
+                   "dual-key invalidator" in o and "numeric-only invalidator" in o
+                   for o in outputs)
+    evidence_b=any("controlled pool experiment" in o and
+                   "connection acquisition timeouts fall to 0" in o
+                   and "query latency unchanged" in o for o in outputs)
 
     add("valid_repair_json",5,bool(result.get("syntax")))
     add("identified_cache_invalidator_mismatch",15,bool(result.get("root_a")))

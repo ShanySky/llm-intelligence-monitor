@@ -387,3 +387,9 @@ Luna High 参考自检 3/3 为 100 分；模型筛题分：`core-signal-summary`
 新题的参考提交在三题隐藏测试上均为 100。纠正 Docker 工作区权限后，Luna High 的实际修复质量为：幂等 100/45s、Outbox 100/49s、租约 fencing 80/55s，均为无超时的真实修改结果。前两题进入 Coverage（不再消耗 Sol）；只对 Lease 跑了一次 GPT-6.1 Sol Medium，取得 **100 分 / 40s / 4 次 Responses / 3 次 Shell**，所有隐藏行为检查通过。
 
 因此 Lease 只能作为**待重复验证的单轮模型区分候选**（Luna High 80、Sol Medium 100），不能进入正式 Model Core；对同一个 Lease 题的 Sol Medium 已经封顶，不再触发 High/X High。三题均**未证明 reasoning-effort 差异**，Effort Core 仍不成熟。当前 `benchmarks/frontier-batch-screen.json` 设置 `enabled:false`，避免误点引起无效付费运行。下一批题需要从真实隐藏依赖发现与多模块决策中寻找仍能区分 Sol 档位的短任务，不再重复已封顶的简单实现题。
+
+### 真实因果调查题筛选（2026-10-08）
+
+复用现有 `frontier-runtime-diagnosis-capacity` 和 `frontier-runtime-diagnosis-cache-db` 两个未验证任务。新的因果证据分只承认 Harness 实际执行并返回的定向对照实验：API 扩容/回滚、消费者重复投递、缓存双键失效、连接池干预。仅“问过相关关键词”、普通观测或失败的工具调用不再得证据分。
+
+每轮 Actions 在付费模型调用前运行 `python3 tests/runtime-probe-evidence.test.py`，验证“查询但没证据/只有相关性观察”不能获得虚假证据加分。先只运行 Luna High 两题；无效或封顶不进入 Sol 档位校准。

@@ -802,6 +802,36 @@
         "formal_effort_signal": "none"
       },
       "note": "Clean compact Lease v3 hidden repair: Luna High 80 in 55s and resident GPT-6.1 Sol Medium 100 in 40s. This is ONE cross-model pilot and may be a model-discrimination candidate, not a confirmed Model Core. Medium is at ceiling, so High/XHigh Sol effort runs are not cost-effective; leave disabled pending different, higher-information family."
+    },
+    {
+      "id": "frontier-runtime-diagnosis-capacity",
+      "family": "agent_dynamic_causal_investigation",
+      "status": "screening",
+      "promoted_to_final": false,
+      "evidence": {
+        "scorer": "actual-opaque-probe-observation",
+        "objective_verifier": true,
+        "hidden_causal_experiments": true,
+        "resident_model_epoch": "gpt-6.1-sol",
+        "screen_model": "gpt-6-luna",
+        "screen_effort": "high"
+      },
+      "note": "Zero-cost scorer regression first. Luna High screen evaluates causal intervention evidence and minimal correct remediation; if ceiling, coverage only. Do not run Sol without non-ceiling, non-confounded information signal."
+    },
+    {
+      "id": "frontier-runtime-diagnosis-cache-db",
+      "family": "agent_dynamic_causal_investigation",
+      "status": "screening",
+      "promoted_to_final": false,
+      "evidence": {
+        "scorer": "actual-opaque-probe-observation",
+        "objective_verifier": true,
+        "hidden_causal_experiments": true,
+        "resident_model_epoch": "gpt-6.1-sol",
+        "screen_model": "gpt-6-luna",
+        "screen_effort": "high"
+      },
+      "note": "Zero-cost scorer regression first. Luna High screen evaluates causal intervention evidence and minimal correct remediation; if ceiling, coverage only. Do not run Sol without non-ceiling, non-confounded information signal."
     }
   ],
   "resident_model_epoch": {

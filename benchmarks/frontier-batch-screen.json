@@ -1,9 +1,22 @@
 {
-  "version": 9,
-  "purpose": "Luna High 3-case compact screen plus one Sol Medium lease pilot completed. All resident-Sol Medium sample tasks saturated at 100, therefore no High/X High or repeat calibration is justified. Disabled to avoid accidental paid reruns.",
-  "model": "gpt-6.1-sol",
-  "effort": "medium",
-  "tasks": [],
+  "version": 10,
+  "purpose": "One cost-gated Luna High agent causal-investigation screen across two unresolved real operational incident variants. Causal experiment evidence must come from actual opaque probe outputs (not query keywords). Zero-cost scorer regression and reference smoke run before any model calls.",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "tasks": [
+    {
+      "task": "frontier-runtime-diagnosis-capacity",
+      "max_turns": 17,
+      "shell_budget": 16,
+      "wall_timeout_ms": 240000
+    },
+    {
+      "task": "frontier-runtime-diagnosis-cache-db",
+      "max_turns": 17,
+      "shell_budget": 16,
+      "wall_timeout_ms": 240000
+    }
+  ],
   "excluded_coverage_only": [
     "frontier-webhook",
     "frontier-webhook-hidden",
@@ -32,16 +45,8 @@
       "next": "cross-model-validation"
     }
   },
-  "enabled": false,
+  "enabled": true,
   "deferred_tasks": [
-    {
-      "task": "frontier-runtime-diagnosis-capacity",
-      "reason": "Preserved as an independent diagnostic candidate, not part of this compact coding-family screen"
-    },
-    {
-      "task": "frontier-runtime-diagnosis-cache-db",
-      "reason": "Preserved as an independent diagnostic candidate, not part of this compact coding-family screen"
-    },
     {
       "task": "frontier-compact-idempotency",
       "reason": "Coverage only: Luna High hidden score 100, 45s clean"
@@ -56,5 +61,5 @@
     }
   ],
   "diagnostic_mode": false,
-  "phase": "idle"
+  "phase": "screen"
 }
