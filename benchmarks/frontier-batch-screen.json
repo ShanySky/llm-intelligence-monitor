@@ -1,21 +1,9 @@
 {
-  "version": 7,
-  "purpose": "Luna High cost-controlled initial VALID screening of three compact Java micro-repositories after discovering Docker UID/GID mismatch prevented writes during the prior run. Write-permission smoke must pass before model calls.",
-  "model": "gpt-6-luna",
-  "effort": "high",
+  "version": 8,
+  "purpose": "Only GPT-6.1 Sol Medium on frontier-compact-lease after Luna High completed cleanly at 80/100 in 55s. Do not run High/X High unless this single pilot remains non-ceiling and has valid execution quality.",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
   "tasks": [
-    {
-      "task": "frontier-compact-idempotency",
-      "max_turns": 18,
-      "shell_budget": 24,
-      "wall_timeout_ms": 280000
-    },
-    {
-      "task": "frontier-compact-outbox",
-      "max_turns": 18,
-      "shell_budget": 24,
-      "wall_timeout_ms": 280000
-    },
     {
       "task": "frontier-compact-lease",
       "max_turns": 18,
@@ -54,6 +42,14 @@
   "enabled": true,
   "deferred_tasks": [
     {
+      "task": "frontier-compact-idempotency",
+      "reason": "Luna High 100/100 in 45s, coverage-only"
+    },
+    {
+      "task": "frontier-compact-outbox",
+      "reason": "Luna High 100/100 in 49s, coverage-only"
+    },
+    {
       "task": "frontier-runtime-diagnosis-capacity",
       "reason": "Preserved as an independent diagnostic candidate, not part of this compact coding-family screen"
     },
@@ -62,5 +58,6 @@
       "reason": "Preserved as an independent diagnostic candidate, not part of this compact coding-family screen"
     }
   ],
-  "diagnostic_mode": false
+  "diagnostic_mode": false,
+  "phase": "sol-medium-pilot"
 }
