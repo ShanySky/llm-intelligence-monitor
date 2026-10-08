@@ -33,6 +33,8 @@ jobs:
           java-version: "17"
       - name: Validate causal evidence scoring without model calls
         run: python3 tests/runtime-probe-evidence.test.py
+      - name: Verify V1.1 recovery references before billing
+        run: python3 scripts/selfcheck-v11-recovery.py
       - name: Verify compact hidden reference before billing
         run: |
           python3 scripts/selfcheck-compact-contract.py

@@ -67,7 +67,18 @@
     "retire",
     "pause"
   ],
-  "candidate_families": [],
+  "candidate_families": [
+    {
+      "id": "cross_boundary_recovery",
+      "instances": [
+        "v11-recovery-payment",
+        "v11-recovery-lease",
+        "v11-recovery-identity"
+      ],
+      "status": "reference-admission-pending",
+      "paid_screening": false
+    }
+  ],
   "release_gate": {
     "preserve_v1": true,
     "min_new_validated_family": 1,
