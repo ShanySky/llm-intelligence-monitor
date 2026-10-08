@@ -113,6 +113,8 @@ const wallTimeoutMs = Number(process.env.AGENT_WALL_TIMEOUT_MS ?? 440000);
 let input = [{ role: 'user', content: [{ type: 'input_text', text: task }] }];
 let totalUsage = { input_tokens: 0, output_tokens: 0, reasoning_tokens: 0, cached_input_tokens: 0 };
 let commands = [];
+const captureShellTrace = process.env.AGENT_CAPTURE_SHELL_TRACE === '1';
+const shellTrace = [];
 let validationCalls = 0;
 let probeCalls = 0;
 let probeAttempts = 0;
@@ -266,18 +268,23 @@ function addUsage(u = {}) {
 
 function runShell(command) {
   commands.push(command);
-  if (commands.length > shellBudget) return `ERROR: shell action budget exceeded (${shellBudget})`;
+  if (commands.length > shellBudget) {
+    if (captureShellTrace) shellTrace.push({turn:responses, exit_code:124, reason:'shell-budget'});
+    return `ERROR: shell action budget exceeded (${shellBudget})`;
+  }
 
   let executable = '/bin/bash';
   let args = ['-lc', command];
 
   if (containerMode) {
     if (/\bdocker\b/i.test(command)) {
+      if (captureShellTrace) shellTrace.push({turn:responses, exit_code:126, reason:'docker-control-blocked'});
       return 'ERROR: Docker control-plane access is not available inside the benchmark container';
     }
     executable = 'docker';
     args = ['exec', '-w', dockerWorkdir, dockerContainer, '/bin/bash', '-lc', command];
   } else if (/\.\.|\/home\/|\/tmp\/|\/proc\/|\/etc\/|\bcurl\b|\bwget\b|\bprintenv\b|\benv\b|git\s+remote|GITHUB_|RUNNER_/i.test(command)) {
+    if (captureShellTrace) shellTrace.push({turn:responses, exit_code:126, reason:'workspace-policy-blocked'});
     return 'ERROR: command rejected by benchmark workspace isolation policy';
   }
 
@@ -293,6 +300,14 @@ function runShell(command) {
     result.stderr ? 'STDERR:\n' + result.stderr : '',
     'EXIT_CODE=' + (result.status ?? 124),
   ].filter(Boolean).join('\n');
+  if (captureShellTrace) shellTrace.push({
+    turn:responses,
+    command_preview:command.slice(0,160),
+    exit_code:result.status ?? 124,
+    stdout_preview:String(result.stdout??'').slice(0,160),
+    stderr_preview:String(result.stderr??'').slice(0,220),
+    process_error:result.error?.code??null,
+  });
   return output.slice(0, 24000);
 }
 
@@ -410,6 +425,7 @@ const result = {
   infrastructure_error: infrastructureError,
   shell_commands: commands.length,
   shell_budget: shellBudget,
+  shell_trace: captureShellTrace ? shellTrace.slice(0,20) : [],
   validation_calls: validationCalls,
   validation_budget: validationCommand ? validationBudget : 0,
   validation_enabled: Boolean(validationCommand),

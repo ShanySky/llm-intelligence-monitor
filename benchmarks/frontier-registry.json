@@ -715,9 +715,15 @@
         "hidden_tests": true,
         "reference_admission": "pending",
         "difficulty_source": "Tenant-scoped and revision-scoped event identity, atomic retry processing",
-        "model_epoch": "gpt-6-luna-high-screen"
+        "model_epoch": "gpt-6-luna-high-screen",
+        "first_screen_run_id": 37721624917,
+        "first_screen_status": "budget-confounded-limit",
+        "first_screen_score": 20,
+        "first_screen_responses": 14,
+        "first_screen_changed_files": 0,
+        "first_screen_runtime_seconds": 97
       },
-      "note": "Reference fixtures must pass 100 while baseline fails; Luna High must finish within 290 seconds without model/API/budget timeout. Single-run score only decides whether to attempt Sol effort, not Effort Core maturity."
+      "note": "Initial Luna High screen used 14 turns, changed 0 files. Treat as Harness/tool-execution/budget-confounded, not ability evidence. One capped idempotency-only shell-trace diagnostic; no Sol effort trials until tool path is verified and a full patch finishes in budget."
     },
     {
       "id": "frontier-compact-outbox",
@@ -729,9 +735,15 @@
         "hidden_tests": true,
         "reference_admission": "pending",
         "difficulty_source": "Atomic outbox marker, replay after send/ack failure, transport idempotency",
-        "model_epoch": "gpt-6-luna-high-screen"
+        "model_epoch": "gpt-6-luna-high-screen",
+        "first_screen_run_id": 37721624917,
+        "first_screen_status": "budget-confounded-limit",
+        "first_screen_score": 80,
+        "first_screen_responses": 14,
+        "first_screen_changed_files": 0,
+        "first_screen_runtime_seconds": 103
       },
-      "note": "Reference fixtures must pass 100 while baseline fails; Luna High must finish within 290 seconds without model/API/budget timeout. Single-run score only decides whether to attempt Sol effort, not Effort Core maturity."
+      "note": "Initial Luna High screen used 14 turns, changed 0 files. Treat as Harness/tool-execution/budget-confounded, not ability evidence. One capped idempotency-only shell-trace diagnostic; no Sol effort trials until tool path is verified and a full patch finishes in budget."
     },
     {
       "id": "frontier-compact-lease",
@@ -743,9 +755,15 @@
         "hidden_tests": true,
         "reference_admission": "pending",
         "difficulty_source": "Lease incarnation fencing, expiry boundary, stale renewal protection",
-        "model_epoch": "gpt-6-luna-high-screen"
+        "model_epoch": "gpt-6-luna-high-screen",
+        "first_screen_run_id": 37721624917,
+        "first_screen_status": "budget-confounded-limit",
+        "first_screen_score": 40,
+        "first_screen_responses": 14,
+        "first_screen_changed_files": 0,
+        "first_screen_runtime_seconds": 91
       },
-      "note": "Reference fixtures must pass 100 while baseline fails; Luna High must finish within 290 seconds without model/API/budget timeout. Single-run score only decides whether to attempt Sol effort, not Effort Core maturity."
+      "note": "Initial Luna High screen used 14 turns, changed 0 files. Treat as Harness/tool-execution/budget-confounded, not ability evidence. One capped idempotency-only shell-trace diagnostic; no Sol effort trials until tool path is verified and a full patch finishes in budget."
     }
   ],
   "resident_model_epoch": {
