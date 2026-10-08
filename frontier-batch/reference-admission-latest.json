@@ -18,6 +18,12 @@
       "baseline": 40,
       "reference": 100,
       "passed": true
+    },
+    {
+      "task": "frontier-compact-delivery",
+      "baseline": 20,
+      "reference": 100,
+      "passed": true
     }
   ]
 }
