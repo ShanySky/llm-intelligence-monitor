@@ -1,1 +1,2 @@
 application final validation trigger
+2026-10-08 v1-core initial baseline: two confirmed Core tasks x four models High, only one aggregate run
