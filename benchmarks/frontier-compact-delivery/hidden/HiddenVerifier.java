@@ -59,3 +59,4 @@ public final class HiddenVerifier {
    test("IDENTITY",HiddenVerifier::businessIdentity);
    test("CONCURRENT_OFFSET",HiddenVerifier::concurrencyAndOffset);
  }
+}
