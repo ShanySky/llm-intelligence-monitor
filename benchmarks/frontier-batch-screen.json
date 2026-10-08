@@ -1,22 +1,9 @@
 {
-  "version": 10,
-  "purpose": "One cost-gated Luna High agent causal-investigation screen across two unresolved real operational incident variants. Causal experiment evidence must come from actual opaque probe outputs (not query keywords). Zero-cost scorer regression and reference smoke run before any model calls.",
+  "version": 11,
+  "purpose": "2026-10-08 Luna High investigation screen closed: capacity case 95/58s valid coverage; cache-db case 85/90s exhausted 17-turn and 20-probe budgets without controlled experiments, thus budget-confounded and not an effort candidate. No Sol validation on these cases.",
   "model": "gpt-6-luna",
   "effort": "high",
-  "tasks": [
-    {
-      "task": "frontier-runtime-diagnosis-capacity",
-      "max_turns": 17,
-      "shell_budget": 16,
-      "wall_timeout_ms": 240000
-    },
-    {
-      "task": "frontier-runtime-diagnosis-cache-db",
-      "max_turns": 17,
-      "shell_budget": 16,
-      "wall_timeout_ms": 240000
-    }
-  ],
+  "tasks": [],
   "excluded_coverage_only": [
     "frontier-webhook",
     "frontier-webhook-hidden",
@@ -45,7 +32,7 @@
       "next": "cross-model-validation"
     }
   },
-  "enabled": true,
+  "enabled": false,
   "deferred_tasks": [
     {
       "task": "frontier-compact-idempotency",
@@ -58,8 +45,16 @@
     {
       "task": "frontier-compact-lease",
       "reason": "Single-run model discrimination candidate (Luna High80 Sol Medium100), but Effort Medium already ceiling. Requires independent model repeat before Model Core promotion; no further Sol effort."
+    },
+    {
+      "task": "frontier-runtime-diagnosis-capacity",
+      "reason": "Luna High 95/100 clean, coverage-only; do not run Sol"
+    },
+    {
+      "task": "frontier-runtime-diagnosis-cache-db",
+      "reason": "Luna High 85 with 17/17 turns and 20/20 probes; no causal experiment evidence, budget-confounded; do not run Sol"
     }
   ],
   "diagnostic_mode": false,
-  "phase": "screen"
+  "phase": "idle"
 }

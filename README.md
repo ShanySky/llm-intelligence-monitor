@@ -393,3 +393,7 @@ Luna High 参考自检 3/3 为 100 分；模型筛题分：`core-signal-summary`
 复用现有 `frontier-runtime-diagnosis-capacity` 和 `frontier-runtime-diagnosis-cache-db` 两个未验证任务。新的因果证据分只承认 Harness 实际执行并返回的定向对照实验：API 扩容/回滚、消费者重复投递、缓存双键失效、连接池干预。仅“问过相关关键词”、普通观测或失败的工具调用不再得证据分。
 
 每轮 Actions 在付费模型调用前运行 `python3 tests/runtime-probe-evidence.test.py`，验证“查询但没证据/只有相关性观察”不能获得虚假证据加分。先只运行 Luna High 两题；无效或封顶不进入 Sol 档位校准。
+
+### 因果诊断漏斗结果（2026-10-08）
+
+新评分器的因果证据回归通过后，仅运行两道 Luna High：`frontier-runtime-diagnosis-capacity` 得 95/100、58 秒、14 响应与 12 次 Probe，属于高分 Coverage；`frontier-runtime-diagnosis-cache-db` 得 85/100、90 秒，但耗尽 17 次模型响应与 20 次 Probe，且没有有效受控实验，因此按预算混淆淘汰。**两题都不进入 Sol 校准**。通用批量筛题目标已关闭，后续不再反复运行这组题。

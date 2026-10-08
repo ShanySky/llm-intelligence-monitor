@@ -806,7 +806,7 @@
     {
       "id": "frontier-runtime-diagnosis-capacity",
       "family": "agent_dynamic_causal_investigation",
-      "status": "screening",
+      "status": "coverage-only-ceiling",
       "promoted_to_final": false,
       "evidence": {
         "scorer": "actual-opaque-probe-observation",
@@ -814,14 +814,25 @@
         "hidden_causal_experiments": true,
         "resident_model_epoch": "gpt-6.1-sol",
         "screen_model": "gpt-6-luna",
-        "screen_effort": "high"
+        "screen_effort": "high",
+        "luna_screen_run_id": 37724897285,
+        "luna_score": 95,
+        "luna_duration_seconds": 58,
+        "luna_probe_calls": 12,
+        "luna_responses": 14,
+        "luna_turn_limit_reached": false,
+        "causal_observation_points": 10,
+        "causal_observation_total_points": 15,
+        "repeat_confirmed": false,
+        "formal_effort_signal": "none",
+        "next_action": "coverage-no-sol"
       },
-      "note": "Zero-cost scorer regression first. Luna High screen evaluates causal intervention evidence and minimal correct remediation; if ceiling, coverage only. Do not run Sol without non-ceiling, non-confounded information signal."
+      "note": "2026-10-08 Luna High 95/100, 58s, valid minimal root/actions and one controlled replay; near ceiling. Keep as agent causal-investigation coverage; do not spend Sol effort budget."
     },
     {
       "id": "frontier-runtime-diagnosis-cache-db",
       "family": "agent_dynamic_causal_investigation",
-      "status": "screening",
+      "status": "invalid-or-superseded",
       "promoted_to_final": false,
       "evidence": {
         "scorer": "actual-opaque-probe-observation",
@@ -829,9 +840,20 @@
         "hidden_causal_experiments": true,
         "resident_model_epoch": "gpt-6.1-sol",
         "screen_model": "gpt-6-luna",
-        "screen_effort": "high"
+        "screen_effort": "high",
+        "luna_screen_run_id": 37724897285,
+        "luna_score": 85,
+        "luna_duration_seconds": 90,
+        "luna_probe_calls": 20,
+        "luna_responses": 17,
+        "luna_turn_limit_reached": true,
+        "causal_observation_points": 0,
+        "causal_observation_total_points": 15,
+        "repeat_confirmed": false,
+        "formal_effort_signal": "none",
+        "next_action": "retired-budget-confounded-no-sol"
       },
-      "note": "Zero-cost scorer regression first. Luna High screen evaluates causal intervention evidence and minimal correct remediation; if ceiling, coverage only. Do not run Sol without non-ceiling, non-confounded information signal."
+      "note": "2026-10-08 Luna High 85/100 (original correct actions only), 90s but exhausted 17 agent turns and 20 probe budget, no successful controlled experiments. Budget-confounded; exclude from both Model Core/Effort Core and stop paid rescreening."
     }
   ],
   "resident_model_epoch": {
