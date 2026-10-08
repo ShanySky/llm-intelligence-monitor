@@ -240,7 +240,11 @@ async function callModel() {
     } catch (error) {
       const timeoutError = error?.name === 'TimeoutError' || error?.name === 'AbortError';
       if (timeoutError) {
-        throw new AgentModelTimeoutError(`Responses API request timed out before agent wall deadline`);
+        // A request deadline can be an API/proxy stall rather than model failure.
+        // Such ambiguous samples must not become quality/effort evidence.
+        if (Date.now()+2000 < wallDeadline)
+          throw new Error(`Responses API request timeout before agent wall deadline (${apiTimeoutMs}ms cap)`);
+        throw new AgentModelTimeoutError('Agent wall deadline reached during Responses API request');
       }
       if (error?.name === 'AgentModelTimeoutError') throw error;
       lastError = error;

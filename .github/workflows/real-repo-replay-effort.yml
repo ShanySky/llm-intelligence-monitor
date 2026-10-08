@@ -316,8 +316,14 @@ jobs:
             family_version:cfg.family_version??1,trial_mode:'variants',rows,
             ...(screen?{screening:screen}:{})};
           fs.writeFileSync('replay-summary.json',JSON.stringify(out,null,2)+'\n');
-          let md='# Real Repo Replay Family\n\n| Case | Effort | Replay quality | Behavior | Patch quality | Runtime | Changed files | Changed lines |\n|---|---|---:|---:|---:|---:|---:|---:|\n';
-          for(const r of rows) md+=`| ${r.case_id} | ${r.effort} | ${r.score} | ${r.behavior_score} | ${r.patch_quality_score??'-'} | ${r.duration_seconds}s | ${r.patch_metrics?.changed_files??0} | ${r.patch_metrics?.changed_lines??0} |\n`;
+          let md='# Real Repo Replay Family\n\n| Case | Effort | Replay quality | Behavior | Patch quality | Runtime | Outcome | Quality evidence | Changed files | Changed lines |\n|---|---|---:|---:|---:|---:|---|---|---:|---:|\n';
+          for(const r of rows){
+            const evidence=r.data_complete!==true?'incomplete'
+              :(r.model_timeout||r.outcome==='model_timeout'||r.turn_limit_reached||r.shell_budget_reached
+                ?'budget-confounded':'valid');
+            md+=`| ${r.case_id} | ${r.effort} | ${r.score} | ${r.behavior_score} | ${r.patch_quality_score??'-'} | ${r.duration_seconds}s | ${r.outcome??'-'} | ${evidence} | ${r.patch_metrics?.changed_files??0} | ${r.patch_metrics?.changed_lines??0} |\n`;
+          }
+          md+='\n> Budget-confounded/incomplete rows are diagnostic only and must not establish an Effort Core quality gap.\n';
           if(screen){
             md+='\n## Luna High screening decisions\n\n| Case | Score | Seconds | Decision |\n|---|---:|---:|---|\n';
             for(const x of screen.decisions)
