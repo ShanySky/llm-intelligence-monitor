@@ -75,8 +75,9 @@
         "v11-recovery-lease",
         "v11-recovery-identity"
       ],
-      "status": "reference-admission-pending",
-      "paid_screening": false
+      "status": "reference-admission-passed",
+      "paid_screening": "one-lease-luna-high-pilot-triggered",
+      "reference_check_run_id": 37748689004
     }
   ],
   "release_gate": {

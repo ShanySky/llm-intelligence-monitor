@@ -43,7 +43,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compact-reference-admission-${{ github.run_id }}
-          path: compact-reference-admission.json
+          path: |
+            compact-reference-admission.json
+            v11-reference-admission.json
           retention-days: 30
       - id: matrix
         shell: bash
@@ -317,15 +319,18 @@ jobs:
           lines=[
               "# Frontier Batch Screen",
               "",
-              "| Task | Score | Class | Runtime | Turns | Shell | Saturated |",
-              "|---|---:|---|---:|---:|---:|---|",
+              "| Task | Model / effort | Score | Class | Runtime | Input | Output | Reasoning | Turns | Shell | Data |",
+              "|---|---|---:|---|---:|---:|---:|---:|---:|---:|---|",
           ]
           for r in rows:
               sat=r.get("saturated",False)
               lines.append(
-                  f"| {r['task']} | {r['score']} | {r['classification']} | "
-                  f"{r.get('duration_seconds',0)}s | {r.get('responses',0)} | "
-                  f"{r.get('shell_commands',0)} | {'yes' if sat else 'no'} |"
+                  f"| {r['task']} | {r.get('model','?')} / {r.get('effort','?')} | "
+                  f"{r['score'] if r.get('outcome')=='completed' else '-'} | {r['classification']} | "
+                  f"{r.get('duration_seconds',0)}s | {r.get('usage',{}).get('input_tokens',0)} | "
+                  f"{r.get('usage',{}).get('output_tokens',0)} | {r.get('usage',{}).get('reasoning_tokens',0)} | "
+                  f"{r.get('responses',0)} | {r.get('shell_commands',0)} | "
+                  f"{'valid' if r.get('data_complete') and not sat and r.get('outcome')=='completed' else 'invalid/diagnostic'} |"
               )
           Path("frontier-batch-summary.md").write_text("\n".join(lines)+"\n")
           print("\n".join(lines))
@@ -358,6 +363,9 @@ jobs:
           cp /tmp/frontier-batch-summary.json frontier-batch/latest.json
           cp /tmp/frontier-batch-summary.md frontier-batch/latest.md
           cp results/reference/compact-reference-admission.json frontier-batch/reference-admission-latest.json
+          if [ -f results/reference/v11-reference-admission.json ]; then
+            cp results/reference/v11-reference-admission.json frontier-batch/v11-reference-admission-latest.json
+          fi
           cp /tmp/frontier-batch-summary.json "frontier-batch/runs/${GITHUB_RUN_ID}.json"
           cp /tmp/frontier-batch-summary.md "frontier-batch/runs/${GITHUB_RUN_ID}.md"
           git add frontier-batch

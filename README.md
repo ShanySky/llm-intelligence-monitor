@@ -1,5 +1,7 @@
 # LLM Intelligence Monitor
 
+> **V1.1 区分度研发中：** 已新增三实例跨边界故障恢复候选、客观隐藏检查与免费参考自检。当前仅开发分支 [v1.1-discrimination-upgrade](https://github.com/ShanySky/llm-intelligence-monitor/tree/v1.1-discrimination-upgrade)，**尚未证明模型/档位分差或发布 V1.1**。详见 [V1.1 记录](docs/V1.1-CALIBRATION.md)。V1 Core 与自动日测关闭状态不变。
+
 ## V1 Core 可用试用版（2026-10-08）
 
 **先上线、后完善。** 默认通过 [Final application benchmark validation](https://github.com/ShanySky/llm-intelligence-monitor/actions/workflows/application-final-validation.yml) 手动运行 `v1-core`：两个 Model Core 题型 × 四模型 High，结果独立写入 `application-v1-results`，不覆盖原完整评测。V1 最低可用不要求 Effort Core 已成熟，单次成绩不能作为稳定排名。详见 [V1 快速开始](docs/V1-QUICKSTART.md)。自动日测仍关闭。

@@ -21,4 +21,6 @@ with tempfile.TemporaryDirectory(prefix="v11-reference-") as td:
         passed=20<=before["score"]<=80 and after["score"]==100 and before["checks"]["visible_regression"]["passed"] and after["checks"]["visible_regression"]["passed"]
         results.append({"variant":variant,"baseline":before["score"],"reference":after["score"],"passed":passed})
         if not passed: raise SystemExit("Reference admission failed: "+json.dumps(results))
-print(json.dumps({"reference_admission":"PASS","cases":results},indent=2))
+report={"reference_admission":"PASS","cases":results}
+(repo/"v11-reference-admission.json").write_text(json.dumps(report,indent=2)+"\n",encoding="utf-8")
+print(json.dumps(report,indent=2))
