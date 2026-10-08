@@ -94,7 +94,14 @@ jobs:
           TASK="${{ matrix.task }}"
           TASK_DIR="/tmp/frontier-batch-$TASK"
           rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
-          cp -R "benchmarks/$TASK/workspace/." "$TASK_DIR/"
+          if [[ "$TASK" == v11-recovery-* ]]; then
+            CASE="${TASK#v11-recovery-}"
+            SRC="benchmarks/v11-recovery/instances/$CASE/workspace"
+          else
+            SRC="benchmarks/$TASK/workspace"
+          fi
+          test -f "$SRC/TASK.md"
+          cp -R "$SRC/." "$TASK_DIR/"
           [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
           [ ! -f "$TASK_DIR/run_visible_tests.sh" ] || chmod +x "$TASK_DIR/run_visible_tests.sh"
           [ ! -f "$TASK_DIR/check_generated.sh" ] || chmod +x "$TASK_DIR/check_generated.sh"
@@ -103,25 +110,34 @@ jobs:
           fi
           echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
 
-      - name: Start isolated Java benchmark container
+      - name: Start isolated benchmark container
         shell: bash
         run: |
           name="compact-${GITHUB_RUN_ID}-${{ strategy.job-index }}"
+          IMAGE="eclipse-temurin:17-jdk-jammy"
+          if [[ "${{ matrix.task }}" == v11-recovery-* ]]; then
+            IMAGE="python:3.12-slim-bookworm"
+          fi
           docker run -d --name "$name" --network none --read-only \
             --user "$(id -u):$(id -g)" \
             --cap-drop ALL --security-opt no-new-privileges \
             --pids-limit 128 --memory 768m --cpus 2 \
             --tmpfs /tmp:rw,nosuid,size=64m \
             -v "$TASK_DIR:/app:rw" -w /app \
-            eclipse-temurin:17-jdk-jammy tail -f /dev/null
+            "$IMAGE" tail -f /dev/null
           echo "AGENT_DOCKER_CONTAINER=$name" >> "$GITHUB_ENV"
           echo "AGENT_DOCKER_WORKDIR=/app" >> "$GITHUB_ENV"
 
       - name: Verify Docker editing toolchain without model calls
         shell: bash
         run: |
-          docker exec "$AGENT_DOCKER_CONTAINER" /bin/bash -lc \
-            'pwd; test -w src; command -v javac; command -v sed; command -v python3 || true; command -v patch || true; printf smoke > .shell-smoke; test -f .shell-smoke; rm .shell-smoke'
+          if [[ "${{ matrix.task }}" == v11-recovery-* ]]; then
+            docker exec "$AGENT_DOCKER_CONTAINER" /bin/bash -lc \
+              'pwd; test -w src; command -v python3; command -v sed; printf smoke > .shell-smoke; test -f .shell-smoke; rm .shell-smoke'
+          else
+            docker exec "$AGENT_DOCKER_CONTAINER" /bin/bash -lc \
+              'pwd; test -w src; command -v javac; command -v sed; command -v python3 || true; command -v patch || true; printf smoke > .shell-smoke; test -f .shell-smoke; rm .shell-smoke'
+          fi
 
       - name: Run low-cost candidate probe
         id: agent
@@ -253,7 +269,7 @@ jobs:
           if (root/"src").exists(): shutil.copytree(root/"src","result/final-src",dirs_exist_ok=True)
           PY
 
-      - name: Stop isolated Java benchmark container
+      - name: Stop isolated benchmark container
         if: always()
         shell: bash
         run: |
