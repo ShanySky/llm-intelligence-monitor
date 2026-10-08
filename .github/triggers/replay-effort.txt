@@ -5,3 +5,4 @@ retry after nonblocking backup self-check
 2026-10-05 rerun after internal wall-timeout telemetry hardening
 2026-10-08 v2 cost-controlled Luna High screen, no full Sol suite
 2026-10-08 only two valid v2 cases: one-shot GPT-6.1 Sol M/H/XH pilot
+2026-10-08 one-time no-model evidence regression verification; replay target enabled=false
