@@ -75,7 +75,7 @@
         "v11-recovery-lease",
         "v11-recovery-identity"
       ],
-      "status": "one-instance-coverage-other-untested",
+      "status": "reference-admitted-lease-coverage-other-untested",
       "paid_screening": false,
       "reference_check_run_id": 37748689004,
       "instances_state": {
@@ -90,12 +90,19 @@
       "instances": [
         "frontier-compact-lease"
       ],
-      "status": "retest-luna-after-prior-80-sol-medium-100",
-      "paid_screening": "one-luna-high-repeat",
+      "status": "paused-unstable-luna-signal",
+      "paid_screening": false,
       "prior_runs": [
         37722327602,
         37722610571
-      ]
+      ],
+      "luna_high_repeated_scores": [
+        80,
+        100
+      ],
+      "sol_medium_single_score": 100,
+      "last_run_id": 37749238271,
+      "decision": "pause"
     }
   ],
   "release_gate": {
@@ -104,5 +111,18 @@
     "require_verified_improvement": true,
     "allow_effort_pending": true,
     "no_automatic_daily": true
+  },
+  "current_round": {
+    "status": "paused-no-stable-discriminator",
+    "paid_workflow_runs": [
+      37748890240,
+      37749238271
+    ],
+    "no_cost_reference_run": 37748689004,
+    "sol_high_runs": 0,
+    "sol_xhigh_runs": 0,
+    "astra_runs": 0,
+    "not_a_release": true,
+    "next": "Rethink evidence-sensitive task design before any more paid probes; preserve V1 Core."
   }
 }

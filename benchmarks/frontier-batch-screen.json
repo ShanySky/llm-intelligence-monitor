@@ -1,16 +1,9 @@
 {
-  "version": 15,
-  "purpose": "Bounded repeat of previously promising compact lease: Luna High 80 vs Sol Medium 100. Recheck Luna first with original 18-turn/24-shell budget; only if stable consider Sol High.",
+  "version": 16,
+  "purpose": "V1.1 pilot stop-loss: new lease Luna High 100; old compact lease Luna High repeat 80 -> 100. Neither supplies stable model/effort separation. No active paid screening target.",
   "model": "gpt-6-luna",
   "effort": "high",
-  "tasks": [
-    {
-      "task": "frontier-compact-lease",
-      "max_turns": 18,
-      "shell_budget": 24,
-      "wall_timeout_ms": 290000
-    }
-  ],
+  "tasks": [],
   "excluded_coverage_only": [
     "frontier-webhook",
     "frontier-webhook-hidden",
@@ -39,7 +32,7 @@
       "next": "cross-model-validation"
     }
   },
-  "enabled": true,
+  "enabled": false,
   "deferred_tasks": [
     {
       "task": "frontier-compact-idempotency",
@@ -67,5 +60,5 @@
     }
   ],
   "diagnostic_mode": false,
-  "phase": "screen"
+  "phase": "idle"
 }
