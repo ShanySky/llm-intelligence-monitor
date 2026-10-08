@@ -81,6 +81,62 @@ const consistencyThreshold = Number(quality.min_directional_consistency_rate ?? 
 const familyMinVariants = Number(quality.effort_family_min_variants ?? 3);
 const familyMinPositiveVariants = Number(quality.effort_family_min_positive_variants ?? 2);
 const familyVariantGain = Number(quality.effort_family_variant_gain_points ?? minQualityGain);
+const familyMinRepeatRounds = Math.max(2, Number(quality.effort_family_min_repeats_per_variant ?? 2));
+// Distinct variants are not independent repeats. Formal variant-family confirmation
+// requires an explicit repeat identifier for every config of each paired variant.
+const hasPairedRepeatEvidence = (efforts, variants) =>
+  variants.length >= familyMinVariants &&
+  variants.every((trial) => efforts.every((effort) => {
+    const xs=rows.filter(r=>r.effort===effort && Number(r.trial)===trial);
+    const complete=xs.filter(r=>r.data_complete !== false && !r.infrastructure_error &&
+      r.outcome !== 'model_timeout' && r.outcome !== 'pre_telemetry_timeout' &&
+      !r.model_timeout && !r.turn_limit_reached && !r.shell_budget_reached);
+    const repeats=new Set(complete.map(r=>r.repeat));
+    return complete.length >= familyMinRepeatRounds &&
+      !repeats.has(undefined) && repeats.size >= familyMinRepeatRounds;
+  }));
+const distinctVariants=[...new Set(rows.filter(r=>r.trial!=null).map(r=>Number(r.trial)))];
+
+const repeatedVariantAgreement = (efforts, variants, threshold, direction='any') => {
+  let agreed=0;
+  for (const trial of variants) {
+    const configRounds=efforts.map(effort=>new Map(rows
+      .filter(r=>r.effort===effort && Number(r.trial)===trial &&
+        r.data_complete!==false && !r.infrastructure_error &&
+        r.outcome!=='model_timeout' && r.outcome!=='pre_telemetry_timeout' &&
+        !r.model_timeout && !r.turn_limit_reached && !r.shell_budget_reached &&
+        r.repeat!=null)
+      .map(r=>[String(r.repeat),r])));
+    const common=[...configRounds[0].keys()].filter(k=>configRounds.every(m=>m.has(k)));
+    if(common.length < familyMinRepeatRounds) continue;
+    const signatures=[];
+    let positive=0;
+    for(const repeat of common){
+      const values=configRounds.map(m=>Number(m.get(repeat).score));
+      if(values.some(v=>!Number.isFinite(v))) continue;
+      const spread=Math.max(...values)-Math.min(...values);
+      if(spread<threshold) continue;
+      const highIndex=values.indexOf(Math.max(...values));
+      const lowIndex=values.indexOf(Math.min(...values));
+      const signature=efforts[highIndex]+'>'+efforts[lowIndex];
+      if(direction==='positive'){
+        if(efforts.length===2 && values[1]-values[0]>=threshold) positive++;
+      } else if(direction==='high-dip' || direction==='high-spike'){
+        if(efforts.length!==3) continue;
+        const [m,h,x]=values;
+        const delta=direction==='high-dip'?Math.min(m,x)-h:h-Math.max(m,x);
+        if(delta>=threshold) positive++;
+      } else signatures.push(signature);
+    }
+    const required=Math.ceil(common.length*consistencyThreshold);
+    const ok=direction==='any'
+      ? [...new Set(signatures)].some(s=>signatures.filter(x=>x===s).length>=required)
+      : positive>=required;
+    if(ok) agreed++;
+  }
+  return agreed>=familyMinPositiveVariants;
+};
+
 const qualityFloor = Number(eff.min_quality_floor ?? 95);
 const efficiencyThreshold = Number(eff.min_improvement_percent ?? 15);
 const minEfficiencyMetrics = Number(eff.min_improved_metrics ?? 2);
@@ -132,7 +188,7 @@ if (medium && xhigh) {
     ? paired.filter(p=>p.efficiency_signal).length/paired.length : 0;
 
   const enoughRepeats = trialMode === 'variants'
-    ? commonTrials.length >= familyMinVariants
+    ? hasPairedRepeatEvidence(['medium','xhigh'],commonTrials)
     : commonTrials.length >= minTrials;
   const stable = trialMode === 'variants'
     ? true
@@ -147,7 +203,7 @@ if (medium && xhigh) {
   const qualityConfirmed =
     qualityCandidate && enoughRepeats && stable &&
     (trialMode === 'variants'
-      ? positiveQualityCount >= familyMinPositiveVariants
+      ? repeatedVariantAgreement(['medium','xhigh'],commonTrials,familyVariantGain,'positive')
       : positiveQualityRate >= consistencyThreshold);
 
   const efficiencyCandidate =
@@ -195,7 +251,7 @@ let effortSensitivity = null;
 if (effortStats.length >= 2 && effortSpread != null) {
   const threshold = Number(quality.min_effort_spread_points ?? 10);
   const repeated = trialMode === 'variants'
-    ? Math.min(...effortStats.map(x=>x.trials)) >= familyMinVariants
+    ? hasPairedRepeatEvidence(effortStats.map(x=>x.effort),distinctVariants)
     : Math.min(...effortStats.map(x=>x.trials)) >= minTrials;
   const stable = trialMode === 'variants'
     ? true
@@ -213,7 +269,7 @@ if (effortStats.length >= 2 && effortSpread != null) {
   });
   const sensitiveVariantCount=variantSensitivity.filter(x=>x.sensitive).length;
   const variantConsistencyOk = trialMode !== 'variants' ||
-    sensitiveVariantCount >= familyMinPositiveVariants;
+    repeatedVariantAgreement(effortStats.map(x=>x.effort),distinctVariants,threshold);
 
   if (effortSpread >= threshold) {
     const sorted=[...effortStats].sort((a,b)=>b.score-a.score);
@@ -249,7 +305,7 @@ if (medium && high && xhigh) {
   const highSpike = high.score-Math.max(medium.score,xhigh.score);
   const magnitude = Math.max(highDip,highSpike,0);
   const repeated = trialMode === 'variants'
-    ? Math.min(medium.trials,high.trials,xhigh.trials) >= familyMinVariants
+    ? hasPairedRepeatEvidence(['medium','high','xhigh'],distinctVariants)
     : Math.min(medium.trials,high.trials,xhigh.trials) >= minTrials;
   const stable = trialMode === 'variants'
     ? true
@@ -270,7 +326,7 @@ if (medium && high && xhigh) {
     });
     const signalCount=perVariant.filter(x=>x.signal).length;
     const variantConsistencyOk=trialMode!=='variants' ||
-      signalCount>=familyMinPositiveVariants;
+      repeatedVariantAgreement(['medium','high','xhigh'],distinctVariants,threshold,direction);
     nonMonotonic = {
       direction,
       magnitude_points:magnitude,
@@ -308,6 +364,9 @@ const output = {
   promotion_evidence: {
     trial_mode: trialMode,
     paired_variants: commonTrials.length,
+    repeat_rounds_required_per_variant: trialMode==='variants'?familyMinRepeatRounds:null,
+    repeated_variant_evidence_complete: trialMode==='variants'
+      ? hasPairedRepeatEvidence(effortStats.map(x=>x.effort),distinctVariants) : null,
     medium_to_xhigh_gain_points: comparison?.medium_to_xhigh_quality_gain_points ?? null,
     positive_variant_count: comparison?.positive_quality_trial_count ?? null,
     required_positive_variant_count: comparison?.required_positive_trial_count ?? null,

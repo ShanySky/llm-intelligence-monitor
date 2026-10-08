@@ -227,3 +227,7 @@ runner 自身的 wall timeout 会在外层 timeout 前写出遥测，并以模�
 Real-repo replay 的正式 Effort Core 校准使用经过 reference self-check 的 **required cases**。每个 required case 的历史目标提交必须在隐藏行为 verifier 上自检为 100 分，否则整轮正式校准停止。
 
 Backup replay cases 仅用于主集区分力不足时扩展样本。它们可以提前保存在仓库中并记录自检状态，但 **backup 自检失败不得阻断 required cases 的正式运行**；只有 backup 自身通过 reference self-check 后，才允许加入 Effort Core 证据。
+
+### 防止单次变体造成 Effort 假确认
+
+同一题型的 3 个不同变体只代表**覆盖度**，不能替代重复实验。`trial_mode=variants` 的正式 Effort Core 晋级必须为每个变体、每个思考档位保留至少 2 个独立的 `repeat` 轮次记录；任一变体缺少成对复测，整族只能保持 candidate。预算触顶、缺遥测或 API/Harness 故障样本不计入复测证据。Luna 单档筛题始终只能产生筛选信号，不能用于 Effort Core 晋级。
