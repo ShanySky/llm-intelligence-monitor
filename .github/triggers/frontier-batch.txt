@@ -1,8 +1,1 @@
-2026-10-08 first cost-gated compact cross-file Java Luna High screen
-2026-10-08 rerun after hidden verifier maximum-score correction
-2026-10-08 single-candidate shell-trace diagnosis; no full three-case rescreen
-2026-10-08 re-screen after Docker mount writable-user fix and improved hidden verifiers
-2026-10-08 one-case Sol Medium pilot for lease only; two Luna ceilings excluded
-2026-10-08 two-candidate causal runtime investigation Luna High screen after no-cost proof regression
-2026-10-08 single compact delivery candidate Luna High screen after hidden reference admission
-2026-10-08 retry same single delivery candidate after hidden verifier missing-class-brace fix
+V1.1 Luna High pilot: v11-recovery-lease only. Reference admission passed; capped at one task.
