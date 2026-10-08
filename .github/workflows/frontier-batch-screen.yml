@@ -11,6 +11,7 @@ on:
       - ".github/triggers/v11-public-luna.txt"
       - ".github/triggers/v11-public-sol.txt"
       - ".github/triggers/v11-public-regrade.txt"
+      - ".github/triggers/v11-public-warmup.txt"
 permissions:
   contents: read
 
@@ -512,6 +513,107 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -m "Record connected official grader replay ${GITHUB_RUN_ID}"
             git push origin HEAD:v11-public-regrade-results
+          fi
+
+  public-agent-warmup:
+    # No model calls. Check source-only dependency priming, no-network local
+    # test ability, and reference behavior after source-only priming.
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-warmup]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        case_id:
+          - google__gson-2158
+          - google__gson-2311
+          - axios__axios-5316
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate warmup gate scripts
+        run: |
+          bash -n scripts/v11-public-agent-deps.sh
+          bash -n scripts/v11-public-warmup-preflight.sh
+          python3 -m json.tool benchmarks/v1.1-public-candidates.json > /dev/null
+      - name: Verify original local tests without agent network
+        env:
+          CASE_ID: ${{ matrix.case_id }}
+        run: bash scripts/v11-public-warmup-preflight.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-warmup-${{ matrix.case_id }}-${{ github.run_id }}
+          path: v11-warmup-preflight/
+          retention-days: 30
+
+  public-agent-warmup-summary:
+    needs: public-agent-warmup
+    if: always() && needs.public-agent-warmup.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v11-warmup-*-${{ github.run_id }}
+          path: results/v11-warmup
+      - name: Aggregate offline local-test admission
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[json.loads(p.read_text()) for p in Path('results/v11-warmup').rglob('result.json')]
+          rows.sort(key=lambda r:r['task'])
+          if not rows: raise SystemExit("Missing warmup results")
+          valid=len(rows)==3 and all(x['status']=='offline_agent_ready' for x in rows)
+          result={'run_id':int('${{ github.run_id }}'),'source':'SWE-bench Multilingual',
+                  'stage':'agent-local-tests-offline-admission','model_calls':0,
+                  'all_cases_ready':valid,'ready_cases':sum(x['status']=='offline_agent_ready' for x in rows),
+                  'expected_cases':3,'rows':rows}
+          Path('v11-warmup-summary.json').write_text(json.dumps(result,indent=2)+'\n')
+          lines=['# Local test dependency admission (zero model calls)','','| Case | Status | Offline baseline | Offline reference | Seconds |',
+                 '|---|---|---:|---:|---:|']
+          for r in rows:
+              lines.append(f"| {r['task']} | {r['status']} | {r['offline_baseline_exit_code']} | {r['offline_reference_exit_code']} | {r['elapsed_seconds']} |")
+          lines+=['',f"**Ready: {result['ready_cases']}/3.** Tests and source unmodified; model never sees hidden patches."]
+          Path('v11-warmup-summary.md').write_text('\n'.join(lines)+'\n')
+          print('\n'.join(lines))
+          PY
+          cat v11-warmup-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-warmup-summary-${{ github.run_id }}
+          path: |
+            v11-warmup-summary.json
+            v11-warmup-summary.md
+          retention-days: 30
+      - name: Persist offline admission
+        run: |
+          cp v11-warmup-summary.json /tmp/v11-warmup-summary.json
+          cp v11-warmup-summary.md /tmp/v11-warmup-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-warmup-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-warmup-results; then
+            git switch -C v11-public-warmup-results origin/v11-public-warmup-results
+          else
+            git switch --orphan v11-public-warmup-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p public-warmup/runs
+          cp /tmp/v11-warmup-summary.json public-warmup/latest.json
+          cp /tmp/v11-warmup-summary.md public-warmup/latest.md
+          cp /tmp/v11-warmup-summary.json "public-warmup/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-warmup-summary.md "public-warmup/runs/${GITHUB_RUN_ID}.md"
+          git add public-warmup
+          if ! git diff --cached --quiet; then
+            git commit -m "Record no-model official local test dependency warmup ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-warmup-results
           fi
 
   prepare:
