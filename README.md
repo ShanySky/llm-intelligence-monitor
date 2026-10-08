@@ -1,5 +1,9 @@
 # LLM Intelligence Monitor
 
+## V1 Core 可用试用版（2026-10-08）
+
+**先上线、后完善。** 默认通过 [Final application benchmark validation](https://github.com/ShanySky/llm-intelligence-monitor/actions/workflows/application-final-validation.yml) 手动运行 `v1-core`：两个 Model Core 题型 × 四模型 High，结果独立写入 `application-v1-results`，不覆盖原完整评测。V1 最低可用不要求 Effort Core 已成熟，单次成绩不能作为稳定排名。详见 [V1 快速开始](docs/V1-QUICKSTART.md)。自动日测仍关闭。
+
 用于长期监控 GPT 等大模型是否出现能力下降的轻量回归测试项目。
 
 ## 快速监控策略
