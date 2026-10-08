@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "purpose": "Luna High cost-controlled screen for v2 real-history replay; do not launch Sol M/H/XH until non-ceiling, non-budget-confounded evidence is reviewed.",
-  "model": "gpt-6-luna",
+  "purpose": "One-shot GPT-6.1 Sol pilot only for two non-ceiling Luna screen cases. No formal Effort Core promotion from this single pilot; repeat only if observed quality signal is worth testing.",
+  "model": "gpt-6.1-sol",
   "efforts": [
-    "high"
+    "medium",
+    "high",
+    "xhigh"
   ],
   "max_turns": 36,
   "shell_budget": 36,
@@ -25,7 +27,9 @@
         "scripts/analyze-discrimination.mjs"
       ],
       "preferred_max_changed_lines": 120
-    },
+    }
+  ],
+  "backup_cases": [
     {
       "trial": 3,
       "id": "quick-monitor-floor-health",
@@ -37,7 +41,6 @@
       "preferred_max_changed_lines": 140
     }
   ],
-  "backup_cases": [],
   "family_version": 2,
   "retired_cases": [
     {
@@ -71,8 +74,8 @@
       "retired_reason": "v1 family exceeded the target runtime and repeatedly hit the 440s model wall timeout during GPT-6.1 Sol calibration."
     }
   ],
-  "mode": "screen",
-  "screening_policy": "20 <= score < 95 and no timeout/infra/budget confound: promote to Sol calibration candidate; >=95: coverage; <20: review as too-hard/invalid; timeout: invalidate.",
+  "mode": "effort",
+  "screening_policy": "2026-10-08 valid Luna High screen: core-signal-summary=45; repeat-sample-policy=25; quick-monitor-floor-health=100 (coverage-only, reference self-check only).",
   "repeats_per_case": 1,
   "repeat_policy": "Luna screen: 1 per case; early Sol calibration: 1 per effort/case (candidate only); formal Effort Core confirmation: >=2 independent repeat rounds per effort/case with stable direction, non-confounded."
 }
