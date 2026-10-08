@@ -18,6 +18,12 @@ def text(path):
     p = root / path
     return p.read_text(errors="replace") if p.exists() else ""
 
+if task.startswith("frontier-compact-"):
+    scorer = Path(__file__).with_name("score-compact-contract.py")
+    proc = subprocess.run([sys.executable, str(scorer), task, str(root), str(out)],
+                          text=True, timeout=65)
+    raise SystemExit(proc.returncode)
+
 if task == "micro-export":
     hidden = r'''import java.util.concurrent.atomic.AtomicBoolean;
 public final class HiddenTest {

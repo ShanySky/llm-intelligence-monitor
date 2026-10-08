@@ -2,6 +2,10 @@ name: Frontier batch candidate screen
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/triggers/frontier-batch.txt"
 permissions:
   contents: read
 
@@ -17,24 +21,48 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
       model: ${{ steps.matrix.outputs.model }}
       effort: ${{ steps.matrix.outputs.effort }}
+      eligible: ${{ steps.matrix.outputs.eligible }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Verify compact hidden reference before billing
+        run: |
+          python3 scripts/selfcheck-compact-contract.py
+      - name: Upload no-cost reference admission
+        uses: actions/upload-artifact@v4
+        with:
+          name: compact-reference-admission-${{ github.run_id }}
+          path: compact-reference-admission.json
+          retention-days: 30
       - id: matrix
         shell: bash
         run: |
           node - <<'NODE' >> "$GITHUB_OUTPUT"
           const x=require('./benchmarks/frontier-batch-screen.json');
-          console.log('matrix='+JSON.stringify({include:x.tasks}));
+          const registry=require('./benchmarks/frontier-registry.json');
+          const blocked=new Set(['coverage-only-ceiling','retired','invalid-or-superseded']);
+          const known=new Map((registry.tasks??[]).map(t=>[t.id,t]));
+          const cases=x.enabled===false?[]:x.tasks.filter(t=>{
+            const status=known.get(t.task)?.status;
+            return !blocked.has(status);
+          });
+          if(cases.length!==x.tasks.length && x.enabled!==false)
+            console.error('Blocked already-retired or coverage-only candidates');
+          console.log('eligible='+String(cases.length>0));
+          console.log('matrix='+JSON.stringify({include:cases}));
           console.log('model='+x.model);
           console.log('effort='+x.effort);
           NODE
 
   screen:
     needs: prepare
-    if: needs.prepare.result == 'success'
+    if: needs.prepare.result == 'success' && needs.prepare.outputs.eligible == 'true'
     strategy:
       fail-fast: false
       max-parallel: 5
@@ -75,6 +103,8 @@ jobs:
         env:
           AGENT_MAX_TURNS: ${{ matrix.max_turns }}
           AGENT_SHELL_BUDGET: ${{ matrix.shell_budget }}
+          AGENT_WALL_TIMEOUT_MS: 290000
+          AGENT_API_TIMEOUT_MS: 120000
         shell: bash
         run: |
           TASK="${{ matrix.task }}"
@@ -95,7 +125,7 @@ jobs:
           fi
           start="$(date +%s)"
           set +e
-          timeout 480s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ needs.prepare.outputs.model }}"             "${{ needs.prepare.outputs.effort }}"             "$TASK_DIR/light-agent-result.json"
+          timeout 330s node scripts/light-agent-runner.mjs             "$TASK_DIR"             "${{ needs.prepare.outputs.model }}"             "${{ needs.prepare.outputs.effort }}"             "$TASK_DIR/light-agent-result.json"
           status=$?
           set -e
           end="$(date +%s)"
@@ -115,24 +145,49 @@ jobs:
           score=json.loads((root/"score.json").read_text())
           rp=root/"light-agent-result.json"
           runner=json.loads(rp.read_text()) if rp.exists() else {}
+          rp_exists=rp.exists()
           turn_limit=bool(runner.get("max_turns")) and runner.get("responses",0)>=runner.get("max_turns")
           shell_limit=bool(runner.get("shell_budget")) and runner.get("shell_commands",0)>=runner.get("shell_budget")
-          saturated=turn_limit or shell_limit
+          exit_code=int("${{ steps.agent.outputs.exit_code || '999' }}")
+          infra=runner.get("infrastructure_error")
+          timeout=bool(runner.get("model_timeout")) or exit_code==124
+          saturated=turn_limit or shell_limit or timeout
           quality=float(score["score"])
-          if saturated and quality < 95:
-              classification="budget-confounded-needs-repeat"
+          if not rp_exists or infra or exit_code not in (0,124):
+              classification="incomplete-infrastructure"
+              outcome="infrastructure_error" if infra else "runner_error"
+              data_complete=False
+          elif timeout:
+              classification="budget-confounded-timeout"
+              outcome="model_timeout"
+              data_complete=True
+          elif saturated:
+              classification="budget-confounded-limit"
+              outcome="budget_confounded"
+              data_complete=True
           elif quality >= 95:
               classification="coverage-only-ceiling"
+              outcome="completed"
+              data_complete=True
           elif quality <= 20:
               classification="too-hard-or-invalid"
+              outcome="completed"
+              data_complete=True
           else:
               classification="promising-candidate"
+              outcome="completed"
+              data_complete=True
           result={
             "task":"${{ matrix.task }}",
             "model":"${{ needs.prepare.outputs.model }}",
             "effort":"${{ needs.prepare.outputs.effort }}",
             "score":score["score"],
             "classification":classification,
+            "outcome":outcome,
+            "data_complete":data_complete,
+            "runner_telemetry_present":rp_exists,
+            "model_timeout":timeout,
+            "saturated":saturated,
             "checks":score["checks"],
             "duration_seconds":runner.get("duration_seconds",int("${{ steps.agent.outputs.wall_seconds || '480' }}")),
             "responses":runner.get("responses",0),
@@ -152,7 +207,7 @@ jobs:
             "usage":runner.get("usage",{}),
             "api_retries":runner.get("api_retries",0),
             "infrastructure_error":runner.get("infrastructure_error"),
-            "agent_exit_code":int("${{ steps.agent.outputs.exit_code || '999' }}")
+            "agent_exit_code":exit_code
           }
           Path("result/result.json").write_text(json.dumps(result,indent=2)+"\n")
           if rp.exists(): shutil.copy2(rp,"result/light-agent-result.json")
@@ -171,7 +226,7 @@ jobs:
 
   aggregate:
     needs: [prepare, screen]
-    if: always() && needs.prepare.result == 'success'
+    if: always() && needs.prepare.result == 'success' && needs.screen.result != 'skipped'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -182,6 +237,10 @@ jobs:
         with:
           pattern: frontier-batch-*-${{ github.run_id }}
           path: results/frontier-batch
+      - uses: actions/download-artifact@v4
+        with:
+          name: compact-reference-admission-${{ github.run_id }}
+          path: results/reference
 
       - name: Summarize batch
         shell: bash
@@ -202,7 +261,7 @@ jobs:
               "|---|---:|---|---:|---:|---:|---|",
           ]
           for r in rows:
-              sat=r.get("turn_limit_reached") or r.get("shell_budget_reached")
+              sat=r.get("saturated",False)
               lines.append(
                   f"| {r['task']} | {r['score']} | {r['classification']} | "
                   f"{r.get('duration_seconds',0)}s | {r.get('responses',0)} | "
@@ -238,6 +297,7 @@ jobs:
           mkdir -p frontier-batch/runs
           cp /tmp/frontier-batch-summary.json frontier-batch/latest.json
           cp /tmp/frontier-batch-summary.md frontier-batch/latest.md
+          cp results/reference/compact-reference-admission.json frontier-batch/reference-admission-latest.json
           cp /tmp/frontier-batch-summary.json "frontier-batch/runs/${GITHUB_RUN_ID}.json"
           cp /tmp/frontier-batch-summary.md "frontier-batch/runs/${GITHUB_RUN_ID}.md"
           git add frontier-batch

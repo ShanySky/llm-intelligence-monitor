@@ -704,6 +704,48 @@
         "probe_calls_mean": 5.7,
         "behavior_signal": "ceiling"
       }
+    },
+    {
+      "id": "frontier-compact-idempotency",
+      "family": "coding_cross_file_idempotency_atomicity",
+      "status": "screening",
+      "promoted_to_final": false,
+      "evidence": {
+        "source": "new compact Java micro-repo",
+        "hidden_tests": true,
+        "reference_admission": "pending",
+        "difficulty_source": "Tenant-scoped and revision-scoped event identity, atomic retry processing",
+        "model_epoch": "gpt-6-luna-high-screen"
+      },
+      "note": "Reference fixtures must pass 100 while baseline fails; Luna High must finish within 290 seconds without model/API/budget timeout. Single-run score only decides whether to attempt Sol effort, not Effort Core maturity."
+    },
+    {
+      "id": "frontier-compact-outbox",
+      "family": "coding_durable_outbox_retry",
+      "status": "screening",
+      "promoted_to_final": false,
+      "evidence": {
+        "source": "new compact Java micro-repo",
+        "hidden_tests": true,
+        "reference_admission": "pending",
+        "difficulty_source": "Atomic outbox marker, replay after send/ack failure, transport idempotency",
+        "model_epoch": "gpt-6-luna-high-screen"
+      },
+      "note": "Reference fixtures must pass 100 while baseline fails; Luna High must finish within 290 seconds without model/API/budget timeout. Single-run score only decides whether to attempt Sol effort, not Effort Core maturity."
+    },
+    {
+      "id": "frontier-compact-lease",
+      "family": "coding_fencing_lease_reassignment",
+      "status": "screening",
+      "promoted_to_final": false,
+      "evidence": {
+        "source": "new compact Java micro-repo",
+        "hidden_tests": true,
+        "reference_admission": "pending",
+        "difficulty_source": "Lease incarnation fencing, expiry boundary, stale renewal protection",
+        "model_epoch": "gpt-6-luna-high-screen"
+      },
+      "note": "Reference fixtures must pass 100 while baseline fails; Luna High must finish within 290 seconds without model/API/budget timeout. Single-run score only decides whether to attempt Sol effort, not Effort Core maturity."
     }
   ],
   "resident_model_epoch": {
