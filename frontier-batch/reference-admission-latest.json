@@ -9,7 +9,7 @@
     },
     {
       "task": "frontier-compact-outbox",
-      "baseline": 80,
+      "baseline": 60,
       "reference": 100,
       "passed": true
     },
