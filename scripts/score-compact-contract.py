@@ -17,6 +17,7 @@ tasks = {
     "frontier-compact-idempotency": ("TENANT", "REVISION", "TOPIC", "ENCODING"),
     "frontier-compact-outbox": ("DURABLE", "ACK_WINDOW", "REPEAT", "UNRELATED"),
     "frontier-compact-lease": ("STALE", "DEADLINE", "RENEW", "SEPARATE"),
+    "frontier-compact-delivery": ("PRE_SEND", "REPLY_LOSS", "IDENTITY", "CONCURRENT_OFFSET"),
 }
 if task not in tasks:
     raise SystemExit("unknown compact task " + task)

@@ -8,7 +8,7 @@ import tempfile
 from pathlib import Path
 
 repo = Path(__file__).resolve().parent.parent
-tasks = ("frontier-compact-idempotency", "frontier-compact-outbox", "frontier-compact-lease")
+tasks = ("frontier-compact-idempotency", "frontier-compact-outbox", "frontier-compact-lease", "frontier-compact-delivery")
 evidence = []
 with tempfile.TemporaryDirectory(prefix="compact-reference-") as d:
     for task in tasks:
