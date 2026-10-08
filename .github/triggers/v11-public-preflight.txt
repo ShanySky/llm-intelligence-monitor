@@ -1,1 +1,1 @@
-Network-isolated official reference parity check: all five fixed tasks; zero model calls.
+No-model diagnosis of 3 official reference failures in network-none containers; print dependency/test errors.
