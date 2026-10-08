@@ -17,6 +17,15 @@ concurrency:
 
 jobs:
   public-source-preflight:
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        case_id:
+          - google__gson-2158
+          - vuejs__core-11589
+          - vuejs__core-11899
+          - axios__axios-5316
     # Reuse existing Workflow, and only execute on a dedicated no-model-cost trigger.
     if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-preflight]')
     runs-on: ubuntu-latest
@@ -27,14 +36,85 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check pinned public SWE-bench reference without model calls
         env:
-          CASE_ID: google__gson-2311
+          CASE_ID: ${{ matrix.case_id }}
         run: bash scripts/v11-public-env-preflight.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: v11-public-env-preflight-${{ github.run_id }}
+          name: v11-public-env-${{ matrix.case_id }}-${{ github.run_id }}
           path: v11-public-env-preflight/
           retention-days: 30
+
+  public-source-summary:
+    needs: public-source-preflight
+    if: always() && needs.public-source-preflight.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v11-public-env-*-${{ github.run_id }}
+          path: results/v11-public
+      - name: Persist official preflight result index
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[]
+          for f in Path('results/v11-public').rglob('result.json'):
+              r=json.loads(f.read_text())
+              rows.append(r)
+          if not rows:
+              raise SystemExit('No official environment result.json artifacts')
+          rows.sort(key=lambda r:r['task'])
+          out={'source':'official-swe-bench-multilingual','run_id':int('${{ github.run_id }}'),'rows':rows,
+               'verified':sum(r['status']=='environment_ready' for r in rows),'total':len(rows),
+               'model_calls':0}
+          Path('v11-public-summary.json').write_text(json.dumps(out,indent=2)+'\n')
+          lines=['# V1.1 Official Environment Admission','','| Task | Status | Baseline | Reference | Seconds |',
+                 '|---|---|---:|---:|---:|']
+          for r in rows:
+              lines.append(f"| {r['task']} | {r['status']} ({r['stage']}) | {r['baseline_exit_code']} | {r['reference_exit_code']} | {r['duration_seconds']} |")
+          lines+=['',f"Verified {out['verified']}/{out['total']}; zero model calls. Failures are infrastructure samples, NOT model failures.",'']
+          Path('v11-public-summary.md').write_text('\n'.join(lines))
+          print('\n'.join(lines))
+          PY
+          cat v11-public-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-public-summary-${{ github.run_id }}
+          path: |
+            v11-public-summary.json
+            v11-public-summary.md
+          retention-days: 30
+      - name: Write results to dedicated branch
+        shell: bash
+        run: |
+          cp v11-public-summary.json /tmp/v11-public-summary.json
+          cp v11-public-summary.md /tmp/v11-public-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-env-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-env-results; then
+            git switch -C v11-public-env-results origin/v11-public-env-results
+          else
+            git switch --orphan v11-public-env-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p public-env/runs
+          cp /tmp/v11-public-summary.json public-env/latest.json
+          cp /tmp/v11-public-summary.md public-env/latest.md
+          cp /tmp/v11-public-summary.json "public-env/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-public-summary.md "public-env/runs/${GITHUB_RUN_ID}.md"
+          git add public-env
+          if ! git diff --cached --quiet; then
+            git commit -m "Record official benchmark environment admission ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-env-results
+          fi
 
   prepare:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-batch]') || contains(github.event.head_commit.message, '[v11-preflight]')

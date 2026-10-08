@@ -117,7 +117,7 @@
     "no_automatic_daily": true
   },
   "current_round": {
-    "status": "public-source-shortlist-ready-environment-not-tested",
+    "status": "first-official-environment-passed",
     "paid_workflow_runs": [
       37748890240,
       37749238271
@@ -127,7 +127,7 @@
     "sol_xhigh_runs": 0,
     "astra_runs": 0,
     "not_a_release": true,
-    "next": "Offline/no-model reproducibility check of 5 A-tier official benchmark cases; no paid screening until preflight passes."
+    "next": "Batch 4 remaining A-priority source cases through same no-model workflow; record result branch; no Luna runs yet."
   },
   "strategy": "official_public_engineering_benchmark_first",
   "public_sources": {
@@ -139,7 +139,9 @@
     "manifest": "benchmarks/v1.1-public-candidates.json",
     "source_shortlist_size": 20,
     "verified_metadata": true,
-    "verified_environments": 0,
-    "paid_model_runs": 0
+    "verified_environments": 1,
+    "paid_model_runs": 0,
+    "first_verified_case": "google__gson-2311",
+    "first_preflight_run_id": 37757728878
   }
 }
