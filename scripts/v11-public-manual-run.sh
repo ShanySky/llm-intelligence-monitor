@@ -144,10 +144,19 @@ if [[ "$AGENT_INITIAL_NETWORK" == bridge ]]; then
     WARMUP_LOG_DIR="$OUTDIR/agent-warmup" bash scripts/v11-public-agent-deps.sh
 fi
 # No LLM request is permitted until this proves the agent has no network.
-test "$(docker inspect "$C" --format '{{len .NetworkSettings.Networks}}')" = 0 || {
-  echo "Agent network isolation failed; refuse model billing" >&2
-  exit 1
-}
+# Docker's builtin 'none' mode may have a Networks.none entry, while a
+# detached bridge container has no entries. Admit only these two exact states.
+if [[ "$AGENT_INITIAL_NETWORK" == none ]]; then
+  test "$(docker inspect "$C" --format '{{.HostConfig.NetworkMode}}')" = none || {
+    echo "Expected Docker --network none, refuse model billing" >&2
+    exit 1
+  }
+else
+  test "$(docker inspect "$C" --format '{{len .NetworkSettings.Networks}}')" = 0 || {
+    echo "Bridge was not detached, refuse model billing" >&2
+    exit 1
+  }
+fi
 
 STAGE="manual-public-agent"
 MODEL_STARTED=true
@@ -165,6 +174,8 @@ RUNNER_EXIT=$?
 set -e
 
 # Preserve model patch before running the hidden evaluator, independent of test outcome.
+# Preserve tracked AND new source files. Ignored dependency caches stay ignored.
+docker exec -w /testbed "$C" git add -N . || true
 docker exec -w /testbed "$C" git diff --binary "$BASE" > "$OUTDIR/model.patch" || true
 if [[ "$RUNNER_EXIT" != 0 ]]; then
   STAGE="agent-incomplete"
