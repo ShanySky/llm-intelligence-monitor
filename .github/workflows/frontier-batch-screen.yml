@@ -10,7 +10,42 @@ on:
         required: true
         options:
           - v1.1-report
+          - v1.1-task
           - frontier-batch
+      case_id:
+        description: "One official original task; used only for v1.1-task"
+        type: choice
+        required: true
+        default: google__gson-1014
+        options:
+          - google__gson-1014
+          - google__gson-1093
+          - google__gson-2134
+          - google__gson-2158
+          - google__gson-2311
+          - axios__axios-5316
+          - vuejs__core-11589
+          - vuejs__core-11739
+          - vuejs__core-11870
+          - vuejs__core-11899
+          - vuejs__core-11915
+      model_id:
+        description: "Target model; paid call only in v1.1-task"
+        type: choice
+        required: true
+        default: gpt-6-luna
+        options:
+          - gpt-6-luna
+          - gpt-6.1-sol
+      effort:
+        description: "Reasoning effort; token and time budgets stay fixed"
+        type: choice
+        required: true
+        default: high
+        options:
+          - medium
+          - high
+          - xhigh
   push:
     branches: [main, v1.1-discrimination-upgrade]
     paths:
@@ -701,6 +736,91 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -m "Publish V1.1 public engineering evidence report ${GITHUB_RUN_ID}"
             git push origin HEAD:v11-release-results
+          fi
+
+  v11-manual-task:
+    # Explicitly opt-in to one paid task/model/effort; no matrices or implicit reruns.
+    if: github.event_name == 'workflow_dispatch' && inputs.profile == 'v1.1-task'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      CASE_ID: ${{ inputs.case_id }}
+      MODEL_ID: ${{ inputs.model_id }}
+      REASONING_EFFORT: ${{ inputs.effort }}
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Free admission and syntax checks before any billing
+        run: |
+          bash -n scripts/v11-public-manual-run.sh
+          bash -n scripts/v11-public-agent-deps.sh
+          node --check scripts/light-agent-runner.mjs
+          node scripts/v11-public-report.test.mjs
+          python3 -m json.tool benchmarks/v1.1-public-candidates.json > /dev/null
+      - name: Run exactly one original public engineering task
+        run: bash scripts/v11-public-manual-run.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-task-${{ inputs.case_id }}-${{ inputs.model_id }}-${{ inputs.effort }}-${{ github.run_id }}
+          path: v11-public-manual/
+          retention-days: 30
+      - name: Save result with model, effort, budget and objective official grade
+        if: always()
+        shell: bash
+        run: |
+          if [ ! -f v11-public-manual/result.json ]; then
+            echo "No runnable public benchmark result; preparation likely failed"
+            exit 1
+          fi
+          node - <<'NODE'
+          const fs=require('fs');
+          const r=JSON.parse(fs.readFileSync('v11-public-manual/result.json','utf8'));
+          const score=r.data_complete?r.score:null;
+          const cols=[
+            '# V1.1 Public Original Engineering Task (manual run)','',
+            '| Field | Result |','|---|---|',
+            '| Original case | '+r.task+' |',
+            '| Model / effort | '+r.model+' / '+r.effort+' |',
+            '| Official quality | '+(score??'INVALID, not scored')+' |',
+            '| Data complete | '+r.data_complete+' |',
+            '| Task wall time | '+(r.duration_seconds??'-')+' s |',
+            '| Input / output / reasoning | '+(r.usage?.input_tokens??0)+' / '+(r.usage?.output_tokens??0)+' / '+(r.usage?.reasoning_tokens??0)+' |',
+            '| Responses / Shell | '+(r.responses??'-')+' / '+(r.shell_commands??'-')+' |',
+            '| Token cap reached | '+Boolean(r.cumulative_input_budget_reached)+' |',
+            '| Model network | none |',
+            '| Official evaluator network | bridge |','',
+            '> One attempt; this is not a stable model ranking or established effort gap.'
+          ];
+          fs.writeFileSync('v11-public-manual/summary.md',cols.join('\n')+'\n');
+          NODE
+          cat v11-public-manual/summary.md >> "$GITHUB_STEP_SUMMARY"
+          cp v11-public-manual/result.json /tmp/v11-task-result.json
+          cp v11-public-manual/summary.md /tmp/v11-task-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-manual-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-manual-results; then
+            git switch -C v11-public-manual-results origin/v11-public-manual-results
+          else
+            git switch --orphan v11-public-manual-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p v11-manual/runs
+          cp /tmp/v11-task-result.json v11-manual/latest.json
+          cp /tmp/v11-task-summary.md v11-manual/latest.md
+          cp /tmp/v11-task-result.json "v11-manual/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-task-summary.md "v11-manual/runs/${GITHUB_RUN_ID}.md"
+          git add v11-manual
+          if ! git diff --cached --quiet; then
+            git commit -m "Record V1.1 manual engineering task ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-manual-results
           fi
 
   prepare:
