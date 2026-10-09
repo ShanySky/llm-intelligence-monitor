@@ -1,1 +1,1 @@
-Run V1.1 beta evidence release gate; no model calls; do not run research screening.
+Free V1.1 beta acceptance: V1 regression + evidence report + public one-task script syntax. No model calls.
