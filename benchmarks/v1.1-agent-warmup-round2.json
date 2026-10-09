@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "upstream": "SWE-bench Multilingual",
+  "reference_run_id": 37872523131,
+  "offline_warmup_run_id": 37872743296,
+  "ready": true,
+  "model_calls": 0,
+  "checks": "no model calls; original source unchanged after dependencies; Docker network detached; offline baseline fail / offline official gold pass",
+  "task_results": {
+    "google__gson-1014": {
+      "status": "offline_agent_ready",
+      "baseline_exit_code": 1,
+      "reference_exit_code": 0,
+      "duration_seconds": 43
+    },
+    "google__gson-2134": {
+      "status": "offline_agent_ready",
+      "baseline_exit_code": 1,
+      "reference_exit_code": 0,
+      "duration_seconds": 47
+    },
+    "vuejs__core-11870": {
+      "status": "offline_agent_ready",
+      "baseline_exit_code": 1,
+      "reference_exit_code": 0,
+      "duration_seconds": 50
+    },
+    "vuejs__core-11915": {
+      "status": "offline_agent_ready",
+      "baseline_exit_code": 1,
+      "reference_exit_code": 0,
+      "duration_seconds": 60
+    }
+  }
+}

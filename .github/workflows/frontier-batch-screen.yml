@@ -2,10 +2,61 @@ name: Frontier batch candidate screen
 
 on:
   workflow_dispatch:
+    inputs:
+      profile:
+        description: "v1.1-report = free evidence refresh; frontier-batch = existing paid research screen"
+        type: choice
+        default: v1.1-report
+        required: true
+        options:
+          - v1.1-report
+          - v1.1-task
+          - frontier-batch
+      case_id:
+        description: "One official original task; used only for v1.1-task"
+        type: choice
+        required: true
+        default: google__gson-1014
+        options:
+          - google__gson-1014
+          - google__gson-1093
+          - google__gson-2134
+          - google__gson-2158
+          - google__gson-2311
+          - axios__axios-5316
+          - vuejs__core-11589
+          - vuejs__core-11739
+          - vuejs__core-11870
+          - vuejs__core-11899
+          - vuejs__core-11915
+      model_id:
+        description: "Target model; paid call only in v1.1-task"
+        type: choice
+        required: true
+        default: gpt-6-luna
+        options:
+          - gpt-6-luna
+          - gpt-6.1-sol
+      effort:
+        description: "Reasoning effort; token and time budgets stay fixed"
+        type: choice
+        required: true
+        default: high
+        options:
+          - medium
+          - high
+          - xhigh
   push:
-    branches: [main]
+    branches: [main, v1.1-discrimination-upgrade]
     paths:
       - ".github/triggers/frontier-batch.txt"
+      - ".github/triggers/v11-preflight.txt"
+      - ".github/triggers/v11-public-preflight.txt"
+      - ".github/triggers/v11-public-luna.txt"
+      - ".github/triggers/v11-public-sol.txt"
+      - ".github/triggers/v11-public-regrade.txt"
+      - ".github/triggers/v11-public-warmup.txt"
+      - ".github/triggers/v11-release-check.txt"
 permissions:
   contents: read
 
@@ -14,8 +65,769 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  public-source-preflight:
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        case_id:
+          - google__gson-1093
+          - vuejs__core-11739
+          - projectlombok__lombok-3422
+    # Reuse existing Workflow, and only execute on a dedicated no-model-cost trigger.
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-preflight]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check pinned public SWE-bench reference without model calls
+        env:
+          CASE_ID: ${{ matrix.case_id }}
+        run: bash scripts/v11-public-env-preflight.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-public-env-${{ matrix.case_id }}-${{ github.run_id }}
+          path: v11-public-env-preflight/
+          retention-days: 30
+
+  public-source-summary:
+    needs: public-source-preflight
+    if: always() && needs.public-source-preflight.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v11-public-env-*-${{ github.run_id }}
+          path: results/v11-public
+      - name: Persist official preflight result index
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[]
+          for f in Path('results/v11-public').rglob('result.json'):
+              r=json.loads(f.read_text())
+              rows.append(r)
+          if not rows:
+              raise SystemExit('No official environment result.json artifacts')
+          rows.sort(key=lambda r:r['task'])
+          out={'source':'official-swe-bench-multilingual','run_id':int('${{ github.run_id }}'),'rows':rows,
+               'verified':sum(r['status']=='environment_ready' for r in rows),'total':len(rows),
+               'model_calls':0}
+          Path('v11-public-summary.json').write_text(json.dumps(out,indent=2)+'\n')
+          lines=['# V1.1 Official Environment Admission','','| Task | Status | Baseline | Reference | Seconds |',
+                 '|---|---|---:|---:|---:|']
+          for r in rows:
+              lines.append(f"| {r['task']} | {r['status']} ({r['stage']}) | {r['baseline_exit_code']} | {r['reference_exit_code']} | {r['duration_seconds']} |")
+          lines+=['',f"Verified {out['verified']}/{out['total']}; zero model calls. Failures are infrastructure samples, NOT model failures.",'']
+          Path('v11-public-summary.md').write_text('\n'.join(lines))
+          print('\n'.join(lines))
+          PY
+          cat v11-public-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-public-summary-${{ github.run_id }}
+          path: |
+            v11-public-summary.json
+            v11-public-summary.md
+          retention-days: 30
+      - name: Write results to dedicated branch
+        shell: bash
+        run: |
+          cp v11-public-summary.json /tmp/v11-public-summary.json
+          cp v11-public-summary.md /tmp/v11-public-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-env-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-env-results; then
+            git switch -C v11-public-env-results origin/v11-public-env-results
+          else
+            git switch --orphan v11-public-env-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p public-env/runs
+          cp /tmp/v11-public-summary.json public-env/latest.json
+          cp /tmp/v11-public-summary.md public-env/latest.md
+          cp /tmp/v11-public-summary.json "public-env/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-public-summary.md "public-env/runs/${GITHUB_RUN_ID}.md"
+          git add public-env
+          if ! git diff --cached --quiet; then
+            git commit -m "Record official benchmark environment admission ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-env-results
+          fi
+
+  public-luna-pilot:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-luna]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        case_id:
+          - google__gson-1093
+          - vuejs__core-11739
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Zero-model validation before paid pilot
+        run: |
+          bash -n scripts/v11-public-luna-screen.sh
+          node --check scripts/light-agent-runner.mjs
+          python3 -m json.tool benchmarks/v1.1-luna-pilot.json > /dev/null
+          python3 -m json.tool benchmarks/v1.1-public-candidates.json > /dev/null
+      - name: Run one admitted official task with Luna High
+        env:
+          BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          CASE_ID: ${{ matrix.case_id }}
+        run: bash scripts/v11-public-luna-screen.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-public-luna-${{ matrix.case_id }}-${{ github.run_id }}
+          path: v11-public-luna/
+          retention-days: 30
+
+  public-luna-summary:
+    needs: public-luna-pilot
+    if: always() && needs.public-luna-pilot.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v11-public-luna-*-${{ github.run_id }}
+          path: results/v11-public-luna
+      - name: Aggregate fixed-cohort Luna results
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[json.loads(f.read_text()) for f in Path('results/v11-public-luna').rglob('result.json')]
+          rows.sort(key=lambda x:x['task'])
+          expected={'google__gson-1093','vuejs__core-11739'}
+          all_valid=len(rows)==2 and {r['task'] for r in rows}==expected and all(r.get('data_complete') for r in rows)
+          passed=sum(r.get('score')==100 for r in rows if r.get('data_complete'))
+          quality=100*passed/2 if all_valid else None
+          report={'source':'official-swe-bench-multilingual','model':'gpt-6-luna','effort':'high',
+                  'round':3,'run_id':int('${{ github.run_id }}'),'rows':rows,'data_complete':all_valid,
+                  'expected_tasks':2,'valid_tasks':sum(bool(r.get('data_complete')) for r in rows),
+                  'passed_tasks':passed,'quality_score':quality,
+                  'offline_local_test_warmup_reference_run':37875192582,
+                  'signal':'single-run-screen-only-not-a-stable-discriminator'}
+          Path('v11-luna-summary.json').write_text(json.dumps(report,indent=2)+'\n')
+          lines=['# V1.1 Round-3 Luna High: Two Original Java/Vue Issues','','| Task | Quality | Admissible | Model seconds | Input tokens |',
+                 '|---|---:|---|---:|---:|']
+          for r in rows:
+              lines.append(f"| {r['task']} | {r.get('score') if r.get('data_complete') else '-'} | {r.get('data_complete')} | {r.get('duration_seconds') or '-'} | {r.get('usage',{}).get('input_tokens','-')} |")
+          lines+=['',f"Two-case screening quality: {quality if quality is not None else 'INCOMPLETE'}, {passed}/2 passed. One run per task: not a stable model ranking."]
+          Path('v11-luna-summary.md').write_text('\n'.join(lines)+'\n')
+          print('\n'.join(lines))
+          PY
+          cat v11-luna-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-luna-summary-${{ github.run_id }}
+          path: |
+            v11-luna-summary.json
+            v11-luna-summary.md
+          retention-days: 30
+      - name: Persist batch result
+        run: |
+          cp v11-luna-summary.json /tmp/v11-luna-summary.json
+          cp v11-luna-summary.md /tmp/v11-luna-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-luna-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-luna-results; then
+            git switch -C v11-public-luna-results origin/v11-public-luna-results
+          else
+            git switch --orphan v11-public-luna-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p public-luna/runs
+          cp /tmp/v11-luna-summary.json public-luna/latest.json
+          cp /tmp/v11-luna-summary.md public-luna/latest.md
+          cp /tmp/v11-luna-summary.json "public-luna/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-luna-summary.md "public-luna/runs/${GITHUB_RUN_ID}.md"
+          git add public-luna
+          if ! git diff --cached --quiet; then
+            git commit -m "Record V1.1 official Luna cohort ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-luna-results
+          fi
+
+  public-sol-high-pilot:
+    # Exactly the same source commit, tool budget, timeout, network and official evaluator as Luna.
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-sol]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        case_id:
+          - vuejs__core-11589
+          - vuejs__core-11899
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Check controlled Sol High pilot before billing
+        run: |
+          bash -n scripts/v11-public-sol-screen.sh
+          node --check scripts/light-agent-runner.mjs
+          python3 -m json.tool benchmarks/v1.1-sol-high-pilot.json > /dev/null
+          python3 - <<'PY'
+          import json
+          x=json.load(open("benchmarks/v1.1-sol-high-pilot.json"))
+          assert x["enabled"] and x["model"]=="gpt-6.1-sol" and x["effort"]=="high"
+          assert set(x["tasks"])=={"vuejs__core-11589","vuejs__core-11899"}
+          assert x["offline_reference_admission_run_id"]==37759918052
+          PY
+      - name: Run one real issue with Sol High
+        env:
+          BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          CASE_ID: ${{ matrix.case_id }}
+        run: bash scripts/v11-public-sol-screen.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-public-sol-${{ matrix.case_id }}-${{ github.run_id }}
+          path: v11-public-sol/
+          retention-days: 30
+
+  public-sol-high-summary:
+    needs: public-sol-high-pilot
+    if: always() && needs.public-sol-high-pilot.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v11-public-sol-*-${{ github.run_id }}
+          path: results/v11-public-sol
+      - name: Build exact same two-case comparison and persist
+        shell: bash
+        run: |
+          git fetch origin v11-public-luna-results || true
+          git show origin/v11-public-luna-results:public-luna/latest.json > /tmp/v11-luna-summary.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[json.loads(f.read_text()) for f in Path('results/v11-public-sol').rglob('result.json')]
+          luna=json.loads(Path('/tmp/v11-luna-summary.json').read_text())
+          allowed=['vuejs__core-11589','vuejs__core-11899']
+          l={r['task']:r for r in luna['rows'] if r['task'] in allowed}
+          s={r['task']:r for r in rows}
+          comparable=len(rows)==2 and set(s)==set(l)==set(allowed) and all(
+              s[t].get('data_complete') and l[t].get('data_complete')
+              and s[t].get('base_commit')==l[t].get('base_commit')
+              and s[t].get('max_turns')==l[t].get('max_turns')
+              and s[t].get('shell_budget')==l[t].get('shell_budget')
+              for t in allowed)
+          sol_score=100*sum(s[t]['score']==100 for t in allowed)/len(allowed) if comparable else None
+          luna_score=100*sum(l[t]['score']==100 for t in allowed)/len(allowed) if comparable else None
+          out={'model':'gpt-6.1-sol','effort':'high','run_id':int('${{ github.run_id }}'),
+               'tasks':allowed,'rows':rows,'data_complete':comparable,'sol_quality_score':sol_score,
+               'luna_quality_score_same_tasks':luna_score,
+               'spread_points':sol_score-luna_score if comparable else None,
+               'status':'single-pass exploratory, not repeated discrimination evidence',
+               'excluded_java_reason':'official gold fails under model-equivalent network-none conditions'}
+          Path('v11-sol-summary.json').write_text(json.dumps(out,indent=2)+'\n')
+          lines=['# Sol High vs Luna High – matched official Vue tasks','','| Task | Luna High | Sol High | Sol model seconds |',
+                 '|---|---:|---:|---:|']
+          for t in allowed:
+              a=l.get(t,{})
+              b=s.get(t,{})
+              lines.append(f"| {t} | {a.get('score','INVALID')} | {b.get('score','INVALID')} | {b.get('duration_seconds','-')} |")
+          lines+=['',f"**Matched 2-case scores:** Luna {luna_score}, Sol High {sol_score}; only one attempt per case.",'']
+          Path('v11-sol-summary.md').write_text('\n'.join(lines))
+          print('\n'.join(lines))
+          PY
+          cat v11-sol-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-sol-summary-${{ github.run_id }}
+          path: |
+            v11-sol-summary.json
+            v11-sol-summary.md
+          retention-days: 30
+      - name: Publish Sol comparison
+        run: |
+          cp v11-sol-summary.json /tmp/v11-sol-summary.json
+          cp v11-sol-summary.md /tmp/v11-sol-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-sol-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-sol-results; then
+            git switch -C v11-public-sol-results origin/v11-public-sol-results
+          else
+            git switch --orphan v11-public-sol-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p public-sol/runs
+          cp /tmp/v11-sol-summary.json public-sol/latest.json
+          cp /tmp/v11-sol-summary.md public-sol/latest.md
+          cp /tmp/v11-sol-summary.json "public-sol/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-sol-summary.md "public-sol/runs/${GITHUB_RUN_ID}.md"
+          git add public-sol
+          if ! git diff --cached --quiet; then
+            git commit -m "Record V1.1 matched Sol High public tasks ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-sol-results
+          fi
+
+  public-regrade:
+    # Zero model cost: re-evaluate archived Luna patches after fixing evaluator dependencies.
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-regrade]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - case_id: google__gson-2158
+            source_run_id: 37758488863
+            source_artifact: v11-public-luna-37758488863
+          - case_id: google__gson-2311
+            source_run_id: 37759079285
+            source_artifact: v11-public-luna-google__gson-2311-37759079285
+          - case_id: axios__axios-5316
+            source_run_id: 37759079285
+            source_artifact: v11-public-luna-axios__axios-5316-37759079285
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch unchanged original Luna patch and telemetry
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.source_artifact }}
+          run-id: ${{ matrix.source_run_id }}
+          github-token: ${{ github.token }}
+          path: v11-regrade-input
+      - name: Static checks without model calls
+        run: |
+          bash -n scripts/v11-public-env-preflight.sh
+          bash -n scripts/v11-public-regrade.sh
+          python3 -m json.tool v11-regrade-input/result.json >/dev/null
+          test -f v11-regrade-input/model.patch
+      - name: Confirm original baseline and official gold under connected evaluator
+        env:
+          CASE_ID: ${{ matrix.case_id }}
+        run: bash scripts/v11-public-env-preflight.sh
+      - name: Regrade only the archived original model patch
+        env:
+          CASE_ID: ${{ matrix.case_id }}
+          ORIGINAL_RUN_ID: ${{ matrix.source_run_id }}
+        run: bash scripts/v11-public-regrade.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-regrade-${{ matrix.case_id }}-${{ github.run_id }}
+          path: |
+            v11-regrade/
+            v11-public-env-preflight/result.json
+          retention-days: 30
+
+  public-regrade-summary:
+    needs: public-regrade
+    if: always() && needs.public-regrade.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v11-regrade-*-${{ github.run_id }}
+          path: results/v11-regrade
+      - name: Restore original cohort and calculate corrected quality
+        shell: bash
+        run: |
+          git fetch origin v11-public-luna-results
+          git show origin/v11-public-luna-results:public-luna/latest.json > /tmp/original-luna.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          originals=json.loads(Path('/tmp/original-luna.json').read_text())['rows']
+          corrections=[json.loads(p.read_text()) for p in Path('results/v11-regrade').rglob('v11-regrade/result.json')]
+          corrections.sort(key=lambda x:x['task'])
+          indexed={x['task']:x for x in corrections}
+          fix_names={'google__gson-2158','google__gson-2311','axios__axios-5316'}
+          valid=len(corrections)==3 and set(indexed)==fix_names and all(
+              indexed[t]['data_complete'] and indexed[t]['model_calls']==0 for t in fix_names)
+          all_rows=[]
+          for original in originals:
+              t=original['task']
+              if t in indexed:
+                  c=indexed[t]
+                  all_rows.append({'task':t,'original_score':original['score'],
+                                   'corrected_score':c['score'],'data_complete':c['data_complete'],
+                                   'cause':'evaluator needed public dependency registry access',
+                                   'original_model_run_id':c['original_run_id'],
+                                   'regrade_model_calls':0,
+                                   'agent_duration_seconds':original['duration_seconds']})
+              else:
+                  all_rows.append({'task':t,'original_score':original['score'],
+                                   'corrected_score':original['score'],
+                                   'data_complete':original['data_complete'],
+                                   'cause':'unchanged: official gold passed network-none validation',
+                                   'agent_duration_seconds':original['duration_seconds']})
+          all_rows.sort(key=lambda x:x['task'])
+          valid=valid and len(all_rows)==5 and all(x['data_complete'] for x in all_rows)
+          score=sum(x['corrected_score']==100 for x in all_rows)*20 if valid else None
+          report={'run_id':int('${{ github.run_id }}'),'model':'gpt-6-luna','effort':'high',
+                  'original_luna_cohort_run_id':37759079285,
+                  'quality_score_corrected':score,'data_complete':valid,
+                  'matched_cases':5,'corrected_regrade_cases':3,
+                  'new_model_calls':0,'rows':all_rows,
+                  'warning':'Reference-grade environment repaired; single sample does not establish stable capability.'}
+          Path('v11-regrade-summary.json').write_text(json.dumps(report,indent=2)+'\n')
+          lines=['# V1.1 Corrected official Luna High results','',
+                 '| Task | Original | Corrected | Integrity |',
+                 '|---|---:|---:|---|']
+          for x in all_rows:
+              lines.append(f"| {x['task']} | {x['original_score']} | {x['corrected_score']} | {'valid' if x['data_complete'] else 'invalid'} |")
+          lines+=['',f"**Corrected five-case quality: {score if score is not None else 'INCOMPLETE'} / 100.**",
+                  'No new model calls. Only the existing archived model patches were graded under working official evaluator.']
+          Path('v11-regrade-summary.md').write_text('\n'.join(lines)+'\n')
+          print('\n'.join(lines))
+          PY
+          cat v11-regrade-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-regrade-summary-${{ github.run_id }}
+          path: |
+            v11-regrade-summary.json
+            v11-regrade-summary.md
+          retention-days: 30
+      - name: Publish new evidence without overwriting historical model results
+        shell: bash
+        run: |
+          cp v11-regrade-summary.json /tmp/v11-regrade-summary.json
+          cp v11-regrade-summary.md /tmp/v11-regrade-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-regrade-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-regrade-results; then
+            git switch -C v11-public-regrade-results origin/v11-public-regrade-results
+          else
+            git switch --orphan v11-public-regrade-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p public-regrade/runs
+          cp /tmp/v11-regrade-summary.json public-regrade/latest.json
+          cp /tmp/v11-regrade-summary.md public-regrade/latest.md
+          cp /tmp/v11-regrade-summary.json "public-regrade/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-regrade-summary.md "public-regrade/runs/${GITHUB_RUN_ID}.md"
+          git add public-regrade
+          if ! git diff --cached --quiet; then
+            git commit -m "Record connected official grader replay ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-regrade-results
+          fi
+
+  public-agent-warmup:
+    # No model calls. Check source-only dependency priming, no-network local
+    # test ability, and reference behavior after source-only priming.
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-warmup]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        case_id:
+          - google__gson-1093
+          - vuejs__core-11739
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate warmup gate scripts
+        run: |
+          bash -n scripts/v11-public-agent-deps.sh
+          bash -n scripts/v11-public-warmup-preflight.sh
+          python3 -m json.tool benchmarks/v1.1-public-candidates.json > /dev/null
+      - name: Verify original local tests without agent network
+        env:
+          CASE_ID: ${{ matrix.case_id }}
+        run: bash scripts/v11-public-warmup-preflight.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-warmup-${{ matrix.case_id }}-${{ github.run_id }}
+          path: v11-warmup-preflight/
+          retention-days: 30
+
+  public-agent-warmup-summary:
+    needs: public-agent-warmup
+    if: always() && needs.public-agent-warmup.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v11-warmup-*-${{ github.run_id }}
+          path: results/v11-warmup
+      - name: Aggregate offline local-test admission
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          rows=[json.loads(p.read_text()) for p in Path('results/v11-warmup').rglob('result.json')]
+          rows.sort(key=lambda r:r['task'])
+          if not rows: raise SystemExit("Missing warmup results")
+          valid=len(rows)==2 and all(x['status']=='offline_agent_ready' for x in rows)
+          result={'run_id':int('${{ github.run_id }}'),'source':'SWE-bench Multilingual',
+                  'stage':'agent-local-tests-offline-admission','model_calls':0,
+                  'all_cases_ready':valid,'ready_cases':sum(x['status']=='offline_agent_ready' for x in rows),
+                  'expected_cases':2,'rows':rows}
+          Path('v11-warmup-summary.json').write_text(json.dumps(result,indent=2)+'\n')
+          lines=['# Local test dependency admission (zero model calls)','','| Case | Status | Offline baseline | Offline reference | Seconds |',
+                 '|---|---|---:|---:|---:|']
+          for r in rows:
+              lines.append(f"| {r['task']} | {r['status']} | {r['offline_baseline_exit_code']} | {r['offline_reference_exit_code']} | {r['elapsed_seconds']} |")
+          lines+=['',f"**Ready: {result['ready_cases']}/2.** Tests and source unmodified; model never sees hidden patches."]
+          Path('v11-warmup-summary.md').write_text('\n'.join(lines)+'\n')
+          print('\n'.join(lines))
+          PY
+          cat v11-warmup-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-warmup-summary-${{ github.run_id }}
+          path: |
+            v11-warmup-summary.json
+            v11-warmup-summary.md
+          retention-days: 30
+      - name: Persist offline admission
+        run: |
+          cp v11-warmup-summary.json /tmp/v11-warmup-summary.json
+          cp v11-warmup-summary.md /tmp/v11-warmup-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-warmup-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-warmup-results; then
+            git switch -C v11-public-warmup-results origin/v11-public-warmup-results
+          else
+            git switch --orphan v11-public-warmup-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p public-warmup/runs
+          cp /tmp/v11-warmup-summary.json public-warmup/latest.json
+          cp /tmp/v11-warmup-summary.md public-warmup/latest.md
+          cp /tmp/v11-warmup-summary.json "public-warmup/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-warmup-summary.md "public-warmup/runs/${GITHUB_RUN_ID}.md"
+          git add public-warmup
+          if ! git diff --cached --quiet; then
+            git commit -m "Record no-model official local test dependency warmup ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-warmup-results
+          fi
+
+  v11-release-report:
+    # Default manual run is free. Preserve the original paid frontier-batch
+    # research screen behind an explicit, opt-in profile.
+    if: (github.event_name == 'workflow_dispatch' && inputs.profile == 'v1.1-report') || contains(github.event.head_commit.message, '[v11-release-preflight]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Validate V1 and V1.1 report logic, zero API/model calls
+        run: |
+          node --check scripts/v11-public-report.mjs
+          node scripts/v11-public-report.test.mjs
+          bash -n scripts/v11-public-manual-run.sh
+          bash -n scripts/v11-public-luna-screen.sh
+          bash -n scripts/v11-public-sol-screen.sh
+          node --check scripts/light-agent-runner.mjs
+          node scripts/selfcheck-application-v1.mjs
+          python3 -m json.tool benchmarks/v1.1-public-candidates.json >/dev/null
+          python3 -m json.tool benchmarks/v1.1-calibration.json >/dev/null
+      - name: Retrieve original persisted source evidence
+        shell: bash
+        run: |
+          mkdir -p results/v11-source results/v11-release
+          for br in v11-public-regrade-results v11-public-luna-results v11-public-sol-results; do
+            git fetch origin "refs/heads/$br:refs/remotes/origin/$br"
+          done
+          git show origin/v11-public-regrade-results:public-regrade/latest.json > results/v11-source/corrected.json
+          git show origin/v11-public-luna-results:public-luna/runs/37873035557.json > results/v11-source/luna-easy.json
+          git show origin/v11-public-luna-results:public-luna/runs/37875421942.json > results/v11-source/luna-mid.json
+          git show origin/v11-public-sol-results:public-sol/latest.json > results/v11-source/sol.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const get=(p)=>JSON.parse(fs.readFileSync(p,'utf8'));
+          const src='results/v11-source/';
+          const input={
+            corrected_luna:get(src+'corrected.json'),
+            luna_easy:get(src+'luna-easy.json'),
+            luna_mid:get(src+'luna-mid.json'),
+            sol:get(src+'sol.json')
+          };
+          if(input.corrected_luna.data_complete!==true)throw Error('Historical corrected grader evidence incomplete');
+          if(input.luna_easy.run_id!==37873035557||input.luna_mid.run_id!==37875421942)
+            throw Error('Unknown source runs');
+          fs.writeFileSync('results/v11-release/source.json',JSON.stringify(input,null,2)+'\n');
+          NODE
+      - name: Generate V1.1 beta public-task report
+        run: |
+          node scripts/v11-public-report.mjs \
+            results/v11-release/source.json \
+            results/v11-release/report.json \
+            results/v11-release/report.md
+          cat results/v11-release/report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-beta-report-${{ github.run_id }}
+          path: |
+            results/v11-release/report.json
+            results/v11-release/report.md
+          retention-days: 60
+      - name: Persist versioned V1.1 evidence report
+        run: |
+          cp results/v11-release/report.json /tmp/v11-report.json
+          cp results/v11-release/report.md /tmp/v11-report.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-release-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-release-results; then
+            git switch -C v11-release-results origin/v11-release-results
+          else
+            git switch --orphan v11-release-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p v11-release/runs
+          cp /tmp/v11-report.json v11-release/latest.json
+          cp /tmp/v11-report.md v11-release/latest.md
+          cp /tmp/v11-report.json "v11-release/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-report.md "v11-release/runs/${GITHUB_RUN_ID}.md"
+          git add v11-release
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish V1.1 public engineering evidence report ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-release-results
+          fi
+
+  v11-manual-task:
+    # Explicitly opt-in to one paid task/model/effort; no matrices or implicit reruns.
+    if: github.event_name == 'workflow_dispatch' && inputs.profile == 'v1.1-task'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      CASE_ID: ${{ inputs.case_id }}
+      MODEL_ID: ${{ inputs.model_id }}
+      REASONING_EFFORT: ${{ inputs.effort }}
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Free admission and syntax checks before any billing
+        run: |
+          bash -n scripts/v11-public-manual-run.sh
+          bash -n scripts/v11-public-agent-deps.sh
+          node --check scripts/light-agent-runner.mjs
+          node scripts/v11-public-report.test.mjs
+          python3 -m json.tool benchmarks/v1.1-public-candidates.json > /dev/null
+      - name: Run exactly one original public engineering task
+        run: bash scripts/v11-public-manual-run.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-task-${{ inputs.case_id }}-${{ inputs.model_id }}-${{ inputs.effort }}-${{ github.run_id }}
+          path: v11-public-manual/
+          retention-days: 30
+      - name: Save result with model, effort, budget and objective official grade
+        if: always()
+        shell: bash
+        run: |
+          if [ ! -f v11-public-manual/result.json ]; then
+            echo "No runnable public benchmark result; preparation likely failed"
+            exit 1
+          fi
+          node - <<'NODE'
+          const fs=require('fs');
+          const r=JSON.parse(fs.readFileSync('v11-public-manual/result.json','utf8'));
+          const score=r.data_complete?r.score:null;
+          const cols=[
+            '# V1.1 Public Original Engineering Task (manual run)','',
+            '| Field | Result |','|---|---|',
+            '| Original case | '+r.task+' |',
+            '| Model / effort | '+r.model+' / '+r.effort+' |',
+            '| Official quality | '+(score??'INVALID, not scored')+' |',
+            '| Data complete | '+r.data_complete+' |',
+            '| Task wall time | '+(r.duration_seconds??'-')+' s |',
+            '| Input / output / reasoning | '+(r.usage?.input_tokens??0)+' / '+(r.usage?.output_tokens??0)+' / '+(r.usage?.reasoning_tokens??0)+' |',
+            '| Responses / Shell | '+(r.responses??'-')+' / '+(r.shell_commands??'-')+' |',
+            '| Token cap reached | '+Boolean(r.cumulative_input_budget_reached)+' |',
+            '| Model network | none |',
+            '| Official evaluator network | bridge |','',
+            '> One attempt; this is not a stable model ranking or established effort gap.'
+          ];
+          fs.writeFileSync('v11-public-manual/summary.md',cols.join('\n')+'\n');
+          NODE
+          cat v11-public-manual/summary.md >> "$GITHUB_STEP_SUMMARY"
+          cp v11-public-manual/result.json /tmp/v11-task-result.json
+          cp v11-public-manual/summary.md /tmp/v11-task-summary.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-public-manual-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-public-manual-results; then
+            git switch -C v11-public-manual-results origin/v11-public-manual-results
+          else
+            git switch --orphan v11-public-manual-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p v11-manual/runs
+          cp /tmp/v11-task-result.json v11-manual/latest.json
+          cp /tmp/v11-task-summary.md v11-manual/latest.md
+          cp /tmp/v11-task-result.json "v11-manual/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-task-summary.md "v11-manual/runs/${GITHUB_RUN_ID}.md"
+          git add v11-manual
+          if ! git diff --cached --quiet; then
+            git commit -m "Record V1.1 manual engineering task ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-public-manual-results
+          fi
+
   prepare:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-batch]')
+    if: (github.event_name == 'workflow_dispatch' && inputs.profile == 'frontier-batch') || contains(github.event.head_commit.message, '[run-frontier-batch]') || contains(github.event.head_commit.message, '[v11-preflight]')
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
@@ -33,6 +845,8 @@ jobs:
           java-version: "17"
       - name: Validate causal evidence scoring without model calls
         run: python3 tests/runtime-probe-evidence.test.py
+      - name: Verify V1.1 recovery references before billing
+        run: python3 scripts/selfcheck-v11-recovery.py
       - name: Verify compact hidden reference before billing
         run: |
           python3 scripts/selfcheck-compact-contract.py
@@ -40,7 +854,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compact-reference-admission-${{ github.run_id }}
-          path: compact-reference-admission.json
+          path: |
+            compact-reference-admission.json
+            v11-reference-admission.json
           retention-days: 30
       - id: matrix
         shell: bash
@@ -91,7 +907,14 @@ jobs:
           TASK="${{ matrix.task }}"
           TASK_DIR="/tmp/frontier-batch-$TASK"
           rm -rf "$TASK_DIR"; mkdir -p "$TASK_DIR"
-          cp -R "benchmarks/$TASK/workspace/." "$TASK_DIR/"
+          if [[ "$TASK" == v11-recovery-* ]]; then
+            CASE="${TASK#v11-recovery-}"
+            SRC="benchmarks/v11-recovery/instances/$CASE/workspace"
+          else
+            SRC="benchmarks/$TASK/workspace"
+          fi
+          test -f "$SRC/TASK.md"
+          cp -R "$SRC/." "$TASK_DIR/"
           [ ! -f "$TASK_DIR/ctl" ] || chmod +x "$TASK_DIR/ctl"
           [ ! -f "$TASK_DIR/run_visible_tests.sh" ] || chmod +x "$TASK_DIR/run_visible_tests.sh"
           [ ! -f "$TASK_DIR/check_generated.sh" ] || chmod +x "$TASK_DIR/check_generated.sh"
@@ -100,25 +923,34 @@ jobs:
           fi
           echo "TASK_DIR=$TASK_DIR" >> "$GITHUB_ENV"
 
-      - name: Start isolated Java benchmark container
+      - name: Start isolated benchmark container
         shell: bash
         run: |
           name="compact-${GITHUB_RUN_ID}-${{ strategy.job-index }}"
+          IMAGE="eclipse-temurin:17-jdk-jammy"
+          if [[ "${{ matrix.task }}" == v11-recovery-* ]]; then
+            IMAGE="python:3.12-slim-bookworm"
+          fi
           docker run -d --name "$name" --network none --read-only \
             --user "$(id -u):$(id -g)" \
             --cap-drop ALL --security-opt no-new-privileges \
             --pids-limit 128 --memory 768m --cpus 2 \
             --tmpfs /tmp:rw,nosuid,size=64m \
             -v "$TASK_DIR:/app:rw" -w /app \
-            eclipse-temurin:17-jdk-jammy tail -f /dev/null
+            "$IMAGE" tail -f /dev/null
           echo "AGENT_DOCKER_CONTAINER=$name" >> "$GITHUB_ENV"
           echo "AGENT_DOCKER_WORKDIR=/app" >> "$GITHUB_ENV"
 
       - name: Verify Docker editing toolchain without model calls
         shell: bash
         run: |
-          docker exec "$AGENT_DOCKER_CONTAINER" /bin/bash -lc \
-            'pwd; test -w src; command -v javac; command -v sed; command -v python3 || true; command -v patch || true; printf smoke > .shell-smoke; test -f .shell-smoke; rm .shell-smoke'
+          if [[ "${{ matrix.task }}" == v11-recovery-* ]]; then
+            docker exec "$AGENT_DOCKER_CONTAINER" /bin/bash -lc \
+              'pwd; test -w src; command -v python3; command -v sed; printf smoke > .shell-smoke; test -f .shell-smoke; rm .shell-smoke'
+          else
+            docker exec "$AGENT_DOCKER_CONTAINER" /bin/bash -lc \
+              'pwd; test -w src; command -v javac; command -v sed; command -v python3 || true; command -v patch || true; printf smoke > .shell-smoke; test -f .shell-smoke; rm .shell-smoke'
+          fi
 
       - name: Run low-cost candidate probe
         id: agent
@@ -250,7 +1082,7 @@ jobs:
           if (root/"src").exists(): shutil.copytree(root/"src","result/final-src",dirs_exist_ok=True)
           PY
 
-      - name: Stop isolated Java benchmark container
+      - name: Stop isolated benchmark container
         if: always()
         shell: bash
         run: |
@@ -298,15 +1130,18 @@ jobs:
           lines=[
               "# Frontier Batch Screen",
               "",
-              "| Task | Score | Class | Runtime | Turns | Shell | Saturated |",
-              "|---|---:|---|---:|---:|---:|---|",
+              "| Task | Model / effort | Score | Class | Runtime | Input | Output | Reasoning | Turns | Shell | Data |",
+              "|---|---|---:|---|---:|---:|---:|---:|---:|---:|---|",
           ]
           for r in rows:
               sat=r.get("saturated",False)
               lines.append(
-                  f"| {r['task']} | {r['score']} | {r['classification']} | "
-                  f"{r.get('duration_seconds',0)}s | {r.get('responses',0)} | "
-                  f"{r.get('shell_commands',0)} | {'yes' if sat else 'no'} |"
+                  f"| {r['task']} | {r.get('model','?')} / {r.get('effort','?')} | "
+                  f"{r['score'] if r.get('outcome')=='completed' else '-'} | {r['classification']} | "
+                  f"{r.get('duration_seconds',0)}s | {r.get('usage',{}).get('input_tokens',0)} | "
+                  f"{r.get('usage',{}).get('output_tokens',0)} | {r.get('usage',{}).get('reasoning_tokens',0)} | "
+                  f"{r.get('responses',0)} | {r.get('shell_commands',0)} | "
+                  f"{'valid' if r.get('data_complete') and not sat and r.get('outcome')=='completed' else 'invalid/diagnostic'} |"
               )
           Path("frontier-batch-summary.md").write_text("\n".join(lines)+"\n")
           print("\n".join(lines))
@@ -339,6 +1174,9 @@ jobs:
           cp /tmp/frontier-batch-summary.json frontier-batch/latest.json
           cp /tmp/frontier-batch-summary.md frontier-batch/latest.md
           cp results/reference/compact-reference-admission.json frontier-batch/reference-admission-latest.json
+          if [ -f results/reference/v11-reference-admission.json ]; then
+            cp results/reference/v11-reference-admission.json frontier-batch/v11-reference-admission-latest.json
+          fi
           cp /tmp/frontier-batch-summary.json "frontier-batch/runs/${GITHUB_RUN_ID}.json"
           cp /tmp/frontier-batch-summary.md "frontier-batch/runs/${GITHUB_RUN_ID}.md"
           git add frontier-batch

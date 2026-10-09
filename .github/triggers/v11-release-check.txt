@@ -1,0 +1,1 @@
+Final V1.1 beta gate: no-model test of report, V1 regression, manual-run syntax and independent persisted evidence.

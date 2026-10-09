@@ -1,0 +1,279 @@
+{
+  "version": 2,
+  "release": "v1.1",
+  "baseline": "v0.1.0-beta.1",
+  "enabled": false,
+  "intent": "Quality discrimination from reproducible engineering outcomes, not score targeting.",
+  "targets": {
+    "luna_high": [
+      55,
+      65
+    ],
+    "sol_medium": [
+      65,
+      75
+    ],
+    "sol_high": [
+      75,
+      85
+    ],
+    "sol_xhigh": [
+      80,
+      90
+    ],
+    "astra_xhigh_deferred": [
+      90,
+      95
+    ],
+    "non_binding": true
+  },
+  "scope": {
+    "models": [
+      "gpt-6-luna",
+      "gpt-6.1-sol"
+    ],
+    "efforts": [
+      "medium",
+      "high",
+      "xhigh"
+    ],
+    "astra_deferred": true
+  },
+  "funnel": {
+    "max_families_per_round": 2,
+    "instances_per_family": 3,
+    "model_order": [
+      "gpt-6-luna/high",
+      "gpt-6.1-sol/medium",
+      "gpt-6.1-sol/high",
+      "gpt-6.1-sol/xhigh"
+    ],
+    "no_paid_run_without_reference_admission": true,
+    "require_repeats_for_confirmation": true,
+    "max_consecutive_no_signal_rounds": 2
+  },
+  "quality": {
+    "model_spread_points": 10,
+    "effort_spread_points": 10,
+    "ceiling": 95,
+    "require_consistent_pairwise_instances": true,
+    "exclude_budget_confounded": true,
+    "exclude_infrastructure_errors": true
+  },
+  "runtime": {
+    "target_seconds": 300,
+    "hard_limit_seconds": 600
+  },
+  "decisions": [
+    "promote",
+    "retest",
+    "coverage",
+    "retire",
+    "pause"
+  ],
+  "candidate_families": [
+    {
+      "id": "cross_boundary_recovery",
+      "instances": [
+        "v11-recovery-payment",
+        "v11-recovery-lease",
+        "v11-recovery-identity"
+      ],
+      "status": "reference-admitted-lease-coverage-other-untested",
+      "paid_screening": false,
+      "reference_check_run_id": 37748689004,
+      "instances_state": {
+        "lease": "coverage-only-ceiling",
+        "payment": "untested",
+        "identity": "untested"
+      },
+      "lease_luna_run_id": 37748890240
+    },
+    {
+      "id": "compact_lease_repeat",
+      "instances": [
+        "frontier-compact-lease"
+      ],
+      "status": "paused-unstable-luna-signal",
+      "paid_screening": false,
+      "prior_runs": [
+        37722327602,
+        37722610571
+      ],
+      "luna_high_repeated_scores": [
+        80,
+        100
+      ],
+      "sol_medium_single_score": 100,
+      "last_run_id": 37749238271,
+      "decision": "pause"
+    }
+  ],
+  "release_gate": {
+    "preserve_v1": true,
+    "min_new_validated_family": 1,
+    "require_verified_improvement": true,
+    "allow_effort_pending": true,
+    "no_automatic_daily": true
+  },
+  "current_round": {
+    "status": "round3-budget-confounded-no-stable-mid-tier-signal",
+    "paid_workflow_runs": [
+      37748890240,
+      37749238271
+    ],
+    "no_cost_reference_run": 37748689004,
+    "sol_high_runs": 0,
+    "sol_xhigh_runs": 0,
+    "astra_runs": 0,
+    "not_a_release": true,
+    "next": "Stop this paid task-search direction after two unproductive rounds. Audit excessive 443692 input tokens and benchmark-specific tool budget, prioritize lower-cost public source metadata/official difficulty signal before another paid test.",
+    "pilot_run_ids": [
+      37758488863,
+      37759079285
+    ],
+    "network_parity_run_id": 37759918052,
+    "known_luna_results": [
+      {
+        "id": "google__gson-2158",
+        "score": 0,
+        "seconds": 95
+      },
+      {
+        "id": "google__gson-2311",
+        "score": 0,
+        "seconds": 128
+      },
+      {
+        "id": "vuejs__core-11589",
+        "score": 0,
+        "seconds": 161
+      },
+      {
+        "id": "axios__axios-5316",
+        "score": 0,
+        "seconds": 189
+      }
+    ],
+    "final_luna_cohort_score": null,
+    "network_parity": "2 Vue passed, 2 Gson and Axios failed offline gold",
+    "notes": "Four source cases fixed a priori; independent official reference and offline warmup confirmed. Sol/Astra disabled.",
+    "sol_high_run_id": 37761041016,
+    "sol_high_eligible_task_count": 2,
+    "sol_high_valid_tasks": 2,
+    "sol_high_resolved": 1,
+    "sol_high_quality_score": 50,
+    "luna_high_same_two_task_quality_score": 0,
+    "observed_spread_points": 50,
+    "known_model_difference_status": "candidate-only-single-attempt",
+    "dependency_root_cause": "Gson Maven Surefire provider junit4 missing (3.0.0-M7/M8); Axios npm formdata-node absent, requires registry access",
+    "regrade_run_id": 37762875284,
+    "regrade_model_calls": 0,
+    "reference_parity": "connected verifier baseline fails and gold passes for all three affected cases",
+    "corrected_luna_five_task_score": 20,
+    "corrected_luna_five_task_valid": true,
+    "corrected_luna_results": [
+      {
+        "id": "google__gson-2158",
+        "score": 0
+      },
+      {
+        "id": "google__gson-2311",
+        "score": 100
+      },
+      {
+        "id": "vuejs__core-11589",
+        "score": 0
+      },
+      {
+        "id": "vuejs__core-11899",
+        "score": 0
+      },
+      {
+        "id": "axios__axios-5316",
+        "score": 0
+      }
+    ],
+    "warmup_run_id": 37764439033,
+    "warmup_ready_cases": 3,
+    "upcoming_paid_runs": 0,
+    "new_candidate_reference_run_id": 37872523131,
+    "new_offline_warmup_run_id": 37872743296,
+    "round2_cases": [
+      "google__gson-1014",
+      "google__gson-2134",
+      "vuejs__core-11870",
+      "vuejs__core-11915"
+    ],
+    "round2_model": "gpt-6-luna/high",
+    "round2_paid_run_id": 37873035557,
+    "round2_verified_score": 100,
+    "round2_model_passed": 4,
+    "round2_model_total": 4,
+    "round2_model_data_complete": true,
+    "round2_quality_decision": "coverage-only-too-easy",
+    "sol_high_runs_this_round": 0,
+    "sol_xhigh_runs_this_round": 0,
+    "astra_runs_this_round": 0,
+    "first_luna_pilot_corrected_score": 20,
+    "first_luna_pilot_limitations": "First five-task cohort predates agent local-test warmup; do not merge its 20/100 with second 100/100 into calibrated official grade",
+    "round3_cases": [
+      "google__gson-1093",
+      "vuejs__core-11739"
+    ],
+    "round3_reference_run_id": 37874902107,
+    "round3_warmup_run_id": 37875192582,
+    "round3_excluded": [
+      "projectlombok__lombok-3422"
+    ],
+    "round3_exclusion_cause": "upstream official gold patch collides with files already present in image; invalid reference",
+    "round3_luna_run_id": 37875421942,
+    "round3_luna_score": null,
+    "round3_paid_enabled": false,
+    "round3_max_tasks": 2,
+    "round3_results": [
+      {
+        "id": "google__gson-1093",
+        "score": 100,
+        "data_complete": true,
+        "agent_seconds": 130
+      },
+      {
+        "id": "vuejs__core-11739",
+        "score": null,
+        "data_complete": false,
+        "agent_seconds": 237,
+        "turn_limit_reached": true,
+        "responses": 30,
+        "input_tokens": 443692
+      }
+    ],
+    "round3_decisions": {
+      "google__gson-1093": "coverage",
+      "vuejs__core-11739": "pause-budget-confounded",
+      "projectlombok__lombok-3422": "pause-invalid-official-reference"
+    },
+    "no_paid_model_expansion": true
+  },
+  "strategy": "official_public_engineering_benchmark_first",
+  "public_sources": {
+    "primary": "SWE-bench Multilingual",
+    "secondary": [
+      "Multi-SWE-bench flash/mini",
+      "Defects4J"
+    ],
+    "manifest": "benchmarks/v1.1-public-candidates.json",
+    "source_shortlist_size": 20,
+    "verified_metadata": true,
+    "verified_environments": 5,
+    "paid_model_runs": 0,
+    "first_verified_case": "google__gson-2311",
+    "first_preflight_run_id": 37757728878,
+    "batch_preflight_run_id": 37757979238,
+    "connected_official_scorer": "network-bridge-only-after-agent",
+    "regraded_prior_patch_run_id": 37762875284,
+    "official_reference_regrade_verified": 3,
+    "agent_local_test_warmup_verified": 3,
+    "agent_local_test_warmup_run_id": 37764439033
+  }
+}

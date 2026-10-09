@@ -18,6 +18,11 @@ def text(path):
     p = root / path
     return p.read_text(errors="replace") if p.exists() else ""
 
+if task.startswith("v11-recovery-"):
+    scorer = Path(__file__).with_name("score-v11-recovery.py")
+    proc = subprocess.run([sys.executable,str(scorer),task,str(root),str(out)],text=True,timeout=60)
+    raise SystemExit(proc.returncode)
+
 if task.startswith("frontier-compact-"):
     scorer = Path(__file__).with_name("score-compact-contract.py")
     proc = subprocess.run([sys.executable, str(scorer), task, str(root), str(out)],

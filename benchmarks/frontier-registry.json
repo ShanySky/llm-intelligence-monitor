@@ -772,7 +772,7 @@
     {
       "id": "frontier-compact-lease",
       "family": "coding_fencing_lease_reassignment",
-      "status": "model-discrimination-candidate",
+      "status": "coverage-only-ceiling",
       "promoted_to_final": false,
       "evidence": {
         "source": "new compact Java micro-repo",
@@ -805,9 +805,19 @@
         "cross_model_repeat_confirmed": false,
         "sol_effort_score_signal": "no-evidence-medium-ceiling",
         "effort_candidate": false,
-        "formal_effort_signal": "none"
+        "formal_effort_signal": "none",
+        "luna_high_repeat_scores": [
+          80,
+          100
+        ],
+        "luna_run_ids": [
+          37722327602,
+          37749238271
+        ],
+        "sol_medium_score": 100,
+        "model_discrimination_confirmed": false
       },
-      "note": "Clean compact Lease v3 hidden repair: Luna High 80 in 55s and resident GPT-6.1 Sol Medium 100 in 40s. This is ONE cross-model pilot and may be a model-discrimination candidate, not a confirmed Model Core. Medium is at ceiling, so High/XHigh Sol effort runs are not cost-effective; leave disabled pending different, higher-information family."
+      "note": "Luna High repeated 80 then 100 with identical 18-turn/24-shell caps; Sol Medium only one run at 100. Model gap unstable; no Sol High/XHigh spending."
     },
     {
       "id": "frontier-runtime-diagnosis-capacity",
@@ -890,6 +900,21 @@
         "next_action": "coverage-no-sol"
       },
       "note": "Original multi-failure, cross-contract repair passed 100/100 in 84s on Luna High, with no model/tool saturation. Retain as regression Coverage; no valid reason to pay for Sol Medium/High/XHigh on this instance."
+    },
+    {
+      "id": "v11-recovery-lease",
+      "family": "cross_boundary_recovery_lease",
+      "status": "coverage-only-ceiling",
+      "promoted_to_final": false,
+      "evidence": {
+        "luna_high": 100,
+        "run_id": 37748890240,
+        "duration_seconds": 42,
+        "turns": 6,
+        "shell_commands": 5,
+        "budget_confounded": false
+      },
+      "note": "100/100 on first Luna High probe; stop Sol effort spending. Other V1.1 recovery variants remain untested."
     }
   ],
   "resident_model_epoch": {

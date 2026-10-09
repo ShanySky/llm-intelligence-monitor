@@ -1,5 +1,9 @@
 # LLM Intelligence Monitor
 
+> **V1.1 可用测试版：** 见 [V1.1 快速开始](docs/V1.1-QUICKSTART.md)。在已有 V1 Core 基础上，提供原版公开 Java/Vue/JS 工程题的**免费历史证据报告**和**明确选择才执行的单题付费测试**，并将结果分支独立持久化。自动日测保持关闭。
+
+> **已证实与待证实：** 真实公开题、官方 baseline/reference、隔离 Agent、Token/耗时和有效性记录已可用；模型能力分差仅有未复验的初步信号，Medium/High/X High 的稳定差异仍**待验证**。见 [V1.1 开发与验证记录](docs/V1.1-CALIBRATION.md) 及 [历史报告](https://github.com/ShanySky/llm-intelligence-monitor/blob/v11-release-results/v11-release/latest.md)。
+
 ## V1 Core 可用试用版（2026-10-08）
 
 **先上线、后完善。** 默认通过 [Final application benchmark validation](https://github.com/ShanySky/llm-intelligence-monitor/actions/workflows/application-final-validation.yml) 手动运行 `v1-core`：两个 Model Core 题型 × 四模型 High，结果独立写入 `application-v1-results`，不覆盖原完整评测。V1 最低可用不要求 Effort Core 已成熟，单次成绩不能作为稳定排名。详见 [V1 快速开始](docs/V1-QUICKSTART.md)。自动日测仍关闭。

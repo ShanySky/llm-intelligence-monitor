@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "enabled": false,
+  "source": "SWE-bench Multilingual",
+  "pinned_task_commit": "6e08cbcd763c869abd7aae4bcb9e1b3991180777",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "tasks": [
+    "vuejs__core-11589",
+    "vuejs__core-11899"
+  ],
+  "offline_reference_admission_run_id": 37759918052,
+  "max_turns": 30,
+  "shell_budget": 40,
+  "agent_timeout_seconds": 540,
+  "max_parallel": 2,
+  "single_run_only": true,
+  "note": "Only parity-confirmed Vue tasks; original 2 Java offline reference checks failed, excluded from fair comparison.",
+  "last_triggered_run_id": 37761041016,
+  "status": "matched-two-case-probe-triggered"
+}

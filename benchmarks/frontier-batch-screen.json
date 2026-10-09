@@ -1,6 +1,6 @@
 {
-  "version": 13,
-  "purpose": "Compact delivery candidate Luna High 100/100 in 84s with 7 Responses/8 Shell, all hidden checks passed and no saturation. Coverage-only; do not run Sol effort tiers. No current paid screening target.",
+  "version": 16,
+  "purpose": "V1.1 pilot stop-loss: new lease Luna High 100; old compact lease Luna High repeat 80 -> 100. Neither supplies stable model/effort separation. No active paid screening target.",
   "model": "gpt-6-luna",
   "effort": "high",
   "tasks": [],

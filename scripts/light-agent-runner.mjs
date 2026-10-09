@@ -24,7 +24,16 @@ const probeScript = String(process.env.AGENT_PROBE_SCRIPT ?? '').trim();
 const probeBudget = Number(process.env.AGENT_PROBE_BUDGET ?? 12);
 
 const instructions = (
-  containerMode
+  containerMode && process.env.AGENT_TASK_PROFILE === 'public-swe-bench'
+    ? [
+        'You are a software engineer fixing a real public GitHub issue in the repository at /testbed.',
+        'Use the shell tool to inspect repository code, diagnose the reported issue, edit production code, and run relevant existing tests.',
+        'Work directly in /testbed. Preserve public APIs and unrelated behavior. Aim for a minimal correct fix.',
+        'The official hidden evaluator runs after your session. Do not modify tests to fake passing results.',
+        'There is no gold patch available in your workspace. Work from the original issue and repository evidence.',
+        'Do not access the Docker control plane, host paths, or external network. Finish with a concise validation summary.',
+      ]
+    : containerMode
     ? [
         'You are a software engineering agent operating inside a disposable benchmark container.',
         'Use the shell tool to inspect and modify the container as needed to complete the task.',
@@ -107,6 +116,7 @@ safeEnv.PATH = process.env.PATH ?? '/usr/local/bin:/usr/bin:/bin';
 safeEnv.HOME = taskDir;
 
 const maxTurns = Number(process.env.AGENT_MAX_TURNS ?? 16);
+const maxCumulativeInputTokens = Number(process.env.AGENT_MAX_CUMULATIVE_INPUT_TOKENS ?? 0);
 const shellBudget = Number(process.env.AGENT_SHELL_BUDGET ?? 24);
 const maxOutputTokens = Number(process.env.AGENT_MAX_OUTPUT_TOKENS ?? 4096);
 const shellTimeoutMs = Number(process.env.AGENT_SHELL_TIMEOUT_MS ?? 30000);
@@ -129,6 +139,7 @@ let responses = 0;
 let apiRetries = 0;
 let infrastructureError = null;
 let finishedWithMessage = false;
+let cumulativeInputBudgetReached = false;
 let modelTimeoutReason = null;
 const startedAt = Date.now();
 const wallDeadline = startedAt + wallTimeoutMs;
@@ -371,6 +382,10 @@ function runProbe(query) {
 
 try {
   for (let turn = 0; turn < maxTurns; turn += 1) {
+    if (maxCumulativeInputTokens > 0 && totalUsage.input_tokens >= maxCumulativeInputTokens) {
+      cumulativeInputBudgetReached = true;
+      break;
+    }
     if (Date.now() >= wallDeadline) throw new AgentModelTimeoutError(`Agent wall timeout after ${wallTimeoutMs}ms`);
     const response = await callModel();
     responses += 1;
@@ -444,6 +459,8 @@ const result = {
   patch_metrics: patchMetrics,
   max_turns: maxTurns,
   turn_limit_reached: !finishedWithMessage && responses >= maxTurns,
+  cumulative_input_budget_reached: cumulativeInputBudgetReached,
+  cumulative_input_token_limit: maxCumulativeInputTokens || null,
   finished_with_message: finishedWithMessage,
   container_mode: containerMode,
   docker_container: containerMode ? dockerContainer : null,
