@@ -19,6 +19,14 @@ grep -q '"bridge"' "$LOG_DIR/networks-before.json" || {
 }
 
 case "$CASE_ID" in
+ google__gson-1093)
+   cmd='mvnd test -B -T 1C -pl gson -Dtest=com.google.gson.stream.JsonWriterTest#testDoubles'
+   smoke='mvnd -o test -B -T 1C -pl gson -Dtest=com.google.gson.stream.JsonWriterTest#testDoubles'
+   ;;
+ vuejs__core-11739)
+   cmd='pnpm run test packages/runtime-core/__tests__/hydration.spec.ts --no-watch --reporter=verbose -t "mismatch handling"'
+   smoke='pnpm run test packages/runtime-core/__tests__/hydration.spec.ts --no-watch --reporter=verbose -t "mismatch handling"'
+   ;;
  google__gson-1014)
    cmd='mvnd test -B -T 1C -pl gson -Dtest=com.google.gson.stream.JsonReaderTest#testReadArray'
    smoke='mvnd -o test -B -T 1C -pl gson -Dtest=com.google.gson.stream.JsonReaderTest#testReadArray'

@@ -15,7 +15,7 @@
   "priority_note": "A = first no-model-cost environment audit, B = after A, C = potentially expensive builds; priority is NOT measured model difficulty.",
   "no_paid_runs_in_phase": true,
   "reference_status": "5-of-5-connected-evaluator-admitted",
-  "environments_verified": 9,
+  "environments_verified": 11,
   "model_results": 9,
   "source_candidates": [
     {
@@ -79,11 +79,17 @@
         "eval.sh"
       ],
       "metadata_status": "verified",
-      "environment_status": "not_executed",
-      "reference_test_status": "not_executed",
+      "environment_status": "environment_ready",
+      "reference_test_status": "baseline_failed_reference_passed",
       "luna_high_status": "not_run",
       "sol_status": "not_run",
-      "selection_decision": "candidate"
+      "selection_decision": "candidate",
+      "environment_validation": {
+        "run_id": 37874902107,
+        "baseline_exit_code": 1,
+        "reference_exit_code": 0,
+        "model_calls": 0
+      }
     },
     {
       "id": "google__gson-2134",
@@ -421,11 +427,17 @@
         "eval.sh"
       ],
       "metadata_status": "verified",
-      "environment_status": "not_executed",
-      "reference_test_status": "not_executed",
+      "environment_status": "reference-invalid-official-patch-conflict",
+      "reference_test_status": "official-gold-failed",
       "luna_high_status": "not_run",
       "sol_status": "not_run",
-      "selection_decision": "candidate"
+      "selection_decision": "pause",
+      "environment_validation": {
+        "run_id": 37874902107,
+        "baseline_exit_code": 1,
+        "reference_exit_code": 1,
+        "model_calls": 0
+      }
     },
     {
       "id": "projectlombok__lombok-3602",
@@ -509,11 +521,17 @@
         "eval.sh"
       ],
       "metadata_status": "verified",
-      "environment_status": "not_executed",
-      "reference_test_status": "not_executed",
+      "environment_status": "environment_ready",
+      "reference_test_status": "baseline_failed_reference_passed",
       "luna_high_status": "not_run",
       "sol_status": "not_run",
-      "selection_decision": "candidate"
+      "selection_decision": "candidate",
+      "environment_validation": {
+        "run_id": 37874902107,
+        "baseline_exit_code": 1,
+        "reference_exit_code": 0,
+        "model_calls": 0
+      }
     },
     {
       "id": "vuejs__core-11870",
