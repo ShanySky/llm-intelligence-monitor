@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import {inputBudgetExhausted} from './v11-input-budget.mjs';
 
 const taskDir = path.resolve(process.argv[2] ?? '.');
 const model = process.argv[3] ?? process.env.BENCHMARK_MODEL ?? 'gpt-6.1-sol';
@@ -382,7 +383,7 @@ function runProbe(query) {
 
 try {
   for (let turn = 0; turn < maxTurns; turn += 1) {
-    if (maxCumulativeInputTokens > 0 && totalUsage.input_tokens >= maxCumulativeInputTokens) {
+    if (inputBudgetExhausted(totalUsage.input_tokens, maxCumulativeInputTokens, false, true)) {
       cumulativeInputBudgetReached = true;
       break;
     }
@@ -459,7 +460,7 @@ const result = {
   patch_metrics: patchMetrics,
   max_turns: maxTurns,
   turn_limit_reached: !finishedWithMessage && responses >= maxTurns,
-  cumulative_input_budget_reached: cumulativeInputBudgetReached,
+  cumulative_input_budget_reached: inputBudgetExhausted(totalUsage.input_tokens, maxCumulativeInputTokens, cumulativeInputBudgetReached),
   cumulative_input_token_limit: maxCumulativeInputTokens || null,
   finished_with_message: finishedWithMessage,
   container_mode: containerMode,
