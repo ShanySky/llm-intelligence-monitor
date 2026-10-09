@@ -41,7 +41,7 @@ from pathlib import Path
 m=json.loads(Path("benchmarks/v1.1-public-candidates.json").read_text())
 t=next((x for x in m["source_candidates"] if x["id"]==os.environ["CASE_ID"]),None)
 assert t and t["environment_status"]=="environment_ready" and t["reference_test_status"]=="baseline_failed_reference_passed"
-assert os.environ["CASE_ID"] in ("google__gson-2158","google__gson-2311","axios__axios-5316")
+assert os.environ["CASE_ID"] in ("google__gson-1014","google__gson-2134","vuejs__core-11870","vuejs__core-11915")
 print(t["base_commit"],m["dataset_pinned_revision"])
 PY
 )

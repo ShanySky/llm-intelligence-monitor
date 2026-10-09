@@ -525,9 +525,10 @@ jobs:
       max-parallel: 2
       matrix:
         case_id:
-          - google__gson-2158
-          - google__gson-2311
-          - axios__axios-5316
+          - google__gson-1014
+          - google__gson-2134
+          - vuejs__core-11870
+          - vuejs__core-11915
     runs-on: ubuntu-latest
     timeout-minutes: 12
     permissions:
@@ -571,17 +572,17 @@ jobs:
           rows=[json.loads(p.read_text()) for p in Path('results/v11-warmup').rglob('result.json')]
           rows.sort(key=lambda r:r['task'])
           if not rows: raise SystemExit("Missing warmup results")
-          valid=len(rows)==3 and all(x['status']=='offline_agent_ready' for x in rows)
+          valid=len(rows)==4 and all(x['status']=='offline_agent_ready' for x in rows)
           result={'run_id':int('${{ github.run_id }}'),'source':'SWE-bench Multilingual',
                   'stage':'agent-local-tests-offline-admission','model_calls':0,
                   'all_cases_ready':valid,'ready_cases':sum(x['status']=='offline_agent_ready' for x in rows),
-                  'expected_cases':3,'rows':rows}
+                  'expected_cases':4,'rows':rows}
           Path('v11-warmup-summary.json').write_text(json.dumps(result,indent=2)+'\n')
           lines=['# Local test dependency admission (zero model calls)','','| Case | Status | Offline baseline | Offline reference | Seconds |',
                  '|---|---|---:|---:|---:|']
           for r in rows:
               lines.append(f"| {r['task']} | {r['status']} | {r['offline_baseline_exit_code']} | {r['offline_reference_exit_code']} | {r['elapsed_seconds']} |")
-          lines+=['',f"**Ready: {result['ready_cases']}/3.** Tests and source unmodified; model never sees hidden patches."]
+          lines+=['',f"**Ready: {result['ready_cases']}/4.** Tests and source unmodified; model never sees hidden patches."]
           Path('v11-warmup-summary.md').write_text('\n'.join(lines)+'\n')
           print('\n'.join(lines))
           PY

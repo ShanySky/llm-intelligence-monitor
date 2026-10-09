@@ -19,6 +19,22 @@ grep -q '"bridge"' "$LOG_DIR/networks-before.json" || {
 }
 
 case "$CASE_ID" in
+ google__gson-1014)
+   cmd='mvnd test -B -T 1C -pl gson -Dtest=com.google.gson.stream.JsonReaderTest#testReadArray'
+   smoke='mvnd -o test -B -T 1C -pl gson -Dtest=com.google.gson.stream.JsonReaderTest#testReadArray'
+   ;;
+ google__gson-2134)
+   cmd='mvnd test -B -T 1C -pl gson -Dtest=com.google.gson.internal.bind.util.ISO8601UtilsTest#testDateFormatString'
+   smoke='mvnd -o test -B -T 1C -pl gson -Dtest=com.google.gson.internal.bind.util.ISO8601UtilsTest#testDateFormatString'
+   ;;
+ vuejs__core-11870)
+   cmd='pnpm run test packages/runtime-core/__tests__/helpers/renderList.spec.ts --no-watch --reporter=verbose'
+   smoke='pnpm run test packages/runtime-core/__tests__/helpers/renderList.spec.ts --no-watch --reporter=verbose'
+   ;;
+ vuejs__core-11915)
+   cmd='pnpm run test packages/compiler-core/__tests__/parse.spec.ts --no-watch --reporter=verbose -t "Element"'
+   smoke='pnpm run test packages/compiler-core/__tests__/parse.spec.ts --no-watch --reporter=verbose -t "Element"'
+   ;;
  google__gson-2158)
    cmd='mvnd test -B -T 1C -pl gson -Dtest=com.google.gson.functional.PrimitiveTest#testByteSerialization'
    smoke='mvnd -o test -B -T 1C -pl gson -Dtest=com.google.gson.functional.PrimitiveTest#testByteSerialization'
