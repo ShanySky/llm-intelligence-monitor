@@ -671,6 +671,7 @@ jobs:
         run: |
           node --check scripts/v11-public-report.mjs
           node scripts/v11-public-report.test.mjs
+          node scripts/v11-input-budget.test.mjs
           bash -n scripts/v11-public-manual-run.sh
           bash -n scripts/v11-public-luna-screen.sh
           bash -n scripts/v11-public-sol-screen.sh
