@@ -1,14 +1,8 @@
 # LLM Intelligence Monitor
 
-> **V1.1 可用测试版：** 已提供[公开工程评测快速开始](docs/V1.1-QUICKSTART.md)；同一 Actions 可免费刷新真实证据报告，或主动选择单任务付费评测。默认不调用模型。稳定的模型和思考档位能力分差仍处待验证状态，不能把单轮结果当作排名。
+> **V1.1 可用测试版：** 见 [V1.1 快速开始](docs/V1.1-QUICKSTART.md)。在已有 V1 Core 基础上，提供原版公开 Java/Vue/JS 工程题的**免费历史证据报告**和**明确选择才执行的单题付费测试**，并将结果分支独立持久化。自动日测保持关闭。
 
-> **V1.1 本地测试依赖预热已验证：** Gson 两题与 Axios 一题已确认可在模型容器断网后执行本地测试，官方基线失败/参考修复通过（[免费验证结果](docs/V1.1-AGENT-DEPENDENCY-WARMUP.md)）。Luna/Sol Harness 已加入验证通过才允许启动模型的预热门槛；付费测试未重启。
-
-> **V1.1 评分环境修复：** 已解决官方 Maven/npm 测试依赖在禁网评分器中无法下载的问题。模型仍禁网，评分改在独立联网容器完成。使用历史 Luna 补丁零模型费用重评后，原 5 题成绩修正为 **20/100**（原误报 0/100），详见 [可核验修正记录](docs/V1.1-REFERENCE-ENV-FIX.md)。仍非正式 V1.1 发布。
-
-> **V1.1 公开基准优先：** 已整理并核对 [20 道 Java/Vue/JS 官方候选](docs/V1.1-PUBLIC-BENCHMARK-SCREEN.md)；20 道仅确认元数据，其中 Gson #2311 已完成官方 Docker baseline→gold 验证（46 秒）；其余候选环境及所有模型表现尚未验证。原先自造题探索已止损，开发仍在 Draft PR，日测仍关闭。
-
-> **V1.1 区分度研发中：** 已新增三实例跨边界故障恢复候选、客观隐藏检查与免费参考自检。当前仅开发分支 [v1.1-discrimination-upgrade](https://github.com/ShanySky/llm-intelligence-monitor/tree/v1.1-discrimination-upgrade)，**尚未证明模型/档位分差或发布 V1.1**。详见 [V1.1 记录](docs/V1.1-CALIBRATION.md)。V1 Core 与自动日测关闭状态不变。
+> **已证实与待证实：** 真实公开题、官方 baseline/reference、隔离 Agent、Token/耗时和有效性记录已可用；模型能力分差仅有未复验的初步信号，Medium/High/X High 的稳定差异仍**待验证**。见 [V1.1 开发与验证记录](docs/V1.1-CALIBRATION.md) 及 [历史报告](https://github.com/ShanySky/llm-intelligence-monitor/blob/v11-release-results/v11-release/latest.md)。
 
 ## V1 Core 可用试用版（2026-10-08）
 
