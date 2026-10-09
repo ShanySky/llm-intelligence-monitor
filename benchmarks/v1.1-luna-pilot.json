@@ -11,7 +11,7 @@
   "single_pilot": true,
   "allowed_only_when_official_env_ready": true,
   "last_triggered_run_id": 37873035557,
-  "status": "round2-launched-disarmed",
+  "status": "round2-completed-four-coverage-only",
   "tasks": [
     "google__gson-1014",
     "google__gson-2134",

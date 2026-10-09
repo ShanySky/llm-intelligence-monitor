@@ -16,7 +16,7 @@
   "no_paid_runs_in_phase": true,
   "reference_status": "5-of-5-connected-evaluator-admitted",
   "environments_verified": 9,
-  "model_results": 5,
+  "model_results": 9,
   "source_candidates": [
     {
       "id": "google__gson-1014",
@@ -43,7 +43,7 @@
       "reference_test_status": "baseline_failed_reference_passed",
       "luna_high_status": "not_run",
       "sol_status": "not_run",
-      "selection_decision": "candidate",
+      "selection_decision": "coverage-only-easy-single-pass",
       "environment_validation": {
         "run_id": 37872523131,
         "baseline_exit_code": 1,
@@ -52,7 +52,11 @@
         "model_calls": 0
       },
       "offline_agent_local_tests": "ready",
-      "offline_agent_warmup_reference_run_id": 37872743296
+      "offline_agent_warmup_reference_run_id": 37872743296,
+      "last_luna_high_run_id": 37873035557,
+      "last_luna_high_score": 100,
+      "last_luna_high_seconds": 142,
+      "model_evidence_status": "one-valid-attempt-not-repeat-confirmed"
     },
     {
       "id": "google__gson-1093",
@@ -106,7 +110,7 @@
       "reference_test_status": "baseline_failed_reference_passed",
       "luna_high_status": "not_run",
       "sol_status": "not_run",
-      "selection_decision": "candidate",
+      "selection_decision": "coverage-only-easy-single-pass",
       "environment_validation": {
         "run_id": 37872523131,
         "baseline_exit_code": 1,
@@ -115,7 +119,11 @@
         "model_calls": 0
       },
       "offline_agent_local_tests": "ready",
-      "offline_agent_warmup_reference_run_id": 37872743296
+      "offline_agent_warmup_reference_run_id": 37872743296,
+      "last_luna_high_run_id": 37873035557,
+      "last_luna_high_score": 100,
+      "last_luna_high_seconds": 80,
+      "model_evidence_status": "one-valid-attempt-not-repeat-confirmed"
     },
     {
       "id": "google__gson-2158",
@@ -532,7 +540,7 @@
       "reference_test_status": "baseline_failed_reference_passed",
       "luna_high_status": "not_run",
       "sol_status": "not_run",
-      "selection_decision": "candidate",
+      "selection_decision": "coverage-only-easy-single-pass",
       "environment_validation": {
         "run_id": 37872523131,
         "baseline_exit_code": 1,
@@ -541,7 +549,11 @@
         "model_calls": 0
       },
       "offline_agent_local_tests": "ready",
-      "offline_agent_warmup_reference_run_id": 37872743296
+      "offline_agent_warmup_reference_run_id": 37872743296,
+      "last_luna_high_run_id": 37873035557,
+      "last_luna_high_score": 100,
+      "last_luna_high_seconds": 105,
+      "model_evidence_status": "one-valid-attempt-not-repeat-confirmed"
     },
     {
       "id": "vuejs__core-11899",
@@ -602,7 +614,7 @@
       "reference_test_status": "baseline_failed_reference_passed",
       "luna_high_status": "not_run",
       "sol_status": "not_run",
-      "selection_decision": "candidate",
+      "selection_decision": "coverage-only-easy-single-pass",
       "environment_validation": {
         "run_id": 37872523131,
         "baseline_exit_code": 1,
@@ -611,7 +623,11 @@
         "model_calls": 0
       },
       "offline_agent_local_tests": "ready",
-      "offline_agent_warmup_reference_run_id": 37872743296
+      "offline_agent_warmup_reference_run_id": 37872743296,
+      "last_luna_high_run_id": 37873035557,
+      "last_luna_high_score": 100,
+      "last_luna_high_seconds": 98,
+      "model_evidence_status": "one-valid-attempt-not-repeat-confirmed"
     },
     {
       "id": "axios__axios-5316",
@@ -659,5 +675,8 @@
   ],
   "corrected_luna_cohort_score": 20,
   "corrected_luna_cohort_run_id": 37762875284,
-  "offline_local_test_warmup_ready": 7
+  "offline_local_test_warmup_ready": 7,
+  "round2_luna_high_score": 100,
+  "round2_luna_high_run_id": 37873035557,
+  "round2_cases_count": 4
 }

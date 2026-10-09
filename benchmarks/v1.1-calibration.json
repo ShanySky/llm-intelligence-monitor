@@ -117,7 +117,7 @@
     "no_automatic_daily": true
   },
   "current_round": {
-    "status": "new-4-official-sources-agent-admitted-before-luna",
+    "status": "round2-four-official-tasks-coverage-only",
     "paid_workflow_runs": [
       37748890240,
       37749238271
@@ -127,7 +127,7 @@
     "sol_xhigh_runs": 0,
     "astra_runs": 0,
     "not_a_release": true,
-    "next": "Model scripts now use connected dependency prime then detach network; keep pilots off; no further model run until next explicit calibration.",
+    "next": "Find objective mid-difficulty original public Java/Vue issues; no further paid probes on four easy tasks; retain V1.1 Draft.",
     "pilot_run_ids": [
       37758488863,
       37759079285
@@ -206,8 +206,17 @@
       "vuejs__core-11915"
     ],
     "round2_model": "gpt-6-luna/high",
-    "round2_paid_run_id": null,
-    "round2_verified_score": null
+    "round2_paid_run_id": 37873035557,
+    "round2_verified_score": 100,
+    "round2_model_passed": 4,
+    "round2_model_total": 4,
+    "round2_model_data_complete": true,
+    "round2_quality_decision": "coverage-only-too-easy",
+    "sol_high_runs_this_round": 0,
+    "sol_xhigh_runs_this_round": 0,
+    "astra_runs_this_round": 0,
+    "first_luna_pilot_corrected_score": 20,
+    "first_luna_pilot_limitations": "First five-task cohort predates agent local-test warmup; do not merge its 20/100 with second 100/100 into calibrated official grade"
   },
   "strategy": "official_public_engineering_benchmark_first",
   "public_sources": {
