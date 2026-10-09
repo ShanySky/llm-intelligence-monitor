@@ -1,0 +1,157 @@
+{
+  "release": "v1.1-beta",
+  "study": "single-case-sol-effort-two-task",
+  "run_ids": [
+    37880288321,
+    37881004521
+  ],
+  "model": "gpt-6.1-sol",
+  "task_count": 2,
+  "efforts": [
+    "medium",
+    "high",
+    "xhigh"
+  ],
+  "trials_per_task_effort": 1,
+  "strict_input_cap": 200000,
+  "cap_kind": "precall threshold + final over-limit sample invalid; not guaranteed hard billing ceiling",
+  "model_calls_added_by_this_summary": 0,
+  "history_untouched": true,
+  "rows": [
+    {
+      "task": "vuejs__core-11899",
+      "run_id": 37880288321,
+      "effort": "medium",
+      "original_machine_quality_score": 0,
+      "official_test_pass": false,
+      "input_tokens": 35268,
+      "output_tokens": 1442,
+      "reasoning_tokens": 292,
+      "agent_seconds": 80,
+      "responses": 6,
+      "valid_under_strict_equal_budget": true,
+      "strict_quality_score": 0,
+      "reason": "valid-official-fail"
+    },
+    {
+      "task": "vuejs__core-11899",
+      "run_id": 37880288321,
+      "effort": "high",
+      "original_machine_quality_score": 0,
+      "official_test_pass": false,
+      "input_tokens": 110410,
+      "output_tokens": 3637,
+      "reasoning_tokens": 1538,
+      "agent_seconds": 178,
+      "responses": 10,
+      "valid_under_strict_equal_budget": true,
+      "strict_quality_score": 0,
+      "reason": "valid-official-fail"
+    },
+    {
+      "task": "vuejs__core-11899",
+      "run_id": 37880288321,
+      "effort": "xhigh",
+      "original_machine_quality_score": 0,
+      "official_test_pass": false,
+      "input_tokens": 120007,
+      "output_tokens": 6103,
+      "reasoning_tokens": 3954,
+      "agent_seconds": 260,
+      "responses": 9,
+      "valid_under_strict_equal_budget": true,
+      "strict_quality_score": 0,
+      "reason": "valid-official-fail"
+    },
+    {
+      "task": "vuejs__core-11589",
+      "run_id": 37881004521,
+      "effort": "medium",
+      "original_machine_quality_score": 100,
+      "official_test_pass": true,
+      "input_tokens": 99211,
+      "output_tokens": 1319,
+      "reasoning_tokens": 132,
+      "agent_seconds": 96,
+      "responses": 10,
+      "valid_under_strict_equal_budget": true,
+      "strict_quality_score": 100,
+      "reason": "valid-official-pass"
+    },
+    {
+      "task": "vuejs__core-11589",
+      "run_id": 37881004521,
+      "effort": "high",
+      "original_machine_quality_score": null,
+      "official_test_pass": true,
+      "input_tokens": 208678,
+      "output_tokens": 3114,
+      "reasoning_tokens": 1078,
+      "agent_seconds": 215,
+      "responses": 13,
+      "valid_under_strict_equal_budget": false,
+      "strict_quality_score": null,
+      "reason": "agent did not finish within original budget"
+    },
+    {
+      "task": "vuejs__core-11589",
+      "run_id": 37881004521,
+      "effort": "xhigh",
+      "original_machine_quality_score": 100,
+      "official_test_pass": true,
+      "input_tokens": 204078,
+      "output_tokens": 3387,
+      "reasoning_tokens": 1578,
+      "agent_seconds": 180,
+      "responses": 11,
+      "valid_under_strict_equal_budget": false,
+      "strict_quality_score": null,
+      "reason": "cumulative input tokens over 200000"
+    }
+  ],
+  "by_task": [
+    {
+      "task": "vuejs__core-11899",
+      "efforts": [
+        {
+          "effort": "medium",
+          "strict_quality_score": 0,
+          "official_pass": false
+        },
+        {
+          "effort": "high",
+          "strict_quality_score": 0,
+          "official_pass": false
+        },
+        {
+          "effort": "xhigh",
+          "strict_quality_score": 0,
+          "official_pass": false
+        }
+      ]
+    },
+    {
+      "task": "vuejs__core-11589",
+      "efforts": [
+        {
+          "effort": "medium",
+          "strict_quality_score": 100,
+          "official_pass": true
+        },
+        {
+          "effort": "high",
+          "strict_quality_score": null,
+          "official_pass": true
+        },
+        {
+          "effort": "xhigh",
+          "strict_quality_score": null,
+          "official_pass": true
+        }
+      ]
+    }
+  ],
+  "fully_comparable": false,
+  "stable_effort_discrimination_confirmed": false,
+  "conclusion": "No stable Medium/High/X High quality ordering; one problem too difficult (all zero), one problem has Medium success but High/X High exceeded 200k input token threshold despite official gold tests passing."
+}
