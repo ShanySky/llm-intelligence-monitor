@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "enabled": true,
+  "enabled": false,
   "model": "gpt-6.1-sol",
   "task": "vuejs__core-11589",
   "efforts": [
@@ -15,10 +15,11 @@
   "agent_seconds": 540,
   "max_parallel": 2,
   "reference_revision": "6e08cbcd763c869abd7aae4bcb9e1b3991180777",
-  "status": "second-and-final-pilot-authorized",
+  "status": "two-batch-study-closed-after-launch",
   "note": "One immutable official task, one call per effort; exclude invalid/out-of-budget. No arbitrary score adjustment. This pilot is not a stable comparative score.",
   "trigger_run_id": null,
   "first_run_id": 37880288321,
   "max_total_batches": 2,
-  "last_batch": true
+  "last_batch": true,
+  "final_batch_run_id": 37881004521
 }
