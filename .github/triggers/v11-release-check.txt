@@ -1,1 +1,1 @@
-Free V1.1 beta acceptance: V1 regression + evidence report + public one-task script syntax. No model calls.
+Final V1.1 beta gate: no-model test of report, V1 regression, manual-run syntax and independent persisted evidence.
