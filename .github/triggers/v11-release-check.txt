@@ -1,1 +1,1 @@
-Final V1.1 beta gate: no-model test of report, V1 regression, manual-run syntax and independent persisted evidence.
+No-model regression: V1.1 evidence report, V1 Core and new strict cumulative input-token threshold test. No model calls.
