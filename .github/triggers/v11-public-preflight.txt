@@ -1,1 +1,1 @@
-No-model diagnosis of 3 official reference failures in network-none containers; print dependency/test errors.
+New public candidate round: Gson #1014 #2134; Vue #11870 #11915. Original official reference admission, zero models.
