@@ -39,7 +39,7 @@ identity=(runner.get("model")=="gpt-6.1-sol" and runner.get("effort")=="high")
 turn_limit=bool(runner.get("turn_limit_reached")) or (runner.get("max_turns") and runner.get("responses",0)>=runner["max_turns"])
 shell_limit=bool(runner.get("shell_budget_reached")) or (runner.get("shell_budget") and runner.get("shell_commands",0)>=runner["shell_budget"])
 bad=bool(runner.get("infrastructure_error")) or not identity or env("RUNNER_EXIT")!="0" or env("EVAL_EXIT") in ("999","124","137") or env("SHELL_EXIT")!="0"
-admissible=not bad and not runner.get("model_timeout") and not (turn_limit or shell_limit)
+admissible=not bad and not runner.get("model_timeout") and not (turn_limit or shell_limit or runner.get("cumulative_input_budget_reached"))
 result={
  "source":"SWE-bench Multilingual", "task":env("CASE"),"source_commit":env("UPSTREAM_COMMIT"),
  "base_commit":env("BASE"),"model":"gpt-6.1-sol","effort":"high",
@@ -55,6 +55,7 @@ result={
  "responses":runner.get("responses",0),"shell_commands":runner.get("shell_commands",0),
  "max_turns":runner.get("max_turns"),"shell_budget":runner.get("shell_budget"),
  "turn_limit_reached":bool(turn_limit),"shell_budget_reached":bool(shell_limit),
+ "cumulative_input_budget_reached":bool(runner.get("cumulative_input_budget_reached")),"cumulative_input_token_limit":runner.get("cumulative_input_token_limit"),
  "model_timeout":bool(runner.get("model_timeout")),"infrastructure_error":runner.get("infrastructure_error"),
  "usage":runner.get("usage",{}),
  "note":"Binary official suite evaluation only; one sample is not stable difficulty evidence."
@@ -142,6 +143,7 @@ AGENT_DOCKER_CONTAINER="$C" AGENT_DOCKER_WORKDIR=/testbed \
 AGENT_MAX_TURNS=30 AGENT_SHELL_BUDGET=40 \
 AGENT_CAPTURE_SHELL_TRACE=1 AGENT_MAX_OUTPUT_TOKENS=4096 \
 AGENT_SHELL_TIMEOUT_MS=90000 AGENT_API_TIMEOUT_MS=140000 \
+AGENT_MAX_CUMULATIVE_INPUT_TOKENS=200000 \
 AGENT_WALL_TIMEOUT_MS=540000 \
 timeout 560s node scripts/light-agent-runner.mjs "$OUTDIR/agent-work" gpt-6.1-sol high "$RUNNER_FILE" > "$OUTDIR/agent.log" 2>&1
 RUNNER_EXIT=$?

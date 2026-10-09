@@ -116,6 +116,7 @@ safeEnv.PATH = process.env.PATH ?? '/usr/local/bin:/usr/bin:/bin';
 safeEnv.HOME = taskDir;
 
 const maxTurns = Number(process.env.AGENT_MAX_TURNS ?? 16);
+const maxCumulativeInputTokens = Number(process.env.AGENT_MAX_CUMULATIVE_INPUT_TOKENS ?? 0);
 const shellBudget = Number(process.env.AGENT_SHELL_BUDGET ?? 24);
 const maxOutputTokens = Number(process.env.AGENT_MAX_OUTPUT_TOKENS ?? 4096);
 const shellTimeoutMs = Number(process.env.AGENT_SHELL_TIMEOUT_MS ?? 30000);
@@ -138,6 +139,7 @@ let responses = 0;
 let apiRetries = 0;
 let infrastructureError = null;
 let finishedWithMessage = false;
+let cumulativeInputBudgetReached = false;
 let modelTimeoutReason = null;
 const startedAt = Date.now();
 const wallDeadline = startedAt + wallTimeoutMs;
@@ -380,6 +382,10 @@ function runProbe(query) {
 
 try {
   for (let turn = 0; turn < maxTurns; turn += 1) {
+    if (maxCumulativeInputTokens > 0 && totalUsage.input_tokens >= maxCumulativeInputTokens) {
+      cumulativeInputBudgetReached = true;
+      break;
+    }
     if (Date.now() >= wallDeadline) throw new AgentModelTimeoutError(`Agent wall timeout after ${wallTimeoutMs}ms`);
     const response = await callModel();
     responses += 1;
@@ -453,6 +459,8 @@ const result = {
   patch_metrics: patchMetrics,
   max_turns: maxTurns,
   turn_limit_reached: !finishedWithMessage && responses >= maxTurns,
+  cumulative_input_budget_reached: cumulativeInputBudgetReached,
+  cumulative_input_token_limit: maxCumulativeInputTokens || null,
   finished_with_message: finishedWithMessage,
   container_mode: containerMode,
   docker_container: containerMode ? dockerContainer : null,
