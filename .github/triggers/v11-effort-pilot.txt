@@ -1,1 +1,0 @@
-Second and FINAL controlled Sol 6.1 Medium/High/X High batch on original Vue #11589. One attempt each, same official source and 200k max input tokens. No automatic extra tests.
