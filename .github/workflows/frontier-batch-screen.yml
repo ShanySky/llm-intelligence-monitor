@@ -47,7 +47,7 @@ on:
           - high
           - xhigh
   push:
-    branches: [main, v1.1-discrimination-upgrade]
+    branches: [main, v1.1-discrimination-upgrade, v1.1-sol-effort-controlled-pilot]
     paths:
       - ".github/triggers/frontier-batch.txt"
       - ".github/triggers/v11-preflight.txt"
