@@ -841,7 +841,7 @@ jobs:
     permissions:
       contents: read
     env:
-      CASE_ID: vuejs__core-11899
+      CASE_ID: vuejs__core-11589
       MODEL_ID: gpt-6.1-sol
       REASONING_EFFORT: ${{ matrix.effort }}
       BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -858,13 +858,13 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const m=JSON.parse(fs.readFileSync('benchmarks/v1.1-public-candidates.json','utf8'));
-          const r=m.source_candidates.find(x=>x.id==='vuejs__core-11899');
+          const r=m.source_candidates.find(x=>x.id==='vuejs__core-11589');
           if(!r || r.environment_status!=='environment_ready' ||
              r.reference_test_status!=='baseline_failed_reference_passed' ||
              r.environment_validation.reference_exit_code!==0 ||
              r.environment_validation.baseline_exit_code===0) throw Error('Official source admission invalid');
           const c=JSON.parse(fs.readFileSync('benchmarks/v1.1-sol-effort-pilot.json','utf8'));
-          if(!c.enabled||c.model!=='gpt-6.1-sol'||c.task!=='vuejs__core-11899' ||
+          if(!c.enabled||c.model!=='gpt-6.1-sol'||c.task!=='vuejs__core-11589' ||
             JSON.stringify(c.efforts)!==JSON.stringify(['medium','high','xhigh']) ||
             c.max_model_input_tokens!==200000 || c.trials_per_effort!==1) throw Error('Pilot not explicitly authorized');
           NODE
@@ -907,7 +907,7 @@ jobs:
                   continue
               r=json.loads(candidates[0].read_text())
               identity=(r.get('model')=='gpt-6.1-sol' and r.get('effort')==effort
-                        and r.get('task')=='vuejs__core-11899')
+                        and r.get('task')=='vuejs__core-11589')
               valid=identity and r.get('data_complete') is True and r.get('score') in (0,100)
               rows.append({'model':r.get('model'),'effort':effort,'task':r.get('task'),
                            'score':r['score'] if valid else None,'data_complete':bool(valid),
@@ -930,7 +930,7 @@ jobs:
           spread=max(scores)-min(scores) if full else None
           signal=full and spread>0
           out={'round':'v1.1-sol-effort-first-controlled-pilot',
-               'model':'gpt-6.1-sol','task':'vuejs__core-11899',
+               'model':'gpt-6.1-sol','task':'vuejs__core-11589',
                'run_id':int('${{ github.run_id }}'),
                'source':'SWE-bench Multilingual', 'source_reference_run_id':37759918052,
                'efforts':list(efforts),'trials_per_effort':1,
@@ -942,7 +942,7 @@ jobs:
                'note':'Invalid/overbudget scores are null; one binary official case cannot establish reliable effort ordering.'}
           Path('results/v11-effort-output/report.json').write_text(json.dumps(out,indent=2)+'\n')
           lines=['# V1.1 GPT-6.1 Sol: Medium / High / X High 官方工程题实测','',
-                 '原版 Vue Core #11899；各档一次、同题、同预算、同官方评分。','',
+                 '原版 Vue Core #11589；各档一次、同题、同预算、同官方评分。','',
                  '| 档位 | 有效质量分 | 模型耗时 | 输入 Token | 原因 / 状态 |',
                  '|---|---:|---:|---:|---|']
           for r in rows:
