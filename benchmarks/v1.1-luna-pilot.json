@@ -11,7 +11,7 @@
   "single_pilot": true,
   "allowed_only_when_official_env_ready": true,
   "last_triggered_run_id": 37875421942,
-  "status": "round3-launched-disarmed",
+  "status": "round3-finished-one-coverage-one-budget-invalid",
   "tasks": [
     "google__gson-1093",
     "vuejs__core-11739"

@@ -117,7 +117,7 @@
     "no_automatic_daily": true
   },
   "current_round": {
-    "status": "round3-two-reference-admitted-luna-authorized",
+    "status": "round3-budget-confounded-no-stable-mid-tier-signal",
     "paid_workflow_runs": [
       37748890240,
       37749238271
@@ -127,7 +127,7 @@
     "sol_xhigh_runs": 0,
     "astra_runs": 0,
     "not_a_release": true,
-    "next": "Launch one-shot Luna High only on admitted Gson1093/Vue11739; stop if no mid-tier signal.",
+    "next": "Stop this paid task-search direction after two unproductive rounds. Audit excessive 443692 input tokens and benchmark-specific tool budget, prioritize lower-cost public source metadata/official difficulty signal before another paid test.",
     "pilot_run_ids": [
       37758488863,
       37759079285
@@ -227,10 +227,33 @@
       "projectlombok__lombok-3422"
     ],
     "round3_exclusion_cause": "upstream official gold patch collides with files already present in image; invalid reference",
-    "round3_luna_run_id": null,
+    "round3_luna_run_id": 37875421942,
     "round3_luna_score": null,
-    "round3_paid_enabled": true,
-    "round3_max_tasks": 2
+    "round3_paid_enabled": false,
+    "round3_max_tasks": 2,
+    "round3_results": [
+      {
+        "id": "google__gson-1093",
+        "score": 100,
+        "data_complete": true,
+        "agent_seconds": 130
+      },
+      {
+        "id": "vuejs__core-11739",
+        "score": null,
+        "data_complete": false,
+        "agent_seconds": 237,
+        "turn_limit_reached": true,
+        "responses": 30,
+        "input_tokens": 443692
+      }
+    ],
+    "round3_decisions": {
+      "google__gson-1093": "coverage",
+      "vuejs__core-11739": "pause-budget-confounded",
+      "projectlombok__lombok-3422": "pause-invalid-official-reference"
+    },
+    "no_paid_model_expansion": true
   },
   "strategy": "official_public_engineering_benchmark_first",
   "public_sources": {

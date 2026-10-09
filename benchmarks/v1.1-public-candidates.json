@@ -83,7 +83,7 @@
       "reference_test_status": "baseline_failed_reference_passed",
       "luna_high_status": "not_run",
       "sol_status": "not_run",
-      "selection_decision": "candidate",
+      "selection_decision": "coverage-only-easy-single-pass",
       "environment_validation": {
         "run_id": 37874902107,
         "baseline_exit_code": 1,
@@ -91,7 +91,11 @@
         "model_calls": 0
       },
       "offline_agent_local_tests": "ready",
-      "offline_agent_warmup_reference_run_id": 37875192582
+      "offline_agent_warmup_reference_run_id": 37875192582,
+      "last_luna_high_run_id": 37875421942,
+      "last_luna_high_score": 100,
+      "last_luna_high_seconds": 130,
+      "model_evidence_status": "one-valid-attempt-not-repeat-confirmed"
     },
     {
       "id": "google__gson-2134",
@@ -527,7 +531,7 @@
       "reference_test_status": "baseline_failed_reference_passed",
       "luna_high_status": "not_run",
       "sol_status": "not_run",
-      "selection_decision": "candidate",
+      "selection_decision": "pause-budget-confounded",
       "environment_validation": {
         "run_id": 37874902107,
         "baseline_exit_code": 1,
@@ -535,7 +539,13 @@
         "model_calls": 0
       },
       "offline_agent_local_tests": "ready",
-      "offline_agent_warmup_reference_run_id": 37875192582
+      "offline_agent_warmup_reference_run_id": 37875192582,
+      "last_luna_high_run_id": 37875421942,
+      "last_luna_high_score": null,
+      "last_luna_high_seconds": 237,
+      "last_luna_high_responses": 30,
+      "last_luna_high_input_tokens": 443692,
+      "model_evidence_status": "turn-limit-exhausted-invalid-quality"
     },
     {
       "id": "vuejs__core-11870",
@@ -700,5 +710,9 @@
   "offline_local_test_warmup_ready": 9,
   "round2_luna_high_score": 100,
   "round2_luna_high_run_id": 37873035557,
-  "round2_cases_count": 4
+  "round2_cases_count": 4,
+  "round3_luna_high_score": null,
+  "round3_luna_high_run_id": 37875421942,
+  "round3_model_valid_cases": 1,
+  "round3_model_invalid_cases": 1
 }
