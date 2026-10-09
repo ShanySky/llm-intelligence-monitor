@@ -1,1 +1,1 @@
-One batch: three original Java/JS source-only dependency warmups and offline baseline/gold tests. No LLM requests.
+Round-2 no-model offline local test preflight: Gson #1014 #2134, Vue #11870 #11915. Baseline/gold validation only.
