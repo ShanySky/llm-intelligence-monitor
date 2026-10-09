@@ -1,1 +1,1 @@
-Round-2 one-shot Luna High: official unchanged Gson #1014,#2134 + Vue #11870,#11915; both reference and agent offline local tests passed; no Sol/Astra.
+Round-3 one-shot Luna High screen on source-admitted Gson #1093 and Vue Core #11739; model offline with verified original tests.
