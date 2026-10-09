@@ -517,10 +517,8 @@ jobs:
       max-parallel: 2
       matrix:
         case_id:
-          - google__gson-1014
-          - google__gson-2134
-          - vuejs__core-11870
-          - vuejs__core-11915
+          - google__gson-1093
+          - vuejs__core-11739
     runs-on: ubuntu-latest
     timeout-minutes: 12
     permissions:
