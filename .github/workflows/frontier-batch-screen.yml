@@ -26,10 +26,9 @@ jobs:
       max-parallel: 2
       matrix:
         case_id:
-          - google__gson-1014
-          - google__gson-2134
-          - vuejs__core-11870
-          - vuejs__core-11915
+          - google__gson-1093
+          - vuejs__core-11739
+          - projectlombok__lombok-3422
     # Reuse existing Workflow, and only execute on a dedicated no-model-cost trigger.
     if: github.event_name == 'push' && contains(github.event.head_commit.message, '[v11-public-preflight]')
     runs-on: ubuntu-latest
