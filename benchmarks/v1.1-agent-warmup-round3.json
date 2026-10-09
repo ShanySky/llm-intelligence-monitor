@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "source": "SWE-bench Multilingual",
+  "reference_run_id": 37874902107,
+  "offline_warmup_run_id": 37875192582,
+  "ready": true,
+  "model_calls": 0,
+  "task_results": {
+    "google__gson-1093": {
+      "status": "offline_agent_ready",
+      "baseline_exit_code": 1,
+      "reference_exit_code": 0,
+      "duration_seconds": 45
+    },
+    "vuejs__core-11739": {
+      "status": "offline_agent_ready",
+      "baseline_exit_code": 1,
+      "reference_exit_code": 0,
+      "duration_seconds": 69
+    }
+  }
+}

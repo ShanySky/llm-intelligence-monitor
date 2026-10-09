@@ -177,22 +177,22 @@ jobs:
           from pathlib import Path
           rows=[json.loads(f.read_text()) for f in Path('results/v11-public-luna').rglob('result.json')]
           rows.sort(key=lambda x:x['task'])
-          expected={'google__gson-1014','google__gson-2134','vuejs__core-11870','vuejs__core-11915'}
-          all_valid=len(rows)==4 and {r['task'] for r in rows}==expected and all(r.get('data_complete') for r in rows)
+          expected={'google__gson-1093','vuejs__core-11739'}
+          all_valid=len(rows)==2 and {r['task'] for r in rows}==expected and all(r.get('data_complete') for r in rows)
           passed=sum(r.get('score')==100 for r in rows if r.get('data_complete'))
-          quality=100*passed/4 if all_valid else None
+          quality=100*passed/2 if all_valid else None
           report={'source':'official-swe-bench-multilingual','model':'gpt-6-luna','effort':'high',
-                  'round':2,'run_id':int('${{ github.run_id }}'),'rows':rows,'data_complete':all_valid,
-                  'expected_tasks':4,'valid_tasks':sum(bool(r.get('data_complete')) for r in rows),
+                  'round':3,'run_id':int('${{ github.run_id }}'),'rows':rows,'data_complete':all_valid,
+                  'expected_tasks':2,'valid_tasks':sum(bool(r.get('data_complete')) for r in rows),
                   'passed_tasks':passed,'quality_score':quality,
-                  'offline_local_test_warmup_reference_run':37872743296,
+                  'offline_local_test_warmup_reference_run':37875192582,
                   'signal':'single-run-screen-only-not-a-stable-discriminator'}
           Path('v11-luna-summary.json').write_text(json.dumps(report,indent=2)+'\n')
-          lines=['# V1.1 Round-2 Luna High: Four Original Java/Vue Issues','','| Task | Quality | Admissible | Model seconds | Input tokens |',
+          lines=['# V1.1 Round-3 Luna High: Two Original Java/Vue Issues','','| Task | Quality | Admissible | Model seconds | Input tokens |',
                  '|---|---:|---|---:|---:|']
           for r in rows:
               lines.append(f"| {r['task']} | {r.get('score') if r.get('data_complete') else '-'} | {r.get('data_complete')} | {r.get('duration_seconds') or '-'} | {r.get('usage',{}).get('input_tokens','-')} |")
-          lines+=['',f"Four-case screening quality: {quality if quality is not None else 'INCOMPLETE'}, {passed}/4 passed. One run per task: not a stable model ranking."]
+          lines+=['',f"Two-case screening quality: {quality if quality is not None else 'INCOMPLETE'}, {passed}/2 passed. One run per task: not a stable model ranking."]
           Path('v11-luna-summary.md').write_text('\n'.join(lines)+'\n')
           print('\n'.join(lines))
           PY

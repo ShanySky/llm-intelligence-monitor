@@ -89,7 +89,9 @@
         "baseline_exit_code": 1,
         "reference_exit_code": 0,
         "model_calls": 0
-      }
+      },
+      "offline_agent_local_tests": "ready",
+      "offline_agent_warmup_reference_run_id": 37875192582
     },
     {
       "id": "google__gson-2134",
@@ -531,7 +533,9 @@
         "baseline_exit_code": 1,
         "reference_exit_code": 0,
         "model_calls": 0
-      }
+      },
+      "offline_agent_local_tests": "ready",
+      "offline_agent_warmup_reference_run_id": 37875192582
     },
     {
       "id": "vuejs__core-11870",
@@ -693,7 +697,7 @@
   ],
   "corrected_luna_cohort_score": 20,
   "corrected_luna_cohort_run_id": 37762875284,
-  "offline_local_test_warmup_ready": 7,
+  "offline_local_test_warmup_ready": 9,
   "round2_luna_high_score": 100,
   "round2_luna_high_run_id": 37873035557,
   "round2_cases_count": 4

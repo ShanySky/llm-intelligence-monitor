@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "enabled": false,
+  "version": 4,
+  "enabled": true,
   "source": "SWE-bench Multilingual",
   "pinned_task_commit": "6e08cbcd763c869abd7aae4bcb9e1b3991180777",
   "model": "gpt-6-luna",
@@ -11,12 +11,10 @@
   "single_pilot": true,
   "allowed_only_when_official_env_ready": true,
   "last_triggered_run_id": 37873035557,
-  "status": "round2-completed-four-coverage-only",
+  "status": "one-shot-authorized",
   "tasks": [
-    "google__gson-1014",
-    "google__gson-2134",
-    "vuejs__core-11870",
-    "vuejs__core-11915"
+    "google__gson-1093",
+    "vuejs__core-11739"
   ],
   "max_parallel": 2,
   "prior_single_pilot": {
@@ -25,7 +23,7 @@
     "score": 0,
     "data_complete": true
   },
-  "phase": "round2-public-original-tasks",
+  "phase": "round3-public-two-reference-admitted",
   "last_completed_model_round": 1,
-  "offline_admission_run_id": 37872743296
+  "offline_admission_run_id": 37875192582
 }

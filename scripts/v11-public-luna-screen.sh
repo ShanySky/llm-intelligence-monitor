@@ -46,7 +46,7 @@ result={
  "data_complete":admissible,"runner_telemetry_present":bool(runner),"actual_model":runner.get("model"),
  "actual_effort":runner.get("effort"),"agent_exit_code":int(env("RUNNER_EXIT")),"verifier_exit_code":int(env("EVAL_EXIT")),
  "stage":env("STAGE"),"agent_network":"none","evaluator_network":"bridge",
- "offline_local_test_warmup":env("CASE") in ("google__gson-2158","google__gson-2311","axios__axios-5316","google__gson-1014","google__gson-2134","vuejs__core-11870","vuejs__core-11915"),
+ "offline_local_test_warmup":env("CASE") in ("google__gson-2158","google__gson-2311","axios__axios-5316","google__gson-1014","google__gson-2134","vuejs__core-11870","vuejs__core-11915","google__gson-1093","vuejs__core-11739"),
  "model_started":env("MODEL_STARTED")=="true",
  "duration_seconds":runner.get("duration_seconds"),
  "total_wall_seconds":int(time.time())-int(env("START")),
@@ -96,14 +96,17 @@ C="v11-luna-${GITHUB_RUN_ID:-local}"
 STAGE="launch-isolated-repo"
 AGENT_INITIAL_NETWORK=none
 case "$CASE" in
-  google__gson-2158|google__gson-2311|axios__axios-5316|google__gson-1014|google__gson-2134|vuejs__core-11870|vuejs__core-11915)
+  google__gson-2158|google__gson-2311|axios__axios-5316|google__gson-1014|google__gson-2134|vuejs__core-11870|vuejs__core-11915|google__gson-1093|vuejs__core-11739)
     # Whitelist only tasks that passed source-only offline local-test
     # and official baseline/gold tests in no-model preflight.
     python3 - "$CASE" <<'PY'
 import json,sys
 from pathlib import Path
 case=sys.argv[1]
-if case in ("google__gson-1014","google__gson-2134","vuejs__core-11870","vuejs__core-11915"):
+if case in ("google__gson-1093","vuejs__core-11739"):
+    record=json.loads(Path("benchmarks/v1.1-agent-warmup-round3.json").read_text())
+    assert record["offline_warmup_run_id"]==37875192582
+elif case in ("google__gson-1014","google__gson-2134","vuejs__core-11870","vuejs__core-11915"):
     record=json.loads(Path("benchmarks/v1.1-agent-warmup-round2.json").read_text())
     assert record["offline_warmup_run_id"]==37872743296
 else:
