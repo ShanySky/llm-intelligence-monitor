@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {inputBudgetExhausted} from './v11-input-budget.mjs';
+assert.equal(inputBudgetExhausted(204078,200000,false),true,'finished over limit must be invalid');
+assert.equal(inputBudgetExhausted(208678,200000,true),true,'stopped after cap invalid');
+assert.equal(inputBudgetExhausted(99211,200000,false),false,'under cap valid');
+assert.equal(inputBudgetExhausted(200000,200000,false),false,'exactly limit valid at end');
+assert.equal(inputBudgetExhausted(200000,200000,false,true),true,'at limit cannot start new call');
+assert.equal(inputBudgetExhausted(0,0,false),false,'unbounded legacy unaffected');
+assert.equal(inputBudgetExhausted(400000,0,false),false,'unbounded legacy unaffected');
+console.log('PASS strict cumulative input-budget reporting and legacy compatibility');
