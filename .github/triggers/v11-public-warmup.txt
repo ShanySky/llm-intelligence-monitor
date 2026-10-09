@@ -1,1 +1,1 @@
-Round 3 offline preflight, two public issues: Gson #1093 and Vue #11739, no models. Lombok excluded due reference patch collision.
+Round-3 source-admitted Gson 1093 and Vue 11739 ONLY; offline local test and gold validation, no model calls.
