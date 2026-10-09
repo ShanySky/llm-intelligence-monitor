@@ -57,6 +57,7 @@ on:
       - ".github/triggers/v11-public-regrade.txt"
       - ".github/triggers/v11-public-warmup.txt"
       - ".github/triggers/v11-release-check.txt"
+      - ".github/triggers/v11-effort-pilot.txt"
 permissions:
   contents: read
 
@@ -825,6 +826,162 @@ jobs:
             git commit -m "Record V1.1 manual engineering task ${GITHUB_RUN_ID}"
             git push origin HEAD:v11-public-manual-results
           fi
+
+  v11-sol-effort-pilot:
+    # Exactly one real SWE-bench issue, three Sol 6.1 effort configurations.
+    # Only a special tagged push on the isolated development branch can run it.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/v1.1-sol-effort-controlled-pilot' && contains(github.event.head_commit.message, '[v11-sol-effort-pilot]')
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        effort: [medium, high, xhigh]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      CASE_ID: vuejs__core-11899
+      MODEL_ID: gpt-6.1-sol
+      REASONING_EFFORT: ${{ matrix.effort }}
+      BENCHMARK_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify fixed evaluation before paid model calls
+        run: |
+          bash -n scripts/v11-public-manual-run.sh
+          node --check scripts/light-agent-runner.mjs
+          node - <<'NODE'
+          const fs=require('fs');
+          const m=JSON.parse(fs.readFileSync('benchmarks/v1.1-public-candidates.json','utf8'));
+          const r=m.source_candidates.find(x=>x.id==='vuejs__core-11899');
+          if(!r || r.environment_status!=='environment_ready' ||
+             r.reference_test_status!=='baseline_failed_reference_passed' ||
+             r.environment_validation.reference_exit_code!==0 ||
+             r.environment_validation.baseline_exit_code===0) throw Error('Official source admission invalid');
+          const c=JSON.parse(fs.readFileSync('benchmarks/v1.1-sol-effort-pilot.json','utf8'));
+          if(!c.enabled||c.model!=='gpt-6.1-sol'||c.task!=='vuejs__core-11899' ||
+            JSON.stringify(c.efforts)!==JSON.stringify(['medium','high','xhigh']) ||
+            c.max_model_input_tokens!==200000 || c.trials_per_effort!==1) throw Error('Pilot not explicitly authorized');
+          NODE
+      - name: Evaluate same original task with pinned effort and hard cost ceiling
+        run: bash scripts/v11-public-manual-run.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v11-sol-effort-${{ matrix.effort }}-${{ github.run_id }}
+          path: v11-public-manual/
+          retention-days: 30
+
+  v11-sol-effort-summary:
+    needs: v11-sol-effort-pilot
+    if: always() && needs.v11-sol-effort-pilot.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v11-sol-effort-*-${{ github.run_id }}
+          path: results/v11-sol-effort
+      - name: Persist partial and valid scores separately
+        run: |
+          mkdir -p results/v11-effort-output
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          base=Path('results/v11-sol-effort')
+          efforts=('medium','high','xhigh')
+          rows=[]
+          for effort in efforts:
+              candidates=list(base.glob('v11-sol-effort-'+effort+'-*/result.json'))
+              if len(candidates)!=1:
+                  rows.append({'effort':effort,'score':None,'data_complete':False,
+                               'classification':'missing-or-duplicate-job-artifact'})
+                  continue
+              r=json.loads(candidates[0].read_text())
+              identity=(r.get('model')=='gpt-6.1-sol' and r.get('effort')==effort
+                        and r.get('task')=='vuejs__core-11899')
+              valid=identity and r.get('data_complete') is True and r.get('score') in (0,100)
+              rows.append({'model':r.get('model'),'effort':effort,'task':r.get('task'),
+                           'score':r['score'] if valid else None,'data_complete':bool(valid),
+                           'classification':r.get('classification') if identity else 'identity-mismatch',
+                           'agent_seconds':r.get('duration_seconds'),
+                           'total_seconds':r.get('total_wall_seconds'),
+                           'input_tokens':r.get('usage',{}).get('input_tokens'),
+                           'output_tokens':r.get('usage',{}).get('output_tokens'),
+                           'reasoning_tokens':r.get('usage',{}).get('reasoning_tokens'),
+                           'cached_input_tokens':r.get('usage',{}).get('cached_input_tokens'),
+                           'responses':r.get('responses'),
+                           'shell_commands':r.get('shell_commands'),
+                           'cumulative_input_budget_reached':r.get('cumulative_input_budget_reached'),
+                           'turn_limit_reached':r.get('turn_limit_reached'),
+                           'model_timeout':r.get('model_timeout'),
+                           'infrastructure_error':r.get('infrastructure_error'),
+                           'official_evaluator_exit_code':r.get('verifier_exit_code')})
+          full=all(x.get('data_complete') for x in rows)
+          scores=[x['score'] for x in rows] if full else None
+          spread=max(scores)-min(scores) if full else None
+          signal=full and spread>0
+          out={'round':'v1.1-sol-effort-first-controlled-pilot',
+               'model':'gpt-6.1-sol','task':'vuejs__core-11899',
+               'run_id':int('${{ github.run_id }}'),
+               'source':'SWE-bench Multilingual', 'source_reference_run_id':37759918052,
+               'efforts':list(efforts),'trials_per_effort':1,
+               'max_input_tokens_per_trial':200000,'max_turns':30,'max_shell_commands':40,
+               'agent_wall_timeout_seconds':540,'rows':rows,'data_complete':full,
+               'score_range_points':spread,'directional_effort_signal':bool(signal),
+               'stable_effort_discrimination_confirmed':False,
+               'status':'single-trial exploratory; not repeated or a robust ranking',
+               'note':'Invalid/overbudget scores are null; one binary official case cannot establish reliable effort ordering.'}
+          Path('results/v11-effort-output/report.json').write_text(json.dumps(out,indent=2)+'\n')
+          lines=['# V1.1 GPT-6.1 Sol: Medium / High / X High 官方工程题实测','',
+                 '原版 Vue Core #11899；各档一次、同题、同预算、同官方评分。','',
+                 '| 档位 | 有效质量分 | 模型耗时 | 输入 Token | 原因 / 状态 |',
+                 '|---|---:|---:|---:|---|']
+          for r in rows:
+              lines.append(f"| {r['effort']} | {r['score'] if r['score'] is not None else 'NULL'} | {r.get('agent_seconds') or '-'} s | {r.get('input_tokens') or '-'} | {r.get('classification') or '-'} |")
+          lines+=['',f"**同题分差：{spread if spread is not None else '无法比较（至少一档无效）'}**；单次探索，不能当作已确认的思考档位区分。",
+                   'Cost cap: <=200,000 cumulative input tokens checked before each further model call; model network none; verifier bridge.','']
+          Path('results/v11-effort-output/report.md').write_text('\n'.join(lines))
+          print('\n'.join(lines))
+          PY
+          cat results/v11-effort-output/report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-sol-effort-report-${{ github.run_id }}
+          path: results/v11-effort-output/
+          retention-days: 60
+      - name: Persist separate effort experiment history
+        run: |
+          cp results/v11-effort-output/report.json /tmp/v11-effort-report.json
+          cp results/v11-effort-output/report.md /tmp/v11-effort-report.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-sol-effort-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-sol-effort-results; then
+            git switch -C v11-sol-effort-results origin/v11-sol-effort-results
+          else
+            git switch --orphan v11-sol-effort-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p effort/runs
+          cp /tmp/v11-effort-report.json effort/latest.json
+          cp /tmp/v11-effort-report.md effort/latest.md
+          cp /tmp/v11-effort-report.json "effort/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-effort-report.md "effort/runs/${GITHUB_RUN_ID}.md"
+          git add effort
+          if ! git diff --cached --quiet; then
+            git commit -m "Record single-case three-effort V1.1 Sol experiment ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-sol-effort-results
+          fi
+
 
   prepare:
     if: (github.event_name == 'workflow_dispatch' && inputs.profile == 'frontier-batch') || contains(github.event.head_commit.message, '[run-frontier-batch]') || contains(github.event.head_commit.message, '[v11-preflight]')
