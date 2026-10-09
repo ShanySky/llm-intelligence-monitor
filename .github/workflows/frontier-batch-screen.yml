@@ -2,6 +2,15 @@ name: Frontier batch candidate screen
 
 on:
   workflow_dispatch:
+    inputs:
+      profile:
+        description: "v1.1-report = free evidence refresh; frontier-batch = existing paid research screen"
+        type: choice
+        default: v1.1-report
+        required: true
+        options:
+          - v1.1-report
+          - frontier-batch
   push:
     branches: [main, v1.1-discrimination-upgrade]
     paths:
@@ -12,6 +21,7 @@ on:
       - ".github/triggers/v11-public-sol.txt"
       - ".github/triggers/v11-public-regrade.txt"
       - ".github/triggers/v11-public-warmup.txt"
+      - ".github/triggers/v11-release-check.txt"
 permissions:
   contents: read
 
@@ -608,8 +618,93 @@ jobs:
             git push origin HEAD:v11-public-warmup-results
           fi
 
+  v11-release-report:
+    # Default manual run is free. Preserve the original paid frontier-batch
+    # research screen behind an explicit, opt-in profile.
+    if: (github.event_name == 'workflow_dispatch' && inputs.profile == 'v1.1-report') || contains(github.event.head_commit.message, '[v11-release-preflight]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Validate V1 and V1.1 report logic, zero API/model calls
+        run: |
+          node --check scripts/v11-public-report.mjs
+          node scripts/v11-public-report.test.mjs
+          node --check scripts/light-agent-runner.mjs
+          node scripts/selfcheck-application-v1.mjs
+          python3 -m json.tool benchmarks/v1.1-public-candidates.json >/dev/null
+          python3 -m json.tool benchmarks/v1.1-calibration.json >/dev/null
+      - name: Retrieve original persisted source evidence
+        shell: bash
+        run: |
+          mkdir -p results/v11-source results/v11-release
+          for br in v11-public-regrade-results v11-public-luna-results v11-public-sol-results; do
+            git fetch origin "refs/heads/$br:refs/remotes/origin/$br"
+          done
+          git show origin/v11-public-regrade-results:public-regrade/latest.json > results/v11-source/corrected.json
+          git show origin/v11-public-luna-results:public-luna/runs/37873035557.json > results/v11-source/luna-easy.json
+          git show origin/v11-public-luna-results:public-luna/runs/37875421942.json > results/v11-source/luna-mid.json
+          git show origin/v11-public-sol-results:public-sol/latest.json > results/v11-source/sol.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const get=(p)=>JSON.parse(fs.readFileSync(p,'utf8'));
+          const src='results/v11-source/';
+          const input={
+            corrected_luna:get(src+'corrected.json'),
+            luna_easy:get(src+'luna-easy.json'),
+            luna_mid:get(src+'luna-mid.json'),
+            sol:get(src+'sol.json')
+          };
+          if(input.corrected_luna.data_complete!==true)throw Error('Historical corrected grader evidence incomplete');
+          if(input.luna_easy.run_id!==37873035557||input.luna_mid.run_id!==37875421942)
+            throw Error('Unknown source runs');
+          fs.writeFileSync('results/v11-release/source.json',JSON.stringify(input,null,2)+'\n');
+          NODE
+      - name: Generate V1.1 beta public-task report
+        run: |
+          node scripts/v11-public-report.mjs \
+            results/v11-release/source.json \
+            results/v11-release/report.json \
+            results/v11-release/report.md
+          cat results/v11-release/report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v11-beta-report-${{ github.run_id }}
+          path: |
+            results/v11-release/report.json
+            results/v11-release/report.md
+          retention-days: 60
+      - name: Persist versioned V1.1 evidence report
+        run: |
+          cp results/v11-release/report.json /tmp/v11-report.json
+          cp results/v11-release/report.md /tmp/v11-report.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin v11-release-results || true
+          if git show-ref --verify --quiet refs/remotes/origin/v11-release-results; then
+            git switch -C v11-release-results origin/v11-release-results
+          else
+            git switch --orphan v11-release-results
+            git rm -rf --ignore-unmatch .
+          fi
+          mkdir -p v11-release/runs
+          cp /tmp/v11-report.json v11-release/latest.json
+          cp /tmp/v11-report.md v11-release/latest.md
+          cp /tmp/v11-report.json "v11-release/runs/${GITHUB_RUN_ID}.json"
+          cp /tmp/v11-report.md "v11-release/runs/${GITHUB_RUN_ID}.md"
+          git add v11-release
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish V1.1 public engineering evidence report ${GITHUB_RUN_ID}"
+            git push origin HEAD:v11-release-results
+          fi
+
   prepare:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-frontier-batch]') || contains(github.event.head_commit.message, '[v11-preflight]')
+    if: (github.event_name == 'workflow_dispatch' && inputs.profile == 'frontier-batch') || contains(github.event.head_commit.message, '[run-frontier-batch]') || contains(github.event.head_commit.message, '[v11-preflight]')
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
