@@ -117,7 +117,7 @@
     "no_automatic_daily": true
   },
   "current_round": {
-    "status": "offline-agent-local-test-preheat-verified-no-model",
+    "status": "new-4-official-sources-agent-admitted-before-luna",
     "paid_workflow_runs": [
       37748890240,
       37749238271
@@ -157,7 +157,7 @@
     ],
     "final_luna_cohort_score": null,
     "network_parity": "2 Vue passed, 2 Gson and Axios failed offline gold",
-    "notes": "These are preliminary result records until same-isolation official reference run verifies correctness; disabled future paid triggers.",
+    "notes": "Four source cases fixed a priori; independent official reference and offline warmup confirmed. Sol/Astra disabled.",
     "sol_high_run_id": 37761041016,
     "sol_high_eligible_task_count": 2,
     "sol_high_valid_tasks": 2,
@@ -196,7 +196,18 @@
     ],
     "warmup_run_id": 37764439033,
     "warmup_ready_cases": 3,
-    "upcoming_paid_runs": 0
+    "upcoming_paid_runs": 0,
+    "new_candidate_reference_run_id": 37872523131,
+    "new_offline_warmup_run_id": 37872743296,
+    "round2_cases": [
+      "google__gson-1014",
+      "google__gson-2134",
+      "vuejs__core-11870",
+      "vuejs__core-11915"
+    ],
+    "round2_model": "gpt-6-luna/high",
+    "round2_paid_run_id": null,
+    "round2_verified_score": null
   },
   "strategy": "official_public_engineering_benchmark_first",
   "public_sources": {
