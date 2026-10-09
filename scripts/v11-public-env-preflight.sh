@@ -55,7 +55,7 @@ $(CASE="$CASE_ID" python3 - <<'PY'
 import os,json
 from pathlib import Path
 m=json.loads(Path("benchmarks/v1.1-public-candidates.json").read_text())
-row=next((x for x in m["source_candidates"] if x["id"]==os.environ["CASE"] and x["priority"]=="A"),None)
+row=next((x for x in m["source_candidates"] if x["id"]==os.environ["CASE"] and x["priority"] in ("A","B")),None)
 if not row: raise SystemExit("Not an admitted first-stage candidate")
 print(row["base_commit"]+"\t"+m["dataset_pinned_revision"])
 PY
